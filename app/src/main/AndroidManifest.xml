@@ -22,6 +22,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".MyInputMethodService"
+            android:label="@string/keyboard_name"
+            android:directBootAware="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:theme="@android:style/Theme.InputMethod">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>
