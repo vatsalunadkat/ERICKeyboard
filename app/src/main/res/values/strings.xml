@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ERICK</string>
+    <string name="keyboard_name">ERICK Keyboard</string>
+    <string name="test_field_label">Click and Test</string>
+    <string name="button_1">1</string>
+    <string name="button_2">2</string>
 </resources>
