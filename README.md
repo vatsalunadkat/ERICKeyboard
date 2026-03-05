@@ -5,7 +5,7 @@
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
 
   <p align="center">
-    An ergonomic keyboard system for Android using swipe based chord input
+    An ergonomic keyboard system for Android and iOS using swipe based chord input
     <br />
     <br />
     <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues">TODO - Visit App - Playstore Link</a>
@@ -27,6 +27,7 @@
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
+        <li><a href="#project-structure">Project Structure</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#future-scope">Future Scope</a></li>
       </ul>
@@ -77,8 +78,35 @@ Input is provided through combinations of swipe inputs or joystick movements (ch
 ### Built With
 
 * [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#)
+* [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#)
 * [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#)
-* Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#)
+* [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#)
+* Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- PROJECT STRUCTURE -->
+### Project Structure
+
+This is a multi-platform project supporting both Android and iOS:
+
+```
+ERICK/
+├── android/          # Android implementation
+│   ├── app/         # Android app module
+│   ├── gradle/      # Gradle configuration
+│   └── README.md    # Android setup instructions
+├── ios/             # iOS implementation (in development)
+│   ├── .gitignore   # iOS-specific gitignore
+│   └── README.md    # iOS setup instructions
+├── documentation/   # Shared documentation
+├── README.md        # This file
+└── LICENSE          # Project license
+```
+
+**Getting Started:**
+- For Android development, see [android/README.md](android/README.md)
+- For iOS development, see [ios/README.md](ios/README.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
