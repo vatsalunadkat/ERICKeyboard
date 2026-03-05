@@ -1,34 +1,22 @@
-# Gradle files
-.gradle/
-build/
+# Platform-specific ignores are in android/.gitignore and ios/.gitignore
 
-# Local configuration file (sdk path, etc)
-local.properties
-
-# Log/OS Files
-*.log
-
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.aab
-*.apk
-output-metadata.json
-
-# IntelliJ
-*.iml
+# IDE files
 .idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+.vscode/
+*.iml
 
-# Keystore files
-*.jks
-*.keystore
+# OS files
+.DS_Store
+Thumbs.db
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
 
-# Android Profiling
-*.hprof
+# Build artifacts (root level)
+.gradle/
+.kotlin/
+
+# Log files
+*.log
