@@ -1,0 +1,54 @@
+Key,Summary,Created,Creator,Description,Labels,Last Viewed,P,Parent,Project,Reporter,Status,Status Category,Status Category Changed,Story point estimate,T,Updated,Watches
+ERICK-13,"As a user, I want to see two radial dials on the left and right of the screen, replacing the QWERTY keyboard",23/Feb/2026,Angeliki Paneri,"When a text field is focused anywhere on the device, the keyboard surface should display two large radial dials — one on the left, one on the right — instead of the standard QWERTY layout.
+
+Acceptance Criteria:
+
+* Both radial dials are visible and correctly positioned on the keyboard surface
+* The QWERTY keyboard does not appear; the custom IME is shown instead
+* Each dial is subdivided into clearly labelled sectors
+* The dials appear whenever any text field gains focus across all apps",,26/Feb/2026 17:18,Highest,ERICK-41 Android IME Core (Epic),ERICK - Agile Methods,Vatsal Unadkat,To Do,To Do,23/Feb/2026,5,Story,26/Feb/2026,1
+ERICK-12,"As a user, I can input any character by selecting sectors on the left and right radial dials",23/Feb/2026,Angeliki Paneri,"The left dial is divided into 8 sectors covering a primary character set. The right dial covers remaining characters plus utility keys (backspace, space, new line). A chord is formed by simultaneously selecting one sector on each dial.
+
+Acceptance Criteria:
+
+* Left dial sectors cover characters/numbers 1–8
+* Right dial sectors cover 0, 9, backspace, space, and new line
+* Character labels are visible on each sector before input is committed
+* The committed character matches the user's sector selection (input accuracy)
+* Input works in any app that uses a system text field",,26/Feb/2026 17:21,Medium,ERICK-41 Android IME Core (Epic),ERICK - Agile Methods,Vatsal Unadkat,To Do,To Do,23/Feb/2026,8,Story,26/Feb/2026,1
+ERICK-17,"Attempt to create corresponding dev branches, away from the 'main' branch for prototyping and feature developments",24/Feb/2026,Adi,,,26/Feb/2026 17:33,Medium,ERICK-39 Project Infrastructure (Epic),ERICK - Agile Methods,Adi,To Do,To Do,24/Feb/2026,1,Task,26/Feb/2026,1
+ERICK-18,"Supplement my knowledge of Android development, Kotlin, and bug testing.",24/Feb/2026,Xingxing Yang,"As one developer of our group, I want to supplement my knowledge of Android development, Kotlin, and app operation, set up a local Android development environment (Android Studio), and clone the Github project repository built by the Product Owner, so that I can join the functional development process of the project.",,26/Feb/2026 17:34,Medium,ERICK-39 Project Infrastructure (Epic),ERICK - Agile Methods,Xingxing Yang,In Progress,In Progress,24/Feb/2026,2,Story,26/Feb/2026,1
+ERICK-24,"As a user, I want the radial dials to respond to my touch in real time",24/Feb/2026,Adi,"The dials must provide immediate visual feedback as the user swipes, highlighting the active sector continuously. The input is committed when the finger lifts.
+
+Acceptance Criteria:
+
+* The active sector highlights continuously as the user's finger moves
+* The dial responds to both tap and swipe gestures
+* Input is committed within 50 ms of the finger lifting
+* Works correctly with two simultaneous touch points (one per dial)",,26/Feb/2026 17:35,High,ERICK-41 Android IME Core (Epic),ERICK - Agile Methods,Adi,To Do,To Do,24/Feb/2026,4,Story,26/Feb/2026,1
+ERICK-26,Setup work in GoDot for first prototype of a game based on the previous research (3),24/Feb/2026,Adi,"Acceptance Criteria: 
+
+* File structure is set up
+* Set up of the Game engine
+* Set up of the Game Physics
+* A very simple prototype of the game
+* Uses a normal QWERTY keyboard as an input method",,27/Feb/2026 20:01,High,ERICK-43 Game Development (Epic),ERICK - Agile Methods,Vatsal Unadkat,To Do,To Do,24/Feb/2026,7,Task,26/Feb/2026,1
+ERICK-34,"As a developer, I need to figure out about how can we built/pop up our app on the IOS by using Xcode&Swift",26/Feb/2026,Xingxing Yang,"Investigate what is required to build an equivalent custom keyboard on iOS using a Custom Keyboard Extension (Swift/SwiftUI via Xcode). This is a research spike - no implementation is expected.
+
+Acceptance Criteria:
+
+* Research covers Apple's Custom Keyboard Extension API and its constraints
+* Key technical differences from Android IME are noted
+* Main risks and blockers identified
+* Reports committed to docs/research/",Group_4,26/Feb/2026 17:43,Medium,ERICK-44 iOS IME Core (Epic),ERICK - Agile Methods,Xingxing Yang,To Do,To Do,26/Feb/2026,3,Task,26/Feb/2026,1
+ERICK-35,"As a Product owner/UI Group member, after completing the design of the keyboard, build some showcases to demonstrate to users how to use it.",26/Feb/2026,Xingxing Yang,"Once the keyboard design is finalised, produce an interactive or visual tutorial that demonstrates how chord input works to new users. This will serve as the primary onboarding resource.
+
+Acceptance Criteria:
+
+* Tutorial covers at least 5 common chord inputs step by step
+* Format decided (in-app walkthrough, video, or illustrated guide)
+* Tutorial is skippable and re-launchable from settings
+* All tutorial assets committed to the repository",,26/Feb/2026 17:46,Low,ERICK-39 Project Infrastructure (Epic),ERICK - Agile Methods,Xingxing Yang,To Do,To Do,26/Feb/2026,2,Task,26/Feb/2026,1
+8,,,,,,,,,,,,,,32,,,8
+Created at 28/Feb/26 4:50 pm by Vatsal Unadkat with Better Excel Exporter for Jira Cloud,,,,,,,,,,,,,,,,,
+help »,,,,,,,,,,,,,,,,,

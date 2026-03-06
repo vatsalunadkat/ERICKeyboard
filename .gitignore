@@ -20,3 +20,4 @@ __pycache__/
 
 # Log files
 *.log
+local.properties
