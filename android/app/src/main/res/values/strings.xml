@@ -1,7 +1,19 @@
 <resources>
-    <string name="app_name">ERICK</string>
-    <string name="keyboard_name">ERICK Keyboard</string>
+    <string name="app_name">ERICKeyboard</string>
+    <string name="keyboard_name">ERICKeyboard</string>
     <string name="test_field_label">Click and Test</string>
     <string name="button_1">1</string>
     <string name="button_2">2</string>
+    <string name="settings">Settings</string>
+    <string name="hide_keyboard">Hide Keyboard</string>
+    <string name="settings_title">Keyboard Settings</string>
+    <string name="layout_section">Keyboard Layout</string>
+    <string name="layout_logical">Logical (A–Z)</string>
+    <string name="layout_efficiency">Efficiency</string>
+    <string name="layout_efficiency_subtitle">Coming in Sprint 3</string>
+    <string name="appearance_section">Appearance</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="colorblind_mode">Colorblind Mode</string>
+    <string name="accessibility_section">Accessibility</string>
+    <string name="left_handed_mode">Left-Handed Mode</string>
 </resources>
