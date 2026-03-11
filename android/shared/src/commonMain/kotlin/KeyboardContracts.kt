@@ -12,11 +12,17 @@ enum class KeyboardMode {
 
 // 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
 enum class InputAction {
-    SPACE, ENTER, BACKSPACE, DELETE_FORWARD,
+    // --- Active: used by single-swipe gestures ---
+    SPACE, ENTER, BACKSPACE,
     TOGGLE_SHIFT, TOGGLE_CAPS,
     MOVE_HOME, MOVE_END,
+
+    // --- Reserved for future use (e.g. controller / gamepad support) ---
+    // These were previously triggered by double-swipe gestures, which have been removed.
+    // Retained here so platform delegates can still handle them when needed.
     DPAD_UP, DPAD_DOWN, DPAD_LEFT, DPAD_RIGHT,
-    PAGE_UP, PAGE_DOWN, TAB
+    PAGE_UP, PAGE_DOWN,
+    TAB, DELETE_FORWARD
 }
 
 // 4. 终极"遥控器"接口！Android 和 iOS 必须实现它
