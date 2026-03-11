@@ -1,0 +1,8 @@
+framework module "SharedKeyboard" {
+    umbrella header "SharedKeyboard.h"
+
+    export *
+    module * { export * }
+
+    use Foundation
+}
