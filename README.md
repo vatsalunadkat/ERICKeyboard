@@ -3,9 +3,12 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
+  <p align="center"><strong>Version 0.2.1-alpha</strong></p>
 
   <p align="center">
     An ergonomic keyboard system for Android and iOS using swipe based chord input
+    <br />
+    <a href="documentation/APP_CONTEXT.md"><strong>📘 View Architecture & App Context »</strong></a>
     <br />
     <br />
     <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues">TODO - Visit App - Playstore Link</a>
@@ -42,6 +45,9 @@
         <li><a href="#controller-input-data-calculations-todo">Controller INPUT Data Calculations TODO</a></li>
       </ul>
     </li>
+    <li>
+      <a href="documentation/APP_CONTEXT.md">📘 Architecture & App Context (Detailed)</a>
+    </li>
   </ol>
 </details>
 
@@ -77,51 +83,85 @@ Input is provided through combinations of swipe inputs or joystick movements (ch
 
 ### Built With
 
-* [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#)
-* [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#)
-* [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#)
-* [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#)
-* Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#)
+* [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#) - Input Method Editor (IME) implementation
+* [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#) - In development
+* [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#) - Primary language for Android & shared logic
+* [![Kotlin Multiplatform](https://img.shields.io/badge/KMP-7F52FF?logo=kotlin&logoColor=white)](#) - Shared keyboard logic across platforms
+* [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white)](#) - Modern Android UI
+* [![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](#) - Preferences management
+* Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) (Coming Soon) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#) (Planned)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- PROJECT STRUCTURE -->
 ### Project Structure
 
-This is a multi-platform project supporting both Android and iOS:
+This is a multi-platform project supporting both Android and iOS with shared business logic:
 
 ```
 ERICK/
-├── android/          # Android implementation
-│   ├── app/         # Android app module
-│   ├── gradle/      # Gradle configuration
-│   └── README.md    # Android setup instructions
-├── ios/             # iOS implementation (in development)
-│   ├── .gitignore   # iOS-specific gitignore
-│   └── README.md    # iOS setup instructions
-├── documentation/   # Shared documentation
-├── README.md        # This file
-└── LICENSE          # Project license
+├── android/              # Android implementation
+│   ├── app/             # Android app module (IME service, UI, activities)
+│   ├── shared/          # Kotlin Multiplatform shared module
+│   │   ├── commonMain/  # Shared keyboard logic (KeyboardStateMachine, chord logic)
+│   │   ├── androidMain/ # Android-specific implementations
+│   │   └── iosMain/     # iOS-specific implementations (for future use)
+│   ├── gradle/          # Gradle configuration
+│   └── README.md        # Android setup instructions
+├── ios/                 # iOS implementation (in development)
+│   ├── .gitignore       # iOS-specific gitignore
+│   └── README.md        # iOS setup instructions
+├── documentation/       # Project documentation and research
+│   ├── Jira/           # Sprint planning and tickets
+│   ├── Research/        # Research papers and resources
+│   └── logo/           # Branding assets
+├── README.md            # This file
+└── LICENSE              # Project license
 ```
+
+**Architecture Highlights:**
+- **Shared Module (KMP)**: Core keyboard logic (state machine, chord processing, contracts) shared between Android & iOS
+- **Android IME**: Custom Input Method Editor service with Jetpack Compose UI
+- **Settings & Preferences**: DataStore-based persistent configuration (layout, theme, accessibility options)
+- **Modern UI**: JoystickView for touch input, guided onboarding, settings screen
 
 **Getting Started:**
 - For Android development, see [android/README.md](android/README.md)
 - For iOS development, see [ios/README.md](ios/README.md)
+- For detailed architecture and component documentation, see [documentation/APP_CONTEXT.md](documentation/APP_CONTEXT.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 
 ### Features
-- [x] Ability to provide input using swipe
-- [x] Introductory Game to learn typing
 
-### Future scope
-- [ ] Enhanced Exports - More customizations (FHIR compatible) for the export feature.
-- [ ] Enhanced Visualization - Adding more interactive and customizable visualization options.
-- [ ] Google SSO Login - for quick and easy access to import the data.
-- [ ] Enhanced compatibility - Add support to directly import data from the Fitbit APIs, as well as integration and support with Apple Health and Garmin.
-- [ ] Integration with Wearable Devices - Integrating with wearable devices to directly import sleep data, providing real-time insights and personalized recommendations.
+**Current Implementation (v0.2.1-alpha):**
+- [x] Android Input Method Editor (IME) service
+- [x] Touch-based joystick input with visual feedback
+- [x] Chorded keyboard logic with state machine architecture
+- [x] Guided onboarding UI (enable/select IME)
+- [x] Settings screen with multiple options:
+  - Layout selection (Efficient, Accessible, Legacy modes)
+  - Theme customization
+  - Colorblind mode
+  - Left-handed mode
+- [x] DataStore-based preferences persistence
+- [x] Kotlin Multiplatform shared module for cross-platform logic
+- [x] ERICK branding and logo integration
+
+### Future Scope
+
+**Planned Features:**
+- [ ] iOS keyboard extension implementation
+- [ ] Physical controller support (gamepad/joystick hardware)
+- [ ] Complex mode with trigger/button combinations for faster typing
+- [ ] Word prediction and autocorrect
+- [ ] Custom chord mapping for power users
+- [ ] Typing speed analytics and improvement tracking
+- [ ] Tutorial game mode for learning chord combinations
+- [ ] Multi-language support
+- [ ] Cloud sync for settings across devices
 
 See the [open issues](https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues) for a full list of proposed features (and known issues).
 
