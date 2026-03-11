@@ -1,0 +1,331 @@
+Key,Summary,Assignee,Comments,Created,Creator,Description,Due,Labels,Last Viewed,Links,P,Parent,Project,Reporter,Resolution,Resolved,Sprint,Start date,Status,Status Category,Status Category Changed,Story point estimate,T,Updated,Watches
+ERICK-47,Implement Android chord keyboard - full logical layout,Khair Muhammad,0,28/Feb/2026,Vatsal Unadkat,"Integrate the Sprint 1 joystick library PoC with the existing 2-button IME prototype to deliver a fully functional chord keyboard.
+
+HOW THE INPUT SYSTEM WORKS:
+
+* User swipes the LEFT dial to select a character group (direction = group)
+* User swipes the RIGHT dial to select a color (color = position within group)
+* Chord fires on simultaneous release: left-direction + right-color → character injected
+
+LEFT DIAL — LOGICAL LAYOUT (Normal mode):
+N: a b c d e '
+NE: f g h i j /
+E: k l m n o ;
+SE: p q r s t -
+S: u v w x y =
+SW: z \ [ ] `
+W: 1 2 3 4 5
+NW: 6 7 8 9 0
+
+LEFT DIAL — SHIFT/CAPS LOCK mode:
+N: A B C D E ""
+NE: F G H I J ?
+E: K L M N O :
+SE: P Q R S T _
+S: U V W X Y +
+SW: Z | { } ~
+W: ! @ # $ %
+NW: ^ & * ( )
+
+RIGHT DIAL — COLOR → CHARACTER POSITION:
+Red=1st, Orange=2nd, Yellow=3rd, Green=4th, Blue=5th, Black=6th/symbol
+(Indigo and Violet are unused for now — reserved for future use)
+
+RIGHT DIAL ONLY — SINGLE SWIPE (utility):
+N: Home (Shift → End)
+NE: Comma (Shift → <)
+E: Spacebar
+SE: Full stop / Period (Shift → >)
+S: Enter / New line
+SW: Toggle Shift
+W: Backspace
+NW: Toggle Caps Lock
+
+RIGHT DIAL ONLY — DOUBLE SWIPE (navigation):
+N: Up arrow NE: Page Up
+E: Right arrow SE: Page Down
+S: Down arrow SW: Delete key
+W: Left arrow NW: Tab
+
+SHIFT BEHAVIOUR: Shift auto-releases after exactly one character is typed.
+Caps Lock stays on until explicitly toggled off.
+
+Acceptance Criteria:
+
+* All 8 left-dial directions correctly detected (≥90% accuracy in 20-chord manual test)
+* All 8 active right-dial colors correctly identified (Red, Orange, Yellow, Green, Blue, Indigo, Violet, Black)
+* Every character in the logical layout is typeable via chord and injects correctly system-wide
+* Shift auto-releases after 1 character; Caps Lock persists until toggled
+* All 8 single-swipe right-only utility functions work in any app
+* Optional - All 8 double-swipe right-only navigation functions work in any app
+* No ANR or crash during 4-minute continuous use
+* Tested on physical Android device (API 33+) and emulator",06/Mar/2026,,08/Mar/2026 16:46,"ERICK-48, ERICK-57",High,ERICK-41 Android IME Core (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,07/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,07/Mar/2026,7,Task,07/Mar/2026,1
+ERICK-48,Android settings menu - basic shell with layout switcher,Nazgul Engvall,3,28/Feb/2026,Vatsal Unadkat,"Build the settings screen for the Android IME, accessible from a settings icon on the keyboard surface.
+
+Sprint 2 scope: shell + layout switcher UI only. The Efficiency layout does not exist yet - wire the toggle so it's ready to activate in Sprint 3.
+
+Acceptance Criteria:
+
+* Settings screen accessible from keyboard surface (long-press or dedicated icon)
+* Two-option layout toggle: ""Logical (A–Z)"" and ""Efficiency (coming soon)""
+* ""Efficiency"" option is visible but disabled with a ""Coming in Sprint 3"" label
+* ""Logical"" selected by default
+* Selection persisted via DataStore across reboots
+* Screen dismisses cleanly and keyboard resumes
+* No crashes on open/close/rotate",06/Mar/2026,,07/Mar/2026 12:32,ERICK-47,Low,ERICK-41 Android IME Core (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,05/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,05/Mar/2026,2,Task,06/Mar/2026,2
+ERICK-49,Implement iOS chord keyboard - full logical layout,Xingxing Yang,0,28/Feb/2026,Vatsal Unadkat,"Build the iOS Custom Keyboard Extension (Swift/SwiftUI) with the same full chord input system as the Android version. All character injection is done via UITextDocumentProxy.
+
+LEFT DIAL — LOGICAL LAYOUT (Normal mode):
+N: a b c d e '
+NE: f g h i j /
+E: k l m n o ;
+SE: p q r s t -
+S: u v w x y =
+SW: z \ [ ] `
+W: 1 2 3 4 5
+NW: 6 7 8 9 0
+
+LEFT DIAL — SHIFT/CAPS LOCK mode:
+N: A B C D E ""
+NE: F G H I J ?
+E: K L M N O :
+SE: P Q R S T _
+S: U V W X Y +
+SW: Z | { } ~
+W: ! @ # $ %
+NW: ^ & * ( )
+
+RIGHT DIAL — COLOR → CHARACTER POSITION:
+Red=1st, Orange=2nd, Yellow=3rd, Green=4th, Blue=5th, Black=6th/symbol
+(Indigo and Violet are unused for now — reserved for future use)
+
+RIGHT DIAL ONLY — SINGLE SWIPE (utility):
+N: Home (Shift → End)
+NE: Comma (Shift → <)
+E: Spacebar
+SE: Full stop / Period (Shift → >)
+S: Enter / New line
+SW: Toggle Shift
+W: Backspace
+NW: Toggle Caps Lock
+
+RIGHT DIAL ONLY — DOUBLE SWIPE (navigation):
+N: Up arrow NE: Page Up
+E: Right arrow SE: Page Down
+S: Down arrow SW: Delete key
+W: Left arrow NW: Tab
+
+SHIFT BEHAVIOUR: Shift auto-releases after exactly one character is typed.
+Caps Lock stays on until explicitly toggled off.
+
+Acceptance Criteria:
+
+* Keyboard extension declared in Info.plist and selectable in iOS Settings → General → Keyboard → Add New Keyboard
+* All 8 left-dial directions correctly detected (≥90% accuracy in manual test)
+* All 8 active right-dial colors correctly identified
+* Every character in the logical layout injects correctly into any iOS app via UITextDocumentProxy
+* Shift auto-releases after 1 character; Caps Lock persists until toggled
+* All 8 single-swipe right-only utility functions work
+* Optional - All 8 double-swipe right-only navigation functions work
+* Tested on physical iPhone and iOS Simulator (iOS 16+)
+* No crashes during 5-minute test",06/Mar/2026,,06/Mar/2026 09:48,ERICK-50,High,ERICK-44 iOS IME Core (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,08/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,08/Mar/2026,7,Task,08/Mar/2026,1
+ERICK-54,Customer and laundry workflow state machine + money system,Vilgot Mattsson,0,28/Feb/2026,Vatsal Unadkat,"Getting started with Godot: [https://youtu.be/LOhfqjmasi0|https://youtu.be/LOhfqjmasi0|smart-link] (Watch first 40 min)
+
+Check other tutorials on YouTube to understand game states and use AI to guide you to code.
+
+----
+
+Implement the core game loop as a GDScript state machine (or Godot StateMachine node). One customer completes the full laundry workflow per cycle. Typing prompts are triggered via the typing engine's signals; use a stub/mock for early development before ERICK-S2-09 is integrated.
+
+State flow:
+IDLE
+→ CUSTOMER_ARRIVES (customer walks in, drops laundry — triggered by customer arrival event)
+→ AWAITING_PICKUP (word prompt appears: player types word to pick up laundry basket)
+→ AWAITING_MACHINE_DROP (word prompt: player types word to put basket in machine)
+→ MACHINE_WASHING (auto-timer: 10s for basic machine; emits wash_complete when done)
+→ AWAITING_MACHINE_PICKUP (word prompt: player types word to remove from machine)
+→ AWAITING_SHELF_PLACE (word prompt: player types word to put on shelf)
+→ AWAITING_CUSTOMER_RETURN (waits for customer return event, triggered by a timer or game clock)
+→ AWAITING_SERVE (word prompt: player types word to hand laundry to customer)
+→ MONEY_COLLECTED (reward added, money_earned signal emitted)
+→ IDLE
+
+Money system:
+
+* Fixed reward per completed customer (default: 10 coins, configurable)
+* Running total stored in a GameState autoload
+* money_updated(new_total: int) signal emitted on every change
+
+Acceptance Criteria:
+
+* All 9 states implemented with correct transitions
+* Each AWAITING_ state: emits a prompt_needed(word: String, state_id: String) signal; waits for word_completed
+* MACHINE_WASHING: 10s countdown timer, emits wash_complete on finish
+* MONEY_COLLECTED: adds reward to GameState.money, emits money_updated
+* State machine is decoupled from animation — emits events, does not move characters directly
+* Full workflow runs end-to-end in an isolated test scene
+* Current state logged to Godot output at every transition for debugging
+* Money total visible in a HUD Label in the test scene",06/Mar/2026,Group_2,06/Mar/2026 09:48,,Highest,ERICK-43 Game Development (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,08/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,08/Mar/2026,7,Task,08/Mar/2026,1
+ERICK-55,Build laundry store main game scene in Godot,Adi,4,28/Feb/2026,Vatsal Unadkat,"Getting started with Godot: [https://youtu.be/LOhfqjmasi0|https://youtu.be/LOhfqjmasi0|smart-link]
+
+YouTube Tutorial:  [https://www.youtube.com/playlist?list=PLpwc3ughKbZcJq-Sxew6OippNqlVc924q|https://www.youtube.com/playlist?list=PLpwc3ughKbZcJq-Sxew6OippNqlVc924q|smart-link] 
+
+Code from similar game: [https://github.com/luis-l/SpaceJusticiar|https://github.com/luis-l/SpaceJusticiar|smart-link] 
+
+----
+
+Set up the primary in-game scene (LaundryStore.tscn) for the laundry store. Use assets or placeholder coloured rectangles. Define all spatial anchor points the backend state machine will reference.
+
+Scene must include named Node2D markers at:
+
+* CustomerEntrance - where customer spawns
+* DropOffPoint - where customer drops laundry
+* MachineSlot_1 - position of washing machine 1
+* ShelfSlot_1 - laundry shelf position
+* PickupCounter - where customer is served at the end
+* CameraRoot - camera anchor at correct zoom/position
+
+Acceptance Criteria:
+
+* LaundryStore.tscn opens and runs without errors in Godot editor
+* All 6 named marker nodes present with correct positions
+* Background and environment filled with assets or clearly labelled placeholders
+* Target resolution decided and documented (suggest 1920×1080 landscape)
+* Camera correctly frames the full scene at target resolution
+* Scene committed to feature/game-godot branch
+* A README note added explaining the scene node structure
+
+----
+
+Asset Links:
+
+* [https://github.com/godotengine/awesome-godot|https://github.com/godotengine/awesome-godot|smart-link] 
+* [https://www.reddit.com/r/godot/comments/1ixujq0/my_big_list_of_godot_resources_both_free_and_paid/|https://www.reddit.com/r/godot/comments/1ixujq0/my_big_list_of_godot_resources_both_free_and_paid/|smart-link] 
+* [https://itch.io/search?type=games&q=laundry&classification=assets|https://itch.io/search?type=games&q=laundry&classification=assets|smart-link] 
+* [https://www.kenney.nl/assets|https://www.kenney.nl/assets|smart-link] 
+* [https://www.openpixelproject.com/?page_id=227|https://www.openpixelproject.com/?page_id=227|smart-link] 
+* [https://jashi-psx.itch.io/public-laundry-psx-asset-pack|https://jashi-psx.itch.io/public-laundry-psx-asset-pack|smart-link] ",06/Mar/2026,,05/Mar/2026 17:06,,Medium,ERICK-43 Game Development (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,06/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,06/Mar/2026,5,Task,06/Mar/2026,2
+ERICK-52,"Core typing engine - word display, input detection, and match system",Taimoor Athar Malik,2,28/Feb/2026,Vatsal Unadkat,"Getting started with Godot: [https://youtu.be/LOhfqjmasi0|https://youtu.be/LOhfqjmasi0|smart-link]  (Watch first 20 min)
+
+YouTube Tutorial:  [https://www.youtube.com/playlist?list=PLpwc3ughKbZcJq-Sxew6OippNqlVc924q|https://www.youtube.com/playlist?list=PLpwc3ughKbZcJq-Sxew6OippNqlVc924q|smart-link] 
+
+Code from similar game: [https://github.com/luis-l/SpaceJusticiar|https://github.com/luis-l/SpaceJusticiar|smart-link] 
+
+----
+
+Implement the decoupled typing mechanic that all other game systems build on. Words or letters appear on screen above any target node. The engine detects keyboard input and signals completion - it knows nothing about game state.
+
+Word prompt display:
+
+* WordPrompt.tscn: a Label (or RichTextLabel) positioned above a given Node2D
+* Shows target word with typed portion highlighted (e.g. bold or colour change)
+
+Input matching:
+
+* Listens to _input() or a connected InputHandler singleton
+* Correct character: advances match index, updates highlight
+* Wrong character: flashes red / brief shake, does not advance
+* Word fully matched: emits word_completed(word_id: String) signal
+* Supports both keyboard (for development) and the custom IME input stream
+
+Word pool:
+
+* Words and letters loaded from res://data/word_list.json
+* JSON format: {""letters"": [""a"",""b"",...], ""easy"": [""cat"",""dog"",...], ""medium"": [...], ""hard"": [...]}
+* At least 26 single letters + 30 words across difficulty tiers
+
+Acceptance Criteria:
+
+* WordPrompt scene displays any given string above a Node2D anchor
+* Correct typing highlighted character by character in real time
+* Wrong character triggers visible error state (does not advance)
+* word_completed signal fires with correct word_id on full match
+* Word list loadable from JSON; missing file shows a graceful error, not a crash
+* System has zero dependency on game state, customer logic, or scene layout
+* Testable in an isolated test scene (TestTyping.tscn committed to repo)",06/Mar/2026,Group_2,05/Mar/2026 23:48,,Highest,ERICK-43 Game Development (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,05/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,05/Mar/2026,5,Task,06/Mar/2026,2
+ERICK-56,"Implement customer walk-in, idle, and walk-out animations with path following",Angeliki Paneri,1,28/Feb/2026,Vatsal Unadkat,"Getting started with Godot: [https://youtu.be/LOhfqjmasi0|https://youtu.be/LOhfqjmasi0|smart-link]
+
+YouTube Tutorial:  [https://www.youtube.com/playlist?list=PLpwc3ughKbZcJq-Sxew6OippNqlVc924q|https://www.youtube.com/playlist?list=PLpwc3ughKbZcJq-Sxew6OippNqlVc924q|smart-link] 
+
+Animation Tutorial: [https://youtu.be/-f1bHR0iiEY?si=CpQmzstDJR1Dpp9w|https://youtu.be/-f1bHR0iiEY?si=CpQmzstDJR1Dpp9w|smart-link] 
+
+----
+
+Find CC0/MIT-licensed 2D character sprites suitable for laundry store customers. Must include frames for idle and walking, or at minimum a static sprite that can be used as a placeholder for walk animation.
+
+Implement the customer character scene in Godot using Path2D + PathFollow2D for movement and AnimatedSprite2D for animations. Two visit paths are needed: drop-off visit and pickup visit.
+
+Walk paths:
+
+* Drop-off visit: CustomerEntrance → DropOffPoint (plays walk), idle at DropOffPoint, DropOffPoint → CustomerEntrance (plays walk-out)
+* Pickup visit: CustomerEntrance → PickupCounter (plays walk), idle at PickupCounter, PickupCounter → CustomerEntrance (plays walk-out)
+
+Acceptance Criteria:
+
+* Customer.tscn created with AnimatedSprite2D using sprites from ERICK-S2-07 (or placeholder shape)
+* walk_in and walk_out animations play during path movement
+* idle animation plays when customer is stopped at a marker point
+* Drop-off and pickup path variants both work correctly
+* At least 1 customer can complete a full drop-off and return-pickup cycle without errors
+* Character z-index correct (appears in front of background, behind UI)
+* Paths defined using Path2D nodes in the scene, not hardcoded coordinates
+
+----
+
+Asset Links:
+
+* [https://github.com/godotengine/awesome-godot|https://github.com/godotengine/awesome-godot]
+* [https://www.reddit.com/r/godot/comments/1ixujq0/my_big_list_of_godot_resources_both_free_and_paid/|https://www.reddit.com/r/godot/comments/1ixujq0/my_big_list_of_godot_resources_both_free_and_paid/]
+* [https://itch.io/search?type=games&q=laundry&classification=assets|https://itch.io/search?type=games&q=laundry&classification=assets]
+* [https://www.kenney.nl/assets|https://www.kenney.nl/assets]
+* [https://www.openpixelproject.com/?page_id=227|https://www.openpixelproject.com/?page_id=227]
+* [https://jashi-psx.itch.io/public-laundry-psx-asset-pack|https://jashi-psx.itch.io/public-laundry-psx-asset-pack|smart-link] ",06/Mar/2026,,05/Mar/2026 17:02,,Medium,ERICK-43 Game Development (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,05/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,05/Mar/2026,4,Task,05/Mar/2026,2
+ERICK-53,"Main menu, level select, and in-game settings screens",Irshad,1,28/Feb/2026,Vatsal Unadkat,"Getting started with Godot: [https://youtu.be/LOhfqjmasi0|https://youtu.be/LOhfqjmasi0|smart-link]  (Watch first 20 min)
+
+How to build a menu screen: [https://youtu.be/zHYkcJyE52g?si=VwFVjvYtxEu2oHEl|https://youtu.be/zHYkcJyE52g?si=VwFVjvYtxEu2oHEl|smart-link] 
+
+----
+
+Build all navigation screens for the game. Gameplay integration comes later — focus is correct scene structure and full navigation flow.
+
+Screens:
+
+# MainMenu.tscn — Title, [Play] button → LevelSelect, [Settings] button → Settings, [Quit] button
+# LevelSelect.tscn — Shows Level 1 (unlocked), placeholder Level 2+ (locked/greyed). [Level 1] → LaundryStore scene. [Back] → MainMenu
+# Settings.tscn — Difficulty selector (5 options, radio buttons or OptionButton). Current difficulty read/written via GameConfig autoload. [Back] → MainMenu
+
+Acceptance Criteria:
+
+* All 3 scenes exist and load without errors
+* Full navigation loop works: Main → Level Select → (back) → Settings → (back) → Main
+* Difficulty selection in Settings updates GameConfig.current_difficulty immediately
+* Level 1 button launches the LaundryStore scene (or placeholder scene if not ready)
+* Locked levels shown but not clickable
+* No crashes on any navigation path including rapid clicking
+* Scene transitions use a simple fade or instant cut (no black screen hang)",06/Mar/2026,,05/Mar/2026 11:14,,Medium,ERICK-43 Game Development (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,05/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,05/Mar/2026,3,Task,05/Mar/2026,1
+ERICK-66,Restructure Project for Multi-Platform Support (Android & iOS),Vatsal Unadkat,1,05/Mar/2026,Vatsal Unadkat,"Reorganized the project repository to support both Android and iOS development with separate platform-specific folders and configurations.
+
+*Technical Details:*
+
+* Android build artifacts (.gradle, .kotlin, .idea) relocated to android/ folder
+* Created iOS-specific .gitignore for Xcode/Swift projects
+* Root directory now contains only shared resources (documentation, LICENSE, README)
+
+*Acceptance Criteria:*
+
+* Android project builds successfully from android folder
+* All Android IDE settings preserved in new location
+* iOS folder structure created with proper .gitignore
+* Documentation updated to reflect new structure
+* Root directory contains only shared resources",06/Mar/2026,,05/Mar/2026 16:57,,Highest,ERICK-39 Project Infrastructure (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,05/Mar/2026,SCRUM Sprint 2,05/Mar/2026,Done,Done,05/Mar/2026,3,Task,05/Mar/2026,1
+ERICK-40,Design app logo and finalize project typography,Vatsal Unadkat,0,26/Feb/2026,Vatsal Unadkat,"Create a logo for the ERICK keyboard app and select the typography (fonts) to be used consistently across the app and any supporting materials.
+
+Acceptance Criteria:
+
+* Logo designed with light and dark versions
+* Typography (font family and sizes) defined for headings, body, and key labels
+* All source files and exports (PNG, SVG) added to the GitHub repository
+* Logo and font choices documented in the UI/UX Specification template",06/Mar/2026,,05/Mar/2026 16:43,,Low,ERICK-42 Keyboard UI & Visual Design (Epic),ERICK - Agile Methods,Vatsal Unadkat,Done,05/Mar/2026,SCRUM Sprint 2,02/Mar/2026,Done,Done,05/Mar/2026,2,Task,05/Mar/2026,1
+10,,,,,,,,,,,,,,,,,,,,,,45,,,14
+Created at 08/Mar/26 5:04 pm by Vatsal Unadkat with Better Excel Exporter for Jira Cloud,,,,,,,,,,,,,,,,,,,,,,,,,
+help »,,,,,,,,,,,,,,,,,,,,,,,,,
