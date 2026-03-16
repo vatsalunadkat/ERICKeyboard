@@ -10,6 +10,11 @@ import com.vatoo.erick.shared.KeyboardActionDelegate
 import com.vatoo.erick.shared.KeyboardStateMachine
 import android.content.Intent
 import android.widget.ImageButton
+import com.vatoo.erick.shared.LayoutType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
@@ -18,12 +23,33 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     private lateinit var stateMachine: KeyboardStateMachine
 
+    private lateinit var preferencesManager: PreferencesManager
+
+    // Scope needed only for observing the DataStore preference flow
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
+
     override fun onCreate() {
         super.onCreate()
+        preferencesManager = PreferencesManager(this)
         stateMachine = KeyboardStateMachine(this)
+
+        // Observe layout preference and push changes into the state machine
+        serviceScope.launch {
+            preferencesManager.layoutType.collect { layoutString ->
+                val layoutType = when (layoutString) {
+                    PreferencesManager.LAYOUT_EFFICIENCY -> LayoutType.EFFICIENCY
+                    else                                 -> LayoutType.LOGICAL
+                }
+                stateMachine.setLayoutType(layoutType)
+            }
+        }
     }
 
-    // onDestroy() needs no override — no coroutine scope to cancel anymore
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceJob.cancel()
+    }
 
     override fun onCreateInputView(): View {
         val view = layoutInflater.inflate(R.layout.keyboard_simple, null)
