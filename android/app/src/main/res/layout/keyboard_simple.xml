@@ -1,40 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:background="#ECEFF1">
-
-<LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="280dp"
-    android:orientation="horizontal"
-    android:padding="16dp">
+    android:layout_height="wrap_content"
+    android:background="#ECEFF1">
 
-    <com.vatoo.erick.JoystickView
-        android:id="@+id/left_joystick"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_marginEnd="16dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <com.vatoo.erick.JoystickView
-        android:id="@+id/right_joystick"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_marginStart="16dp" />
-</LinearLayout>
+        <!-- Live Preview Bar -->
+        <FrameLayout
+            android:id="@+id/live_preview_container"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:visibility="invisible"
+            android:background="#D0D6DC">
+            
+            <TextView
+                android:id="@+id/live_preview_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:letterSpacing="0.2" />
+        </FrameLayout>
 
-<!-- Settings button positioned at top-right corner -->
-<ImageButton
-    android:id="@+id/btn_settings"
-    android:layout_width="36dp"
-    android:layout_height="36dp"
-    android:layout_gravity="top|end"
-    android:layout_margin="8dp"
-    android:background="@android:color/transparent"
-    android:src="@drawable/ic_settings"
-    android:contentDescription="@string/settings"
-    android:scaleType="centerInside"
-    android:padding="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <com.vatoo.erick.JoystickView
+                android:id="@+id/left_joystick"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.10"
+                android:layout_marginEnd="8dp" />
+
+            <com.vatoo.erick.JoystickView
+                android:id="@+id/right_joystick"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.00"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Settings button positioned at top-right corner -->
+    <ImageButton
+        android:id="@+id/btn_settings"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="8dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_settings"
+        android:contentDescription="@string/settings"
+        android:scaleType="centerInside"
+        android:padding="8dp" />
 </FrameLayout>

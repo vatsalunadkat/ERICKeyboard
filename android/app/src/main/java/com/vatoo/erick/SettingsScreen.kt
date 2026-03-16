@@ -77,13 +77,11 @@ fun SettingsScreen(
 
             LayoutRadioOption(
                 title = "Efficiency",
-                subtitle = "Optimized for English letter frequency",
+                subtitle = "Coming in Sprint 3",
                 selected = layoutType == PreferencesManager.LAYOUT_EFFICIENCY,
-                enabled = true,
+                enabled = false,
                 onClick = {
-                    scope.launch {
-                        preferencesManager.setLayoutType(PreferencesManager.LAYOUT_EFFICIENCY)
-                    }
+                    // Will be enabled in Sprint 3
                 }
             )
 
