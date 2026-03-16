@@ -17,6 +17,9 @@ __pycache__/
 # Build artifacts (root level)
 .gradle/
 .kotlin/
+.vite/
+node_modules/
+dist/
 
 # Log files
 *.log
