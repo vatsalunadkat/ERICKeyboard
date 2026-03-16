@@ -46,6 +46,19 @@ class JoystickView @JvmOverloads constructor(
         isFakeBoldText = true
     }
 
+    private val directionPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#BDBDBD") // 辅助线：稍深于底座的灰色
+        style = Paint.Style.STROKE
+        strokeWidth = 4f
+    }
+
+    private val directionTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#9E9E9E") // 辅助文字：灰色
+        textSize = 36f // 字号适合底座大小
+        textAlign = Paint.Align.CENTER
+        isFakeBoldText = true
+    }
+
     // --- 尺寸初始化 (当 View 第一次测量大小时调用) ---
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -70,6 +83,32 @@ class JoystickView @JvmOverloads constructor(
 
         // 1. 画底座
         canvas.drawCircle(centerX, centerY, baseRadius, basePaint)
+
+        // 画8个方向的指示线和文字 (Draw 8 direction guide lines and text labels)
+        val dirLabels = arrayOf("E", "SE", "S", "SW", "W", "NW", "N", "NE")
+        for (i in 0 until 8) {
+            val angle = i * Math.PI / 4 // 每 45 度 (Every 45 degrees)
+
+            // 线条从底座的 30% 延伸到 75%
+            val innerRadius = baseRadius * 0.3f
+            val outerRadius = baseRadius * 0.75f
+
+            val startX = centerX + innerRadius * Math.cos(angle).toFloat()
+            val startY = centerY + innerRadius * Math.sin(angle).toFloat()
+            val stopX = centerX + outerRadius * Math.cos(angle).toFloat()
+            val stopY = centerY + outerRadius * Math.sin(angle).toFloat()
+
+            canvas.drawLine(startX, startY, stopX, stopY, directionPaint)
+
+            // 文字画在 88% 的位置 (Draw text at 88% of radius)
+            val textRadius = baseRadius * 0.88f
+            val textX = centerX + textRadius * Math.cos(angle).toFloat()
+            val textY = centerY + textRadius * Math.sin(angle).toFloat()
+
+            // 计算文字的垂直居中偏移量 (Vertical centering offset for text)
+            val textOffsetY = (directionTextPaint.descent() + directionTextPaint.ascent()) / 2
+            canvas.drawText(dirLabels[i], textX, textY - textOffsetY, directionTextPaint)
+        }
 
         // 2. 画预览文字（如果是右摇杆且有文字）
         // 放在滑块下面画，这样如果手指在中心，文字会被遮挡一部分，但推开后能清晰看到

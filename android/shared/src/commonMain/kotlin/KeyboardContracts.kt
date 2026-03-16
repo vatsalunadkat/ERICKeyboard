@@ -9,8 +9,13 @@ enum class Direction {
 enum class KeyboardMode {
     NORMAL, SHIFTED, CAPS_LOCKED
 }
+// 3. Keyboard Layout type based on logical and efficiency
+enum class LayoutType {
+    LOGICAL,
+    EFFICIENCY
+}
 
-// 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
+// 4. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
 enum class InputAction {
     // --- Active: used by single-swipe gestures ---
     SPACE, ENTER, BACKSPACE,
@@ -25,7 +30,7 @@ enum class InputAction {
     TAB, DELETE_FORWARD
 }
 
-// 4. 终极"遥控器"接口！Android 和 iOS 必须实现它
+// 5. 终极"遥控器"接口！Android 和 iOS 必须实现它
 interface KeyboardActionDelegate {
     // 注入普通字符 (比如 "a", "A", ",", "!")
     fun commitText(text: String)
