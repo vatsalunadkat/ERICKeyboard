@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERICK — Ergonomic Radial Inclusive Chorded Keyboard</title>
+  <meta name="description" content="A cross-platform chorded keyboard that uses dual joystick input for fast, accessible text entry. Open-source, privacy-focused, and designed for everyone." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="ERICK — Ergonomic Radial Inclusive Chorded Keyboard" />
+  <meta property="og:description" content="A cross-platform chorded keyboard that uses dual joystick input for fast, accessible text entry." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="images/erick-logo.png" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="images/erick-logo.png" type="image/png" />
+</head>
+<body>
+
+  <!-- ===== Navigation ===== -->
+  <nav class="site-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/erick-logo.png" alt="ERICK logo" />
+        ERICK
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="accessibility.html">Accessibility</a></li>
+          <li><a href="privacy-policy.html">Privacy</a></li>
+          <li><a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/releases" target="_blank" rel="noopener">Releases</a></li>
+          <li><a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+        <div class="a11y-controls">
+          <button class="a11y-btn" id="font-decrease" aria-label="Decrease font size" title="Decrease font size">A-</button>
+          <button class="a11y-btn" id="font-increase" aria-label="Increase font size" title="Increase font size">A+</button>
+          <button class="a11y-btn" id="dyslexia-toggle" aria-label="Toggle dyslexia-friendly font" title="Toggle dyslexia-friendly font">Dy</button>
+          <!-- DISABLED: dark theme toggle hidden for now (light theme default)
+          <button class="a11y-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+          -->
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <img src="images/erick-logo.png" alt="ERICK logo" class="hero-logo" />
+    <h1>ERICK</h1>
+    <p class="tagline">A radial chorded keyboard for everyone</p>
+    <div class="hero-buttons">
+      <a href="#" class="btn btn-primary" aria-label="Get it on Google Play (coming April 2026)">
+        ▶ Google Play — Coming April 2026
+      </a>
+      <a href="#" class="btn btn-secondary" aria-label="Download on the App Store (coming May 2026)">
+         App Store — Coming May 2026
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== What is ERICK? ===== -->
+  <div class="section-alt">
+    <section class="section section-centered" id="about">
+      <h2>What is ERICK?</h2>
+      <p class="section-subtitle">
+        ERICK is a chorded keyboard that replaces dozens of tiny keys with two intuitive joystick dials.
+        Swipe on both dials to combine directions into character "chords" — making every letter, number,
+        and symbol equally easy to type.
+      </p>
+      <div class="demo-grid">
+        <div class="demo-item">
+          <img src="https://raw.githubusercontent.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/main/documentation/swipe.gif" alt="Swipe typing demonstration" loading="lazy" />
+          <p>Touch-based swipe input</p>
+        </div>
+        <div class="demo-item">
+          <img src="https://raw.githubusercontent.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/main/documentation/controller.gif" alt="Controller typing demonstration" loading="lazy" />
+          <p>Physical controller input</p>
+        </div>
+        <div class="demo-item">
+          <img src="https://raw.githubusercontent.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/main/documentation/no%20hands%20type.gif" alt="Hands-free typing with controller" loading="lazy" />
+          <p>Hands-free typing</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== How It Works (moved above Features) ===== -->
+  <section class="section section-centered" id="how-it-works">
+    <h2>How It Works</h2>
+    <p class="section-subtitle">Three simple movements, one character. That's it.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Left Dial</h3>
+        <p>Swipe the left joystick in a direction to select a character group (e.g. A–E).</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Right Dial</h3>
+        <p>Swipe the right joystick to select the specific character within that group.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Output</h3>
+        <p>Both directions combine into a chord — the character appears instantly in your text field.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Key Features ===== -->
+  <div class="section-alt">
+    <section class="section section-centered" id="features">
+      <h2>Key Features</h2>
+      <p class="section-subtitle">Built from the ground up for speed, accessibility, and privacy.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon">🎯</div>
+          <h3>Dual-Joystick Input</h3>
+          <p>Two radial dials combine to form character chords. Every character requires equal effort — no more reaching for tiny keys.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🎨</div>
+          <h3>Multiple Layouts</h3>
+          <p>Choose from Logical (A–Z), Efficiency (frequency-optimized), or create your own custom layout.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🌙</div>
+          <h3>Light &amp; Dark Mode</h3>
+          <p>Follow your system preference automatically, or set light/dark mode manually in settings.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🎮</div>
+          <h3>Controller Support</h3>
+          <p>Plug in a physical gaming controller and use its analog sticks for text input — great for consoles and TVs.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">♿</div>
+          <h3>Accessibility First</h3>
+          <p>Colorblind palettes, left-handed mode, dyslexia-friendly fonts, and large touch targets for motor accessibility.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🔒</div>
+          <h3>Privacy Focused</h3>
+          <p>Zero data collection, no internet permissions, fully offline. 100% open-source so you can verify every line.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🎯</div>
+          <h3>Typing Practice</h3>
+          <p>Built-in relaxing typing game with curated quotes to help you learn chord combinations at your own pace.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">✏️</div>
+          <h3>Custom Layouts</h3>
+          <p>Design your own keyboard layout that fits the way you think and type. Save and switch anytime.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Open Source ===== -->
+  <section class="section">
+    <div class="oss-banner">
+      <h2>100% Open Source</h2>
+      <p>
+        ERICK is built in the open with Kotlin Multiplatform. Inspect the code, suggest features, or contribute directly.
+      </p>
+      <div class="oss-buttons">
+        <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard" class="btn btn-primary" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+        <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/releases" class="btn btn-secondary" target="_blank" rel="noopener">
+          View Releases
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="accessibility.html">Accessibility</a></li>
+      <li><a href="privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/releases" target="_blank" rel="noopener">Releases</a></li>
+      <li><a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+    <div class="footer-dev">
+      <p>Developed by <strong>Vatsal Unadkat</strong></p>
+      <div class="footer-social">
+        <a href="https://github.com/vatsalunadkat" target="_blank" rel="noopener" aria-label="GitHub profile">GitHub</a>
+        <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener" aria-label="LinkedIn profile">LinkedIn</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 ERICK — Ergonomic Radial Inclusive Chorded Keyboard. All rights reserved.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
