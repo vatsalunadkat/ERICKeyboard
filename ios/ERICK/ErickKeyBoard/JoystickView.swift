@@ -54,6 +54,7 @@ struct JoystickView: View {
     var isRightSide: Bool
     var activeDirection: WheelDirection
     var keyboardMode: WheelMode
+    var isEfficiency: Bool = false
     var onTouch: ((Float, Float, Bool, Bool) -> Void)?
 
     @State private var thumbOffset: CGSize = .zero
@@ -69,7 +70,7 @@ struct JoystickView: View {
                 if isRightSide {
                     RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode)
                 } else {
-                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode)
+                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency)
                 }
 
                 ZStack {
@@ -120,6 +121,7 @@ struct JoystickView: View {
 private struct LeftWheelBackground: View {
     let activeDirection: WheelDirection
     let keyboardMode: WheelMode
+    var isEfficiency: Bool = false
 
     private let outerColors = ["#E53935", "#FB8C00", "#F6C945"]
     private let middleColors = ["#43A047", "#1E88E5", "#5E35B1"]
@@ -128,7 +130,7 @@ private struct LeftWheelBackground: View {
     var body: some View {
         GeometryReader { geometry in
             let size = min(geometry.size.width, geometry.size.height)
-            let wheelSections = leftWheelSections(for: keyboardMode)
+            let wheelSections = leftWheelSections(for: keyboardMode, efficiency: isEfficiency)
             let hideBlackRingGaps = activeDirection != .none
             let sectorGap: Double = 1.2
             let cellGap: Double = 0.75
@@ -273,7 +275,32 @@ private struct LeftWheelBackground: View {
         }
     }
 
-    private func leftWheelSections(for mode: WheelMode) -> [LeftWheelSection] {
+    private func leftWheelSections(for mode: WheelMode, efficiency: Bool = false) -> [LeftWheelSection] {
+        if efficiency {
+            if mode.usesShiftedSymbols {
+                return [
+                    LeftWheelSection(direction: .n,  outer: ["T", "S", "G"], middle: ["&", "+", ""],  inner: ["K", "$"]),
+                    LeftWheelSection(direction: .ne, outer: ["I", "A", "N"], middle: ["P", "?", ""],  inner: ["\"", ""]),
+                    LeftWheelSection(direction: .e,  outer: ["V", "L", "E"], middle: ["R", "X", ""],  inner: [":", ""]),
+                    LeftWheelSection(direction: .se, outer: ["_", "Y", "D"], middle: ["O", "M", ""],  inner: ["", ""]),
+                    LeftWheelSection(direction: .s,  outer: ["~", "^", "B"], middle: ["F", "U", ""],  inner: ["", ""]),
+                    LeftWheelSection(direction: .sw, outer: ["|", "{", "}"], middle: ["%", "Q", "J"], inner: ["", ""]),
+                    LeftWheelSection(direction: .w,  outer: ["", "", ""],   middle: ["", "", "@"],   inner: ["Z", "#"]),
+                    LeftWheelSection(direction: .nw, outer: ["H", "W", "!"], middle: ["*", "(", ""],  inner: ["C", ")"])
+                ]
+            }
+            return [
+                LeftWheelSection(direction: .n,  outer: ["t", "s", "g"], middle: ["7", "=", ""],  inner: ["k", "4"]),
+                LeftWheelSection(direction: .ne, outer: ["i", "a", "n"], middle: ["p", "/", ""],  inner: ["'", ""]),
+                LeftWheelSection(direction: .e,  outer: ["v", "l", "e"], middle: ["r", "x", ""],  inner: [";", ""]),
+                LeftWheelSection(direction: .se, outer: ["-", "y", "d"], middle: ["o", "m", ""],  inner: ["", ""]),
+                LeftWheelSection(direction: .s,  outer: ["`", "6", "b"], middle: ["f", "u", ""],  inner: ["", ""]),
+                LeftWheelSection(direction: .sw, outer: ["\\", "[", "]"], middle: ["5", "q", "j"], inner: ["", ""]),
+                LeftWheelSection(direction: .w,  outer: ["", "", ""],   middle: ["", "", "2"],   inner: ["z", "3"]),
+                LeftWheelSection(direction: .nw, outer: ["h", "w", "1"], middle: ["8", "9", ""],  inner: ["c", "0"])
+            ]
+        }
+
         if mode.usesShiftedSymbols {
             return [
                 LeftWheelSection(direction: .n, outer: ["A", "B", "C"], middle: ["D", "E", ""], inner: ["\"", ""]),

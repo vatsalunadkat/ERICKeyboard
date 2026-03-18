@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("layout_type") private var layoutType: String = "logical"
-    @AppStorage("dark_theme") private var darkTheme: Bool = false
-    @AppStorage("colorblind_mode") private var colorblindMode: Bool = false
-    @AppStorage("left_handed_mode") private var leftHandedMode: Bool = false
+    private static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
+
+    @AppStorage("layout_type", store: SettingsView.appGroupDefaults) private var layoutType: String = "logical"
+    @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
+    @AppStorage("colorblind_mode", store: SettingsView.appGroupDefaults) private var colorblindMode: Bool = false
+    @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
@@ -39,12 +41,9 @@ struct SettingsView: View {
                 Section(header: Text("Keyboard Layout")) {
                     Picker("Layout Type", selection: $layoutType) {
                         Text("Logical (A–Z)").tag("logical")
-                        Text("Efficiency (Coming Soon)").tag("efficiency")
+                        Text("Efficiency").tag("efficiency")
                     }
                     .pickerStyle(.inline)
-                    .onChange(of: layoutType) { newValue in
-                        if newValue == "efficiency" { layoutType = "logical" }
-                    }
                 }
                 
                 // Appearance Section

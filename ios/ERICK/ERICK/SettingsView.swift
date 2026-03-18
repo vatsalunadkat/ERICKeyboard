@@ -24,16 +24,9 @@ struct SettingsView: View {
                 Section(header: Text("Keyboard Layout")) {
                     Picker("Layout Type", selection: $layoutType) {
                         Text("Logical (A–Z)").tag("logical")
-                        Text("Efficiency (Coming Soon)").tag("efficiency")
+                        Text("Efficiency").tag("efficiency")
                     }
                     .pickerStyle(.inline)
-                    // The Efficiency layout will be enabled in Sprint 3 according to Android implementation
-                    .onChange(of: layoutType) { newValue in
-                        if newValue == "efficiency" {
-                            // Revert to logical as efficiency is not yet available
-                            layoutType = "logical"
-                        }
-                    }
                 }
                 
                 // Appearance Section

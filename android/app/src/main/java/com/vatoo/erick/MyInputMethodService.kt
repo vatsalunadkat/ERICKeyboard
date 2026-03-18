@@ -8,10 +8,13 @@ import android.view.inputmethod.EditorInfo
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.KeyboardActionDelegate
 import com.vatoo.erick.shared.KeyboardStateMachine
+import com.vatoo.erick.shared.LayoutType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import android.content.Intent
 import android.widget.ImageButton
 import android.widget.FrameLayout
@@ -42,11 +45,24 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     // 引入我们在 Shared 模块里写的跨平台大脑
     private lateinit var stateMachine: KeyboardStateMachine
+    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate() {
         super.onCreate()
         // 输入法创建时，组装大脑，并把自己 (this) 作为代理传进去
         stateMachine = KeyboardStateMachine(this, serviceScope)
+
+        // 监听布局偏好变化，实时切换布局 (使用与 SettingsScreen 相同的 PreferencesManager)
+        preferencesManager = PreferencesManager(this)
+        preferencesManager.layoutType.onEach { layout ->
+            val layoutType = when (layout) {
+                PreferencesManager.LAYOUT_EFFICIENCY -> LayoutType.EFFICIENCY
+                else -> LayoutType.LOGICAL
+            }
+            stateMachine.setLayoutType(layoutType)
+            if (::leftJoystick.isInitialized) leftJoystick.layoutType = layoutType
+            if (::rightJoystick.isInitialized) rightJoystick.layoutType = layoutType
+        }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {
@@ -60,6 +76,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         leftJoystick = view.findViewById(R.id.left_joystick)
         rightJoystick = view.findViewById(R.id.right_joystick)
         rightJoystick.isRightSide = true
+
+        // Apply current layout type to the newly created joystick views
+        val currentLayout = stateMachine.currentLayoutType
+        leftJoystick.layoutType = currentLayout
+        rightJoystick.layoutType = currentLayout
 
         previewContainer = view.findViewById(R.id.live_preview_container)
         previewText = view.findViewById(R.id.live_preview_text)
