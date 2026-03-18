@@ -10,6 +10,11 @@ enum class KeyboardMode {
     NORMAL, SHIFTED, CAPS_LOCKED
 }
 
+// 2.5 布局类型定义
+enum class LayoutType {
+    LOGICAL, EFFICIENCY
+}
+
 // 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
 enum class InputAction {
     SPACE, ENTER, BACKSPACE, DELETE_FORWARD,

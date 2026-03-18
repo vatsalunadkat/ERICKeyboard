@@ -21,6 +21,8 @@ class KeyboardStateMachine(
                 delegate.onModeChanged(value)
             }
         }
+    var currentLayoutType = LayoutType.LOGICAL
+        private set
     private var isChordExecuted = false
 
     // 协程计时器任务
@@ -60,24 +62,28 @@ class KeyboardStateMachine(
         }
     }
 
+    fun setLayoutType(layout: LayoutType) {
+        currentLayoutType = layout
+    }
+
     // 获取用于 UI 渲染的实时预览字符
     fun getPreviewText(): String {
         return if (leftActiveDir != Direction.NONE && rightActiveDir != Direction.NONE) {
-            processor.getChordResult(leftActiveDir, rightActiveDir, currentMode)
+            processor.getChordResult(leftActiveDir, rightActiveDir, currentMode, currentLayoutType)
         } else {
             ""
         }
     }
 
     fun getCharactersForDirection(dir: Direction): List<String> {
-        return processor.getCharactersForDirection(dir, currentMode)
+        return processor.getCharactersForDirection(dir, currentMode, currentLayoutType)
     }
 
     private fun fireChord(left: Direction, right: Direction) {
         if (left == Direction.NONE || right == Direction.NONE) return
         isChordExecuted = true
 
-        val text = processor.getChordResult(left, right, currentMode)
+        val text = processor.getChordResult(left, right, currentMode, currentLayoutType)
         if (text.isNotEmpty()) {
             delegate.commitText(text) // 呼叫代理上屏！
         }

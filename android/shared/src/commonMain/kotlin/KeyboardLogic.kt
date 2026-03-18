@@ -27,6 +27,8 @@ class KeyboardLogic {
     }
 
     // --- 第二部分：和弦数据字典 (保持不变) ---
+
+    // ========== LOGICAL LAYOUT ==========
     private val normalMap = mapOf(
         Direction.N  to listOf("a", "b", "c", "d", "e", "", "", "'"),
         Direction.NE to listOf("f", "g", "h", "i", "j", "", "", "/"),
@@ -49,6 +51,31 @@ class KeyboardLogic {
         Direction.NW to listOf("^", "&", "*", "(", ")", "", "", "")
     )
 
+    // ========== EFFICIENCY LAYOUT ==========
+    // Optimized by English letter frequency: e, t, a, o, i, n, s, h, r, d, l, c, ...
+    // Left direction = row, Right direction index: N=0, NE=1, E=2, SE=3, S=4, SW=5, W=6, NW=7
+    private val efficiencyNormalMap = mapOf(
+        Direction.N  to listOf("t", "s", "g", "7", "=", "", "4", "k"),
+        Direction.NE to listOf("i", "a", "n", "p", "/", "", "", "'"),
+        Direction.E  to listOf("v", "l", "e", "r", "x", "", "", ";"),
+        Direction.SE to listOf("-", "y", "d", "o", "m", "", "", ""),
+        Direction.S  to listOf("`", "6", "b", "f", "u", "", "", ""),
+        Direction.SW to listOf("\\", "[", "]", "5", "q", "j", "", ""),
+        Direction.W  to listOf("", "", "", "", "", "2", "3", "z"),
+        Direction.NW to listOf("h", "w", "1", "8", "9", "", "0", "c")
+    )
+
+    private val efficiencyShiftedMap = mapOf(
+        Direction.N  to listOf("T", "S", "G", "&", "+", "", "$", "K"),
+        Direction.NE to listOf("I", "A", "N", "P", "?", "", "", "\""),
+        Direction.E  to listOf("V", "L", "E", "R", "X", "", "", ":"),
+        Direction.SE to listOf("_", "Y", "D", "O", "M", "", "", ""),
+        Direction.S  to listOf("~", "^", "B", "F", "U", "", "", ""),
+        Direction.SW to listOf("|", "{", "}", "%", "Q", "J", "", ""),
+        Direction.W  to listOf("", "", "", "", "", "@", "#", "Z"),
+        Direction.NW to listOf("H", "W", "!", "*", "(", "", ")", "C")
+    )
+
     private fun getRightIndex(rightDir: Direction): Int {
         return when (rightDir) {
             Direction.N -> 0; Direction.NE -> 1; Direction.E -> 2
@@ -58,17 +85,27 @@ class KeyboardLogic {
         }
     }
 
-    fun getChordResult(leftDir: Direction, rightDir: Direction, mode: KeyboardMode): String {
+    fun getChordResult(leftDir: Direction, rightDir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL): String {
         if (leftDir == Direction.NONE || rightDir == Direction.NONE) return ""
         val index = getRightIndex(rightDir)
         if (index == -1) return ""
-        val currentMap = if (mode == KeyboardMode.NORMAL) normalMap else shiftedMap
+        val currentMap = when {
+            layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
+            layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
+            mode == KeyboardMode.NORMAL -> normalMap
+            else -> shiftedMap
+        }
         val charList = currentMap[leftDir] ?: return ""
         return charList.getOrNull(index) ?: ""
     }
 
-    fun getCharactersForDirection(dir: Direction, mode: KeyboardMode): List<String> {
-        val currentMap = if (mode == KeyboardMode.NORMAL) normalMap else shiftedMap
+    fun getCharactersForDirection(dir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL): List<String> {
+        val currentMap = when {
+            layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
+            layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
+            mode == KeyboardMode.NORMAL -> normalMap
+            else -> shiftedMap
+        }
         return currentMap[dir] ?: emptyList()
     }
 

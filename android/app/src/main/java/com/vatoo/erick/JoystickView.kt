@@ -13,6 +13,7 @@ import android.view.View
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
 import com.vatoo.erick.shared.KeyboardMode
+import com.vatoo.erick.shared.LayoutType
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -25,6 +26,13 @@ class JoystickView @JvmOverloads constructor(
     var processor: Any? = null
     var isRightSide: Boolean = false
     var keyboardMode: KeyboardMode = KeyboardMode.NORMAL
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+            }
+        }
+    var layoutType: LayoutType = LayoutType.LOGICAL
         set(value) {
             if (field != value) {
                 field = value
@@ -138,6 +146,29 @@ class JoystickView @JvmOverloads constructor(
         Direction.SW to listOf("Z", "|", "{", "}", "~", "", "", ""),
         Direction.W to listOf("!", "@", "#", "$", "%", "", "", ""),
         Direction.NW to listOf("^", "&", "*", "(", ")", "", "", "")
+    )
+
+    // ========== EFFICIENCY LAYOUT ==========
+    private val leftCharsEfficiencyNormal = mapOf(
+        Direction.N  to listOf("t", "s", "g", "7", "=", "", "4", "k"),
+        Direction.NE to listOf("i", "a", "n", "p", "/", "", "", "'"),
+        Direction.E  to listOf("v", "l", "e", "r", "x", "", "", ";"),
+        Direction.SE to listOf("-", "y", "d", "o", "m", "", "", ""),
+        Direction.S  to listOf("`", "6", "b", "f", "u", "", "", ""),
+        Direction.SW to listOf("\\", "[", "]", "5", "q", "j", "", ""),
+        Direction.W  to listOf("", "", "", "", "", "2", "3", "z"),
+        Direction.NW to listOf("h", "w", "1", "8", "9", "", "0", "c")
+    )
+
+    private val leftCharsEfficiencyShifted = mapOf(
+        Direction.N  to listOf("T", "S", "G", "&", "+", "", "$", "K"),
+        Direction.NE to listOf("I", "A", "N", "P", "?", "", "", "\""),
+        Direction.E  to listOf("V", "L", "E", "R", "X", "", "", ":"),
+        Direction.SE to listOf("_", "Y", "D", "O", "M", "", "", ""),
+        Direction.S  to listOf("~", "^", "B", "F", "U", "", "", ""),
+        Direction.SW to listOf("|", "{", "}", "%", "Q", "J", "", ""),
+        Direction.W  to listOf("", "", "", "", "", "@", "#", "Z"),
+        Direction.NW to listOf("H", "W", "!", "*", "(", "", ")", "C")
     )
     
     private val rightDirs = listOf(
@@ -342,7 +373,12 @@ class JoystickView @JvmOverloads constructor(
             }
 
             // 8. Draw Characters
-            val currentCharsMap = if (keyboardMode == KeyboardMode.NORMAL) leftCharsNormal else leftCharsShifted
+            val currentCharsMap = when {
+                layoutType == LayoutType.EFFICIENCY && keyboardMode == KeyboardMode.NORMAL -> leftCharsEfficiencyNormal
+                layoutType == LayoutType.EFFICIENCY -> leftCharsEfficiencyShifted
+                keyboardMode == KeyboardMode.NORMAL -> leftCharsNormal
+                else -> leftCharsShifted
+            }
             for (i in 0 until 8) {
                 val dir = directions[i]
                 val startAngle = -22.5f + i * 45f
