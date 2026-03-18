@@ -1,9 +1,12 @@
 package com.vatoo.erick
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,7 +14,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.vatoo.erick.shared.ColorPaletteType
+import com.vatoo.erick.shared.ColorPalettes
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,6 +31,7 @@ fun SettingsScreen(
     val layoutType by preferencesManager.layoutType.collectAsState(initial = PreferencesManager.LAYOUT_LOGICAL)
     val darkTheme by preferencesManager.darkTheme.collectAsState(initial = false)
     val colorblindMode by preferencesManager.colorblindMode.collectAsState(initial = false)
+    val colorPalette by preferencesManager.colorPalette.collectAsState(initial = PreferencesManager.PALETTE_OKABE_ITO)
     val leftHandedMode by preferencesManager.leftHandedMode.collectAsState(initial = false)
 
     val scope = rememberCoroutineScope()
@@ -119,7 +127,7 @@ fun SettingsScreen(
             )
 
             SettingToggle(
-                title = "Colorblind Mode",
+                title = "Enable Colorblind Mode",
                 checked = colorblindMode,
                 enabled = true,
                 onCheckedChange = { checked ->
@@ -128,6 +136,67 @@ fun SettingsScreen(
                     }
                 }
             )
+
+            if (colorblindMode) {
+                Text(
+                    text = "Select the palette that works best for your type of color vision. Each option shows a preview of the 8 colors used on the keyboard.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                )
+
+                PaletteRadioOption(
+                    title = "Okabe-Ito (Universal)",
+                    subtitle = "Recommended for all types of color vision deficiency",
+                    paletteType = ColorPaletteType.OKABE_ITO,
+                    selected = colorPalette == PreferencesManager.PALETTE_OKABE_ITO,
+                    onClick = {
+                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO) }
+                    }
+                )
+
+                PaletteRadioOption(
+                    title = "Deuteranopia (Green-blind)",
+                    subtitle = "Optimized for green-blind users",
+                    paletteType = ColorPaletteType.DEUTERANOPIA,
+                    selected = colorPalette == PreferencesManager.PALETTE_DEUTERANOPIA,
+                    onClick = {
+                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_DEUTERANOPIA) }
+                    }
+                )
+
+                PaletteRadioOption(
+                    title = "Protanopia (Red-blind)",
+                    subtitle = "Optimized for red-blind users",
+                    paletteType = ColorPaletteType.PROTANOPIA,
+                    selected = colorPalette == PreferencesManager.PALETTE_PROTANOPIA,
+                    onClick = {
+                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PROTANOPIA) }
+                    }
+                )
+
+                PaletteRadioOption(
+                    title = "Tritanopia (Blue-blind)",
+                    subtitle = "Optimized for blue-blind users",
+                    paletteType = ColorPaletteType.TRITANOPIA,
+                    selected = colorPalette == PreferencesManager.PALETTE_TRITANOPIA,
+                    onClick = {
+                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_TRITANOPIA) }
+                    }
+                )
+
+                PaletteRadioOption(
+                    title = "Pastel (Soft)",
+                    subtitle = "Softer colors that are easier on the eyes",
+                    paletteType = ColorPaletteType.PASTEL,
+                    selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
+                    onClick = {
+                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL) }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             SettingToggle(
                 title = "Left-Handed Mode",
@@ -259,4 +328,72 @@ fun SettingToggle(
             enabled = enabled
         )
     }
+}
+
+@Composable
+fun PaletteRadioOption(
+    title: String,
+    subtitle: String,
+    paletteType: ColorPaletteType,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val palette = ColorPalettes.getPalette(paletteType)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp, horizontal = 8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = selected, onClick = onClick)
+            Spacer(modifier = Modifier.width(8.dp))
+            Column {
+                Text(text = title, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(start = 48.dp, top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            palette.forEach { entry ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val bgColor = parseHexColor(entry.hex)
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(bgColor)
+                            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                    )
+                    Text(
+                        text = entry.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun parseHexColor(hex: String): Color {
+    val clean = hex.trimStart('#')
+    val colorLong = clean.toLong(16)
+    return Color(
+        red = ((colorLong shr 16) and 0xFF) / 255f,
+        green = ((colorLong shr 8) and 0xFF) / 255f,
+        blue = (colorLong and 0xFF) / 255f
+    )
 }

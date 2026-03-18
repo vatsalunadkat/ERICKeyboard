@@ -5,6 +5,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.KeyboardActionDelegate
 import com.vatoo.erick.shared.KeyboardStateMachine
@@ -13,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import android.content.Intent
@@ -63,6 +65,24 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             if (::leftJoystick.isInitialized) leftJoystick.layoutType = layoutType
             if (::rightJoystick.isInitialized) rightJoystick.layoutType = layoutType
         }.launchIn(serviceScope)
+
+        preferencesManager.colorblindMode.combine(preferencesManager.colorPalette) { enabled, palette ->
+            if (enabled) {
+                when (palette) {
+                    PreferencesManager.PALETTE_DEUTERANOPIA -> ColorPaletteType.DEUTERANOPIA
+                    PreferencesManager.PALETTE_PROTANOPIA -> ColorPaletteType.PROTANOPIA
+                    PreferencesManager.PALETTE_TRITANOPIA -> ColorPaletteType.TRITANOPIA
+                    PreferencesManager.PALETTE_PASTEL -> ColorPaletteType.PASTEL
+                    else -> ColorPaletteType.OKABE_ITO
+                }
+            } else {
+                ColorPaletteType.DEFAULT
+            }
+        }.onEach { paletteType ->
+            stateMachine.setColorPalette(paletteType)
+            if (::leftJoystick.isInitialized) leftJoystick.colorPaletteType = paletteType
+            if (::rightJoystick.isInitialized) rightJoystick.colorPaletteType = paletteType
+        }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {
@@ -81,6 +101,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val currentLayout = stateMachine.currentLayoutType
         leftJoystick.layoutType = currentLayout
         rightJoystick.layoutType = currentLayout
+
+        // Apply current color palette to the newly created joystick views
+        val currentPalette = stateMachine.currentPaletteType
+        leftJoystick.colorPaletteType = currentPalette
+        rightJoystick.colorPaletteType = currentPalette
 
         previewContainer = view.findViewById(R.id.live_preview_container)
         previewText = view.findViewById(R.id.live_preview_text)
@@ -172,7 +197,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             builder.append(charStr)
             builder.append("  ") // spacing
 
-            val colorHex = ColorPalettes.getColorForDirectionHex(dirForChar)
+            val colorHex = ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
             val color = Color.parseColor(colorHex)
 
             builder.setSpan(

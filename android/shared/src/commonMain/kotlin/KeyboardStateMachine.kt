@@ -23,6 +23,8 @@ class KeyboardStateMachine(
         }
     var currentLayoutType = LayoutType.LOGICAL
         private set
+    var currentPaletteType = ColorPaletteType.DEFAULT
+        private set
     private var isChordExecuted = false
 
     // 协程计时器任务
@@ -64,6 +66,14 @@ class KeyboardStateMachine(
 
     fun setLayoutType(layout: LayoutType) {
         currentLayoutType = layout
+    }
+
+    fun setColorPalette(palette: ColorPaletteType) {
+        currentPaletteType = palette
+    }
+
+    fun getCurrentPalette(): List<ColorEntry> {
+        return ColorPalettes.getPalette(currentPaletteType)
     }
 
     // 获取用于 UI 渲染的实时预览字符
