@@ -55,6 +55,7 @@ struct JoystickView: View {
     var activeDirection: WheelDirection
     var keyboardMode: WheelMode
     var isEfficiency: Bool = false
+    var colorPaletteKey: String = "default"
     var onTouch: ((Float, Float, Bool, Bool) -> Void)?
 
     @State private var thumbOffset: CGSize = .zero
@@ -68,9 +69,9 @@ struct JoystickView: View {
 
             ZStack {
                 if isRightSide {
-                    RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode)
+                    RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, colorPaletteKey: colorPaletteKey)
                 } else {
-                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency)
+                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency, colorPaletteKey: colorPaletteKey)
                 }
 
                 ZStack {
@@ -122,10 +123,20 @@ private struct LeftWheelBackground: View {
     let activeDirection: WheelDirection
     let keyboardMode: WheelMode
     var isEfficiency: Bool = false
+    var colorPaletteKey: String = "default"
 
-    private let outerColors = ["#E53935", "#FB8C00", "#F6C945"]
-    private let middleColors = ["#43A047", "#1E88E5", "#5E35B1"]
-    private let innerColors = ["#1A1A1A", "#8E24AA"]
+    private var outerColors: [String] {
+        let p = ColorPaletteDefinitions.palette(for: colorPaletteKey)
+        return [p[0].hex, p[1].hex, p[2].hex]
+    }
+    private var middleColors: [String] {
+        let p = ColorPaletteDefinitions.palette(for: colorPaletteKey)
+        return [p[3].hex, p[4].hex, p[5].hex]
+    }
+    private var innerColors: [String] {
+        let p = ColorPaletteDefinitions.palette(for: colorPaletteKey)
+        return [p[6].hex, p[7].hex]
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -162,6 +173,7 @@ private struct LeftWheelBackground: View {
                     sectorRow(
                         items: section.outer,
                         colors: outerColors.map(Color.init(hex:)),
+                        colorHexes: outerColors,
                         startAngle: sectorStart,
                         endAngle: sectorEnd,
                         innerRatio: outerInnerRatio,
@@ -175,6 +187,7 @@ private struct LeftWheelBackground: View {
                     sectorRow(
                         items: section.middle,
                         colors: middleColors.map(Color.init(hex:)),
+                        colorHexes: middleColors,
                         startAngle: sectorStart,
                         endAngle: sectorEnd,
                         innerRatio: middleInnerRatio,
@@ -189,6 +202,7 @@ private struct LeftWheelBackground: View {
                         sectorRow(
                             items: section.inner,
                             colors: innerColors.map(Color.init(hex:)),
+                            colorHexes: innerColors,
                             startAngle: sectorStart,
                             endAngle: sectorEnd,
                             innerRatio: innerInnerRatio,
@@ -226,6 +240,7 @@ private struct LeftWheelBackground: View {
     private func sectorRow(
         items: [String],
         colors: [Color],
+        colorHexes: [String] = [],
         startAngle: Double,
         endAngle: Double,
         innerRatio: CGFloat,
@@ -262,9 +277,15 @@ private struct LeftWheelBackground: View {
             .opacity(opacity)
 
             if !item.isEmpty {
+                let textColor: Color = {
+                    if index < colorHexes.count {
+                        return ColorPaletteDefinitions.contrastTextColor(hex: colorHexes[index])
+                    }
+                    return .white
+                }()
                 Text(item)
                     .font(.system(size: metrics.fontSize, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(textColor)
                     .shadow(color: .black.opacity(0.25), radius: 1, y: 1)
                     .minimumScaleFactor(0.45)
                     .lineLimit(1)
@@ -363,17 +384,33 @@ private func sectorLabelMetrics(
 private struct RightWheelBackground: View {
     let activeDirection: WheelDirection
     let keyboardMode: WheelMode
+    var colorPaletteKey: String = "default"
 
-    private let sectorColors: [WheelDirection: Color] = [
-        .n: Color(hex: "#E53935"),
-        .ne: Color(hex: "#FB8C00"),
-        .e: Color(hex: "#F6C445"),
-        .se: Color(hex: "#43A047"),
-        .s: Color(hex: "#1E88E5"),
-        .sw: Color(hex: "#5E35B1"),
-        .w: Color(hex: "#8E24AA"),
-        .nw: Color(hex: "#161616")
-    ]
+    private var palette: [ColorPaletteEntry] {
+        ColorPaletteDefinitions.palette(for: colorPaletteKey)
+    }
+
+    private static let directionOrder: [WheelDirection] = [.n, .ne, .e, .se, .s, .sw, .w, .nw]
+
+    private var sectorColors: [WheelDirection: Color] {
+        var map: [WheelDirection: Color] = [:]
+        for (i, dir) in Self.directionOrder.enumerated() {
+            if i < palette.count {
+                map[dir] = Color(hex: palette[i].hex)
+            }
+        }
+        return map
+    }
+
+    private var sectorHexes: [WheelDirection: String] {
+        var map: [WheelDirection: String] = [:]
+        for (i, dir) in Self.directionOrder.enumerated() {
+            if i < palette.count {
+                map[dir] = palette[i].hex
+            }
+        }
+        return map
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -400,7 +437,8 @@ private struct RightWheelBackground: View {
                     .brightness(selected ? 0.08 : 0)
                     .opacity(dimmed ? 0.55 : 1)
 
-                    RightActionLabel(action: action, size: size * 0.17)
+                    let contrastColor = ColorPaletteDefinitions.contrastTextColor(hex: sectorHexes[direction] ?? "#000000")
+                    RightActionLabel(action: action, size: size * 0.17, textColor: contrastColor)
                         .position(labelPoint)
                         .opacity(dimmed ? 0.55 : 1)
                 }
@@ -442,6 +480,7 @@ private struct RightWheelBackground: View {
 private struct RightActionLabel: View {
     let action: RightWheelAction
     let size: CGFloat
+    var textColor: Color = .white
 
     var body: some View {
         VStack(spacing: 3) {
@@ -456,7 +495,7 @@ private struct RightActionLabel: View {
                 .minimumScaleFactor(0.45)
                 .lineLimit(2)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(textColor)
         .shadow(color: .black.opacity(0.22), radius: 1, y: 1)
         .frame(width: size * 1.4)
     }

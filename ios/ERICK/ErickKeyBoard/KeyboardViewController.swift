@@ -18,6 +18,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var rightDirection: WheelDirection = .none
     @Published var keyboardMode: WheelMode = .normal
     @Published var isEfficiency: Bool = false
+    @Published var colorPaletteKey: String = "default"
 }
 
 // 2. SwiftUI 键盘容器：把左右两个摇杆横向排列
@@ -49,7 +50,8 @@ struct KeyboardContainerView: View {
                         isRightSide: false,
                         activeDirection: viewModel.leftDirection,
                         keyboardMode: viewModel.keyboardMode,
-                        isEfficiency: viewModel.isEfficiency
+                        isEfficiency: viewModel.isEfficiency,
+                        colorPaletteKey: viewModel.colorPaletteKey
                     ) { dx, dy, isDownOrMove, isUp in
                         onTouch(dx, dy, true, isDownOrMove, isUp)
                     }
@@ -59,7 +61,8 @@ struct KeyboardContainerView: View {
                         isRightSide: true,
                         activeDirection: viewModel.rightDirection,
                         keyboardMode: viewModel.keyboardMode,
-                        isEfficiency: viewModel.isEfficiency
+                        isEfficiency: viewModel.isEfficiency,
+                        colorPaletteKey: viewModel.colorPaletteKey
                     ) { dx, dy, isDownOrMove, isUp in
                         onTouch(dx, dy, false, isDownOrMove, isUp)
                     }
@@ -256,10 +259,17 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return Self.appGroupDefaults.string(forKey: "layout_type") == "efficiency"
     }
 
+    private var currentColorPaletteKey: String {
+        let enabled = Self.appGroupDefaults.bool(forKey: "colorblind_mode")
+        guard enabled else { return "default" }
+        return Self.appGroupDefaults.string(forKey: "color_palette") ?? "okabe_ito"
+    }
+
     private func applyLayoutPreference() {
         let layoutType: LayoutType = isEfficiencyLayout ? .efficiency : .logical
         stateMachine.setLayoutType(layout: layoutType)
         viewModel.isEfficiency = isEfficiencyLayout
+        viewModel.colorPaletteKey = currentColorPaletteKey
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -378,9 +388,12 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func previewItems(for direction: WheelDirection, mode: WheelMode) -> [KeyboardPreviewItem]? {
-        let outerColors = [Color(hex: "#E53935"), Color(hex: "#FB8C00"), Color(hex: "#F6C945")]
-        let middleColors = [Color(hex: "#43A047"), Color(hex: "#1E88E5"), Color(hex: "#5E35B1")]
-        let innerColors = [Color(hex: "#1A1A1A"), Color(hex: "#8E24AA")]
+        let palette = ColorPaletteDefinitions.palette(for: currentColorPaletteKey)
+        // Palette positions: 0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW
+        // Left dial layout: outer=[0,1,2], middle=[3,4,5], inner=[6,7]
+        let outerColors = (0..<3).map { Color(hex: palette[$0].hex) }
+        let middleColors = (3..<6).map { Color(hex: palette[$0].hex) }
+        let innerColors = (6..<8).map { Color(hex: palette[$0].hex) }
 
         let items: [String]?
 
