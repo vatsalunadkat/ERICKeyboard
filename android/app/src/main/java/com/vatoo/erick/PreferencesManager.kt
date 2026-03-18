@@ -17,10 +17,17 @@ class PreferencesManager(private val context: Context) {
         private val LAYOUT_TYPE_KEY = stringPreferencesKey("layout_type")
         private val DARK_THEME_KEY = booleanPreferencesKey("dark_theme")
         private val COLORBLIND_MODE_KEY = booleanPreferencesKey("colorblind_mode")
+        private val COLOR_PALETTE_KEY = stringPreferencesKey("color_palette")
         private val LEFT_HANDED_MODE_KEY = booleanPreferencesKey("left_handed_mode")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
+
+        const val PALETTE_OKABE_ITO = "okabe_ito"
+        const val PALETTE_DEUTERANOPIA = "deuteranopia"
+        const val PALETTE_PROTANOPIA = "protanopia"
+        const val PALETTE_TRITANOPIA = "tritanopia"
+        const val PALETTE_PASTEL = "pastel"
     }
 
     val layoutType: Flow<String> = context.dataStore.data
@@ -36,6 +43,11 @@ class PreferencesManager(private val context: Context) {
     val colorblindMode: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[COLORBLIND_MODE_KEY] ?: false
+        }
+
+    val colorPalette: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[COLOR_PALETTE_KEY] ?: PALETTE_OKABE_ITO
         }
 
     val leftHandedMode: Flow<Boolean> = context.dataStore.data
@@ -58,6 +70,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setColorblindMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[COLORBLIND_MODE_KEY] = enabled
+        }
+    }
+
+    suspend fun setColorPalette(palette: String) {
+        context.dataStore.edit { preferences ->
+            preferences[COLOR_PALETTE_KEY] = palette
         }
     }
 

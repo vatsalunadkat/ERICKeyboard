@@ -10,6 +10,7 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
+import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
 import com.vatoo.erick.shared.KeyboardMode
@@ -33,6 +34,13 @@ class JoystickView @JvmOverloads constructor(
             }
         }
     var layoutType: LayoutType = LayoutType.LOGICAL
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+            }
+        }
+    var colorPaletteType: ColorPaletteType = ColorPaletteType.DEFAULT
         set(value) {
             if (field != value) {
                 field = value
@@ -213,7 +221,8 @@ class JoystickView @JvmOverloads constructor(
                 val dir = directions[i]
                 val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
 
-                val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(dir))
+                val colorHex = ColorPalettes.getColorForDirectionHex(dir, colorPaletteType)
+                val parsedColor = Color.parseColor(colorHex)
                 activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
                 activeSegmentPaint.alpha = 255
 
@@ -225,6 +234,7 @@ class JoystickView @JvmOverloads constructor(
                 // Draw Icon and Label
                 val (iconName, label) = getInfoForDirection(dir)
                 val paintAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
+                val contentColor = Color.parseColor(ColorPalettes.contrastTextColor(colorHex))
                 
                 // Content area center
                 val angleRad = Math.toRadians((startAngle + sweepAngle / 2f).toDouble())
@@ -239,7 +249,8 @@ class JoystickView @JvmOverloads constructor(
                     label = label,
                     centerX = contentCenterX,
                     centerY = contentCenterY,
-                    alpha = paintAlpha
+                    alpha = paintAlpha,
+                    textColor = contentColor
                 )
             }
         } else {
@@ -265,7 +276,7 @@ class JoystickView @JvmOverloads constructor(
 
                 for(j in 0 until 3) {
                     val blockStart = startAngle + j * 15f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[j]))
+                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[j], colorPaletteType))
                     activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
                     activeSegmentPaint.alpha = 255
                     canvas.drawArc(rectFOuter, blockStart, 15f, true, activeSegmentPaint)
@@ -280,7 +291,7 @@ class JoystickView @JvmOverloads constructor(
 
                 for(j in 0 until 3) {
                     val blockStart = startAngle + j * 15f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[3 + j]))
+                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[3 + j], colorPaletteType))
                     activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
                     activeSegmentPaint.alpha = 255
                     canvas.drawArc(rectFMiddle, blockStart, 15f, true, activeSegmentPaint)
@@ -295,7 +306,7 @@ class JoystickView @JvmOverloads constructor(
 
                 for(j in 0 until 2) {
                     val blockStart = startAngle + j * 22.5f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[6 + j]))
+                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[6 + j], colorPaletteType))
                     activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
                     activeSegmentPaint.alpha = 255
                     canvas.drawArc(rectFInner, blockStart, 22.5f, true, activeSegmentPaint)
@@ -390,6 +401,7 @@ class JoystickView @JvmOverloads constructor(
                 for(j in 0 until 3) {
                     val c = chars.getOrNull(j) ?: continue
                     if (c.isBlank()) continue
+                    val bgHex = ColorPalettes.getColorForDirectionHex(rightDirs[j], colorPaletteType)
                     drawCharText(
                         canvas = canvas,
                         charStr = c,
@@ -397,13 +409,15 @@ class JoystickView @JvmOverloads constructor(
                         ringOuterRadius = baseRadius,
                         startAngle = startAngle + j * 15f,
                         sweepAngle = 15f,
-                        alphaVal = alphaVal
+                        alphaVal = alphaVal,
+                        bgHex = bgHex
                     )
                 }
                 // Middle Text
                 for(j in 0 until 3) {
                     val c = chars.getOrNull(3 + j) ?: continue
                     if (c.isBlank()) continue
+                    val bgHex = ColorPalettes.getColorForDirectionHex(rightDirs[3 + j], colorPaletteType)
                     drawCharText(
                         canvas = canvas,
                         charStr = c,
@@ -411,13 +425,15 @@ class JoystickView @JvmOverloads constructor(
                         ringOuterRadius = r2,
                         startAngle = startAngle + j * 15f,
                         sweepAngle = 15f,
-                        alphaVal = alphaVal
+                        alphaVal = alphaVal,
+                        bgHex = bgHex
                     )
                 }
                 // Inner Text
                 for(j in 0 until 2) {
                     val c = chars.getOrNull(6 + j) ?: continue
                     if (c.isBlank()) continue
+                    val bgHex = ColorPalettes.getColorForDirectionHex(rightDirs[6 + j], colorPaletteType)
                     drawCharText(
                         canvas = canvas,
                         charStr = c,
@@ -425,7 +441,8 @@ class JoystickView @JvmOverloads constructor(
                         ringOuterRadius = r1,
                         startAngle = startAngle + j * 22.5f,
                         sweepAngle = 22.5f,
-                        alphaVal = alphaVal
+                        alphaVal = alphaVal,
+                        bgHex = bgHex
                     )
                 }
             }
@@ -443,7 +460,8 @@ class JoystickView @JvmOverloads constructor(
         ringOuterRadius: Float,
         startAngle: Float,
         sweepAngle: Float,
-        alphaVal: Int
+        alphaVal: Int,
+        bgHex: String = "#000000"
     ) {
         val centerRadius = (ringInnerRadius + ringOuterRadius) / 2f
         val centerAngle = startAngle + sweepAngle / 2f
@@ -461,8 +479,9 @@ class JoystickView @JvmOverloads constructor(
             preferredSizes = listOf(34f, 32f, 30f, 28f, 26f, 24f, 22f, 20f, 18f)
         )
 
+        val textColor = Color.parseColor(ColorPalettes.contrastTextColor(bgHex))
         val textPaint = Paint(charTextPaint).apply {
-            color = Color.WHITE
+            color = textColor
             alpha = alphaVal
             textSize = fittedSize
         }
@@ -477,7 +496,8 @@ class JoystickView @JvmOverloads constructor(
         label: String,
         centerX: Float,
         centerY: Float,
-        alpha: Int
+        alpha: Int,
+        textColor: Int = Color.WHITE
     ) {
         if (iconName.isEmpty() && label.isEmpty()) return
 
@@ -489,6 +509,7 @@ class JoystickView @JvmOverloads constructor(
 
         val textPaint = Paint(labelTextPaint).apply {
             this.alpha = alpha
+            this.color = textColor
             textSize = fittedTextSize(
                 lines = lines,
                 maxWidth = availableWidth,
@@ -506,7 +527,7 @@ class JoystickView @JvmOverloads constructor(
 
         if (hasIcon) {
             val iconCenterY = currentCenterY + iconSize / 2f
-            drawProgrammaticIcon(canvas, iconName, centerX, iconCenterY, iconSize, alpha)
+            drawProgrammaticIcon(canvas, iconName, centerX, iconCenterY, iconSize, alpha, textColor)
             currentCenterY += iconSize + spacing
         }
 
@@ -627,8 +648,10 @@ class JoystickView @JvmOverloads constructor(
         }
     }
 
-    private fun drawProgrammaticIcon(canvas: Canvas, type: String, x: Float, y: Float, size: Float, alpha: Int) {
+    private fun drawProgrammaticIcon(canvas: Canvas, type: String, x: Float, y: Float, size: Float, alpha: Int, color: Int = Color.WHITE) {
+        iconStrokePaint.color = color
         iconStrokePaint.alpha = alpha
+        iconFillPaint.color = color
         iconFillPaint.alpha = alpha
         iconStrokePaint.strokeWidth = maxOf(3f, size * 0.16f)
         val h = size / 2f
