@@ -165,7 +165,10 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         // Kotlin 的全局函数在 Swift 里会自动被放到带 'Kt' 后缀的命名空间下
 //        stateMachine = // Swift 现在会极其自然地调用我们刚刚写的那个次级构造函数！
         // 使用我们在 Kotlin 里建好的工厂 (KeyboardFactory) 去拿货
-        stateMachine = KeyboardFactory.shared.createEngine(delegate: self)
+        stateMachine = KeyboardFactory.shared.createEngine(
+            delegate: self,
+            layoutType: LayoutType.logical
+        )
         
         // 读取布局偏好并设置到状态机
         applyLayoutPreference()
@@ -377,13 +380,15 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func previewIndex(for direction: WheelDirection) -> Int? {
         switch direction {
-        case .n: return 0
+        case .n:  return 0
         case .ne: return 1
-        case .e: return 2
+        case .e:  return 2
         case .se: return 3
-        case .s: return 4
+        case .s:  return 4
         case .sw: return 5
-        default: return nil
+        case .w:  return 6
+        case .nw: return 7
+        default:  return nil
         }
     }
 
