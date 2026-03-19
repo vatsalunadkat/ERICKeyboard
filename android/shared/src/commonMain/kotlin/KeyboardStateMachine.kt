@@ -25,6 +25,8 @@ class KeyboardStateMachine(
         private set
     var currentPaletteType = ColorPaletteType.DEFAULT
         private set
+    var leftHandedMode = false
+        private set
     private var isChordExecuted = false
 
     // 协程计时器任务
@@ -33,6 +35,10 @@ class KeyboardStateMachine(
 
     // 接收来自原生平台的触摸更新
     fun handleTouch(x: Float, y: Float, isLeft: Boolean, actionDownOrMove: Boolean, actionUp: Boolean) {
+        // In left-handed mode, swap dial roles so the physical left joystick
+        // acts as the right (color/action) dial and vice versa.
+        val effectiveIsLeft = if (leftHandedMode) !isLeft else isLeft
+
         val distance = hypot(x.toDouble(), y.toDouble()).toFloat()
         val currentDir = if (distance > DEADZONE_RADIUS) {
             processor.getDirectionFromXY(x, y)
@@ -41,9 +47,9 @@ class KeyboardStateMachine(
         }
 
         if (actionDownOrMove) {
-            if (isLeft) leftActiveDir = currentDir else rightActiveDir = currentDir
+            if (effectiveIsLeft) leftActiveDir = currentDir else rightActiveDir = currentDir
         } else if (actionUp) {
-            if (isLeft) {
+            if (effectiveIsLeft) {
                 if (rightActiveDir != Direction.NONE && !isChordExecuted) {
                     fireChord(leftActiveDir, rightActiveDir)
                 }
@@ -70,6 +76,10 @@ class KeyboardStateMachine(
 
     fun setColorPalette(palette: ColorPaletteType) {
         currentPaletteType = palette
+    }
+
+    fun setLeftHandedMode(enabled: Boolean) {
+        leftHandedMode = enabled
     }
 
     fun getCurrentPalette(): List<ColorEntry> {
