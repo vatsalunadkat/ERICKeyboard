@@ -6,9 +6,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class SharedKeyboardKotlinEnumCompanion, SharedKeyboardKotlinEnum<E>, SharedKeyboardDirection, SharedKeyboardKotlinArray<T>, SharedKeyboardInputAction, SharedKeyboardKeyboardFactory, SharedKeyboardKeyboardStateMachine, SharedKeyboardKeyboardMode, SharedKeyboardKotlinThrowable, SharedKeyboardKotlinException, SharedKeyboardKotlinRuntimeException, SharedKeyboardKotlinIllegalStateException;
+@class SharedKeyboardKotlinEnumCompanion, SharedKeyboardKotlinEnum<E>, SharedKeyboardDirection, SharedKeyboardKotlinArray<T>, SharedKeyboardInputAction, SharedKeyboardKeyboardFactory, SharedKeyboardKeyboardStateMachine, SharedKeyboardLayoutType, SharedKeyboardKeyboardMode, SharedKeyboardKotlinThrowable, SharedKeyboardKotlinException, SharedKeyboardKotlinRuntimeException, SharedKeyboardKotlinIllegalStateException;
 
-@protocol SharedKeyboardPlatform, SharedKeyboardKotlinx_coroutines_coreFlow, SharedKeyboardKotlinComparable, SharedKeyboardKeyboardActionDelegate, SharedKeyboardKotlinx_coroutines_coreCoroutineScope, SharedKeyboardKotlinx_coroutines_coreFlowCollector, SharedKeyboardKotlinIterator, SharedKeyboardKotlinCoroutineContext, SharedKeyboardKotlinCoroutineContextElement, SharedKeyboardKotlinCoroutineContextKey;
+@protocol SharedKeyboardPlatform, SharedKeyboardKotlinx_coroutines_coreFlow, SharedKeyboardKotlinComparable, SharedKeyboardKeyboardActionDelegate, SharedKeyboardKotlinx_coroutines_coreFlowCollector, SharedKeyboardKotlinIterator;
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -217,7 +217,6 @@ __attribute__((swift_name("InputAction")))
 @property (class, readonly) SharedKeyboardInputAction *space __attribute__((swift_name("space")));
 @property (class, readonly) SharedKeyboardInputAction *enter __attribute__((swift_name("enter")));
 @property (class, readonly) SharedKeyboardInputAction *backspace __attribute__((swift_name("backspace")));
-@property (class, readonly) SharedKeyboardInputAction *deleteForward __attribute__((swift_name("deleteForward")));
 @property (class, readonly) SharedKeyboardInputAction *toggleShift __attribute__((swift_name("toggleShift")));
 @property (class, readonly) SharedKeyboardInputAction *toggleCaps __attribute__((swift_name("toggleCaps")));
 @property (class, readonly) SharedKeyboardInputAction *moveHome __attribute__((swift_name("moveHome")));
@@ -229,6 +228,7 @@ __attribute__((swift_name("InputAction")))
 @property (class, readonly) SharedKeyboardInputAction *pageUp __attribute__((swift_name("pageUp")));
 @property (class, readonly) SharedKeyboardInputAction *pageDown __attribute__((swift_name("pageDown")));
 @property (class, readonly) SharedKeyboardInputAction *tab __attribute__((swift_name("tab")));
+@property (class, readonly) SharedKeyboardInputAction *deleteForward __attribute__((swift_name("deleteForward")));
 + (SharedKeyboardKotlinArray<SharedKeyboardInputAction *> *)values __attribute__((swift_name("values()")));
 @property (class, readonly) NSArray<SharedKeyboardInputAction *> *entries __attribute__((swift_name("entries")));
 @end
@@ -247,7 +247,7 @@ __attribute__((swift_name("KeyboardFactory")))
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)keyboardFactory __attribute__((swift_name("init()")));
 @property (class, readonly, getter=shared) SharedKeyboardKeyboardFactory *shared __attribute__((swift_name("shared")));
-- (SharedKeyboardKeyboardStateMachine *)createEngineDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate __attribute__((swift_name("createEngine(delegate:)")));
+- (SharedKeyboardKeyboardStateMachine *)createEngineDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate layoutType:(SharedKeyboardLayoutType *)layoutType __attribute__((swift_name("createEngine(delegate:layoutType:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -255,9 +255,8 @@ __attribute__((swift_name("KeyboardLogic")))
 @interface SharedKeyboardKeyboardLogic : SharedKeyboardBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-- (NSString *)getChordResultLeftDir:(SharedKeyboardDirection *)leftDir rightDir:(SharedKeyboardDirection *)rightDir mode:(SharedKeyboardKeyboardMode *)mode __attribute__((swift_name("getChordResult(leftDir:rightDir:mode:)")));
+- (NSString *)getChordResultLeftDir:(SharedKeyboardDirection *)leftDir rightDir:(SharedKeyboardDirection *)rightDir mode:(SharedKeyboardKeyboardMode *)mode layout:(SharedKeyboardLayoutType *)layout __attribute__((swift_name("getChordResult(leftDir:rightDir:mode:layout:)")));
 - (SharedKeyboardDirection *)getDirectionFromXYX:(float)x y:(float)y __attribute__((swift_name("getDirectionFromXY(x:y:)")));
-- (SharedKeyboardInputAction * _Nullable)getDoubleSwipeActionDir:(SharedKeyboardDirection *)dir __attribute__((swift_name("getDoubleSwipeAction(dir:)")));
 - (id _Nullable)getSingleSwipeResultDir:(SharedKeyboardDirection *)dir mode:(SharedKeyboardKeyboardMode *)mode __attribute__((swift_name("getSingleSwipeResult(dir:mode:)")));
 @end
 
@@ -277,10 +276,29 @@ __attribute__((swift_name("KeyboardMode")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KeyboardStateMachine")))
 @interface SharedKeyboardKeyboardStateMachine : SharedKeyboardBase
-- (instancetype)initWithDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate coroutineScope:(id<SharedKeyboardKotlinx_coroutines_coreCoroutineScope>)coroutineScope __attribute__((swift_name("init(delegate:coroutineScope:)"))) __attribute__((objc_designated_initializer));
-- (SharedKeyboardKeyboardStateMachine *)createKeyboardStateMachineForIOSDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate __attribute__((swift_name("createKeyboardStateMachineForIOS(delegate:)")));
+- (instancetype)initWithDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate currentLayoutType:(SharedKeyboardLayoutType *)currentLayoutType __attribute__((swift_name("init(delegate:currentLayoutType:)"))) __attribute__((objc_designated_initializer));
+- (SharedKeyboardLayoutType *)getLayoutType __attribute__((swift_name("getLayoutType()")));
 - (NSString *)getPreviewText __attribute__((swift_name("getPreviewText()")));
 - (void)handleTouchX:(float)x y:(float)y isLeft:(BOOL)isLeft actionDownOrMove:(BOOL)actionDownOrMove actionUp:(BOOL)actionUp __attribute__((swift_name("handleTouch(x:y:isLeft:actionDownOrMove:actionUp:)")));
+- (void)setLayoutTypeType:(SharedKeyboardLayoutType *)type __attribute__((swift_name("setLayoutType(type:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("LayoutType")))
+@interface SharedKeyboardLayoutType : SharedKeyboardKotlinEnum<SharedKeyboardLayoutType *>
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (instancetype)initWithName:(NSString *)name ordinal:(int32_t)ordinal __attribute__((swift_name("init(name:ordinal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
+@property (class, readonly) SharedKeyboardLayoutType *logical __attribute__((swift_name("logical")));
+@property (class, readonly) SharedKeyboardLayoutType *efficiency __attribute__((swift_name("efficiency")));
++ (SharedKeyboardKotlinArray<SharedKeyboardLayoutType *> *)values __attribute__((swift_name("values()")));
+@property (class, readonly) NSArray<SharedKeyboardLayoutType *> *entries __attribute__((swift_name("entries")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KeyboardStateMachineKt")))
+@interface SharedKeyboardKeyboardStateMachineKt : SharedKeyboardBase
++ (SharedKeyboardKeyboardStateMachine *)createKeyboardStateMachineForIOSDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate layoutType:(SharedKeyboardLayoutType *)layoutType __attribute__((swift_name("createKeyboardStateMachineForIOS(delegate:layoutType:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -319,12 +337,6 @@ __attribute__((swift_name("KotlinArray")))
 - (id<SharedKeyboardKotlinIterator>)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
 @property (readonly) int32_t size __attribute__((swift_name("size")));
-@end
-
-__attribute__((swift_name("Kotlinx_coroutines_coreCoroutineScope")))
-@protocol SharedKeyboardKotlinx_coroutines_coreCoroutineScope
-@required
-@property (readonly) id<SharedKeyboardKotlinCoroutineContext> coroutineContext __attribute__((swift_name("coroutineContext")));
 @end
 
 __attribute__((swift_name("KotlinThrowable")))
@@ -404,31 +416,6 @@ __attribute__((swift_name("KotlinIterator")))
 @required
 - (BOOL)hasNext __attribute__((swift_name("hasNext()")));
 - (id _Nullable)next __attribute__((swift_name("next()")));
-@end
-
-
-/**
- * @note annotations
- *   kotlin.SinceKotlin(version="1.3")
-*/
-__attribute__((swift_name("KotlinCoroutineContext")))
-@protocol SharedKeyboardKotlinCoroutineContext
-@required
-- (id _Nullable)foldInitial:(id _Nullable)initial operation:(id _Nullable (^)(id _Nullable, id<SharedKeyboardKotlinCoroutineContextElement>))operation __attribute__((swift_name("fold(initial:operation:)")));
-- (id<SharedKeyboardKotlinCoroutineContextElement> _Nullable)getKey:(id<SharedKeyboardKotlinCoroutineContextKey>)key __attribute__((swift_name("get(key:)")));
-- (id<SharedKeyboardKotlinCoroutineContext>)minusKeyKey:(id<SharedKeyboardKotlinCoroutineContextKey>)key __attribute__((swift_name("minusKey(key:)")));
-- (id<SharedKeyboardKotlinCoroutineContext>)plusContext:(id<SharedKeyboardKotlinCoroutineContext>)context __attribute__((swift_name("plus(context:)")));
-@end
-
-__attribute__((swift_name("KotlinCoroutineContextElement")))
-@protocol SharedKeyboardKotlinCoroutineContextElement <SharedKeyboardKotlinCoroutineContext>
-@required
-@property (readonly) id<SharedKeyboardKotlinCoroutineContextKey> key __attribute__((swift_name("key")));
-@end
-
-__attribute__((swift_name("KotlinCoroutineContextKey")))
-@protocol SharedKeyboardKotlinCoroutineContextKey
-@required
 @end
 
 #pragma pop_macro("_Nullable_result")
