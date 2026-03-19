@@ -19,6 +19,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var keyboardMode: WheelMode = .normal
     @Published var isEfficiency: Bool = false
     @Published var colorPaletteKey: String = "default"
+    @Published var isLeftHanded: Bool = false
 }
 
 // 2. SwiftUI 键盘容器：把左右两个摇杆横向排列
@@ -47,7 +48,7 @@ struct KeyboardContainerView: View {
 
                 HStack(spacing: controlSpacing) {
                     JoystickView(
-                        isRightSide: false,
+                        isRightSide: viewModel.isLeftHanded,
                         activeDirection: viewModel.leftDirection,
                         keyboardMode: viewModel.keyboardMode,
                         isEfficiency: viewModel.isEfficiency,
@@ -58,7 +59,7 @@ struct KeyboardContainerView: View {
                     .frame(width: leftSize, height: leftSize)
 
                     JoystickView(
-                        isRightSide: true,
+                        isRightSide: !viewModel.isLeftHanded,
                         activeDirection: viewModel.rightDirection,
                         keyboardMode: viewModel.keyboardMode,
                         isEfficiency: viewModel.isEfficiency,
@@ -268,11 +269,19 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return Self.appGroupDefaults.string(forKey: "color_palette") ?? "okabe_ito"
     }
 
+    private var isLeftHandedMode: Bool {
+        return Self.appGroupDefaults.bool(forKey: "left_handed_mode")
+    }
+
     private func applyLayoutPreference() {
         let layoutType: LayoutType = isEfficiencyLayout ? .efficiency : .logical
         stateMachine.setLayoutType(layout: layoutType)
         viewModel.isEfficiency = isEfficiencyLayout
         viewModel.colorPaletteKey = currentColorPaletteKey
+
+        let leftHanded = isLeftHandedMode
+        stateMachine.setLeftHandedMode(enabled: leftHanded)
+        viewModel.isLeftHanded = leftHanded
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -282,9 +291,11 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func syncVisualState(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {
         let currentDirection = direction(forX: dx, y: dy)
+        // In left-handed mode, swap which physical side is the "letter" vs "action" dial
+        let effectiveIsLeft = viewModel.isLeftHanded ? !isLeft : isLeft
 
         if isDown {
-            if isLeft {
+            if effectiveIsLeft {
                 mirroredLeftDirection = currentDirection
             } else {
                 mirroredRightDirection = currentDirection
@@ -294,7 +305,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
         guard isUp else { return }
 
-        if isLeft {
+        if effectiveIsLeft {
             if mirroredRightDirection != .none && !mirroredChordExecuted {
                 mirroredChordExecuted = true
                 if mirroredMode == .shifted {

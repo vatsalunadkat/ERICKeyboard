@@ -66,6 +66,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             if (::rightJoystick.isInitialized) rightJoystick.layoutType = layoutType
         }.launchIn(serviceScope)
 
+        preferencesManager.leftHandedMode.onEach { isLeftHanded ->
+            stateMachine.setLeftHandedMode(isLeftHanded)
+            if (::leftJoystick.isInitialized && ::rightJoystick.isInitialized) {
+                leftJoystick.isRightSide = isLeftHanded
+                rightJoystick.isRightSide = !isLeftHanded
+                leftJoystick.invalidate()
+                rightJoystick.invalidate()
+            }
+        }.launchIn(serviceScope)
+
         preferencesManager.colorblindMode.combine(preferencesManager.colorPalette) { enabled, palette ->
             if (enabled) {
                 when (palette) {
@@ -95,7 +105,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
         leftJoystick = view.findViewById(R.id.left_joystick)
         rightJoystick = view.findViewById(R.id.right_joystick)
-        rightJoystick.isRightSide = true
+
+        // Apply left-handed mode to the newly created joystick views
+        val isLeftHanded = stateMachine.leftHandedMode
+        leftJoystick.isRightSide = isLeftHanded
+        rightJoystick.isRightSide = !isLeftHanded
 
         // Apply current layout type to the newly created joystick views
         val currentLayout = stateMachine.currentLayoutType
@@ -153,8 +167,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // 2. 将数据喂给跨平台状态机 (它不需要知道什么是 MotionEvent)
         stateMachine.handleTouch(dx, dy, isLeft, isDownOrMove, isUpOrCancel)
 
-        // 3. Update right joystick mode if needed
-        rightJoystick.keyboardMode = stateMachine.currentMode
+        // 3. Update the action-wheel joystick mode (whichever currently shows right-side content)
+        val actionJoystick = if (stateMachine.leftHandedMode) leftJoystick else rightJoystick
+        actionJoystick.keyboardMode = stateMachine.currentMode
 
         // 3. 从状态机获取原先的预览逻辑（移除旧的摇杆文字预览）
         // rightJoystick.setPreviewText(stateMachine.getPreviewText())
@@ -163,17 +178,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     }
 
     private fun updateLivePreview() {
-        val leftDir = leftJoystick.activeDirection
-        val rightDir = rightJoystick.activeDirection
+        // In left-handed mode the letter-group dial is the physical right joystick,
+        // and the color dial is the physical left joystick.
+        val isLH = stateMachine.leftHandedMode
+        val letterDir = if (isLH) rightJoystick.activeDirection else leftJoystick.activeDirection
+        val colorDir  = if (isLH) leftJoystick.activeDirection  else rightJoystick.activeDirection
 
-        if (leftDir == Direction.NONE) {
+        if (letterDir == Direction.NONE) {
             previewContainer.visibility = View.INVISIBLE
             return
         }
 
         previewContainer.visibility = View.VISIBLE
 
-        val chars = stateMachine.getCharactersForDirection(leftDir)
+        val chars = stateMachine.getCharactersForDirection(letterDir)
         if (chars.isEmpty()) {
             previewText.text = ""
             return
@@ -207,8 +225,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
             )
 
-            // Enlarge if this is the active right direction
-            if (dirForChar == rightDir && rightDir != Direction.NONE) {
+            // Enlarge if this is the active color direction
+            if (dirForChar == colorDir && colorDir != Direction.NONE) {
                 builder.setSpan(
                     RelativeSizeSpan(1.5f),
                     start,
