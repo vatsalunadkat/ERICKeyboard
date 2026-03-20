@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import com.vatoo.erick.shared.ColorPaletteType
+import com.vatoo.erick.shared.CustomLayoutManager
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.KeyboardActionDelegate
 import com.vatoo.erick.shared.KeyboardStateMachine
@@ -48,6 +49,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     // 引入我们在 Shared 模块里写的跨平台大脑
     private lateinit var stateMachine: KeyboardStateMachine
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var customLayoutManager: CustomLayoutManager
 
     override fun onCreate() {
         super.onCreate()
@@ -56,12 +58,23 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
         // 监听布局偏好变化，实时切换布局 (使用与 SettingsScreen 相同的 PreferencesManager)
         preferencesManager = PreferencesManager(this)
-        preferencesManager.layoutType.onEach { layout ->
+        customLayoutManager = CustomLayoutManager(preferencesManager.createCustomLayoutStorage())
+
+        // Combine layout type and custom layout ID so we can apply both together
+        preferencesManager.layoutType.combine(preferencesManager.customLayoutId) { layout, customId ->
+            Pair(layout, customId)
+        }.onEach { (layout, customId) ->
             val layoutType = when (layout) {
                 PreferencesManager.LAYOUT_EFFICIENCY -> LayoutType.EFFICIENCY
+                PreferencesManager.LAYOUT_CUSTOM -> LayoutType.CUSTOM
                 else -> LayoutType.LOGICAL
             }
             stateMachine.setLayoutType(layoutType)
+            if (layoutType == LayoutType.CUSTOM && customId.isNotEmpty()) {
+                stateMachine.activeCustomLayout = customLayoutManager.getById(customId)
+            } else {
+                stateMachine.activeCustomLayout = null
+            }
             if (::leftJoystick.isInitialized) leftJoystick.layoutType = layoutType
             if (::rightJoystick.isInitialized) rightJoystick.layoutType = layoutType
         }.launchIn(serviceScope)

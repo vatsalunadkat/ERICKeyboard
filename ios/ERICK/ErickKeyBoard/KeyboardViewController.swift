@@ -263,6 +263,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return Self.appGroupDefaults.string(forKey: "layout_type") == "efficiency"
     }
 
+    private var isCustomLayout: Bool {
+        return Self.appGroupDefaults.string(forKey: "layout_type") == "custom"
+    }
+
+    private var activeCustomLayoutId: String {
+        return Self.appGroupDefaults.string(forKey: "custom_layout_id") ?? ""
+    }
+
     private var currentColorPaletteKey: String {
         let enabled = Self.appGroupDefaults.bool(forKey: "colorblind_mode")
         guard enabled else { return "default" }
@@ -274,9 +282,32 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func applyLayoutPreference() {
-        let layoutType: LayoutType = isEfficiencyLayout ? .efficiency : .logical
+        let layoutType: LayoutType
+        if isCustomLayout {
+            layoutType = .custom
+        } else if isEfficiencyLayout {
+            layoutType = .efficiency
+        } else {
+            layoutType = .logical
+        }
         stateMachine.setLayoutType(layout: layoutType)
         viewModel.isEfficiency = isEfficiencyLayout
+
+        // Load custom layout if applicable
+        if layoutType == LayoutType.custom {
+            let storage = IOSCustomLayoutStorage()
+            let manager = CustomLayoutManager(storage: storage)
+            manager.loadAll()
+            let customId = activeCustomLayoutId
+            if !customId.isEmpty {
+                stateMachine.activeCustomLayout = manager.getById(id: customId)
+            } else {
+                stateMachine.activeCustomLayout = nil
+            }
+        } else {
+            stateMachine.activeCustomLayout = nil
+        }
+
         viewModel.colorPaletteKey = currentColorPaletteKey
 
         let leftHanded = isLeftHandedMode

@@ -119,18 +119,4 @@ class KeyboardLogic {
             else -> ""
         }
     }
-
-    fun getDoubleSwipeKeyCode(dir: Direction): Int {
-        return when (dir) {
-            Direction.N  -> KeyEvent.KEYCODE_DPAD_UP
-            Direction.NE -> KeyEvent.KEYCODE_PAGE_UP
-            Direction.E  -> KeyEvent.KEYCODE_DPAD_RIGHT
-            Direction.SE -> KeyEvent.KEYCODE_PAGE_DOWN
-            Direction.S  -> KeyEvent.KEYCODE_DPAD_DOWN
-            Direction.SW -> KeyEvent.KEYCODE_FORWARD_DEL // Delete right
-            Direction.W  -> KeyEvent.KEYCODE_DPAD_LEFT
-            Direction.NW -> KeyEvent.KEYCODE_TAB
-            else -> -1
-        }
-    }
 }
