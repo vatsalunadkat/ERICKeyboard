@@ -31,13 +31,16 @@ import com.vatoo.erick.ui.theme.ERICKTheme
 class MainActivity : ComponentActivity() {
     private var isKeyboardEnabledState = mutableStateOf(false)
     private var isKeyboardCurrentState = mutableStateOf(false)
+    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         updateKeyboardStatus()
+        preferencesManager = PreferencesManager(this)
         setContent {
-            ERICKTheme {
+            val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.THEME_SYSTEM)
+            ERICKTheme(themeMode = themeMode) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),

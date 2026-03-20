@@ -13,10 +13,12 @@ struct SettingsView: View {
 
     @AppStorage("layout_type", store: SettingsView.appGroupDefaults) private var layoutType: String = "logical"
     @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
+    @AppStorage("theme_mode", store: SettingsView.appGroupDefaults) private var themeMode: String = "system"
     @AppStorage("colorblind_mode", store: SettingsView.appGroupDefaults) private var colorblindMode: Bool = false
     @AppStorage("color_palette", store: SettingsView.appGroupDefaults) private var colorPalette: String = "okabe_ito"
     @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
     @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
+    @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
@@ -91,7 +93,20 @@ struct SettingsView: View {
                 
                 // Appearance Section
                 Section(header: Text("Appearance")) {
-                    Toggle("Dark Theme", isOn: $darkTheme)
+                    Picker("Theme", selection: $themeMode) {
+                        Text("System Default").tag("system")
+                        Text("Light").tag("light")
+                        Text("Dark").tag("dark")
+                    }
+                    .pickerStyle(.inline)
+                }
+
+                // Font Section
+                Section(header: Text("Font")) {
+                    fontOption(key: "system", label: "System Default", font: .body)
+                    fontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
+                    fontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
+                    fontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
                 }
 
                 // Accessibility Section
@@ -155,6 +170,20 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 5)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func fontOption(key: String, label: String, font: Font) -> some View {
+        Button(action: { fontPreference = key }) {
+            HStack {
+                Image(systemName: fontPreference == key ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(fontPreference == key ? .accentColor : .secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(label).foregroundColor(.primary)
+                    Text("The quick brown fox").font(font).foregroundColor(.secondary)
                 }
             }
         }

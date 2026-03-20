@@ -13,19 +13,24 @@
         <FrameLayout
             android:id="@+id/live_preview_container"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:visibility="invisible"
-            android:background="#D0D6DC">
-            
-            <TextView
-                android:id="@+id/live_preview_text"
+            android:gravity="center"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:id="@+id/live_preview_capsule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="#212121"
-                android:letterSpacing="0.2" />
+                android:orientation="horizontal"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="10dp"
+                android:elevation="6dp"
+                android:background="@drawable/preview_capsule_bg" />
         </FrameLayout>
 
         <LinearLayout
@@ -62,4 +67,18 @@
         android:contentDescription="@string/settings"
         android:scaleType="centerInside"
         android:padding="8dp" />
+
+    <!-- Shift / Caps Lock indicator -->
+    <TextView
+        android:id="@+id/shift_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="10dp"
+        android:textSize="13sp"
+        android:textColor="#FFFFFF"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        android:importantForAccessibility="yes" />
 </FrameLayout>

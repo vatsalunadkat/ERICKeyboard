@@ -117,6 +117,33 @@ class KeyboardLogic {
         return currentMap[dir] ?: emptyList()
     }
 
+    /**
+     * Returns the character at position [rightDir] across ALL left-dial groups.
+     * Used for right-dial-only preview: e.g. holding right-dial N (index 0)
+     * returns the first character from every left-dial group.
+     * Each entry in the returned list is a pair of (leftDirection, character).
+     */
+    fun getCharactersAtPosition(rightDir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL, customLayout: CustomLayout? = null): List<Pair<Direction, String>> {
+        val index = getRightIndex(rightDir)
+        if (index == -1) return emptyList()
+        val currentMap = when {
+            layout == LayoutType.CUSTOM && customLayout != null -> {
+                if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
+                else customLayout.shiftedChordMap
+            }
+            layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
+            layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
+            mode == KeyboardMode.NORMAL -> normalMap
+            else -> shiftedMap
+        }
+        val allLeftDirs = listOf(Direction.N, Direction.NE, Direction.E, Direction.SE, Direction.S, Direction.SW, Direction.W, Direction.NW)
+        return allLeftDirs.mapNotNull { leftDir ->
+            val chars = currentMap[leftDir] ?: return@mapNotNull null
+            val ch = chars.getOrNull(index) ?: ""
+            if (ch.isNotBlank()) leftDir to ch else null
+        }
+    }
+
     // --- 第三部分：动作映射 (替换为我们刚刚定义的跨平台 InputAction) ---
 
     // 注意这里：返回值变成了 Any，因为单滑可能返回字符 (String)，也可能返回指令 (InputAction)
