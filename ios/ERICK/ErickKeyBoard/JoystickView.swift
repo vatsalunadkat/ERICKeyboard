@@ -1,4 +1,5 @@
 import SwiftUI
+import SharedKeyboard
 
 private extension Array where Element == String {
     func safe(_ index: Int) -> String {
@@ -51,6 +52,55 @@ private struct LeftWheelSection {
     let inner: [String]
 }
 
+private enum LeftWheelSharedMapping {
+    private static let keyboardLogic = KeyboardLogic()
+
+    static func sections(for mode: WheelMode, efficiency: Bool) -> [LeftWheelSection] {
+        let layoutType: LayoutType = efficiency ? .efficiency : .logical
+        let keyboardMode = sharedMode(for: mode)
+
+        return WheelDirection.orderedDirections.map { leftDirection in
+            let values = WheelDirection.orderedDirections.map { rightDirection in
+                keyboardLogic.getChordResult(
+                    leftDir: sharedDirection(for: leftDirection),
+                    rightDir: sharedDirection(for: rightDirection),
+                    mode: keyboardMode,
+                    layout: layoutType
+                )
+            }
+
+            return LeftWheelSection(
+                direction: leftDirection,
+                outer: Array(values[0...2]),
+                middle: Array(values[3...5]),
+                inner: Array(values[6...7])
+            )
+        }
+    }
+
+    private static func sharedDirection(for direction: WheelDirection) -> Direction {
+        switch direction {
+        case .none: return .none
+        case .n: return .n
+        case .ne: return .ne
+        case .e: return .e
+        case .se: return .se
+        case .s: return .s
+        case .sw: return .sw
+        case .w: return .w
+        case .nw: return .nw
+        }
+    }
+
+    private static func sharedMode(for mode: WheelMode) -> KeyboardMode {
+        switch mode {
+        case .normal: return .normal
+        case .shifted: return .shifted
+        case .capsLocked: return .capsLocked
+        }
+    }
+}
+
 private struct RightWheelAction {
     let title: String
     let systemImage: String?
@@ -65,6 +115,7 @@ struct JoystickView: View {
     var fontPreference: String = "system"
     var customNormalSections: [[String]]? = nil
     var customShiftedSections: [[String]]? = nil
+    var controllerStickNormalized: (x: Float, y: Float) = (0, 0)
     var onTouch: ((Float, Float, Bool, Bool) -> Void)?
 
     @State private var thumbOffset: CGSize = .zero
@@ -75,6 +126,10 @@ struct JoystickView: View {
             let thumbDiameter = diameter * (isRightSide ? 0.24 : 0.26)
             let thumbRadius = thumbDiameter / 2
             let maxThumbDistance = (diameter / 2) - thumbRadius - (diameter * 0.035)
+            let isControllerActive = abs(controllerStickNormalized.x) > 0.01 || abs(controllerStickNormalized.y) > 0.01
+            let displayOffset: CGSize = isControllerActive
+                ? CGSize(width: CGFloat(controllerStickNormalized.x) * maxThumbDistance, height: -CGFloat(controllerStickNormalized.y) * maxThumbDistance)
+                : thumbOffset
 
             ZStack {
                 if isRightSide {
@@ -91,7 +146,7 @@ struct JoystickView: View {
                         .padding(thumbDiameter * 0.24)
                 }
                 .frame(width: thumbDiameter, height: thumbDiameter)
-                .offset(thumbOffset)
+                .offset(displayOffset)
                 .shadow(color: .black.opacity(0.18), radius: 5, y: 2)
             }
             .frame(width: diameter, height: diameter)
@@ -335,54 +390,7 @@ private struct LeftWheelBackground: View {
     }
 
     private func leftWheelSections(for mode: WheelMode, efficiency: Bool = false) -> [LeftWheelSection] {
-        if efficiency {
-            if mode.usesShiftedSymbols {
-                return [
-                    LeftWheelSection(direction: .n,  outer: ["T", "S", "G"], middle: ["&", "+", ""],  inner: ["K", "$"]),
-                    LeftWheelSection(direction: .ne, outer: ["I", "A", "N"], middle: ["P", "?", ""],  inner: ["\"", ""]),
-                    LeftWheelSection(direction: .e,  outer: ["V", "L", "E"], middle: ["R", "X", ""],  inner: [":", ""]),
-                    LeftWheelSection(direction: .se, outer: ["_", "Y", "D"], middle: ["O", "M", ""],  inner: ["", ""]),
-                    LeftWheelSection(direction: .s,  outer: ["~", "^", "B"], middle: ["F", "U", ""],  inner: ["", ""]),
-                    LeftWheelSection(direction: .sw, outer: ["|", "{", "}"], middle: ["%", "Q", "J"], inner: ["", ""]),
-                    LeftWheelSection(direction: .w,  outer: ["", "", ""],   middle: ["", "", "@"],   inner: ["Z", "#"]),
-                    LeftWheelSection(direction: .nw, outer: ["H", "W", "!"], middle: ["*", "(", ""],  inner: ["C", ")"])
-                ]
-            }
-            return [
-                LeftWheelSection(direction: .n,  outer: ["t", "s", "g"], middle: ["7", "=", ""],  inner: ["k", "4"]),
-                LeftWheelSection(direction: .ne, outer: ["i", "a", "n"], middle: ["p", "/", ""],  inner: ["'", ""]),
-                LeftWheelSection(direction: .e,  outer: ["v", "l", "e"], middle: ["r", "x", ""],  inner: [";", ""]),
-                LeftWheelSection(direction: .se, outer: ["-", "y", "d"], middle: ["o", "m", ""],  inner: ["", ""]),
-                LeftWheelSection(direction: .s,  outer: ["`", "6", "b"], middle: ["f", "u", ""],  inner: ["", ""]),
-                LeftWheelSection(direction: .sw, outer: ["\\", "[", "]"], middle: ["5", "q", "j"], inner: ["", ""]),
-                LeftWheelSection(direction: .w,  outer: ["", "", ""],   middle: ["", "", "2"],   inner: ["z", "3"]),
-                LeftWheelSection(direction: .nw, outer: ["h", "w", "1"], middle: ["8", "9", ""],  inner: ["c", "0"])
-            ]
-        }
-
-        if mode.usesShiftedSymbols {
-            return [
-                LeftWheelSection(direction: .n, outer: ["A", "B", "C"], middle: ["D", "E", ""], inner: ["\"", ""]),
-                LeftWheelSection(direction: .ne, outer: ["F", "G", "H"], middle: ["I", "J", ""], inner: ["?", ""]),
-                LeftWheelSection(direction: .e, outer: ["K", "L", "M"], middle: ["N", "O", ""], inner: [":", ""]),
-                LeftWheelSection(direction: .se, outer: ["P", "Q", "R"], middle: ["S", "T", ""], inner: ["_", ""]),
-                LeftWheelSection(direction: .s, outer: ["U", "V", "W"], middle: ["X", "Y", ""], inner: ["+", ""]),
-                LeftWheelSection(direction: .sw, outer: ["Z", "|", "{"], middle: ["}", "~", ""], inner: ["", ""]),
-                LeftWheelSection(direction: .w, outer: ["!", "@", "#"], middle: ["$", "%", ""], inner: ["", ""]),
-                LeftWheelSection(direction: .nw, outer: ["^", "&", "*"], middle: ["(", ")", ""], inner: ["", ""])
-            ]
-        }
-
-        return [
-            LeftWheelSection(direction: .n, outer: ["a", "b", "c"], middle: ["d", "e", ""], inner: ["'", ""]),
-            LeftWheelSection(direction: .ne, outer: ["f", "g", "h"], middle: ["i", "j", ""], inner: ["/", ""]),
-            LeftWheelSection(direction: .e, outer: ["k", "l", "m"], middle: ["n", "o", ""], inner: [";", ""]),
-            LeftWheelSection(direction: .se, outer: ["p", "q", "r"], middle: ["s", "t", ""], inner: ["-", ""]),
-            LeftWheelSection(direction: .s, outer: ["u", "v", "w"], middle: ["x", "y", ""], inner: ["=", ""]),
-            LeftWheelSection(direction: .sw, outer: ["z", "\\", "["], middle: ["]", "`", ""], inner: ["", ""]),
-            LeftWheelSection(direction: .w, outer: ["1", "2", "3"], middle: ["4", "5", ""], inner: ["", ""]),
-            LeftWheelSection(direction: .nw, outer: ["6", "7", "8"], middle: ["9", "0", ""], inner: ["", ""])
-        ]
+        LeftWheelSharedMapping.sections(for: mode, efficiency: efficiency)
     }
 }
 

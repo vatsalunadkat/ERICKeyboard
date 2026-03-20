@@ -9,10 +9,18 @@ class KeyboardStateMachine(
 ) {
     private val processor = KeyboardLogic()
     private val DEADZONE_RADIUS = 40f
+    private var controllerDeadZone = 0.25f
+    private var controllerYAxisMultiplier = 1f
 
     // 核心状态
     private var leftActiveDir = Direction.NONE
     private var rightActiveDir = Direction.NONE
+    private var leftActiveSource: InputSource? = null
+    private var rightActiveSource: InputSource? = null
+    private var leftTouchDir = Direction.NONE
+    private var rightTouchDir = Direction.NONE
+    private var leftControllerDir = Direction.NONE
+    private var rightControllerDir = Direction.NONE
     var currentMode = KeyboardMode.NORMAL
         private set(value) {
             if (field != value) {
@@ -31,9 +39,7 @@ class KeyboardStateMachine(
 
     // 接收来自原生平台的触摸更新
     fun handleTouch(x: Float, y: Float, isLeft: Boolean, actionDownOrMove: Boolean, actionUp: Boolean) {
-        // In left-handed mode, swap dial roles so the physical left joystick
-        // acts as the right (color/action) dial and vice versa.
-        val effectiveIsLeft = if (leftHandedMode) !isLeft else isLeft
+        val effectiveIsLeft = getEffectiveSide(isLeft)
 
         val distance = hypot(x.toDouble(), y.toDouble()).toFloat()
         val currentDir = if (distance > DEADZONE_RADIUS) {
@@ -43,29 +49,35 @@ class KeyboardStateMachine(
         }
 
         if (actionDownOrMove) {
-            if (effectiveIsLeft) leftActiveDir = currentDir else rightActiveDir = currentDir
+            updateDirectionalState(InputSource.TOUCH, effectiveIsLeft, currentDir)
         } else if (actionUp) {
-            if (effectiveIsLeft) {
-                if (rightActiveDir != Direction.NONE && !isChordExecuted) {
-                    fireChord(leftActiveDir, rightActiveDir)
-                }
-                leftActiveDir = Direction.NONE
-            } else {
-                if (leftActiveDir != Direction.NONE && !isChordExecuted) {
-                    fireChord(leftActiveDir, rightActiveDir)
-                } else if (leftActiveDir == Direction.NONE && !isChordExecuted) {
-                    handleRightOnlySwipe(rightActiveDir)
-                }
-                rightActiveDir = Direction.NONE
-            }
-
-            // 解锁
-            if (leftActiveDir == Direction.NONE && rightActiveDir == Direction.NONE) {
-                isChordExecuted = false
-            }
+            releaseDirectionalState(InputSource.TOUCH, effectiveIsLeft)
         }
     }
 
+    fun setControllerDeadZone(deadZone: Float) {
+        controllerDeadZone = deadZone.coerceIn(0f, 1f)
+    }
+
+    fun setControllerYAxisInverted(inverted: Boolean) {
+        controllerYAxisMultiplier = if (inverted) -1f else 1f
+    }
+
+    fun handleControllerInput(leftX: Float, leftY: Float, rightX: Float, rightY: Float) {
+        processControllerStick(
+            input = normalizeControllerStick(leftX, leftY),
+            isLeft = true
+        )
+        processControllerStick(
+            input = normalizeControllerStick(rightX, rightY),
+            isLeft = false
+        )
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun handleControllerButton(button: ControllerButton) {
+        // Reserved for platform-specific button mapping in a later step.
+    }
     fun setLayoutType(layout: LayoutType) {
         currentLayoutType = layout
     }
@@ -97,6 +109,126 @@ class KeyboardStateMachine(
 
     fun getCharactersAtPosition(rightDir: Direction): List<Pair<Direction, String>> {
         return processor.getCharactersAtPosition(rightDir, currentMode, currentLayoutType, activeCustomLayout)
+    }
+
+    private fun normalizeControllerStick(x: Float, y: Float): ControllerStickInput {
+        val clampedX = x.coerceIn(-1f, 1f)
+        val clampedY = (y * controllerYAxisMultiplier).coerceIn(-1f, 1f)
+        val magnitude = hypot(clampedX.toDouble(), clampedY.toDouble()).toFloat()
+
+        if (magnitude <= controllerDeadZone) {
+            return ControllerStickInput(0f, 0f, false)
+        }
+
+        val scale = if (controllerDeadZone > 0f) {
+            DEADZONE_RADIUS / controllerDeadZone
+        } else {
+            DEADZONE_RADIUS
+        }
+
+        return ControllerStickInput(
+            x = clampedX * scale,
+            y = clampedY * scale,
+            isActive = true
+        )
+    }
+
+    private fun processControllerStick(input: ControllerStickInput, isLeft: Boolean) {
+        val effectiveIsLeft = getEffectiveSide(isLeft)
+
+        when {
+            input.isActive -> updateDirectionalState(
+                source = InputSource.CONTROLLER,
+                isLeft = effectiveIsLeft,
+                dir = processor.getDirectionFromXY(input.x, input.y)
+            )
+            getSourceDirection(InputSource.CONTROLLER, effectiveIsLeft) != Direction.NONE ->
+                releaseDirectionalState(InputSource.CONTROLLER, effectiveIsLeft)
+        }
+    }
+
+    private fun updateDirectionalState(source: InputSource, isLeft: Boolean, dir: Direction) {
+        setSourceDirection(source, isLeft, dir)
+        recomputeActiveDirections()
+    }
+
+    private fun releaseDirectionalState(source: InputSource, isLeft: Boolean) {
+        val sourceDir = getSourceDirection(source, isLeft)
+        val wasEffectiveSource = getEffectiveSource(isLeft) == source
+        val leftDirBeforeRelease = leftActiveDir
+        val rightDirBeforeRelease = rightActiveDir
+
+        if (sourceDir != Direction.NONE && wasEffectiveSource) {
+            if (isLeft) {
+                if (rightDirBeforeRelease != Direction.NONE && !isChordExecuted) {
+                    fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
+                }
+            } else {
+                if (leftDirBeforeRelease != Direction.NONE && !isChordExecuted) {
+                    fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
+                } else if (leftDirBeforeRelease == Direction.NONE && !isChordExecuted) {
+                    handleRightOnlySwipe(rightDirBeforeRelease)
+                }
+            }
+        }
+
+        setSourceDirection(source, isLeft, Direction.NONE)
+        recomputeActiveDirections()
+
+        if (leftActiveDir == Direction.NONE && rightActiveDir == Direction.NONE) {
+            isChordExecuted = false
+        }
+    }
+
+    private fun setSourceDirection(source: InputSource, isLeft: Boolean, dir: Direction) {
+        when {
+            source == InputSource.TOUCH && isLeft -> leftTouchDir = dir
+            source == InputSource.TOUCH && !isLeft -> rightTouchDir = dir
+            source == InputSource.CONTROLLER && isLeft -> leftControllerDir = dir
+            else -> rightControllerDir = dir
+        }
+    }
+
+    private fun getSourceDirection(source: InputSource, isLeft: Boolean): Direction {
+        return when {
+            source == InputSource.TOUCH && isLeft -> leftTouchDir
+            source == InputSource.TOUCH && !isLeft -> rightTouchDir
+            source == InputSource.CONTROLLER && isLeft -> leftControllerDir
+            else -> rightControllerDir
+        }
+    }
+
+    private fun recomputeActiveDirections() {
+        val (resolvedLeftDir, resolvedLeftSource) = resolveEffectiveDirection(leftTouchDir, leftControllerDir)
+        val (resolvedRightDir, resolvedRightSource) = resolveEffectiveDirection(rightTouchDir, rightControllerDir)
+
+        leftActiveDir = resolvedLeftDir
+        rightActiveDir = resolvedRightDir
+        leftActiveSource = resolvedLeftSource
+        rightActiveSource = resolvedRightSource
+    }
+
+    private fun resolveEffectiveDirection(
+        touchDir: Direction,
+        controllerDir: Direction
+    ): Pair<Direction, InputSource?> {
+        return when {
+            touchDir != Direction.NONE -> touchDir to InputSource.TOUCH
+            controllerDir != Direction.NONE -> controllerDir to InputSource.CONTROLLER
+            else -> Direction.NONE to null
+        }
+    }
+
+    private fun getEffectiveSource(isLeft: Boolean): InputSource? {
+        return if (isLeft) {
+            leftActiveSource
+        } else {
+            rightActiveSource
+        }
+    }
+
+    private fun getEffectiveSide(isLeft: Boolean): Boolean {
+        return if (leftHandedMode) !isLeft else isLeft
     }
 
     private fun fireChord(left: Direction, right: Direction) {
@@ -145,3 +277,14 @@ object KeyboardFactory {
         return KeyboardStateMachine(delegate, kotlinx.coroutines.MainScope())
     }
 }
+
+private enum class InputSource {
+    TOUCH,
+    CONTROLLER
+}
+
+private data class ControllerStickInput(
+    val x: Float,
+    val y: Float,
+    val isActive: Boolean
+)

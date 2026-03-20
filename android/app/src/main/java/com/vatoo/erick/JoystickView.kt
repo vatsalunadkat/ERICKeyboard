@@ -661,7 +661,36 @@ class JoystickView @JvmOverloads constructor(
 
         invalidate()
     }
+    fun updateThumbFromController(normalizedX: Float, normalizedY: Float, deadZone: Float = 0.25f) {
+        val clampedX = normalizedX.coerceIn(-1f, 1f)
+        val clampedY = normalizedY.coerceIn(-1f, 1f)
+        val magnitude = hypot(clampedX.toDouble(), clampedY.toDouble()).toFloat()
 
+        if (magnitude <= deadZone) {
+            resetThumb()
+            return
+        }
+
+        val maxRadius = if (isRightSide) {
+            baseRadius * 0.3f
+        } else {
+            baseRadius * 0.4f
+        }
+
+        val activationRadius = minOf(maxRadius, (baseRadius * 0.15f) + 1f)
+        val normalizedMagnitude = if (deadZone >= 1f) {
+            1f
+        } else {
+            ((magnitude - deadZone) / (1f - deadZone)).coerceIn(0f, 1f)
+        }
+        val remappedRadius = activationRadius + ((maxRadius - activationRadius) * normalizedMagnitude)
+        val magnitudeScale = if (magnitude > 0f) remappedRadius / magnitude else 0f
+
+        updateThumb(
+            dx = clampedX * magnitudeScale,
+            dy = clampedY * magnitudeScale
+        )
+    }
     private fun getInfoForDirection(dir: Direction): Pair<String, String> {
         val isShifted = keyboardMode == KeyboardMode.SHIFTED
         val isCaps = keyboardMode == KeyboardMode.CAPS_LOCKED

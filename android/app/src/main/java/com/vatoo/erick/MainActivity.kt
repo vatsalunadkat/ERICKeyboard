@@ -2,12 +2,15 @@ package com.vatoo.erick
 
 import android.content.Context
 import android.content.Intent
+import android.hardware.input.InputManager
 import android.os.Bundle
 import android.provider.Settings
+import android.view.InputDevice
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -86,13 +92,36 @@ fun MainScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Header
-        Text(
-            text = "Welcome to ERICKeyboard",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.erick_logo),
+                contentDescription = "ERICK logo",
+                modifier = Modifier
+                    .size(92.dp)
+                    .padding(top = 8.dp, bottom = 12.dp)
+            )
+            Text(
+                text = "Welcome to ERICKeyboard",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = "A radial chorded keyboard for everyone",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+        }
 
         // Show success message if fully enabled, otherwise show instructions
         if (isFullyEnabled) {
@@ -361,7 +390,7 @@ fun MainScreen(
                 }
             }
         }
-
+        ControllerStatusCard()
         // Test Field - moved to top
         Text(
             text = "Test Your Keyboard:",
@@ -530,7 +559,95 @@ fun InstructionStepWithStatus(
         }
     }
 }
+@Composable
+fun ControllerStatusCard(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var controllerName by remember { mutableStateOf<String?>(null) }
 
+    fun refreshControllerStatus() {
+        val inputManager = context.getSystemService(Context.INPUT_SERVICE) as InputManager
+        controllerName = InputDevice.getDeviceIds()
+            .asSequence()
+            .mapNotNull { InputDevice.getDevice(it) }
+            .firstOrNull { it.isCompatibleController() }
+            ?.name
+    }
+
+    DisposableEffect(context, lifecycleOwner) {
+        val inputManager = context.getSystemService(Context.INPUT_SERVICE) as InputManager
+        val listener = object : InputManager.InputDeviceListener {
+            override fun onInputDeviceAdded(deviceId: Int) {
+                refreshControllerStatus()
+            }
+
+            override fun onInputDeviceRemoved(deviceId: Int) {
+                refreshControllerStatus()
+            }
+
+            override fun onInputDeviceChanged(deviceId: Int) {
+                refreshControllerStatus()
+            }
+        }
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshControllerStatus()
+            }
+        }
+
+        refreshControllerStatus()
+        inputManager.registerInputDeviceListener(listener, null)
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            inputManager.unregisterInputDeviceListener(listener)
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.SportsEsports,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(36.dp)
+            )
+            Spacer(Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = "Controller Status",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = controllerName?.let { "Connected: $it" } ?: "No controller detected",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (controllerName != null) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+private fun InputDevice.isCompatibleController(): Boolean {
+    val isGamepad = sources and InputDevice.SOURCE_GAMEPAD == InputDevice.SOURCE_GAMEPAD
+    val isJoystick = sources and InputDevice.SOURCE_JOYSTICK == InputDevice.SOURCE_JOYSTICK
+    return isGamepad || isJoystick
+}
 fun isKeyboardEnabled(context: Context): Boolean {
     val imeManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     val enabledIMEs = imeManager.enabledInputMethodList
