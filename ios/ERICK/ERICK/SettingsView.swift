@@ -9,7 +9,7 @@ import SwiftUI
 import SharedKeyboard
 
 struct SettingsView: View {
-    private static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
+    fileprivate static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
     
     @AppStorage("layout_type", store: SettingsView.appGroupDefaults) private var layoutType: String = "logical"
     @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false

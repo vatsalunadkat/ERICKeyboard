@@ -14,7 +14,21 @@ enum class KeyboardMode {
 enum class LayoutType {
     LOGICAL, EFFICIENCY, CUSTOM
 }
+enum class ControllerButton {
+    A, B, X, Y,
+    LEFT_BUMPER, RIGHT_BUMPER,
+    LEFT_TRIGGER, RIGHT_TRIGGER,
+    START, SELECT
+}
 
+data class ControllerState(
+    val isConnected: Boolean,
+    val controllerName: String,
+    val leftStickX: Float,
+    val leftStickY: Float,
+    val rightStickX: Float,
+    val rightStickY: Float
+)
 // 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
 enum class InputAction {
     SPACE, ENTER, BACKSPACE, DELETE_FORWARD,

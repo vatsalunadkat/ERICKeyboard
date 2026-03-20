@@ -9,7 +9,7 @@ import SwiftUI
 import SharedKeyboard
 
 struct SettingsView: View {
-    private static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
+    static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
 
     @AppStorage("layout_type", store: SettingsView.appGroupDefaults) private var layoutType: String = "logical"
     @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
@@ -22,6 +22,7 @@ struct SettingsView: View {
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
+    var onSettingsChanged: (() -> Void)? = nil
 
     @State private var showCustomLayoutList = false
 
@@ -41,73 +42,94 @@ struct SettingsView: View {
                 Spacer()
             }
             .background(Color(UIColor.systemGray6))
-            
+
             if showCustomLayoutList {
                 CustomLayoutListView(onBack: { showCustomLayoutList = false })
             } else {
                 mainSettingsForm
             }
         }
+        .onChange(of: layoutType) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: colorblindMode) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: colorPalette) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: themeMode) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: fontPreference) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: leftHandedMode) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: customLayoutId) { _ in
+            onSettingsChanged?()
+        }
     }
 
     private var mainSettingsForm: some View {
-            // Content
-            Form {
-                // Layout Section
-                Section(header: Text("Keyboard Layout")) {
-                    Picker("Layout Type", selection: $layoutType) {
-                        Text("Logical (A–Z)").tag("logical")
-                        Text("Efficiency").tag("efficiency")
-                    }
-                    .pickerStyle(.inline)
+        // Content
+        Form {
+            // Layout Section
+            Section(header: Text("Keyboard Layout")) {
+                Picker("Layout Type", selection: $layoutType) {
+                    Text("Logical (A–Z)").tag("logical")
+                    Text("Efficiency").tag("efficiency")
+                }
+                .pickerStyle(.inline)
 
-                    // Custom layouts
-                    let storage = IOSCustomLayoutStorage()
-                    let manager = CustomLayoutManager(storage: storage)
-                    let _ = manager.loadAll()
-                    let customs = manager.getAll()
-                    ForEach(Array(customs.enumerated()), id: \.element.id) { _, cl in
-                        Button(action: {
-                            customLayoutId = cl.id
-                            layoutType = "custom"
-                        }) {
-                            HStack {
-                                Image(systemName: layoutType == "custom" && customLayoutId == cl.id
-                                      ? "largecircle.fill.circle" : "circle")
-                                    .foregroundColor(layoutType == "custom" && customLayoutId == cl.id ? .accentColor : .secondary)
-                                VStack(alignment: .leading) {
-                                    Text(cl.name).foregroundColor(.primary)
-                                    Text("Custom layout").font(.caption).foregroundColor(.secondary)
-                                }
+                // Custom layouts
+                let storage = IOSCustomLayoutStorage()
+                let manager = CustomLayoutManager(storage: storage)
+                let _ = manager.loadAll()
+                let customs = manager.getAll()
+                ForEach(Array(customs.enumerated()), id: \.element.id) { _, cl in
+                    Button(action: {
+                        customLayoutId = cl.id
+                        layoutType = "custom"
+                    }) {
+                        HStack {
+                            Image(systemName: layoutType == "custom" && customLayoutId == cl.id
+                                  ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(layoutType == "custom" && customLayoutId == cl.id ? .accentColor : .secondary)
+                            VStack(alignment: .leading) {
+                                Text(cl.name).foregroundColor(.primary)
+                                Text("Custom layout").font(.caption).foregroundColor(.secondary)
                             }
                         }
                     }
-
-                    Button(action: { showCustomLayoutList = true }) {
-                        HStack {
-                            Image(systemName: "pencil.circle")
-                            Text("Manage Custom Layouts")
-                        }
-                    }
-                }
-                
-                // Appearance Section
-                Section(header: Text("Appearance")) {
-                    Picker("Theme", selection: $themeMode) {
-                        Text("System Default").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
-                    }
-                    .pickerStyle(.inline)
                 }
 
-                // Font Section
-                Section(header: Text("Font")) {
-                    fontOption(key: "system", label: "System Default", font: .body)
-                    fontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
-                    fontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
-                    fontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
+                Button(action: { showCustomLayoutList = true }) {
+                    HStack {
+                        Image(systemName: "pencil.circle")
+                        Text("Manage Custom Layouts")
+                    }
                 }
+            }
+            
+            // Appearance Section
+            Section(header: Text("Appearance")) {
+                Picker("Theme", selection: $themeMode) {
+                    Text("System Default").tag("system")
+                    Text("Light").tag("light")
+                    Text("Dark").tag("dark")
+                }
+                .pickerStyle(.inline)
+            }
+
+            // Font Section
+            Section(header: Text("Font")) {
+                fontOption(key: "system", label: "System Default", font: .body)
+                fontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
+                fontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
+                fontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
+            }
 
                 // Accessibility Section
                 Section(header: Text("Accessibility")) {

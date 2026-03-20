@@ -1,9 +1,12 @@
 package com.vatoo.erick
 
 import android.inputmethodservice.InputMethodService
+import android.hardware.input.InputManager
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.InputDevice
+import kotlin.math.abs
 import android.view.inputmethod.EditorInfo
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
@@ -28,6 +31,7 @@ import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.content.res.ResourcesCompat
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
 
@@ -46,10 +50,19 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     // 必须给状态机提供一个作用域，当输入法关闭时，销毁所有倒计时任务防止内存泄漏
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-
+    private val controllerDeadZone = 0.25f
+    private val inputManager by lazy { getSystemService(INPUT_SERVICE) as InputManager }
     // 引入我们在 Shared 模块里写的跨平台大脑
     private lateinit var stateMachine: KeyboardStateMachine
     private lateinit var preferencesManager: PreferencesManager
+    private var connectedControllerName: String? = null
+    private val controllerListener = object : InputManager.InputDeviceListener {
+        override fun onInputDeviceAdded(deviceId: Int) = refreshControllerStatus()
+
+        override fun onInputDeviceRemoved(deviceId: Int) = refreshControllerStatus()
+
+        override fun onInputDeviceChanged(deviceId: Int) = refreshControllerStatus()
+    }
     private lateinit var customLayoutManager: CustomLayoutManager
     private var currentThemeMode: String = PreferencesManager.THEME_SYSTEM
     private var currentFontPreference: String = PreferencesManager.FONT_SYSTEM
@@ -59,7 +72,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         super.onCreate()
         // 输入法创建时，组装大脑，并把自己 (this) 作为代理传进去
         stateMachine = KeyboardStateMachine(this, serviceScope)
-
+        stateMachine.setControllerDeadZone(controllerDeadZone)
+        stateMachine.setControllerYAxisInverted(false)
+        inputManager.registerInputDeviceListener(controllerListener, null)
+        refreshControllerStatus()
         // 监听布局偏好变化，实时切换布局 (使用与 SettingsScreen 相同的 PreferencesManager)
         preferencesManager = PreferencesManager(this)
         customLayoutManager = CustomLayoutManager(preferencesManager.createCustomLayoutStorage())
@@ -143,6 +159,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     override fun onDestroy() {
         super.onDestroy()
+        inputManager.unregisterInputDeviceListener(controllerListener)
         serviceJob.cancel() // 输入法销毁时，清理所有的协程定时器
     }
 
@@ -206,7 +223,64 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
         return view
     }
+    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        if (
+            event.action == MotionEvent.ACTION_MOVE &&
+            event.isFromSource(InputDevice.SOURCE_JOYSTICK) &&
+            event.device?.isCompatibleController() == true
+        ) {
+            if (!::leftJoystick.isInitialized || !::rightJoystick.isInitialized) {
+                return super.onGenericMotionEvent(event)
+            }
+            val leftX = event.getCenteredAxisValue(MotionEvent.AXIS_X)
+            val leftY = event.getCenteredAxisValue(MotionEvent.AXIS_Y)
+            val rightX = event.getPreferredAxisValue(MotionEvent.AXIS_Z, MotionEvent.AXIS_RX)
+            val rightY = event.getPreferredAxisValue(MotionEvent.AXIS_RZ, MotionEvent.AXIS_RY)
 
+            leftJoystick.updateThumbFromController(leftX, leftY, controllerDeadZone)
+            rightJoystick.updateThumbFromController(rightX, rightY, controllerDeadZone)
+
+            stateMachine.handleControllerInput(leftX, leftY, rightX, rightY)
+            leftJoystick.keyboardMode = stateMachine.currentMode
+            rightJoystick.keyboardMode = stateMachine.currentMode
+            updateLivePreview()
+            return true
+        }
+
+        return super.onGenericMotionEvent(event)
+    }
+    private fun refreshControllerStatus() {
+        connectedControllerName = InputDevice.getDeviceIds()
+            .asSequence()
+            .mapNotNull { InputDevice.getDevice(it) }
+            .firstOrNull { it.isCompatibleController() }
+            ?.name
+
+        if (connectedControllerName == null) {
+            stateMachine.handleControllerInput(0f, 0f, 0f, 0f)
+            if (::leftJoystick.isInitialized) {
+                leftJoystick.resetThumb()
+            }
+            if (::rightJoystick.isInitialized) {
+                rightJoystick.resetThumb()
+            }
+            updateLivePreview()
+        }
+    }
+    private fun InputDevice.isCompatibleController(): Boolean {
+        val isGamepad = sources and InputDevice.SOURCE_GAMEPAD == InputDevice.SOURCE_GAMEPAD
+        val isJoystick = sources and InputDevice.SOURCE_JOYSTICK == InputDevice.SOURCE_JOYSTICK
+        return isGamepad || isJoystick
+    }
+    private fun MotionEvent.getCenteredAxisValue(axis: Int): Float {
+        return getAxisValue(axis).coerceIn(-1f, 1f)
+    }
+
+    private fun MotionEvent.getPreferredAxisValue(primaryAxis: Int, fallbackAxis: Int): Float {
+        val primary = getCenteredAxisValue(primaryAxis)
+        val fallback = getCenteredAxisValue(fallbackAxis)
+        return if (abs(primary) >= abs(fallback)) primary else fallback
+    }
     // --- 核心：将 Android 触摸事件翻译并喂给大脑 ---
     private fun dispatchTouchToStateMachine(event: MotionEvent, isLeft: Boolean, joystick: JoystickView) {
         // 计算相对于圆心的偏移量
@@ -230,9 +304,6 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // 3. Update the action-wheel joystick mode (whichever currently shows right-side content)
         val actionJoystick = if (stateMachine.leftHandedMode) leftJoystick else rightJoystick
         actionJoystick.keyboardMode = stateMachine.currentMode
-
-        // 3. 从状态机获取原先的预览逻辑（移除旧的摇杆文字预览）
-        // rightJoystick.setPreviewText(stateMachine.getPreviewText())
 
         updateLivePreview()
     }
@@ -282,11 +353,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     private fun resolveTypeface(): Typeface? {
         return when (currentFontPreference) {
-            PreferencesManager.FONT_VERDANA -> Typeface.create("sans-serif", Typeface.NORMAL)
-            PreferencesManager.FONT_GEORGIA -> Typeface.create("serif", Typeface.NORMAL)
+            PreferencesManager.FONT_VERDANA -> Typeface.SANS_SERIF
+            PreferencesManager.FONT_GEORGIA -> Typeface.SERIF
             PreferencesManager.FONT_OPENDYSLEXIC -> {
                 try {
-                    resources.getFont(R.font.opendyslexic_regular)
+                    ResourcesCompat.getFont(this, R.font.opendyslexic_regular)
                 } catch (_: Exception) {
                     null
                 }
@@ -392,7 +463,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             val targetScale = if (isHighlighted) 1.08f else 1.0f
             val targetTypeface = if (isHighlighted) {
                 val baseTf = resolveTypeface() ?: Typeface.DEFAULT
-                Typeface.create(baseTf, 900, false)
+                Typeface.create(baseTf, Typeface.BOLD)
             } else {
                 val baseTf = resolveTypeface() ?: Typeface.DEFAULT
                 Typeface.create(baseTf, Typeface.BOLD)
@@ -453,8 +524,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     }
 
     override fun onModeChanged(mode: com.vatoo.erick.shared.KeyboardMode) {
-        leftJoystick.keyboardMode = mode
-        rightJoystick.keyboardMode = mode
+        if (::leftJoystick.isInitialized) {
+            leftJoystick.keyboardMode = mode
+        }
+        if (::rightJoystick.isInitialized) {
+            rightJoystick.keyboardMode = mode
+        }
         updateShiftIndicator(mode)
     }
 

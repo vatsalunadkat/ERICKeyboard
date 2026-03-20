@@ -1,4 +1,5 @@
 import SwiftUI
+import GameController
 
 struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
@@ -154,6 +155,9 @@ struct ContentView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     
+                    // Controller Status (3rd card)
+                    ControllerStatusCard()
+                    
                     // Test Field
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Test Your Keyboard:")
@@ -188,11 +192,24 @@ struct ContentView: View {
         }
         .onAppear {
             checkKeyboardStatus()
+            ControllerBridge.shared.start()
         }
         .onChange(of: scenePhase) { newPhase in
-            if newPhase == .active {
+            switch newPhase {
+            case .active:
                 checkKeyboardStatus()
+                ControllerBridge.shared.start()
+            case .background, .inactive:
+                ControllerBridge.shared.stop()
+            @unknown default:
+                break
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .GCControllerDidConnect)) { _ in
+            // Controller Status card will refresh via @State when it next appears
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .GCControllerDidDisconnect)) { _ in
+            // Controller Status card will refresh via @State when it next appears
         }
     }
 }
@@ -290,6 +307,45 @@ struct TipRow: View {
                 .font(.subheadline)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+}
+
+struct ControllerStatusCard: View {
+    @State private var controllerName: String?
+    
+    var body: some View {
+        GroupBox {
+            HStack(spacing: 12) {
+                Image(systemName: "gamecontroller.fill")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Controller Status")
+                        .font(.headline)
+                    if let name = controllerName, !name.isEmpty {
+                        Text("✅ Connected: \(name)")
+                            .foregroundColor(.green)
+                            .font(.subheadline)
+                    } else {
+                        Text("No controller detected")
+                            .foregroundColor(.secondary)
+                            .font(.subheadline)
+                    }
+                }
+                Spacer()
+            }
+        }
+        .onAppear { checkController() }
+        .onReceive(NotificationCenter.default.publisher(for: .GCControllerDidConnect)) { _ in
+            checkController()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .GCControllerDidDisconnect)) { _ in
+            checkController()
+        }
+    }
+    
+    private func checkController() {
+        controllerName = GCController.controllers().first?.vendorName
     }
 }
 

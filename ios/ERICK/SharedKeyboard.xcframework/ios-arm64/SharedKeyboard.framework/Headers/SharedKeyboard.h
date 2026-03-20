@@ -6,9 +6,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class SharedKeyboardKotlinEnumCompanion, SharedKeyboardKotlinEnum<E>, SharedKeyboardDirection, SharedKeyboardKotlinArray<T>, SharedKeyboardInputAction, SharedKeyboardKeyboardFactory, SharedKeyboardKeyboardStateMachine, SharedKeyboardLayoutType, SharedKeyboardKeyboardMode, SharedKeyboardKotlinThrowable, SharedKeyboardKotlinException, SharedKeyboardKotlinRuntimeException, SharedKeyboardKotlinIllegalStateException;
+@class SharedKeyboardColorEntry, SharedKeyboardKotlinEnumCompanion, SharedKeyboardKotlinEnum<E>, SharedKeyboardColorPaletteType, SharedKeyboardKotlinArray<T>, SharedKeyboardColorPalettes, SharedKeyboardDirection, SharedKeyboardSingleSwipeBinding, SharedKeyboardCustomLayout, SharedKeyboardCustomLayoutManagerCompanion, SharedKeyboardLayoutType, SharedKeyboardCustomLayoutSerializer, SharedKeyboardInputAction, SharedKeyboardKeyboardMode, SharedKeyboardKeyboardFactory, SharedKeyboardKeyboardStateMachine, SharedKeyboardSingleSwipeBindingCompanion, SharedKeyboardSingleSwipeBindingAction, SharedKeyboardSingleSwipeBindingCharacter, SharedKeyboardKotlinThrowable, SharedKeyboardKotlinException, SharedKeyboardKotlinRuntimeException, SharedKeyboardKotlinIllegalStateException;
 
-@protocol SharedKeyboardPlatform, SharedKeyboardKotlinx_coroutines_coreFlow, SharedKeyboardKotlinComparable, SharedKeyboardKeyboardActionDelegate, SharedKeyboardKotlinx_coroutines_coreFlowCollector, SharedKeyboardKotlinIterator;
+@protocol SharedKeyboardPlatform, SharedKeyboardKotlinx_coroutines_coreFlow, SharedKeyboardKotlinComparable, SharedKeyboardCustomLayoutStorage, SharedKeyboardKeyboardActionDelegate, SharedKeyboardKotlinx_coroutines_coreCoroutineScope, SharedKeyboardKotlinx_coroutines_coreFlowCollector, SharedKeyboardKotlinIterator, SharedKeyboardKotlinCoroutineContext, SharedKeyboardKotlinCoroutineContextElement, SharedKeyboardKotlinCoroutineContextKey;
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -171,6 +171,18 @@ __attribute__((swift_name("SettingsRepository")))
 @property (readonly) id<SharedKeyboardKotlinx_coroutines_coreFlow> leftHandedMode __attribute__((swift_name("leftHandedMode")));
 @end
 
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("ColorEntry")))
+@interface SharedKeyboardColorEntry : SharedKeyboardBase
+- (instancetype)initWithName:(NSString *)name hex:(NSString *)hex __attribute__((swift_name("init(name:hex:)"))) __attribute__((objc_designated_initializer));
+- (SharedKeyboardColorEntry *)doCopyName:(NSString *)name hex:(NSString *)hex __attribute__((swift_name("doCopy(name:hex:)")));
+- (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
+- (NSUInteger)hash __attribute__((swift_name("hash()")));
+- (NSString *)description __attribute__((swift_name("description()")));
+@property (readonly) NSString *hex __attribute__((swift_name("hex")));
+@property (readonly) NSString *name __attribute__((swift_name("name")));
+@end
+
 __attribute__((swift_name("KotlinComparable")))
 @protocol SharedKeyboardKotlinComparable
 @required
@@ -187,6 +199,94 @@ __attribute__((swift_name("KotlinEnum")))
 - (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) NSString *name __attribute__((swift_name("name")));
 @property (readonly) int32_t ordinal __attribute__((swift_name("ordinal")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("ColorPaletteType")))
+@interface SharedKeyboardColorPaletteType : SharedKeyboardKotlinEnum<SharedKeyboardColorPaletteType *>
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (instancetype)initWithName:(NSString *)name ordinal:(int32_t)ordinal __attribute__((swift_name("init(name:ordinal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
+@property (class, readonly) SharedKeyboardColorPaletteType *default_ __attribute__((swift_name("default_")));
+@property (class, readonly) SharedKeyboardColorPaletteType *okabeIto __attribute__((swift_name("okabeIto")));
+@property (class, readonly) SharedKeyboardColorPaletteType *deuteranopia __attribute__((swift_name("deuteranopia")));
+@property (class, readonly) SharedKeyboardColorPaletteType *protanopia __attribute__((swift_name("protanopia")));
+@property (class, readonly) SharedKeyboardColorPaletteType *tritanopia __attribute__((swift_name("tritanopia")));
+@property (class, readonly) SharedKeyboardColorPaletteType *pastel __attribute__((swift_name("pastel")));
++ (SharedKeyboardKotlinArray<SharedKeyboardColorPaletteType *> *)values __attribute__((swift_name("values()")));
+@property (class, readonly) NSArray<SharedKeyboardColorPaletteType *> *entries __attribute__((swift_name("entries")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("ColorPalettes")))
+@interface SharedKeyboardColorPalettes : SharedKeyboardBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)colorPalettes __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) SharedKeyboardColorPalettes *shared __attribute__((swift_name("shared")));
+- (NSString *)contrastTextColorHex:(NSString *)hex __attribute__((swift_name("contrastTextColor(hex:)")));
+- (NSString *)getColorForDirectionHexDir:(SharedKeyboardDirection *)dir paletteType:(SharedKeyboardColorPaletteType *)paletteType __attribute__((swift_name("getColorForDirectionHex(dir:paletteType:)")));
+- (NSArray<SharedKeyboardColorEntry *> *)getPaletteType:(SharedKeyboardColorPaletteType *)type __attribute__((swift_name("getPalette(type:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("CustomLayout")))
+@interface SharedKeyboardCustomLayout : SharedKeyboardBase
+- (instancetype)initWithId:(NSString *)id name:(NSString *)name normalChordMap:(NSDictionary<SharedKeyboardDirection *, NSArray<NSString *> *> *)normalChordMap shiftedChordMap:(NSDictionary<SharedKeyboardDirection *, NSArray<NSString *> *> *)shiftedChordMap singleSwipeNormalMap:(NSDictionary<SharedKeyboardDirection *, SharedKeyboardSingleSwipeBinding *> *)singleSwipeNormalMap singleSwipeShiftedMap:(NSDictionary<SharedKeyboardDirection *, SharedKeyboardSingleSwipeBinding *> *)singleSwipeShiftedMap __attribute__((swift_name("init(id:name:normalChordMap:shiftedChordMap:singleSwipeNormalMap:singleSwipeShiftedMap:)"))) __attribute__((objc_designated_initializer));
+- (SharedKeyboardCustomLayout *)doCopyId:(NSString *)id name:(NSString *)name normalChordMap:(NSDictionary<SharedKeyboardDirection *, NSArray<NSString *> *> *)normalChordMap shiftedChordMap:(NSDictionary<SharedKeyboardDirection *, NSArray<NSString *> *> *)shiftedChordMap singleSwipeNormalMap:(NSDictionary<SharedKeyboardDirection *, SharedKeyboardSingleSwipeBinding *> *)singleSwipeNormalMap singleSwipeShiftedMap:(NSDictionary<SharedKeyboardDirection *, SharedKeyboardSingleSwipeBinding *> *)singleSwipeShiftedMap __attribute__((swift_name("doCopy(id:name:normalChordMap:shiftedChordMap:singleSwipeNormalMap:singleSwipeShiftedMap:)")));
+- (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
+- (NSUInteger)hash __attribute__((swift_name("hash()")));
+- (NSString *)description __attribute__((swift_name("description()")));
+@property (readonly) NSString *id __attribute__((swift_name("id")));
+@property (readonly) NSString *name __attribute__((swift_name("name")));
+@property (readonly) NSDictionary<SharedKeyboardDirection *, NSArray<NSString *> *> *normalChordMap __attribute__((swift_name("normalChordMap")));
+@property (readonly) NSDictionary<SharedKeyboardDirection *, NSArray<NSString *> *> *shiftedChordMap __attribute__((swift_name("shiftedChordMap")));
+@property (readonly) NSDictionary<SharedKeyboardDirection *, SharedKeyboardSingleSwipeBinding *> *singleSwipeNormalMap __attribute__((swift_name("singleSwipeNormalMap")));
+@property (readonly) NSDictionary<SharedKeyboardDirection *, SharedKeyboardSingleSwipeBinding *> *singleSwipeShiftedMap __attribute__((swift_name("singleSwipeShiftedMap")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("CustomLayoutManager")))
+@interface SharedKeyboardCustomLayoutManager : SharedKeyboardBase
+- (instancetype)initWithStorage:(id<SharedKeyboardCustomLayoutStorage>)storage __attribute__((swift_name("init(storage:)"))) __attribute__((objc_designated_initializer));
+@property (class, readonly, getter=companion) SharedKeyboardCustomLayoutManagerCompanion *companion __attribute__((swift_name("companion")));
+- (SharedKeyboardCustomLayout *)createBlankName:(NSString *)name __attribute__((swift_name("createBlank(name:)")));
+- (void)deleteId:(NSString *)id __attribute__((swift_name("delete(id:)")));
+- (SharedKeyboardCustomLayout *)duplicateFromBuiltInSourceLayout:(SharedKeyboardLayoutType *)sourceLayout customName:(NSString *)customName __attribute__((swift_name("duplicateFromBuiltIn(sourceLayout:customName:)")));
+- (NSArray<SharedKeyboardCustomLayout *> *)getAll __attribute__((swift_name("getAll()")));
+- (SharedKeyboardCustomLayout * _Nullable)getByIdId:(NSString *)id __attribute__((swift_name("getById(id:)")));
+- (void)loadAll __attribute__((swift_name("loadAll()")));
+- (BOOL)renameId:(NSString *)id newName:(NSString *)newName __attribute__((swift_name("rename(id:newName:)")));
+- (NSArray<NSString *> *)saveLayout:(SharedKeyboardCustomLayout *)layout __attribute__((swift_name("save(layout:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("CustomLayoutManager.Companion")))
+@interface SharedKeyboardCustomLayoutManagerCompanion : SharedKeyboardBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) SharedKeyboardCustomLayoutManagerCompanion *shared __attribute__((swift_name("shared")));
+- (NSString *)generateId __attribute__((swift_name("generateId()")));
+- (NSArray<NSString *> *)validateLayoutLayout:(SharedKeyboardCustomLayout *)layout __attribute__((swift_name("validateLayout(layout:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("CustomLayoutSerializer")))
+@interface SharedKeyboardCustomLayoutSerializer : SharedKeyboardBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)customLayoutSerializer __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) SharedKeyboardCustomLayoutSerializer *shared __attribute__((swift_name("shared")));
+- (NSArray<SharedKeyboardCustomLayout *> *)deserializeAllJson:(NSString *)json __attribute__((swift_name("deserializeAll(json:)")));
+- (NSString *)serializeAllLayouts:(NSArray<SharedKeyboardCustomLayout *> *)layouts __attribute__((swift_name("serializeAll(layouts:)")));
+@end
+
+__attribute__((swift_name("CustomLayoutStorage")))
+@protocol SharedKeyboardCustomLayoutStorage
+@required
+- (NSString *)loadAllLayoutsJson __attribute__((swift_name("loadAllLayoutsJson()")));
+- (void)saveAllLayoutsJsonJson:(NSString *)json __attribute__((swift_name("saveAllLayoutsJson(json:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -217,6 +317,7 @@ __attribute__((swift_name("InputAction")))
 @property (class, readonly) SharedKeyboardInputAction *space __attribute__((swift_name("space")));
 @property (class, readonly) SharedKeyboardInputAction *enter __attribute__((swift_name("enter")));
 @property (class, readonly) SharedKeyboardInputAction *backspace __attribute__((swift_name("backspace")));
+@property (class, readonly) SharedKeyboardInputAction *deleteForward __attribute__((swift_name("deleteForward")));
 @property (class, readonly) SharedKeyboardInputAction *toggleShift __attribute__((swift_name("toggleShift")));
 @property (class, readonly) SharedKeyboardInputAction *toggleCaps __attribute__((swift_name("toggleCaps")));
 @property (class, readonly) SharedKeyboardInputAction *moveHome __attribute__((swift_name("moveHome")));
@@ -228,7 +329,6 @@ __attribute__((swift_name("InputAction")))
 @property (class, readonly) SharedKeyboardInputAction *pageUp __attribute__((swift_name("pageUp")));
 @property (class, readonly) SharedKeyboardInputAction *pageDown __attribute__((swift_name("pageDown")));
 @property (class, readonly) SharedKeyboardInputAction *tab __attribute__((swift_name("tab")));
-@property (class, readonly) SharedKeyboardInputAction *deleteForward __attribute__((swift_name("deleteForward")));
 + (SharedKeyboardKotlinArray<SharedKeyboardInputAction *> *)values __attribute__((swift_name("values()")));
 @property (class, readonly) NSArray<SharedKeyboardInputAction *> *entries __attribute__((swift_name("entries")));
 @end
@@ -237,6 +337,7 @@ __attribute__((swift_name("KeyboardActionDelegate")))
 @protocol SharedKeyboardKeyboardActionDelegate
 @required
 - (void)commitTextText:(NSString *)text __attribute__((swift_name("commitText(text:)")));
+- (void)onModeChangedMode:(SharedKeyboardKeyboardMode *)mode __attribute__((swift_name("onModeChanged(mode:)")));
 - (void)sendInputActionAction:(SharedKeyboardInputAction *)action __attribute__((swift_name("sendInputAction(action:)")));
 @end
 
@@ -247,7 +348,7 @@ __attribute__((swift_name("KeyboardFactory")))
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)keyboardFactory __attribute__((swift_name("init()")));
 @property (class, readonly, getter=shared) SharedKeyboardKeyboardFactory *shared __attribute__((swift_name("shared")));
-- (SharedKeyboardKeyboardStateMachine *)createEngineDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate layoutType:(SharedKeyboardLayoutType *)layoutType __attribute__((swift_name("createEngine(delegate:layoutType:)")));
+- (SharedKeyboardKeyboardStateMachine *)createEngineDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate __attribute__((swift_name("createEngine(delegate:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -255,8 +356,10 @@ __attribute__((swift_name("KeyboardLogic")))
 @interface SharedKeyboardKeyboardLogic : SharedKeyboardBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (NSArray<NSString *> *)getCharactersForDirectionDir:(SharedKeyboardDirection *)dir mode:(SharedKeyboardKeyboardMode *)mode layout:(SharedKeyboardLayoutType *)layout __attribute__((swift_name("getCharactersForDirection(dir:mode:layout:)")));
 - (NSString *)getChordResultLeftDir:(SharedKeyboardDirection *)leftDir rightDir:(SharedKeyboardDirection *)rightDir mode:(SharedKeyboardKeyboardMode *)mode layout:(SharedKeyboardLayoutType *)layout __attribute__((swift_name("getChordResult(leftDir:rightDir:mode:layout:)")));
 - (SharedKeyboardDirection *)getDirectionFromXYX:(float)x y:(float)y __attribute__((swift_name("getDirectionFromXY(x:y:)")));
+- (SharedKeyboardInputAction * _Nullable)getDoubleSwipeActionDir:(SharedKeyboardDirection *)dir __attribute__((swift_name("getDoubleSwipeAction(dir:)")));
 - (id _Nullable)getSingleSwipeResultDir:(SharedKeyboardDirection *)dir mode:(SharedKeyboardKeyboardMode *)mode __attribute__((swift_name("getSingleSwipeResult(dir:mode:)")));
 @end
 
@@ -276,11 +379,17 @@ __attribute__((swift_name("KeyboardMode")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KeyboardStateMachine")))
 @interface SharedKeyboardKeyboardStateMachine : SharedKeyboardBase
-- (instancetype)initWithDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate currentLayoutType:(SharedKeyboardLayoutType *)currentLayoutType __attribute__((swift_name("init(delegate:currentLayoutType:)"))) __attribute__((objc_designated_initializer));
-- (SharedKeyboardLayoutType *)getLayoutType __attribute__((swift_name("getLayoutType()")));
+- (instancetype)initWithDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate coroutineScope:(id<SharedKeyboardKotlinx_coroutines_coreCoroutineScope>)coroutineScope __attribute__((swift_name("init(delegate:coroutineScope:)"))) __attribute__((objc_designated_initializer));
+- (SharedKeyboardKeyboardStateMachine *)createKeyboardStateMachineForIOSDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate __attribute__((swift_name("createKeyboardStateMachineForIOS(delegate:)")));
+- (NSArray<NSString *> *)getCharactersForDirectionDir:(SharedKeyboardDirection *)dir __attribute__((swift_name("getCharactersForDirection(dir:)")));
+- (NSArray<SharedKeyboardColorEntry *> *)getCurrentPalette __attribute__((swift_name("getCurrentPalette()")));
 - (NSString *)getPreviewText __attribute__((swift_name("getPreviewText()")));
 - (void)handleTouchX:(float)x y:(float)y isLeft:(BOOL)isLeft actionDownOrMove:(BOOL)actionDownOrMove actionUp:(BOOL)actionUp __attribute__((swift_name("handleTouch(x:y:isLeft:actionDownOrMove:actionUp:)")));
-- (void)setLayoutTypeType:(SharedKeyboardLayoutType *)type __attribute__((swift_name("setLayoutType(type:)")));
+- (void)setColorPalettePalette:(SharedKeyboardColorPaletteType *)palette __attribute__((swift_name("setColorPalette(palette:)")));
+- (void)setLayoutTypeLayout:(SharedKeyboardLayoutType *)layout __attribute__((swift_name("setLayoutType(layout:)")));
+@property (readonly) SharedKeyboardLayoutType *currentLayoutType __attribute__((swift_name("currentLayoutType")));
+@property (readonly) SharedKeyboardKeyboardMode *currentMode __attribute__((swift_name("currentMode")));
+@property (readonly) SharedKeyboardColorPaletteType *currentPaletteType __attribute__((swift_name("currentPaletteType")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -295,10 +404,42 @@ __attribute__((swift_name("LayoutType")))
 @property (class, readonly) NSArray<SharedKeyboardLayoutType *> *entries __attribute__((swift_name("entries")));
 @end
 
+__attribute__((swift_name("SingleSwipeBinding")))
+@interface SharedKeyboardSingleSwipeBinding : SharedKeyboardBase
+@property (class, readonly, getter=companion) SharedKeyboardSingleSwipeBindingCompanion *companion __attribute__((swift_name("companion")));
+- (NSString *)toSerializable __attribute__((swift_name("toSerializable()")));
+@end
+
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("KeyboardStateMachineKt")))
-@interface SharedKeyboardKeyboardStateMachineKt : SharedKeyboardBase
-+ (SharedKeyboardKeyboardStateMachine *)createKeyboardStateMachineForIOSDelegate:(id<SharedKeyboardKeyboardActionDelegate>)delegate layoutType:(SharedKeyboardLayoutType *)layoutType __attribute__((swift_name("createKeyboardStateMachineForIOS(delegate:layoutType:)")));
+__attribute__((swift_name("SingleSwipeBinding.Action")))
+@interface SharedKeyboardSingleSwipeBindingAction : SharedKeyboardSingleSwipeBinding
+- (instancetype)initWithAction:(SharedKeyboardInputAction *)action __attribute__((swift_name("init(action:)"))) __attribute__((objc_designated_initializer));
+- (SharedKeyboardSingleSwipeBindingAction *)doCopyAction:(SharedKeyboardInputAction *)action __attribute__((swift_name("doCopy(action:)")));
+- (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
+- (NSUInteger)hash __attribute__((swift_name("hash()")));
+- (NSString *)description __attribute__((swift_name("description()")));
+@property (readonly) SharedKeyboardInputAction *action __attribute__((swift_name("action")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("SingleSwipeBinding.Character")))
+@interface SharedKeyboardSingleSwipeBindingCharacter : SharedKeyboardSingleSwipeBinding
+- (instancetype)initWithChar:(NSString *)char_ __attribute__((swift_name("init(char:)"))) __attribute__((objc_designated_initializer));
+- (SharedKeyboardSingleSwipeBindingCharacter *)doCopyChar:(NSString *)char_ __attribute__((swift_name("doCopy(char:)")));
+- (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
+- (NSUInteger)hash __attribute__((swift_name("hash()")));
+- (NSString *)description __attribute__((swift_name("description()")));
+@property (readonly, getter=char) NSString *char_ __attribute__((swift_name("char_")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("SingleSwipeBinding.Companion")))
+@interface SharedKeyboardSingleSwipeBindingCompanion : SharedKeyboardBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) SharedKeyboardSingleSwipeBindingCompanion *shared __attribute__((swift_name("shared")));
+- (SharedKeyboardSingleSwipeBinding * _Nullable)fromSerializableS:(NSString *)s __attribute__((swift_name("fromSerializable(s:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -337,6 +478,12 @@ __attribute__((swift_name("KotlinArray")))
 - (id<SharedKeyboardKotlinIterator>)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
 @property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((swift_name("Kotlinx_coroutines_coreCoroutineScope")))
+@protocol SharedKeyboardKotlinx_coroutines_coreCoroutineScope
+@required
+@property (readonly) id<SharedKeyboardKotlinCoroutineContext> coroutineContext __attribute__((swift_name("coroutineContext")));
 @end
 
 __attribute__((swift_name("KotlinThrowable")))
@@ -416,6 +563,31 @@ __attribute__((swift_name("KotlinIterator")))
 @required
 - (BOOL)hasNext __attribute__((swift_name("hasNext()")));
 - (id _Nullable)next __attribute__((swift_name("next()")));
+@end
+
+
+/**
+ * @note annotations
+ *   kotlin.SinceKotlin(version="1.3")
+*/
+__attribute__((swift_name("KotlinCoroutineContext")))
+@protocol SharedKeyboardKotlinCoroutineContext
+@required
+- (id _Nullable)foldInitial:(id _Nullable)initial operation:(id _Nullable (^)(id _Nullable, id<SharedKeyboardKotlinCoroutineContextElement>))operation __attribute__((swift_name("fold(initial:operation:)")));
+- (id<SharedKeyboardKotlinCoroutineContextElement> _Nullable)getKey:(id<SharedKeyboardKotlinCoroutineContextKey>)key __attribute__((swift_name("get(key:)")));
+- (id<SharedKeyboardKotlinCoroutineContext>)minusKeyKey:(id<SharedKeyboardKotlinCoroutineContextKey>)key __attribute__((swift_name("minusKey(key:)")));
+- (id<SharedKeyboardKotlinCoroutineContext>)plusContext:(id<SharedKeyboardKotlinCoroutineContext>)context __attribute__((swift_name("plus(context:)")));
+@end
+
+__attribute__((swift_name("KotlinCoroutineContextElement")))
+@protocol SharedKeyboardKotlinCoroutineContextElement <SharedKeyboardKotlinCoroutineContext>
+@required
+@property (readonly) id<SharedKeyboardKotlinCoroutineContextKey> key __attribute__((swift_name("key")));
+@end
+
+__attribute__((swift_name("KotlinCoroutineContextKey")))
+@protocol SharedKeyboardKotlinCoroutineContextKey
+@required
 @end
 
 #pragma pop_macro("_Nullable_result")
