@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.vatoo.erick.shared.CustomLayoutStorage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -19,9 +20,12 @@ class PreferencesManager(private val context: Context) {
         private val COLORBLIND_MODE_KEY = booleanPreferencesKey("colorblind_mode")
         private val COLOR_PALETTE_KEY = stringPreferencesKey("color_palette")
         private val LEFT_HANDED_MODE_KEY = booleanPreferencesKey("left_handed_mode")
+        private val CUSTOM_LAYOUT_ID_KEY = stringPreferencesKey("custom_layout_id")
+        private val CUSTOM_LAYOUTS_JSON_KEY = stringPreferencesKey("custom_layouts_json")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
+        const val LAYOUT_CUSTOM = "custom"
 
         const val PALETTE_OKABE_ITO = "okabe_ito"
         const val PALETTE_DEUTERANOPIA = "deuteranopia"
@@ -55,6 +59,11 @@ class PreferencesManager(private val context: Context) {
             preferences[LEFT_HANDED_MODE_KEY] ?: false
         }
 
+    val customLayoutId: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[CUSTOM_LAYOUT_ID_KEY] ?: ""
+        }
+
     suspend fun setLayoutType(layoutType: String) {
         context.dataStore.edit { preferences ->
             preferences[LAYOUT_TYPE_KEY] = layoutType
@@ -83,5 +92,34 @@ class PreferencesManager(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[LEFT_HANDED_MODE_KEY] = enabled
         }
+    }
+
+    suspend fun setCustomLayoutId(id: String) {
+        context.dataStore.edit { preferences ->
+            preferences[CUSTOM_LAYOUT_ID_KEY] = id
+        }
+    }
+
+    /** Returns a [CustomLayoutStorage] backed by this DataStore. */
+    fun createCustomLayoutStorage(): CustomLayoutStorage {
+        return AndroidCustomLayoutStorage(context)
+    }
+}
+
+/**
+ * Platform storage for custom layouts using SharedPreferences (synchronous I/O
+ * since CustomLayoutStorage interface is synchronous for KMP compatibility).
+ */
+class AndroidCustomLayoutStorage(private val context: Context) : CustomLayoutStorage {
+    private val prefs by lazy {
+        context.getSharedPreferences("custom_layouts", Context.MODE_PRIVATE)
+    }
+
+    override fun loadAllLayoutsJson(): String {
+        return prefs.getString("layouts_json", "") ?: ""
+    }
+
+    override fun saveAllLayoutsJson(json: String) {
+        prefs.edit().putString("layouts_json", json).apply()
     }
 }

@@ -12,7 +12,7 @@ enum class KeyboardMode {
 
 // 2.5 布局类型定义
 enum class LayoutType {
-    LOGICAL, EFFICIENCY
+    LOGICAL, EFFICIENCY, CUSTOM
 }
 
 // 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
