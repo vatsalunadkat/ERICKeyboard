@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.CustomLayout
@@ -45,10 +47,12 @@ fun SettingsScreen(
 ) {
     val layoutType by preferencesManager.layoutType.collectAsState(initial = PreferencesManager.LAYOUT_LOGICAL)
     val darkTheme by preferencesManager.darkTheme.collectAsState(initial = false)
+    val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.THEME_SYSTEM)
     val colorblindMode by preferencesManager.colorblindMode.collectAsState(initial = false)
     val colorPalette by preferencesManager.colorPalette.collectAsState(initial = PreferencesManager.PALETTE_OKABE_ITO)
     val leftHandedMode by preferencesManager.leftHandedMode.collectAsState(initial = false)
     val customLayoutId by preferencesManager.customLayoutId.collectAsState(initial = "")
+    val fontPreference by preferencesManager.fontPreference.collectAsState(initial = PreferencesManager.FONT_SYSTEM)
 
     val scope = rememberCoroutineScope()
 
@@ -66,6 +70,8 @@ fun SettingsScreen(
             preferencesManager = preferencesManager,
             layoutType = layoutType,
             darkTheme = darkTheme,
+            themeMode = themeMode,
+            fontPreference = fontPreference,
             colorblindMode = colorblindMode,
             colorPalette = colorPalette,
             leftHandedMode = leftHandedMode,
@@ -111,6 +117,8 @@ private fun MainSettingsContent(
     preferencesManager: PreferencesManager,
     layoutType: String,
     darkTheme: Boolean,
+    themeMode: String,
+    fontPreference: String,
     colorblindMode: Boolean,
     colorPalette: String,
     leftHandedMode: Boolean,
@@ -217,16 +225,99 @@ private fun MainSettingsContent(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            SettingToggle(
-                title = "Dark Theme",
-                checked = darkTheme,
+            Text(
+                text = "Theme",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            LayoutRadioOption(
+                title = "System Default",
+                subtitle = "Follows device light/dark mode setting",
+                selected = themeMode == PreferencesManager.THEME_SYSTEM,
                 enabled = true,
-                onCheckedChange = { checked ->
+                onClick = {
                     scope.launch {
-                        preferencesManager.setDarkTheme(checked)
+                        preferencesManager.setThemeMode(PreferencesManager.THEME_SYSTEM)
                     }
                 }
             )
+
+            LayoutRadioOption(
+                title = "Light",
+                subtitle = "Always light regardless of system setting",
+                selected = themeMode == PreferencesManager.THEME_LIGHT,
+                enabled = true,
+                onClick = {
+                    scope.launch {
+                        preferencesManager.setThemeMode(PreferencesManager.THEME_LIGHT)
+                    }
+                }
+            )
+
+            LayoutRadioOption(
+                title = "Dark",
+                subtitle = "Always dark regardless of system setting",
+                selected = themeMode == PreferencesManager.THEME_DARK,
+                enabled = true,
+                onClick = {
+                    scope.launch {
+                        preferencesManager.setThemeMode(PreferencesManager.THEME_DARK)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Font",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            val fontOptions = listOf(
+                Triple(PreferencesManager.FONT_SYSTEM, "System Default", null as FontFamily?),
+                Triple(PreferencesManager.FONT_VERDANA, "Verdana", FontFamily(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL))),
+                Triple(PreferencesManager.FONT_GEORGIA, "Georgia", FontFamily(android.graphics.Typeface.create("serif", android.graphics.Typeface.NORMAL))),
+                Triple(PreferencesManager.FONT_OPENDYSLEXIC, "OpenDyslexic", FontFamily(Font(R.font.opendyslexic_regular)))
+            )
+
+            fontOptions.forEach { (key, name, fontFamily) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            scope.launch { preferencesManager.setFontPreference(key) }
+                        }
+                        .padding(vertical = 8.dp, horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = fontPreference == key,
+                        onClick = { scope.launch { preferencesManager.setFontPreference(key) } }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        if (key == PreferencesManager.FONT_OPENDYSLEXIC) {
+                            Text(
+                                text = "Dyslexia-friendly",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Text(
+                            text = "The quick brown fox",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontFamily = fontFamily,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 

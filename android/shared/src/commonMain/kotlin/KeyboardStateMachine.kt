@@ -95,6 +95,10 @@ class KeyboardStateMachine(
         return processor.getCharactersForDirection(dir, currentMode, currentLayoutType, activeCustomLayout)
     }
 
+    fun getCharactersAtPosition(rightDir: Direction): List<Pair<Direction, String>> {
+        return processor.getCharactersAtPosition(rightDir, currentMode, currentLayoutType, activeCustomLayout)
+    }
+
     private fun fireChord(left: Direction, right: Direction) {
         if (left == Direction.NONE || right == Direction.NONE) return
         isChordExecuted = true

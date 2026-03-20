@@ -1,5 +1,11 @@
 import SwiftUI
 
+private extension Array where Element == String {
+    func safe(_ index: Int) -> String {
+        index < count ? self[index] : ""
+    }
+}
+
 enum WheelDirection: CaseIterable {
     case none
     case n
@@ -56,6 +62,9 @@ struct JoystickView: View {
     var keyboardMode: WheelMode
     var isEfficiency: Bool = false
     var colorPaletteKey: String = "default"
+    var fontPreference: String = "system"
+    var customNormalSections: [[String]]? = nil
+    var customShiftedSections: [[String]]? = nil
     var onTouch: ((Float, Float, Bool, Bool) -> Void)?
 
     @State private var thumbOffset: CGSize = .zero
@@ -69,9 +78,9 @@ struct JoystickView: View {
 
             ZStack {
                 if isRightSide {
-                    RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, colorPaletteKey: colorPaletteKey)
+                    RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, colorPaletteKey: colorPaletteKey, fontPreference: fontPreference)
                 } else {
-                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency, colorPaletteKey: colorPaletteKey)
+                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency, colorPaletteKey: colorPaletteKey, fontPreference: fontPreference, customNormalSections: customNormalSections, customShiftedSections: customShiftedSections)
                 }
 
                 ZStack {
@@ -124,6 +133,9 @@ private struct LeftWheelBackground: View {
     let keyboardMode: WheelMode
     var isEfficiency: Bool = false
     var colorPaletteKey: String = "default"
+    var fontPreference: String = "system"
+    var customNormalSections: [[String]]? = nil
+    var customShiftedSections: [[String]]? = nil
 
     private var outerColors: [String] {
         let p = ColorPaletteDefinitions.palette(for: colorPaletteKey)
@@ -141,7 +153,7 @@ private struct LeftWheelBackground: View {
     var body: some View {
         GeometryReader { geometry in
             let size = min(geometry.size.width, geometry.size.height)
-            let wheelSections = leftWheelSections(for: keyboardMode, efficiency: isEfficiency)
+            let wheelSections = resolvedWheelSections()
             let hideBlackRingGaps = activeDirection != .none
             let sectorGap: Double = 1.2
             let cellGap: Double = 0.75
@@ -284,7 +296,7 @@ private struct LeftWheelBackground: View {
                     return .white
                 }()
                 Text(item)
-                    .font(.system(size: metrics.fontSize, weight: .bold, design: .rounded))
+                    .font(resolvedCharFont(size: metrics.fontSize))
                     .foregroundStyle(textColor)
                     .shadow(color: .black.opacity(0.25), radius: 1, y: 1)
                     .minimumScaleFactor(0.45)
@@ -293,6 +305,32 @@ private struct LeftWheelBackground: View {
                     .position(labelPoint)
                     .opacity(opacity)
             }
+        }
+    }
+
+    private func resolvedWheelSections() -> [LeftWheelSection] {
+        let customData = keyboardMode.usesShiftedSymbols ? customShiftedSections : customNormalSections
+        if let custom = customData {
+            let dirOrder: [WheelDirection] = [.n, .ne, .e, .se, .s, .sw, .w, .nw]
+            return dirOrder.enumerated().map { (i, dir) in
+                let chars = i < custom.count ? custom[i] : []
+                return LeftWheelSection(
+                    direction: dir,
+                    outer: [chars.safe(0), chars.safe(1), chars.safe(2)],
+                    middle: [chars.safe(3), chars.safe(4), chars.safe(5)],
+                    inner: [chars.safe(6), chars.safe(7)]
+                )
+            }
+        }
+        return leftWheelSections(for: keyboardMode, efficiency: isEfficiency)
+    }
+
+    private func resolvedCharFont(size: CGFloat) -> Font {
+        switch fontPreference {
+        case "verdana": return .custom("Verdana", size: size).bold()
+        case "georgia": return .custom("Georgia", size: size).bold()
+        case "opendyslexic": return .custom("OpenDyslexic", size: size).bold()
+        default: return .system(size: size, weight: .bold, design: .rounded)
         }
     }
 
@@ -385,6 +423,7 @@ private struct RightWheelBackground: View {
     let activeDirection: WheelDirection
     let keyboardMode: WheelMode
     var colorPaletteKey: String = "default"
+    var fontPreference: String = "system"
 
     private var palette: [ColorPaletteEntry] {
         ColorPaletteDefinitions.palette(for: colorPaletteKey)

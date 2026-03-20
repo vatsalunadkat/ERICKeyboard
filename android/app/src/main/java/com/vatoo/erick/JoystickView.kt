@@ -47,6 +47,36 @@ class JoystickView @JvmOverloads constructor(
                 invalidate()
             }
         }
+    var isDarkMode: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+            }
+        }
+    var customTypeface: Typeface? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                charTextPaint.typeface = value ?: Typeface.DEFAULT_BOLD
+                labelTextPaint.typeface = value ?: Typeface.DEFAULT
+                invalidate()
+            }
+        }
+    var customCharsNormal: Map<Direction, List<String>>? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+            }
+        }
+    var customCharsShifted: Map<Direction, List<String>>? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+            }
+        }
     private var previewText: String = ""
 
     private var centerX = 0f
@@ -385,6 +415,8 @@ class JoystickView @JvmOverloads constructor(
 
             // 8. Draw Characters
             val currentCharsMap = when {
+                layoutType == LayoutType.CUSTOM && keyboardMode == KeyboardMode.NORMAL && customCharsNormal != null -> customCharsNormal!!
+                layoutType == LayoutType.CUSTOM && customCharsShifted != null -> customCharsShifted!!
                 layoutType == LayoutType.EFFICIENCY && keyboardMode == KeyboardMode.NORMAL -> leftCharsEfficiencyNormal
                 layoutType == LayoutType.EFFICIENCY -> leftCharsEfficiencyShifted
                 keyboardMode == KeyboardMode.NORMAL -> leftCharsNormal

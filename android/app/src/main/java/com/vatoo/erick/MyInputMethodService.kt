@@ -21,14 +21,13 @@ import kotlinx.coroutines.flow.onEach
 import android.content.Intent
 import android.widget.ImageButton
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.graphics.Color
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
-import android.text.style.RelativeSizeSpan
-import android.text.style.StyleSpan
 import android.graphics.Typeface
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.animation.AccelerateDecelerateInterpolator
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
 
@@ -39,7 +38,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private lateinit var leftJoystick: JoystickView
     private lateinit var rightJoystick: JoystickView
     private lateinit var previewContainer: FrameLayout
-    private lateinit var previewText: TextView
+    private lateinit var previewCapsule: LinearLayout
+    private lateinit var shiftIndicator: TextView
+    private var lastHighlightedIndex: Int = -1
 
     // --- 协程生命周期管理 ---
     // 必须给状态机提供一个作用域，当输入法关闭时，销毁所有倒计时任务防止内存泄漏
@@ -50,6 +51,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private lateinit var stateMachine: KeyboardStateMachine
     private lateinit var preferencesManager: PreferencesManager
     private lateinit var customLayoutManager: CustomLayoutManager
+    private var currentThemeMode: String = PreferencesManager.THEME_SYSTEM
+    private var currentFontPreference: String = PreferencesManager.FONT_SYSTEM
+    private var keyboardRootView: View? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -71,9 +75,26 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
             stateMachine.setLayoutType(layoutType)
             if (layoutType == LayoutType.CUSTOM && customId.isNotEmpty()) {
-                stateMachine.activeCustomLayout = customLayoutManager.getById(customId)
+                val cl = customLayoutManager.getById(customId)
+                stateMachine.activeCustomLayout = cl
+                if (::leftJoystick.isInitialized) {
+                    leftJoystick.customCharsNormal = cl?.normalChordMap
+                    leftJoystick.customCharsShifted = cl?.shiftedChordMap
+                }
+                if (::rightJoystick.isInitialized) {
+                    rightJoystick.customCharsNormal = cl?.normalChordMap
+                    rightJoystick.customCharsShifted = cl?.shiftedChordMap
+                }
             } else {
                 stateMachine.activeCustomLayout = null
+                if (::leftJoystick.isInitialized) {
+                    leftJoystick.customCharsNormal = null
+                    leftJoystick.customCharsShifted = null
+                }
+                if (::rightJoystick.isInitialized) {
+                    rightJoystick.customCharsNormal = null
+                    rightJoystick.customCharsShifted = null
+                }
             }
             if (::leftJoystick.isInitialized) leftJoystick.layoutType = layoutType
             if (::rightJoystick.isInitialized) rightJoystick.layoutType = layoutType
@@ -106,6 +127,18 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             if (::leftJoystick.isInitialized) leftJoystick.colorPaletteType = paletteType
             if (::rightJoystick.isInitialized) rightJoystick.colorPaletteType = paletteType
         }.launchIn(serviceScope)
+
+        // Monitor theme mode changes
+        preferencesManager.themeMode.onEach { mode ->
+            currentThemeMode = mode
+            applyKeyboardTheme()
+        }.launchIn(serviceScope)
+
+        // Monitor font preference changes
+        preferencesManager.fontPreference.onEach { font ->
+            currentFontPreference = font
+            applyKeyboardFont()
+        }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {
@@ -129,13 +162,27 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         leftJoystick.layoutType = currentLayout
         rightJoystick.layoutType = currentLayout
 
+        // Apply custom layout data if active
+        val cl = stateMachine.activeCustomLayout
+        if (currentLayout == LayoutType.CUSTOM && cl != null) {
+            leftJoystick.customCharsNormal = cl.normalChordMap
+            leftJoystick.customCharsShifted = cl.shiftedChordMap
+            rightJoystick.customCharsNormal = cl.normalChordMap
+            rightJoystick.customCharsShifted = cl.shiftedChordMap
+        }
+
         // Apply current color palette to the newly created joystick views
         val currentPalette = stateMachine.currentPaletteType
         leftJoystick.colorPaletteType = currentPalette
         rightJoystick.colorPaletteType = currentPalette
 
         previewContainer = view.findViewById(R.id.live_preview_container)
-        previewText = view.findViewById(R.id.live_preview_text)
+        previewCapsule = view.findViewById(R.id.live_preview_capsule)
+        shiftIndicator = view.findViewById(R.id.shift_indicator)
+
+        keyboardRootView = view
+        applyKeyboardTheme()
+        applyKeyboardFont()
 
         leftJoystick.setOnTouchListener { v, event ->
             v.performClick()
@@ -190,27 +237,82 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         updateLivePreview()
     }
 
+    private fun isEffectiveDarkMode(): Boolean {
+        return when (currentThemeMode) {
+            PreferencesManager.THEME_DARK -> true
+            PreferencesManager.THEME_LIGHT -> false
+            else -> {
+                val nightMode = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+                nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
+            }
+        }
+    }
+
+    private fun applyKeyboardTheme() {
+        val root = keyboardRootView ?: return
+        val isDark = isEffectiveDarkMode()
+
+        // Keyboard background
+        root.setBackgroundColor(if (isDark) Color.parseColor("#1E1E1E") else Color.parseColor("#ECEFF1"))
+
+        // Preview capsule background
+        if (::previewCapsule.isInitialized) {
+            previewCapsule.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 999f * resources.displayMetrics.density
+                setColor(if (isDark) Color.argb(245, 50, 50, 50) else Color.argb(245, 255, 255, 255))
+            }
+        }
+
+        // Joystick views
+        if (::leftJoystick.isInitialized) {
+            leftJoystick.isDarkMode = isDark
+            leftJoystick.invalidate()
+        }
+        if (::rightJoystick.isInitialized) {
+            rightJoystick.isDarkMode = isDark
+            rightJoystick.invalidate()
+        }
+
+        // Re-apply shift indicator colors for the new theme
+        if (::leftJoystick.isInitialized) {
+            updateShiftIndicator(stateMachine.currentMode)
+        }
+    }
+
+    private fun resolveTypeface(): Typeface? {
+        return when (currentFontPreference) {
+            PreferencesManager.FONT_VERDANA -> Typeface.create("sans-serif", Typeface.NORMAL)
+            PreferencesManager.FONT_GEORGIA -> Typeface.create("serif", Typeface.NORMAL)
+            PreferencesManager.FONT_OPENDYSLEXIC -> {
+                try {
+                    resources.getFont(R.font.opendyslexic_regular)
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            else -> null // system default
+        }
+    }
+
+    private fun applyKeyboardFont() {
+        val tf = resolveTypeface()
+        if (::leftJoystick.isInitialized) leftJoystick.customTypeface = tf
+        if (::rightJoystick.isInitialized) rightJoystick.customTypeface = tf
+        // Preview bar TextViews will pick up the font on next updateLivePreview() rebuild
+        if (::previewCapsule.isInitialized) {
+            previewCapsule.removeAllViews()
+        }
+        updateLivePreview()
+    }
+
     private fun updateLivePreview() {
+        if (!::leftJoystick.isInitialized || !::rightJoystick.isInitialized || !::previewContainer.isInitialized) return
         // In left-handed mode the letter-group dial is the physical right joystick,
         // and the color dial is the physical left joystick.
         val isLH = stateMachine.leftHandedMode
         val letterDir = if (isLH) rightJoystick.activeDirection else leftJoystick.activeDirection
         val colorDir  = if (isLH) leftJoystick.activeDirection  else rightJoystick.activeDirection
-
-        if (letterDir == Direction.NONE) {
-            previewContainer.visibility = View.INVISIBLE
-            return
-        }
-
-        previewContainer.visibility = View.VISIBLE
-
-        val chars = stateMachine.getCharactersForDirection(letterDir)
-        if (chars.isEmpty()) {
-            previewText.text = ""
-            return
-        }
-
-        val builder = SpannableStringBuilder()
 
         // 8 possible right directions in clockwise order
         val allRightDirs = listOf(
@@ -218,44 +320,102 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             Direction.S, Direction.SW, Direction.W, Direction.NW
         )
 
-        for (i in chars.indices) {
-            val charStr = chars[i]
-            if (charStr.isBlank()) continue
+        // Determine preview data: left-dial hold, right-dial hold, or nothing
+        data class PreviewChar(val text: String, val colorHex: String, val dirForColor: Direction)
+        val previewChars = mutableListOf<PreviewChar>()
+        var highlightIndex = -1
 
-            val dirForChar = allRightDirs.getOrNull(i) ?: Direction.NONE
+        if (letterDir != Direction.NONE) {
+            // Left-dial hold: show all characters in that group
+            val chars = stateMachine.getCharactersForDirection(letterDir)
+            for (i in chars.indices) {
+                val charStr = chars[i]
+                if (charStr.isBlank()) continue
+                val dirForChar = allRightDirs.getOrNull(i) ?: Direction.NONE
+                val colorHex = ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
+                previewChars.add(PreviewChar(charStr, colorHex, dirForChar))
+                if (dirForChar == colorDir && colorDir != Direction.NONE) {
+                    highlightIndex = previewChars.size - 1
+                }
+            }
+        } else if (colorDir != Direction.NONE) {
+            // Right-dial-only hold: show character at this color position across all left-dial groups
+            val positionChars = stateMachine.getCharactersAtPosition(colorDir)
+            val colorHex = ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
+            for ((_, ch) in positionChars) {
+                previewChars.add(PreviewChar(ch, colorHex, colorDir))
+            }
+            // No specific highlight for right-dial-only preview
+        }
 
-            val start = builder.length
-            builder.append(charStr)
-            builder.append("  ") // spacing
+        if (previewChars.isEmpty()) {
+            previewContainer.visibility = View.INVISIBLE
+            lastHighlightedIndex = -1
+            return
+        }
 
-            val colorHex = ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
-            val color = Color.parseColor(colorHex)
+        previewContainer.visibility = View.VISIBLE
 
-            builder.setSpan(
-                ForegroundColorSpan(color),
-                start,
-                start + charStr.length,
-                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-
-            // Enlarge if this is the active color direction
-            if (dirForChar == colorDir && colorDir != Direction.NONE) {
-                builder.setSpan(
-                    RelativeSizeSpan(1.5f),
-                    start,
-                    start + charStr.length,
-                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                builder.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    start,
-                    start + charStr.length,
-                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+        // Rebuild capsule child views if count changed
+        if (previewCapsule.childCount != previewChars.size) {
+            previewCapsule.removeAllViews()
+            val spacingPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+            for (i in previewChars.indices) {
+                val tv = TextView(this).apply {
+                    textSize = 22f
+                    val baseTf = resolveTypeface() ?: Typeface.DEFAULT
+                    typeface = Typeface.create(baseTf, Typeface.BOLD)
+                    gravity = Gravity.CENTER
+                    minWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20f, resources.displayMetrics).toInt()
+                    includeFontPadding = true
+                    setShadowLayer(1.5f, 0f, 0f, Color.argb(166, 255, 255, 255))
+                }
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    if (i > 0) marginStart = spacingPx
+                }
+                previewCapsule.addView(tv, lp)
             }
         }
 
-        previewText.text = builder
+        // Update each character view
+        for (i in previewChars.indices) {
+            val tv = previewCapsule.getChildAt(i) as? TextView ?: continue
+            val pc = previewChars[i]
+            tv.text = pc.text
+            tv.setTextColor(Color.parseColor(pc.colorHex))
+
+            val isHighlighted = (i == highlightIndex)
+            val targetSize = if (isHighlighted) 27f else 22f
+            val targetScale = if (isHighlighted) 1.08f else 1.0f
+            val targetTypeface = if (isHighlighted) {
+                val baseTf = resolveTypeface() ?: Typeface.DEFAULT
+                Typeface.create(baseTf, 900, false)
+            } else {
+                val baseTf = resolveTypeface() ?: Typeface.DEFAULT
+                Typeface.create(baseTf, Typeface.BOLD)
+            }
+
+            // Animate size and scale
+            if ((i == lastHighlightedIndex || i == highlightIndex) && lastHighlightedIndex != highlightIndex) {
+                tv.animate()
+                    .scaleX(targetScale)
+                    .scaleY(targetScale)
+                    .setDuration(120)
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .start()
+                tv.textSize = targetSize
+            } else {
+                tv.scaleX = targetScale
+                tv.scaleY = targetScale
+                tv.textSize = targetSize
+            }
+            tv.typeface = targetTypeface
+        }
+
+        lastHighlightedIndex = highlightIndex
     }
 
     // ==========================================
@@ -295,6 +455,38 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     override fun onModeChanged(mode: com.vatoo.erick.shared.KeyboardMode) {
         leftJoystick.keyboardMode = mode
         rightJoystick.keyboardMode = mode
+        updateShiftIndicator(mode)
+    }
+
+    private fun updateShiftIndicator(mode: com.vatoo.erick.shared.KeyboardMode) {
+        if (!::shiftIndicator.isInitialized) return
+        val isDark = isEffectiveDarkMode()
+        when (mode) {
+            com.vatoo.erick.shared.KeyboardMode.SHIFTED -> {
+                shiftIndicator.text = "⬆ Shift"
+                shiftIndicator.setTextColor(if (isDark) Color.WHITE else Color.DKGRAY)
+                shiftIndicator.visibility = View.VISIBLE
+                shiftIndicator.contentDescription = "Shift mode active"
+            }
+            com.vatoo.erick.shared.KeyboardMode.CAPS_LOCKED -> {
+                shiftIndicator.text = "⬆⬆ CAPS"
+                shiftIndicator.setTextColor(Color.WHITE)
+                shiftIndicator.setBackgroundColor(Color.parseColor("#D32F2F"))
+                shiftIndicator.setPadding(
+                    (6 * resources.displayMetrics.density).toInt(),
+                    (2 * resources.displayMetrics.density).toInt(),
+                    (6 * resources.displayMetrics.density).toInt(),
+                    (2 * resources.displayMetrics.density).toInt()
+                )
+                shiftIndicator.visibility = View.VISIBLE
+                shiftIndicator.contentDescription = "Caps Lock active"
+            }
+            else -> {
+                shiftIndicator.visibility = View.GONE
+                shiftIndicator.background = null
+                shiftIndicator.setPadding(0, 0, 0, 0)
+            }
+        }
     }
 
     // --- 彻底禁止全屏的"四重防火墙" (保持不变) ---
