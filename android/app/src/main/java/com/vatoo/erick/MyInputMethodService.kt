@@ -44,7 +44,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private lateinit var previewContainer: FrameLayout
     private lateinit var previewCapsule: LinearLayout
     private lateinit var shiftIndicator: TextView
+    private lateinit var suggestionBar: LinearLayout
+    private lateinit var suggestion1: TextView
+    private lateinit var suggestion2: TextView
+    private lateinit var suggestion3: TextView
     private var lastHighlightedIndex: Int = -1
+    private var pendingSuggestions: List<String> = emptyList()
 
     // --- 协程生命周期管理 ---
     // 必须给状态机提供一个作用域，当输入法关闭时，销毁所有倒计时任务防止内存泄漏
@@ -196,6 +201,15 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         previewContainer = view.findViewById(R.id.live_preview_container)
         previewCapsule = view.findViewById(R.id.live_preview_capsule)
         shiftIndicator = view.findViewById(R.id.shift_indicator)
+        suggestionBar = view.findViewById(R.id.suggestion_bar)
+        suggestion1 = view.findViewById(R.id.suggestion_1)
+        suggestion2 = view.findViewById(R.id.suggestion_2)
+        suggestion3 = view.findViewById(R.id.suggestion_3)
+
+        // Wire suggestion tap handlers
+        suggestion1.setOnClickListener { onSuggestionTapped(0) }
+        suggestion2.setOnClickListener { onSuggestionTapped(1) }
+        suggestion3.setOnClickListener { onSuggestionTapped(2) }
 
         keyboardRootView = view
         applyKeyboardTheme()
@@ -420,12 +434,15 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }
 
         if (previewChars.isEmpty()) {
-            previewContainer.visibility = View.INVISIBLE
+            previewCapsule.visibility = View.GONE
             lastHighlightedIndex = -1
+            updateSuggestionBar()
             return
         }
 
-        previewContainer.visibility = View.VISIBLE
+        previewCapsule.visibility = View.VISIBLE
+        // Hide suggestions while preview is active
+        if (::suggestionBar.isInitialized) suggestionBar.visibility = View.GONE
 
         // Rebuild capsule child views if count changed
         if (previewCapsule.childCount != previewChars.size) {
@@ -548,6 +565,67 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             rightJoystick.keyboardMode = mode
         }
         updateShiftIndicator(mode)
+    }
+
+    override fun onSuggestionsUpdated(suggestions: List<String>) {
+        pendingSuggestions = suggestions
+        updateSuggestionBar()
+    }
+
+    override fun getCurrentWordPrefix(): String {
+        val before = currentInputConnection?.getTextBeforeCursor(64, 0)?.toString() ?: return ""
+        if (before.isEmpty()) return ""
+        // Walk backward to find the start of the current word
+        var i = before.length
+        while (i > 0 && (before[i - 1].isLetterOrDigit() || before[i - 1] == '\'')) {
+            i--
+        }
+        return before.substring(i)
+    }
+
+    private fun onSuggestionTapped(index: Int) {
+        if (index >= pendingSuggestions.size) return
+        val suggestion = pendingSuggestions[index]
+        val wasNextWordMode = stateMachine.isNextWordMode
+        val (charsToDelete, word) = stateMachine.acceptSuggestion(suggestion)
+        val ic = currentInputConnection ?: return
+        // Delete the partial word
+        if (charsToDelete > 0) {
+            ic.deleteSurroundingText(charsToDelete, 0)
+        }
+        // In next-word mode, prepend a space if the text before cursor doesn't already end with one
+        if (wasNextWordMode && charsToDelete == 0) {
+            val before = ic.getTextBeforeCursor(1, 0)?.toString() ?: ""
+            if (before.isNotEmpty() && !before.endsWith(" ")) {
+                ic.commitText(" ", 1)
+            }
+        }
+        // Insert the full suggestion
+        ic.commitText(word, 1)
+    }
+
+    private fun updateSuggestionBar() {
+        if (!::suggestionBar.isInitialized) return
+        val showSuggestions = stateMachine.areBothDialsAtHome() && pendingSuggestions.isNotEmpty()
+        if (showSuggestions) {
+            previewCapsule.visibility = View.GONE
+            suggestionBar.visibility = View.VISIBLE
+            val isDark = isEffectiveDarkMode()
+            val textColor = if (isDark) Color.WHITE else Color.parseColor("#333333")
+            val views = listOf(suggestion1, suggestion2, suggestion3)
+            for (i in views.indices) {
+                if (i < pendingSuggestions.size) {
+                    views[i].text = pendingSuggestions[i]
+                    views[i].setTextColor(textColor)
+                    views[i].visibility = View.VISIBLE
+                } else {
+                    views[i].text = ""
+                    views[i].visibility = View.INVISIBLE
+                }
+            }
+        } else {
+            suggestionBar.visibility = View.GONE
+        }
     }
 
     private fun updateShiftIndicator(mode: com.vatoo.erick.shared.KeyboardMode) {

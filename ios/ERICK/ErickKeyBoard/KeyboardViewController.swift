@@ -26,6 +26,8 @@ class KeyboardViewModel: ObservableObject {
     @Published var fontPreference: String = "system"
     @Published var customNormalSections: [[String]]? = nil  // 8 directions × 8 chars each
     @Published var customShiftedSections: [[String]]? = nil
+    @Published var suggestions: [String] = []
+    @Published var bothDialsAtHome: Bool = true
     /// Physical controller stick position (-1...1), used to move on-screen thumb when controller is active
     @Published var leftControllerStickNormalized: (x: Float, y: Float) = (0, 0)
     @Published var rightControllerStickNormalized: (x: Float, y: Float) = (0, 0)
@@ -55,6 +57,7 @@ struct KeyboardContainerView: View {
     // 闭包回调参数：dx, dy, isLeft, isDownOrMove, isUp
     var onTouch: (Float, Float, Bool, Bool, Bool) -> Void
     var onSettingsChanged: () -> Void
+    var onSuggestionTapped: (Int) -> Void
     
     @State private var showSettings = false // 控制设置页面的显示
 
@@ -120,6 +123,13 @@ struct KeyboardContainerView: View {
                     highlightedIndex: viewModel.highlightedPreviewIndex,
                     isDarkMode: viewModel.isDarkMode,
                     fontPreference: viewModel.fontPreference
+                )
+                    .padding(.top, 8)
+            } else if viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
+                KeyboardSuggestionBar(
+                    suggestions: viewModel.suggestions,
+                    isDarkMode: viewModel.isDarkMode,
+                    onTap: onSuggestionTapped
                 )
                     .padding(.top, 8)
             }
@@ -228,6 +238,41 @@ private struct KeyboardPreviewBar: View {
     }
 }
 
+private struct KeyboardSuggestionBar: View {
+    let suggestions: [String]
+    var isDarkMode: Bool = false
+    var onTap: (Int) -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(suggestions.enumerated()), id: \.offset) { index, word in
+                if index > 0 {
+                    Divider()
+                        .frame(height: 24)
+                        .background(isDarkMode ? Color.gray.opacity(0.5) : Color.gray.opacity(0.3))
+                }
+                Button(action: { onTap(index) }) {
+                    Text(word)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(isDarkMode ? .white : Color(hex: "#333333"))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 12)
+        .background(
+            Capsule()
+                .fill(isDarkMode ? Color(hex: "#323232").opacity(0.96) : Color.white.opacity(0.96))
+                .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+        )
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 24)
+    }
+}
+
 // 3. iOS 输入法核心控制器
 class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
@@ -269,6 +314,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             self?.handleTouch(dx: dx, dy: dy, isLeft: isLeft, isDown: isDown, isUp: isUp)
         } onSettingsChanged: { [weak self] in
             self?.handleSettingsChanged()
+        } onSuggestionTapped: { [weak self] index in
+            self?.onSuggestionTapped(index)
         }
         
         // 使用 UIHostingController 把 SwiftUI 包装成传统的 UIKit View
@@ -582,6 +629,52 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         }
     }
 
+    func onSuggestionsUpdated(suggestions: [String]) {
+        DispatchQueue.main.async { [weak self] in
+            self?.viewModel.suggestions = suggestions
+        }
+    }
+
+    func getCurrentWordPrefix() -> String {
+        guard let before = self.textDocumentProxy.documentContextBeforeInput, !before.isEmpty else {
+            return ""
+        }
+        var i = before.endIndex
+        while i > before.startIndex {
+            let prev = before.index(before: i)
+            let ch = before[prev]
+            if ch.isLetter || ch.isNumber || ch == "'" {
+                i = prev
+            } else {
+                break
+            }
+        }
+        return String(before[i...])
+    }
+
+    private func onSuggestionTapped(_ index: Int) {
+        let suggestions = viewModel.suggestions
+        guard index < suggestions.count else { return }
+        let suggestion = suggestions[index]
+        let wasNextWordMode = stateMachine.isNextWordMode
+        let result = stateMachine.acceptSuggestion(suggestion: suggestion)
+        let charsToDelete = result.first!.intValue
+        let word = result.second! as String
+        // Delete the partial word
+        for _ in 0..<charsToDelete {
+            self.textDocumentProxy.deleteBackward()
+        }
+        // In next-word mode, prepend a space if text before cursor doesn't already end with one
+        if wasNextWordMode && charsToDelete == 0 {
+            let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
+            if !before.isEmpty && !before.hasSuffix(" ") {
+                self.textDocumentProxy.insertText(" ")
+            }
+        }
+        // Insert the full suggestion
+        self.textDocumentProxy.insertText(word)
+    }
+
     private static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
 
     private var isEfficiencyLayout: Bool {
@@ -687,6 +780,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.keyboardMode = mirroredMode
         viewModel.isEfficiency = isEfficiencyLayout
         viewModel.colorPaletteKey = currentColorPaletteKey
+        viewModel.bothDialsAtHome = stateMachine.areBothDialsAtHome()
         updatePreviewState()
     }
 

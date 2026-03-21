@@ -8,9 +8,27 @@ class KeyboardStateMachine(
     private val coroutineScope: CoroutineScope // 由 Android/iOS 传入的生命周期作用域
 ) {
     private val processor = KeyboardLogic()
+    private val predictor = WordPredictionEngine.createWithDefaultDictionary()
     private val DEADZONE_RADIUS = 40f
     private var controllerDeadZone = 0.25f
     private var controllerYAxisMultiplier = 1f
+
+    // Word buffer: tracks the current word being typed
+    private val wordBuffer = StringBuilder()
+    // Tracks the last completed word for next-word prediction
+    private var lastCompletedWord = ""
+    // Whether current suggestions are next-word predictions (buffer empty)
+    var isNextWordMode: Boolean = false
+        private set
+
+    // Current suggestions (visible to platforms)
+    var currentSuggestions: List<String> = emptyList()
+        private set
+
+    init {
+        // Show default suggestions when keyboard first opens
+        updateSuggestions()
+    }
 
     // 核心状态
     private var leftActiveDir = Direction.NONE
@@ -247,6 +265,7 @@ class KeyboardStateMachine(
         val text = processor.getChordResult(left, right, currentMode, currentLayoutType, activeCustomLayout)
         if (text.isNotEmpty()) {
             delegate.commitText(text) // 呼叫代理上屏！
+            onTextCommitted(text)
         }
 
         if (currentMode == KeyboardMode.SHIFTED) {
@@ -263,12 +282,34 @@ class KeyboardStateMachine(
         val customLayout = if (currentLayoutType == LayoutType.CUSTOM) activeCustomLayout else null
         val result = processor.getSingleSwipeResult(dir, currentMode, customLayout)
         when (result) {
-            is String -> delegate.commitText(result)
+            is String -> {
+                delegate.commitText(result)
+                onTextCommitted(result)
+            }
             is InputAction -> {
                 when (result) {
                     InputAction.TOGGLE_SHIFT -> currentMode = if (currentMode == KeyboardMode.NORMAL) KeyboardMode.SHIFTED else KeyboardMode.NORMAL
                     InputAction.TOGGLE_CAPS -> currentMode = if (currentMode == KeyboardMode.CAPS_LOCKED) KeyboardMode.NORMAL else KeyboardMode.CAPS_LOCKED
-                    else -> delegate.sendInputAction(result)
+                    InputAction.BACKSPACE -> {
+                        delegate.sendInputAction(result)
+                        onBackspace()
+                    }
+                    InputAction.SPACE, InputAction.ENTER -> {
+                        delegate.sendInputAction(result)
+                        onWordBoundary()
+                    }
+                    else -> {
+                        delegate.sendInputAction(result)
+                        // Cursor-moving actions invalidate our buffer
+                        if (result in listOf(
+                                InputAction.DPAD_LEFT, InputAction.DPAD_RIGHT,
+                                InputAction.DPAD_UP, InputAction.DPAD_DOWN,
+                                InputAction.MOVE_HOME, InputAction.MOVE_END,
+                                InputAction.PAGE_UP, InputAction.PAGE_DOWN
+                            )) {
+                            syncWordBufferFromEditor()
+                        }
+                    }
                 }
             }
         }
@@ -328,10 +369,99 @@ class KeyboardStateMachine(
     }
 
     private fun cancelBackspaceRepeat() {
+        val wasActive = backspaceRepeatJob?.isActive == true
         backspaceRepeatJob?.cancel()
         backspaceRepeatJob = null
         backspaceHoldFired = false
+        if (wasActive) {
+            syncWordBufferFromEditor()
+        }
     }
+
+    // ── Word buffer management & prediction ──
+
+    private fun onTextCommitted(text: String) {
+        for (ch in text) {
+            if (ch.isLetterOrDigit() || ch == '\'') {
+                wordBuffer.append(ch)
+            } else {
+                // Non-letter character (punctuation, etc.) — treat as word boundary
+                if (wordBuffer.isNotEmpty()) {
+                    lastCompletedWord = wordBuffer.toString()
+                }
+                wordBuffer.clear()
+            }
+        }
+        updateSuggestions()
+    }
+
+    private fun onWordBoundary() {
+        if (wordBuffer.isNotEmpty()) {
+            lastCompletedWord = wordBuffer.toString()
+        }
+        wordBuffer.clear()
+        updateSuggestions()
+    }
+
+    private fun onBackspace() {
+        if (wordBuffer.isNotEmpty()) {
+            wordBuffer.deleteAt(wordBuffer.length - 1)
+        } else {
+            // Buffer was empty — ask the platform what word is before cursor now
+            syncWordBufferFromEditor()
+            return // syncWordBufferFromEditor already calls updateSuggestions
+        }
+        updateSuggestions()
+    }
+
+    private fun syncWordBufferFromEditor() {
+        val prefix = delegate.getCurrentWordPrefix()
+        wordBuffer.clear()
+        wordBuffer.append(prefix)
+        updateSuggestions()
+    }
+
+    private fun updateSuggestions() {
+        val prefix = wordBuffer.toString()
+        if (prefix.isNotEmpty()) {
+            // Currently typing a word — show completions/corrections
+            isNextWordMode = false
+            currentSuggestions = predictor.getSuggestions(prefix, limit = 3)
+        } else {
+            // Buffer is empty — show next-word predictions or defaults
+            isNextWordMode = true
+            currentSuggestions = predictor.getNextWordSuggestions(lastCompletedWord, limit = 3)
+        }
+        delegate.onSuggestionsUpdated(currentSuggestions)
+    }
+
+    /**
+     * Called by the platform when the user taps a suggestion word.
+     * In normal mode: replaces the current partial word with the full suggestion.
+     * In next-word mode: inserts the suggestion (buffer was empty).
+     * Returns the number of characters to delete and the text to insert.
+     */
+    fun acceptSuggestion(suggestion: String): Pair<Int, String> {
+        val charsToDelete = wordBuffer.length
+        lastCompletedWord = suggestion
+        wordBuffer.clear()
+        // After accepting, show next-word predictions for the accepted word
+        isNextWordMode = true
+        currentSuggestions = predictor.getNextWordSuggestions(suggestion, limit = 3)
+        delegate.onSuggestionsUpdated(currentSuggestions)
+        return Pair(charsToDelete, suggestion)
+    }
+
+    /**
+     * Whether both dials are currently at home (NONE) position.
+     * When true, the platform should show the suggestion bar instead of preview.
+     */
+    fun areBothDialsAtHome(): Boolean {
+        return leftActiveDir == Direction.NONE && rightActiveDir == Direction.NONE
+    }
+
+    /** Returns the current word buffer content (for platform debugging/display). */
+    fun getCurrentWordBuffer(): String = wordBuffer.toString()
 
     // 专门为 iOS 准备的无痛初始化工厂函数
     fun createKeyboardStateMachineForIOS(delegate: KeyboardActionDelegate): KeyboardStateMachine {
