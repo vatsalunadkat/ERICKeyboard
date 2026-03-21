@@ -3,11 +3,7 @@
 **Sprint**: SCRUM Sprint 4 (and beyond)  
 **Sprint 4 Start Date**: March 16, 2026 (Monday)  
 **Sprint 4 End Date**: March 20, 2026 (Friday)  
-**Project**: ERICK - Agile Methods  
-
-**Team**:
-- **Developer 1** — Platform Layer (UI/OS) for Android & iOS  
-- **Developer 2** — Shared Module (Kotlin Multiplatform)  
+**Project**: ERICK 
 
 **Note**: Tickets from Sprint 3 that carried over — ERICK-80 through ERICK-86 (Custom Keybinds, Controller Support) — remain in the backlog and are not re-listed here. This document covers new feature requests only.
 
@@ -22,7 +18,7 @@
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, UI, keyboard, preview |
@@ -156,7 +152,7 @@ This ticket covers **two objectives**:
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, UI, keyboard, preview |
@@ -220,14 +216,14 @@ Also perform a visual parity check to ensure Android (after ERICK-87) and iOS pr
 
 ---
 
-## ERICK-89 — Custom Layout Creator — Shared Module Data Model & Persistence
+## ERICK-74 — Custom Layout Creator — Shared Module Data Model & Persistence
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, custom-layout |
@@ -346,14 +342,14 @@ This ticket covers the **shared module** data model, serialization, validation, 
 
 ---
 
-## ERICK-90 — Custom Layout Creator UI — Android & iOS
+## ERICK-75 — Custom Layout Creator UI — Android & iOS
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 5 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, custom-layout, UI |
@@ -446,7 +442,7 @@ From the Settings screen, users can tap "Manage Custom Layouts" to enter a layou
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, accessibility, UI |
@@ -539,7 +535,7 @@ In left-handed mode:
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, UI, theming |
@@ -709,14 +705,14 @@ This applies to:
 
 ---
 
-## ERICK-93 — Accelerating Backspace — Hold to Delete Words
+## ERICK-103 — Accelerating Backspace — Hold to Delete Words
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, input, UX |
@@ -861,14 +857,14 @@ This mimics the Google Keyboard behavior where holding backspace starts slow (ch
 
 ---
 
-## ERICK-94 — Font Selection — Settings & Keyboard UI
+## ERICK-104 — Font Selection — Settings & Keyboard UI
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 5 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, UI, fonts, accessibility |
@@ -969,14 +965,14 @@ The font setting should be saved with other preferences and applied across the k
 
 ---
 
-## ERICK-95 — Shift & Caps Lock Visual Indicators
+## ERICK-105 — Shift & Caps Lock Visual Indicators
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 5 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, UI, keyboard |
@@ -1110,14 +1106,14 @@ We need **prominent, unmistakable visual indicators** for:
 
 ---
 
-## ERICK-96 — Symbols Keyboard Shortcut Button
+## ERICK-106 — Symbols Keyboard Shortcut Button
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 5 |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, android, iOS, keyboard |
@@ -1197,14 +1193,14 @@ The goal is to provide a **symbols toggle button** on the keyboard surface that 
 
 ---
 
-## ERICK-97 — Emoji Keyboard Integration
+## ERICK-107 — Emoji Keyboard Integration
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 5 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, UI, keyboard, emoji |
@@ -1368,14 +1364,14 @@ This is the recommended approach for consistency.
 
 ---
 
-## ERICK-98 — CozyTyper-Style Typing Game
+## ERICK-108 — CozyTyper-Style Typing Game
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 5 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, UI, game |
@@ -1555,7 +1551,7 @@ val quotes = listOf(
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 5 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 6 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | website, documentation, play-store |
@@ -1669,7 +1665,7 @@ website/
 
 ### Acceptance Criteria
 
-- [ ] Website accessible at `https://[username].github.io/Ergonomic-Radial-Inclusive-Chorded-Keyboard/`
+- [ ] Website accessible at `https://[username].github.io/ERICKeyboard/`
 - [ ] Landing page explains ERICK features clearly with visuals
 - [ ] Privacy Policy page contains all required content for Play Store
 - [ ] Accessibility page highlights all inclusivity features
@@ -1689,7 +1685,7 @@ website/
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 6 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, play-store, marketing |
@@ -1827,7 +1823,7 @@ Prepare all **required and recommended assets** for the Google Play Store listin
 | **Type** | Task |
 | **Priority** | Low |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 7 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | documentation, cleanup |
@@ -1903,7 +1899,7 @@ Some comments in the codebase may be in other languages or use abbreviations tha
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 7 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | documentation |
@@ -2023,14 +2019,14 @@ Comprehensive documentation update at the end of the project. This is a catch-al
 
 ---
 
-## ERICK-103 — Onboarding Tutorial & Accessibility Improvements
+## ERICK-129 — Onboarding Tutorial & Accessibility Improvements
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 6 |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, accessibility, UX |
@@ -2110,14 +2106,14 @@ This ticket covers additional improvements identified during sprint planning tha
 
 ---
 
-## ERICK-104 — Word Prediction & Autocorrect Foundation
+## ERICK-130 — Word Prediction & Autocorrect Foundation
 
 | Field | Value |
 |---|---|
 | **Type** | Story |
 | **Priority** | Low |
 | **Story Points** | 5 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Sprint** | Sprint 7 (Stretch) |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, AI, keyboard |

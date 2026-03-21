@@ -1,4 +1,4 @@
-<a name="readme-top"></a>
+﻿<a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
 <div align="center">
@@ -8,9 +8,9 @@
     An ergonomic keyboard system for Android using joystick-based chord input
     <br />
     <br />
-    <a href="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/issues">Report Bug</a>
+    <a href="https://github.com/vatsalunadkat/ERICKeyboard/issues">Report Bug</a>
     ·
-    <a href="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/issues">Request Feature</a>
+    <a href="https://github.com/vatsalunadkat/ERICKeyboard/issues">Request Feature</a>
   </p>
 </div>
 
@@ -100,6 +100,6 @@ Open either project folder in Android Studio and build using Gradle.
 
 Vatsal Unadkat - [GitHub](https://github.com/vatsalunadkat)
 
-Project Link: [https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord](https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord)
+Project Link: [https://github.com/vatsalunadkat/ERICKeyboard](https://github.com/vatsalunadkat/ERICKeyboard)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

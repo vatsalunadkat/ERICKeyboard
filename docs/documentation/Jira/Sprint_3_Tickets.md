@@ -3,23 +3,18 @@
 **Sprint**: SCRUM Sprint 3  
 **Start Date**: March 9, 2026 (Monday)  
 **End Date**: March 13, 2026 (Friday)  
-**Project**: ERICK - Agile Methods  
-
-**Team**:
-- **Developer 1** — Platform Layer (UI/OS) for Android & iOS  
-- **Developer 2** — Shared Module (Kotlin Multiplatform)  
-- **Developer 3** — Flexible (less technical tasks)  
+**Project**: ERICK  
 
 ---
 
-## ERICK-67 — Merge iOS Branch & Polish Keyboard Extension
+## ERICK-59 — Merge iOS Branch & Polish Keyboard Extension
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Highest |
 | **Story Points** | 2 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, infrastructure |
 | **Dependencies** | None (blocking all other iOS tickets) |
@@ -100,7 +95,7 @@ The iOS Xcode project, keyboard extension, and SharedKeyboard framework integrat
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 2 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, keyboard |
 | **Dependencies** | ERICK-67 |
@@ -199,7 +194,7 @@ The iOS keyboard extension was implemented in Sprint 2 on the `Implement_iOS_cho
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 3 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, onboarding |
 | **Dependencies** | ERICK-67 |
@@ -271,7 +266,7 @@ On iOS, users must enable third-party keyboards manually via Settings → Genera
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 3 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, settings |
 | **Dependencies** | ERICK-67 |
@@ -330,7 +325,7 @@ Build the iOS Settings screen mirroring the Android `SettingsScreen.kt`. Use Swi
 | **Type** | Task |
 | **Priority** | Low |
 | **Story Points** | 1 |
-| **Assignee** | Developer 3 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | iOS, branding |
 | **Dependencies** | ERICK-67 |
@@ -386,7 +381,7 @@ Add the ERICK logo and branding assets to the iOS app, matching the Android app'
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 2 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, cleanup |
 | **Dependencies** | None |
@@ -432,14 +427,14 @@ Remove all double-swipe functionality from the shared keyboard logic. The double
 
 ---
 
-## ERICK-73 — Implement Efficiency Layout in Shared Module
+## ERICK-57 — Implement Efficiency Layout in Shared Module
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, layout |
 | **Dependencies** | None |
@@ -519,14 +514,14 @@ The Efficiency layout replaces letter placement only. Numbers, symbols, and sing
 
 ---
 
-## ERICK-74 — Left-Handed Mode — Swap Dials in Shared Logic
+## ERICK-58 — Left-Handed Mode — Swap Dials in Shared Logic
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, accessibility |
 | **Dependencies** | None |
@@ -581,7 +576,7 @@ A toggle for this already exists in the Android settings UI (`PreferencesManager
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | shared-module, accessibility |
 | **Dependencies** | None |
@@ -715,7 +710,7 @@ Define the colorblind-accessible color palettes in the shared Kotlin Multiplatfo
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, accessibility, UI |
 | **Dependencies** | ERICK-75 |
@@ -808,7 +803,7 @@ Update the Android Settings screen to replace the simple "Colorblind Mode" toggl
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 3 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | iOS, accessibility, UI |
 | **Dependencies** | ERICK-67, ERICK-75 |
@@ -894,7 +889,7 @@ Build the colorblind palette selection UI for the iOS Settings screen, matching 
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, UI, keyboard |
 | **Dependencies** | ERICK-75 (for color palettes) |
@@ -970,7 +965,7 @@ This replaces the current plain gray circle joystick with an informative, visual
 | **Type** | Task |
 | **Priority** | High |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, UI, keyboard |
 | **Dependencies** | ERICK-67, ERICK-75 |
@@ -1040,14 +1035,14 @@ Implement the same radial dial UI with letters, colors, and live preview on the 
 
 ---
 
-## ERICK-80 — Custom Keybind Data Model & Persistence — Shared Module
+## ERICK-74 — Custom Keybind Data Model & Persistence — Shared Module
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, custom-layout |
 | **Dependencies** | ERICK-73 (Efficiency layout, for LayoutType enum) |
@@ -1137,7 +1132,7 @@ Implement the data model and serialization for user-created custom keyboard layo
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, custom-layout, UI |
 | **Dependencies** | ERICK-80 |
@@ -1204,7 +1199,7 @@ Build the Android UI for creating, editing, and managing custom keyboard layouts
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, custom-layout, UI |
 | **Dependencies** | ERICK-67, ERICK-80 |
@@ -1270,14 +1265,14 @@ Build the iOS SwiftUI equivalent of the Android custom layout editor (ERICK-81).
 
 ---
 
-## ERICK-83 — Physical Gaming Controller Input — Shared Module
+## ERICK-61 — Physical Gaming Controller Input — Shared Module
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 3 |
-| **Assignee** | Developer 2 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, controller |
 | **Dependencies** | None |
@@ -1343,7 +1338,7 @@ Add shared module support for physical gaming controller input. The two analog j
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | android, controller |
 | **Dependencies** | ERICK-83 |
@@ -1424,7 +1419,7 @@ Add physical gaming controller support to the Android IME. When a compatible con
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 5 |
-| **Assignee** | Developer 1 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
 | **Labels** | iOS, controller |
 | **Dependencies** | ERICK-67, ERICK-83 |
@@ -1495,14 +1490,14 @@ Add physical gaming controller support to the iOS keyboard extension. Use Apple'
 
 ---
 
-## ERICK-86 — Controller Detection & Status on App Homepage — Both Platforms
+## ERICK-62 — Controller Detection & Status on App Homepage — Both Platforms
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Medium |
 | **Story Points** | 2 |
-| **Assignee** | Developer 3 |
+| **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | android, iOS, controller, UI |
 | **Dependencies** | ERICK-84, ERICK-85 |

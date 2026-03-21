@@ -1,16 +1,16 @@
 package com.vatoo.erick.shared
 
-// 1. 纯净的方向定义
+// 1. Direction definitions
 enum class Direction {
     NONE, N, NE, E, SE, S, SW, W, NW
 }
 
-// 2. 纯净的模式定义
+// 2. Mode definitions
 enum class KeyboardMode {
     NORMAL, SHIFTED, CAPS_LOCKED
 }
 
-// 2.5 布局类型定义
+// 2.5 Layout type definitions
 enum class LayoutType {
     LOGICAL, EFFICIENCY, CUSTOM
 }
@@ -29,7 +29,7 @@ data class ControllerState(
     val rightStickX: Float,
     val rightStickY: Float
 )
-// 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
+// 3. Cross-platform input action set (replaces Android's KeyEvent)
 enum class InputAction {
     SPACE, ENTER, BACKSPACE, DELETE_FORWARD, DELETE_WORD,
     TOGGLE_SHIFT, TOGGLE_CAPS,
@@ -38,15 +38,15 @@ enum class InputAction {
     PAGE_UP, PAGE_DOWN, TAB
 }
 
-// 4. 终极"遥控器"接口！Android 和 iOS 必须实现它
+// 4. The "remote control" interface — Android and iOS must implement it
 interface KeyboardActionDelegate {
-    // 注入普通字符 (比如 "a", "A", ",", "!")
+    // Commit a plain character (e.g. "a", "A", ",", "!")
     fun commitText(text: String)
 
-    // 执行系统级动作 (比如回车、删除、移动光标)
+    // Execute a system-level action (e.g. enter, backspace, move cursor)
     fun sendInputAction(action: InputAction)
 
-    // 通知模式变更 (NORMAL, SHIFTED, CAPS_LOCKED)
+    // Notify mode change (NORMAL, SHIFTED, CAPS_LOCKED)
     fun onModeChanged(mode: KeyboardMode)
 
     // Called when word predictions/suggestions update

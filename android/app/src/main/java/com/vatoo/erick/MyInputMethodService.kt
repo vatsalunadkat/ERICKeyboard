@@ -35,7 +35,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
 
-// 注意：如果报红，请使用 Alt+Enter 导入你在 Shared 模块中写的类 (InputAction, KeyboardStateMachine 等)
+// Note: If this shows red, use Alt+Enter to import classes from the Shared module (InputAction, KeyboardStateMachine, etc.)
 
 class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
@@ -51,13 +51,13 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private var lastHighlightedIndex: Int = -1
     private var pendingSuggestions: List<String> = emptyList()
 
-    // --- 协程生命周期管理 ---
-    // 必须给状态机提供一个作用域，当输入法关闭时，销毁所有倒计时任务防止内存泄漏
+    // --- Coroutine lifecycle management ---
+    // Must provide a scope to the state machine; cancel all timer tasks when the IME is destroyed to prevent memory leaks
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
     private val controllerDeadZone = 0.25f
     private val inputManager by lazy { getSystemService(INPUT_SERVICE) as InputManager }
-    // 引入我们在 Shared 模块里写的跨平台大脑
+    // Cross-platform state machine from the Shared module
     private lateinit var stateMachine: KeyboardStateMachine
     private lateinit var preferencesManager: PreferencesManager
     private var connectedControllerName: String? = null
@@ -75,13 +75,13 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     override fun onCreate() {
         super.onCreate()
-        // 输入法创建时，组装大脑，并把自己 (this) 作为代理传进去
+        // When the IME is created, initialize the state machine and pass this as the delegate
         stateMachine = KeyboardStateMachine(this, serviceScope)
         stateMachine.setControllerDeadZone(controllerDeadZone)
         stateMachine.setControllerYAxisInverted(false)
         inputManager.registerInputDeviceListener(controllerListener, null)
         refreshControllerStatus()
-        // 监听布局偏好变化，实时切换布局 (使用与 SettingsScreen 相同的 PreferencesManager)
+        // Listen for layout preference changes and switch layouts in real-time (uses the same PreferencesManager as SettingsScreen)
         preferencesManager = PreferencesManager(this)
         customLayoutManager = CustomLayoutManager(preferencesManager.createCustomLayoutStorage())
 
@@ -165,7 +165,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     override fun onDestroy() {
         super.onDestroy()
         inputManager.unregisterInputDeviceListener(controllerListener)
-        serviceJob.cancel() // 输入法销毁时，清理所有的协程定时器
+        serviceJob.cancel() // When the IME is destroyed, clean up all coroutine timers
     }
 
     override fun onCreateInputView(): View {
@@ -295,9 +295,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val fallback = getCenteredAxisValue(fallbackAxis)
         return if (abs(primary) >= abs(fallback)) primary else fallback
     }
-    // --- 核心：将 Android 触摸事件翻译并喂给大脑 ---
+    // --- Core: translate Android touch events and dispatch to the state machine ---
     private fun dispatchTouchToStateMachine(event: MotionEvent, isLeft: Boolean, joystick: JoystickView) {
-        // 计算相对于圆心的偏移量
+        // Calculate offset relative to the joystick center
         val dx = event.x - (joystick.width / 2f)
         val dy = event.y - (joystick.height / 2f)
 
@@ -305,14 +305,14 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val isDownOrMove = actionMasked == MotionEvent.ACTION_DOWN || actionMasked == MotionEvent.ACTION_MOVE
         val isUpOrCancel = actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_CANCEL
 
-        // 1. 更新纯粹的 UI 渲染
+        // 1. Update the UI rendering
         if (isDownOrMove) {
             joystick.updateThumb(dx, dy)
         } else if (isUpOrCancel) {
             joystick.resetThumb()
         }
 
-        // 2. 将数据喂给跨平台状态机 (它不需要知道什么是 MotionEvent)
+        // 2. Dispatch data to the cross-platform state machine (it doesn't need to know about MotionEvent)
         stateMachine.handleTouch(dx, dy, isLeft, isDownOrMove, isUpOrCancel)
 
         // 3. Update the action-wheel joystick mode (whichever currently shows right-side content)
@@ -507,7 +507,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     }
 
     // ==========================================
-    // 实现 KeyboardActionDelegate 接口 (接收大脑的命令并执行)
+    // KeyboardActionDelegate implementation (receive commands from the state machine and execute)
     // ==========================================
 
     override fun commitText(text: String) {
@@ -659,7 +659,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }
     }
 
-    // --- 彻底禁止全屏的"四重防火墙" (保持不变) ---
+    // --- Prevent fullscreen extract mode (four-layer firewall — keep as-is) ---
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         attribute?.let { it.imeOptions = it.imeOptions or EditorInfo.IME_FLAG_NO_EXTRACT_UI }
         super.onStartInput(attribute, restarting)

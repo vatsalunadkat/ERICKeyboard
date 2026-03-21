@@ -2,7 +2,7 @@ import UIKit
 import SwiftUI
 import Combine
 import GameController
-import SharedKeyboard // 🚨 引入我们刚刚打包好的 KMP 大脑！
+import SharedKeyboard // Import the KMP shared module
 
 struct KeyboardPreviewItem: Identifiable {
     let id: Int
@@ -11,7 +11,7 @@ struct KeyboardPreviewItem: Identifiable {
     let color: Color
 }
 
-// 1. 状态桥梁：由于 SwiftUI 是响应式的，我们需要一个 ViewModel 来实时更新预览文字
+// 1. State bridge: SwiftUI is reactive, so we need a ViewModel to update the preview text in real-time
 class KeyboardViewModel: ObservableObject {
     @Published var previewText: String = ""
     @Published var previewItems: [KeyboardPreviewItem] = []
@@ -51,15 +51,15 @@ class KeyboardViewModel: ObservableObject {
     }
 }
 
-// 2. SwiftUI 键盘容器：把左右两个摇杆横向排列
+// 2. SwiftUI keyboard container: arranges left and right joysticks horizontally
 struct KeyboardContainerView: View {
     @ObservedObject var viewModel: KeyboardViewModel
-    // 闭包回调参数：dx, dy, isLeft, isDownOrMove, isUp
+    // Closure callback parameters: dx, dy, isLeft, isDownOrMove, isUp
     var onTouch: (Float, Float, Bool, Bool, Bool) -> Void
     var onSettingsChanged: () -> Void
     var onSuggestionTapped: (Int) -> Void
     
-    @State private var showSettings = false // 控制设置页面的显示
+    @State private var showSettings = false // Controls the settings page display
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -175,7 +175,7 @@ struct KeyboardContainerView: View {
             .padding(.leading, 8)
             .animation(.easeInOut(duration: 0.15), value: viewModel.keyboardMode)
 
-            // 覆盖设置页面
+            // Settings overlay
             if showSettings {
                 SettingsView(onClose: {
                     withAnimation {
@@ -273,7 +273,7 @@ private struct KeyboardSuggestionBar: View {
     }
 }
 
-// 3. iOS 输入法核心控制器
+// 3. iOS input method core controller
 class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     var stateMachine: KeyboardStateMachine!
@@ -300,16 +300,16 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // --- 唤醒跨平台大脑 ---
-        // Kotlin 的全局函数在 Swift 里会自动被放到带 'Kt' 后缀的命名空间下
-//        stateMachine = // Swift 现在会极其自然地调用我们刚刚写的那个次级构造函数！
-        // 使用我们在 Kotlin 里建好的工厂 (KeyboardFactory) 去拿货
+        // --- Initialize the cross-platform state machine ---
+        // Kotlin global functions are auto-namespaced under a 'Kt' suffix in Swift
+//        stateMachine = // Swift now naturally calls the secondary constructor we wrote
+        // Use the Kotlin factory (KeyboardFactory) to create the engine
         stateMachine = KeyboardFactory.shared.createEngine(delegate: self)
         
-        // 读取布局偏好并设置到状态机
+        // Read layout preference and apply to the state machine
         applyLayoutPreference()
         
-        // --- UI 挂载与闭包打通 ---
+        // --- UI mounting and closure wiring ---
         let containerView = KeyboardContainerView(viewModel: viewModel) { [weak self] dx, dy, isLeft, isDown, isUp in
             self?.handleTouch(dx: dx, dy: dy, isLeft: isLeft, isDown: isDown, isUp: isUp)
         } onSettingsChanged: { [weak self] in
@@ -318,7 +318,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             self?.onSuggestionTapped(index)
         }
         
-        // 使用 UIHostingController 把 SwiftUI 包装成传统的 UIKit View
+        // Use UIHostingController to wrap SwiftUI into a traditional UIKit View
         let hostingController = UIHostingController(rootView: containerView)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         hostingController.view.backgroundColor = .clear
@@ -327,11 +327,11 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         self.view.addSubview(hostingController.view)
         hostingController.didMove(toParent: self)
         
-        // 设置 iOS 的自动布局约束（撑满全屏，高度定为盲打舒适的 280）
+        // Set up iOS Auto Layout constraints (fill the screen, height fixed at 280 for comfortable touch typing)
         let heightConstraint = self.view.heightAnchor.constraint(equalToConstant: 280)
         heightConstraint.priority = .init(999)
         
-        // 2. 激活所有约束
+        // 2. Activate all constraints
         NSLayoutConstraint.activate([
             hostingController.view.leftAnchor.constraint(equalTo: self.view.leftAnchor),
             hostingController.view.rightAnchor.constraint(equalTo: self.view.rightAnchor),
@@ -340,7 +340,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             heightConstraint
         ])
         
-        // 物理手柄输入（DualShock 4 等蓝牙手柄）
+        // Physical controller input (DualShock 4 and other Bluetooth controllers)
         setupControllerInput()
         startControllerBridgePolling()
     }
@@ -353,7 +353,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         controllerBridgeTimer = nil
     }
     
-    // MARK: - GameController (DualShock 4 等)
+    // MARK: - GameController (DualShock 4, etc.)
     private static let controllerDeadZone: Float = 0.25
     private static let controllerToTouchScale: Float = 80
     
@@ -493,7 +493,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         }
     }
     
-    // MARK: - App Group 桥接（主应用读取手柄，键盘扩展读取）
+    // MARK: - App Group bridge (host app reads controller, keyboard extension reads)
     private func startControllerBridgePolling() {
         controllerBridgeTimer?.invalidate()
         controllerBridgeTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
@@ -536,7 +536,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.leftControllerStickNormalized = (lnx, lny)
         viewModel.rightControllerStickNormalized = (rnx, rny)
         
-        // 仅在摇杆从「激活」过渡到「非激活」时发送 isUp，否则会误判为和弦导致右摇杆单独操作（如 NW 切换大写）时 UI 不更新
+        // Only send isUp when the stick transitions from active to inactive; otherwise it would be misinterpreted as a chord, causing the right stick solo actions (e.g. NW to toggle caps) not to update the UI
         let leftRelease = !leftActive && prevBridgeLeftActive
         let rightRelease = !rightActive && prevBridgeRightActive
         if leftActive {
@@ -553,12 +553,12 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         prevBridgeRightActive = rightActive
     }
     
-    // --- 核心分发：将 iOS 触摸数据喂给 Kotlin 大脑 ---
+    // --- Core dispatch: feed iOS touch data to the Kotlin state machine ---
     func handleTouch(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {
         syncVisualState(dx: dx, dy: dy, isLeft: isLeft, isDown: isDown, isUp: isUp)
         stateMachine.handleTouch(x: dx, y: dy, isLeft: isLeft, actionDownOrMove: isDown, actionUp: isUp)
         
-        // 从大脑获取最新预览并更新 UI（显式通知以确保 caps/shift 等模式变更立即反映到圆盘）
+        // Fetch the latest preview from the state machine and update the UI (explicit notification ensures caps/shift mode changes are immediately reflected on the wheel)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.refreshViewState()
@@ -566,7 +566,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     // ==========================================
-    // 实现 Kotlin 大脑的代理方法 (Action Delegate)
+    // Kotlin state machine delegate methods (Action Delegate)
     // ==========================================
 
     func commitText(text: String) {
