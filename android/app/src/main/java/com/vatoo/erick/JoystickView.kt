@@ -224,6 +224,15 @@ class JoystickView @JvmOverloads constructor(
         setLayerType(LAYER_TYPE_SOFTWARE, null)
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val w = MeasureSpec.getSize(widthMeasureSpec)
+        val h = MeasureSpec.getSize(heightMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        // Request a square view based on width; honour EXACTLY if the parent forces a height
+        val finalHeight = if (heightMode == MeasureSpec.EXACTLY) h else w
+        setMeasuredDimension(w, finalHeight)
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         centerX = w / 2f

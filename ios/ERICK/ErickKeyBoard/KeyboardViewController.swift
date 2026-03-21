@@ -535,15 +535,15 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     func sendInputAction(action: InputAction) {
-        // Kotlin 的枚举在 Swift 中会自动变成小写驼峰式
         switch action {
         case .space:
             self.textDocumentProxy.insertText(" ")
         case .enter:
             self.textDocumentProxy.insertText("\n")
         case .backspace, .deleteForward:
-            // iOS 键盘 API 没有向后删除，统一使用系统的 deleteBackward
             self.textDocumentProxy.deleteBackward()
+        case .deleteWord:
+            deleteWordBackward()
         case .moveHome:
             if let before = self.textDocumentProxy.documentContextBeforeInput {
                 self.textDocumentProxy.adjustTextPosition(byCharacterOffset: -before.count)
@@ -554,16 +554,31 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             }
         case .tab:
             self.textDocumentProxy.insertText("\t")
-            
-        // --- 移动光标逻辑 ---
         case .dpadLeft:
             self.textDocumentProxy.adjustTextPosition(byCharacterOffset: -1)
         case .dpadRight:
             self.textDocumentProxy.adjustTextPosition(byCharacterOffset: 1)
         default:
-            // 提示：iOS 第三方键盘由于系统安全限制，无法完美模拟上下键 (不知道上一行有多少字)
-            // 所以 DPAD_UP / DOWN 等在这里暂时忽略
             break
+        }
+    }
+
+    private func deleteWordBackward() {
+        guard let before = self.textDocumentProxy.documentContextBeforeInput, !before.isEmpty else {
+            return
+        }
+        var i = before.endIndex
+        // Skip trailing whitespace
+        while i > before.startIndex && before[before.index(before: i)].isWhitespace {
+            i = before.index(before: i)
+        }
+        // Skip word characters
+        while i > before.startIndex && !before[before.index(before: i)].isWhitespace {
+            i = before.index(before: i)
+        }
+        let charsToDelete = before.distance(from: i, to: before.endIndex)
+        for _ in 0..<charsToDelete {
+            self.textDocumentProxy.deleteBackward()
         }
     }
 

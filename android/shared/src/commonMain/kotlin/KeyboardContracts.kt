@@ -31,7 +31,7 @@ data class ControllerState(
 )
 // 3. 跨平台的动作指令集 (替代 Android 的 KeyEvent)
 enum class InputAction {
-    SPACE, ENTER, BACKSPACE, DELETE_FORWARD,
+    SPACE, ENTER, BACKSPACE, DELETE_FORWARD, DELETE_WORD,
     TOGGLE_SHIFT, TOGGLE_CAPS,
     MOVE_HOME, MOVE_END,
     DPAD_UP, DPAD_DOWN, DPAD_LEFT, DPAD_RIGHT,

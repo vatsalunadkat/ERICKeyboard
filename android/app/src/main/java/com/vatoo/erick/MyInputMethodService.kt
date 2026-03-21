@@ -498,7 +498,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     }
 
     override fun sendInputAction(action: InputAction) {
-        // 将跨平台的 InputAction 翻译成 Android 原生的 KeyEvent
+        if (action == InputAction.DELETE_WORD) {
+            deleteWordBackward()
+            return
+        }
         val keyCode = when (action) {
             InputAction.SPACE -> KeyEvent.KEYCODE_SPACE
             InputAction.ENTER -> KeyEvent.KEYCODE_ENTER
@@ -513,13 +516,27 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             InputAction.PAGE_UP -> KeyEvent.KEYCODE_PAGE_UP
             InputAction.PAGE_DOWN -> KeyEvent.KEYCODE_PAGE_DOWN
             InputAction.TAB -> KeyEvent.KEYCODE_TAB
-            // 大小写切换已经在状态机内部消化，无需在这里处理
             InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS -> -1
+            else -> -1
         }
 
         if (keyCode != -1) {
             currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
             currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+        }
+    }
+
+    private fun deleteWordBackward() {
+        val ic = currentInputConnection ?: return
+        val before = ic.getTextBeforeCursor(64, 0)?.toString() ?: return
+        if (before.isEmpty()) return
+        // Walk backwards: skip trailing whitespace, then skip word characters
+        var i = before.length
+        while (i > 0 && before[i - 1].isWhitespace()) i--
+        while (i > 0 && !before[i - 1].isWhitespace()) i--
+        val charsToDelete = before.length - i
+        if (charsToDelete > 0) {
+            ic.deleteSurroundingText(charsToDelete, 0)
         }
     }
 
