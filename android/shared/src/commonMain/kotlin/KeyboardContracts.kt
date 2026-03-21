@@ -48,4 +48,11 @@ interface KeyboardActionDelegate {
 
     // 通知模式变更 (NORMAL, SHIFTED, CAPS_LOCKED)
     fun onModeChanged(mode: KeyboardMode)
+
+    // Called when word predictions/suggestions update
+    fun onSuggestionsUpdated(suggestions: List<String>)
+
+    // Retrieve the current word prefix from the text field (for sync after cursor moves etc.)
+    // Returns the word fragment immediately before the cursor, or empty string.
+    fun getCurrentWordPrefix(): String
 }

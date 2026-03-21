@@ -9,12 +9,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Live Preview Bar -->
+        <!-- Live Preview & Suggestion Bar (share the same row) -->
         <FrameLayout
             android:id="@+id/live_preview_container"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:visibility="invisible"
             android:gravity="center"
             android:clipChildren="false"
             android:clipToPadding="false">
@@ -30,7 +29,67 @@
                 android:paddingHorizontal="18dp"
                 android:paddingVertical="10dp"
                 android:elevation="6dp"
+                android:visibility="gone"
                 android:background="@drawable/preview_capsule_bg" />
+
+            <!-- Suggestion Bar (shown when both dials at home and suggestions available) -->
+            <LinearLayout
+                android:id="@+id/suggestion_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:visibility="gone"
+                android:paddingHorizontal="12dp">
+
+                <TextView
+                    android:id="@+id/suggestion_1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#CCCCCC" />
+
+                <TextView
+                    android:id="@+id/suggestion_2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#CCCCCC" />
+
+                <TextView
+                    android:id="@+id/suggestion_3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
         </FrameLayout>
 
         <LinearLayout
