@@ -5,7 +5,7 @@ import kotlin.math.hypot
 
 class KeyboardStateMachine(
     private val delegate: KeyboardActionDelegate,
-    private val coroutineScope: CoroutineScope // 由 Android/iOS 传入的生命周期作用域
+    private val coroutineScope: CoroutineScope // Lifecycle-bound scope provided by Android/iOS
 ) {
     private val processor = KeyboardLogic()
     private val predictor = WordPredictionEngine.createWithDefaultDictionary()
@@ -30,7 +30,7 @@ class KeyboardStateMachine(
         updateSuggestions()
     }
 
-    // 核心状态
+    // Core state
     private var leftActiveDir = Direction.NONE
     private var rightActiveDir = Direction.NONE
     private var leftActiveSource: InputSource? = null
@@ -59,7 +59,7 @@ class KeyboardStateMachine(
     private var backspaceRepeatJob: Job? = null
     private var backspaceHoldFired = false  // true if hold-repeat already deleted chars
 
-    // 接收来自原生平台的触摸更新
+    // Receives touch updates from the native platform
     fun handleTouch(x: Float, y: Float, isLeft: Boolean, actionDownOrMove: Boolean, actionUp: Boolean) {
         val effectiveIsLeft = getEffectiveSide(isLeft)
 
@@ -116,7 +116,7 @@ class KeyboardStateMachine(
         return ColorPalettes.getPalette(currentPaletteType)
     }
 
-    // 获取用于 UI 渲染的实时预览字符
+    // Returns the live preview character for UI rendering
     fun getPreviewText(): String {
         return if (leftActiveDir != Direction.NONE && rightActiveDir != Direction.NONE) {
             processor.getChordResult(leftActiveDir, rightActiveDir, currentMode, currentLayoutType, activeCustomLayout)
@@ -264,7 +264,7 @@ class KeyboardStateMachine(
 
         val text = processor.getChordResult(left, right, currentMode, currentLayoutType, activeCustomLayout)
         if (text.isNotEmpty()) {
-            delegate.commitText(text) // 呼叫代理上屏！
+            delegate.commitText(text) // Tell the delegate to commit text!
             onTextCommitted(text)
         }
 
@@ -463,16 +463,16 @@ class KeyboardStateMachine(
     /** Returns the current word buffer content (for platform debugging/display). */
     fun getCurrentWordBuffer(): String = wordBuffer.toString()
 
-    // 专门为 iOS 准备的无痛初始化工厂函数
+    // Convenience factory function for iOS initialization
     fun createKeyboardStateMachineForIOS(delegate: KeyboardActionDelegate): KeyboardStateMachine {
-        // 自动在 Kotlin 端创建一个绑定主线程的作用域供 iOS 使用
+        // Automatically creates a main-thread-bound scope on the Kotlin side for iOS
         return KeyboardStateMachine(delegate, kotlinx.coroutines.MainScope())
     }
 }
-// Kotlin 的 object 关键字相当于全局单例
+// Kotlin's `object` keyword acts as a global singleton
 object KeyboardFactory {
     fun createEngine(delegate: KeyboardActionDelegate): KeyboardStateMachine {
-        // 我们在兵工厂内部，悄悄把 iOS 不懂的协程作用域给装配好
+        // Internally assembles the coroutine scope that iOS doesn't need to manage
         return KeyboardStateMachine(delegate, kotlinx.coroutines.MainScope())
     }
 }

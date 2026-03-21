@@ -1,14 +1,14 @@
 //
 // ControllerBridge.swift
-// 主应用读取物理手柄（DualShock 4 等），通过 App Group 共享给键盘扩展使用。
-// 键盘扩展运行在独立进程，可能无法直接访问 GCController，因此需要此桥接。
+// The host app reads physical game controllers (DualShock 4, etc.) and shares state via App Group for the keyboard extension.
+// The keyboard extension runs in a separate process and may not directly access GCController, so this bridge is needed.
 //
 
 import Foundation
 import UIKit
 import GameController
 
-/// 主应用中运行，读取手柄摇杆并写入 App Group，供键盘扩展读取。
+/// Runs in the host app; reads controller stick data and writes to App Group for the keyboard extension to read.
 final class ControllerBridge {
     static let shared = ControllerBridge()
     
@@ -27,7 +27,7 @@ final class ControllerBridge {
         UserDefaults(suiteName: Self.appGroupId)
     }
     
-    /// 应用进入前台时调用
+    /// Called when the app enters the foreground
     func start() {
         if !hasRegisteredObservers {
             NotificationCenter.default.addObserver(
@@ -48,7 +48,7 @@ final class ControllerBridge {
         setupCurrentController()
     }
     
-    /// 应用进入后台时调用（可选，减少电量消耗）
+    /// Called when the app enters the background (optional, reduces battery usage)
     func stop() {
         displayLink?.invalidate()
         displayLink = nil

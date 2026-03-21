@@ -1,5 +1,7 @@
 package com.vatoo.erick
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,11 +20,13 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -149,302 +153,323 @@ private fun MainSettingsContent(
             )
         }
     ) { paddingValues ->
+        // Track which section is expanded (null = all collapsed)
+        var expandedSection by remember { mutableStateOf<String?>("layout") }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Layout Section
-            Text(
-                text = "Keyboard Layout",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            LayoutRadioOption(
-                title = "Logical (A–Z)",
-                subtitle = null,
-                selected = layoutType == PreferencesManager.LAYOUT_LOGICAL,
-                enabled = true,
-                onClick = {
-                    scope.launch {
-                        preferencesManager.setLayoutType(PreferencesManager.LAYOUT_LOGICAL)
-                    }
-                }
-            )
-
-            LayoutRadioOption(
-                title = "Efficiency",
-                subtitle = "Optimized for English letter frequency",
-                selected = layoutType == PreferencesManager.LAYOUT_EFFICIENCY,
-                enabled = true,
-                onClick = {
-                    scope.launch {
-                        preferencesManager.setLayoutType(PreferencesManager.LAYOUT_EFFICIENCY)
-                    }
-                }
-            )
-
-            // Custom layout radio options
-            customLayouts.forEach { cl ->
+            CollapsibleSection(
+                title = "Keyboard Layout",
+                expanded = expandedSection == "layout",
+                onToggle = { expandedSection = if (expandedSection == "layout") null else "layout" }
+            ) {
                 LayoutRadioOption(
-                    title = cl.name,
-                    subtitle = "Custom layout",
-                    selected = layoutType == PreferencesManager.LAYOUT_CUSTOM && customLayoutId == cl.id,
+                    title = "Logical (A–Z)",
+                    subtitle = null,
+                    selected = layoutType == PreferencesManager.LAYOUT_LOGICAL,
                     enabled = true,
                     onClick = {
                         scope.launch {
-                            preferencesManager.setCustomLayoutId(cl.id)
-                            preferencesManager.setLayoutType(PreferencesManager.LAYOUT_CUSTOM)
+                            preferencesManager.setLayoutType(PreferencesManager.LAYOUT_LOGICAL)
                         }
                     }
                 )
+
+                LayoutRadioOption(
+                    title = "Efficiency",
+                    subtitle = "Optimized for English letter frequency",
+                    selected = layoutType == PreferencesManager.LAYOUT_EFFICIENCY,
+                    enabled = true,
+                    onClick = {
+                        scope.launch {
+                            preferencesManager.setLayoutType(PreferencesManager.LAYOUT_EFFICIENCY)
+                        }
+                    }
+                )
+
+                // Custom layout radio options
+                customLayouts.forEach { cl ->
+                    LayoutRadioOption(
+                        title = cl.name,
+                        subtitle = "Custom layout",
+                        selected = layoutType == PreferencesManager.LAYOUT_CUSTOM && customLayoutId == cl.id,
+                        enabled = true,
+                        onClick = {
+                            scope.launch {
+                                preferencesManager.setCustomLayoutId(cl.id)
+                                preferencesManager.setLayoutType(PreferencesManager.LAYOUT_CUSTOM)
+                            }
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedButton(
+                    onClick = onManageCustomLayouts,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Manage Custom Layouts")
+                }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = onManageCustomLayouts,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Manage Custom Layouts")
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
             // Appearance Section
-            Text(
-                text = "Appearance",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            CollapsibleSection(
+                title = "Appearance",
+                expanded = expandedSection == "appearance",
+                onToggle = { expandedSection = if (expandedSection == "appearance") null else "appearance" }
+            ) {
+                Text(
+                    text = "Theme",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
 
-            Text(
-                text = "Theme",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
-            LayoutRadioOption(
-                title = "System Default",
-                subtitle = "Follows device light/dark mode setting",
-                selected = themeMode == PreferencesManager.THEME_SYSTEM,
-                enabled = true,
-                onClick = {
-                    scope.launch {
-                        preferencesManager.setThemeMode(PreferencesManager.THEME_SYSTEM)
-                    }
-                }
-            )
-
-            LayoutRadioOption(
-                title = "Light",
-                subtitle = "Always light regardless of system setting",
-                selected = themeMode == PreferencesManager.THEME_LIGHT,
-                enabled = true,
-                onClick = {
-                    scope.launch {
-                        preferencesManager.setThemeMode(PreferencesManager.THEME_LIGHT)
-                    }
-                }
-            )
-
-            LayoutRadioOption(
-                title = "Dark",
-                subtitle = "Always dark regardless of system setting",
-                selected = themeMode == PreferencesManager.THEME_DARK,
-                enabled = true,
-                onClick = {
-                    scope.launch {
-                        preferencesManager.setThemeMode(PreferencesManager.THEME_DARK)
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "Font",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
-            val fontOptions = listOf(
-                Triple(PreferencesManager.FONT_SYSTEM, "System Default", null as FontFamily?),
-                Triple(PreferencesManager.FONT_VERDANA, "Verdana", FontFamily(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL))),
-                Triple(PreferencesManager.FONT_GEORGIA, "Georgia", FontFamily(android.graphics.Typeface.create("serif", android.graphics.Typeface.NORMAL))),
-                Triple(PreferencesManager.FONT_OPENDYSLEXIC, "OpenDyslexic", FontFamily(Font(R.font.opendyslexic_regular)))
-            )
-
-            fontOptions.forEach { (key, name, fontFamily) ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            scope.launch { preferencesManager.setFontPreference(key) }
+                LayoutRadioOption(
+                    title = "System Default",
+                    subtitle = null,
+                    selected = themeMode == PreferencesManager.THEME_SYSTEM,
+                    enabled = true,
+                    onClick = {
+                        scope.launch {
+                            preferencesManager.setThemeMode(PreferencesManager.THEME_SYSTEM)
                         }
-                        .padding(vertical = 8.dp, horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = fontPreference == key,
-                        onClick = { scope.launch { preferencesManager.setFontPreference(key) } }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(modifier = Modifier.weight(1f)) {
+                    }
+                )
+
+                LayoutRadioOption(
+                    title = "Light",
+                    subtitle = null,
+                    selected = themeMode == PreferencesManager.THEME_LIGHT,
+                    enabled = true,
+                    onClick = {
+                        scope.launch {
+                            preferencesManager.setThemeMode(PreferencesManager.THEME_LIGHT)
+                        }
+                    }
+                )
+
+                LayoutRadioOption(
+                    title = "Dark",
+                    subtitle = null,
+                    selected = themeMode == PreferencesManager.THEME_DARK,
+                    enabled = true,
+                    onClick = {
+                        scope.launch {
+                            preferencesManager.setThemeMode(PreferencesManager.THEME_DARK)
+                        }
+                    }
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text(
+                    text = "Font",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+
+                val fontOptions = listOf(
+                    Triple(PreferencesManager.FONT_SYSTEM, "System Default", null as FontFamily?),
+                    Triple(PreferencesManager.FONT_VERDANA, "Verdana", FontFamily(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL))),
+                    Triple(PreferencesManager.FONT_GEORGIA, "Georgia", FontFamily(android.graphics.Typeface.create("serif", android.graphics.Typeface.NORMAL))),
+                    Triple(PreferencesManager.FONT_OPENDYSLEXIC, "OpenDyslexic", FontFamily(Font(R.font.opendyslexic_regular)))
+                )
+
+                fontOptions.forEach { (key, name, fontFamily) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                scope.launch { preferencesManager.setFontPreference(key) }
+                            }
+                            .padding(vertical = 6.dp, horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = fontPreference == key,
+                            onClick = { scope.launch { preferencesManager.setFontPreference(key) } }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = name,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        if (key == PreferencesManager.FONT_OPENDYSLEXIC) {
-                            Text(
-                                text = "Dyslexia-friendly",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        Text(
-                            text = "The quick brown fox",
                             style = MaterialTheme.typography.bodyMedium,
-                            fontFamily = fontFamily,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontFamily = fontFamily
                         )
                     }
                 }
             }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
             // Accessibility Section
-            Text(
-                text = "Accessibility",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            SettingToggle(
-                title = "Enable Colorblind Mode",
-                checked = colorblindMode,
-                enabled = true,
-                onCheckedChange = { checked ->
-                    scope.launch {
-                        preferencesManager.setColorblindMode(checked)
+            CollapsibleSection(
+                title = "Accessibility",
+                expanded = expandedSection == "accessibility",
+                onToggle = { expandedSection = if (expandedSection == "accessibility") null else "accessibility" }
+            ) {
+                SettingToggle(
+                    title = "Enable Colorblind Mode",
+                    checked = colorblindMode,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch {
+                            preferencesManager.setColorblindMode(checked)
+                        }
                     }
+                )
+
+                if (colorblindMode) {
+                    Text(
+                        text = "Select the palette that works best for your type of color vision.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                    )
+
+                    PaletteRadioOption(
+                        title = "Okabe-Ito (Universal)",
+                        subtitle = "Recommended for all types of color vision deficiency",
+                        paletteType = ColorPaletteType.OKABE_ITO,
+                        selected = colorPalette == PreferencesManager.PALETTE_OKABE_ITO,
+                        onClick = {
+                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO) }
+                        }
+                    )
+
+                    PaletteRadioOption(
+                        title = "Deuteranopia (Green-blind)",
+                        subtitle = "Optimized for green-blind users",
+                        paletteType = ColorPaletteType.DEUTERANOPIA,
+                        selected = colorPalette == PreferencesManager.PALETTE_DEUTERANOPIA,
+                        onClick = {
+                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_DEUTERANOPIA) }
+                        }
+                    )
+
+                    PaletteRadioOption(
+                        title = "Protanopia (Red-blind)",
+                        subtitle = "Optimized for red-blind users",
+                        paletteType = ColorPaletteType.PROTANOPIA,
+                        selected = colorPalette == PreferencesManager.PALETTE_PROTANOPIA,
+                        onClick = {
+                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PROTANOPIA) }
+                        }
+                    )
+
+                    PaletteRadioOption(
+                        title = "Tritanopia (Blue-blind)",
+                        subtitle = "Optimized for blue-blind users",
+                        paletteType = ColorPaletteType.TRITANOPIA,
+                        selected = colorPalette == PreferencesManager.PALETTE_TRITANOPIA,
+                        onClick = {
+                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_TRITANOPIA) }
+                        }
+                    )
+
+                    PaletteRadioOption(
+                        title = "Pastel (Soft)",
+                        subtitle = "Softer colors that are easier on the eyes",
+                        paletteType = ColorPaletteType.PASTEL,
+                        selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
+                        onClick = {
+                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL) }
+                        }
+                    )
                 }
-            )
 
-            if (colorblindMode) {
-                Text(
-                    text = "Select the palette that works best for your type of color vision. Each option shows a preview of the 8 colors used on the keyboard.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                PaletteRadioOption(
-                    title = "Okabe-Ito (Universal)",
-                    subtitle = "Recommended for all types of color vision deficiency",
-                    paletteType = ColorPaletteType.OKABE_ITO,
-                    selected = colorPalette == PreferencesManager.PALETTE_OKABE_ITO,
-                    onClick = {
-                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO) }
-                    }
-                )
-
-                PaletteRadioOption(
-                    title = "Deuteranopia (Green-blind)",
-                    subtitle = "Optimized for green-blind users",
-                    paletteType = ColorPaletteType.DEUTERANOPIA,
-                    selected = colorPalette == PreferencesManager.PALETTE_DEUTERANOPIA,
-                    onClick = {
-                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_DEUTERANOPIA) }
-                    }
-                )
-
-                PaletteRadioOption(
-                    title = "Protanopia (Red-blind)",
-                    subtitle = "Optimized for red-blind users",
-                    paletteType = ColorPaletteType.PROTANOPIA,
-                    selected = colorPalette == PreferencesManager.PALETTE_PROTANOPIA,
-                    onClick = {
-                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PROTANOPIA) }
-                    }
-                )
-
-                PaletteRadioOption(
-                    title = "Tritanopia (Blue-blind)",
-                    subtitle = "Optimized for blue-blind users",
-                    paletteType = ColorPaletteType.TRITANOPIA,
-                    selected = colorPalette == PreferencesManager.PALETTE_TRITANOPIA,
-                    onClick = {
-                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_TRITANOPIA) }
-                    }
-                )
-
-                PaletteRadioOption(
-                    title = "Pastel (Soft)",
-                    subtitle = "Softer colors that are easier on the eyes",
-                    paletteType = ColorPaletteType.PASTEL,
-                    selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
-                    onClick = {
-                        scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL) }
+                SettingToggle(
+                    title = "Left-Handed Mode",
+                    checked = leftHandedMode,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch {
+                            preferencesManager.setLeftHandedMode(checked)
+                        }
                     }
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            SettingToggle(
-                title = "Left-Handed Mode",
-                checked = leftHandedMode,
-                enabled = true,
-                onCheckedChange = { checked ->
-                    scope.launch {
-                        preferencesManager.setLeftHandedMode(checked)
-                    }
-                }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-
             // Privacy & Security Section
-            Text(
-                text = "Privacy & Security",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                )
+            CollapsibleSection(
+                title = "Privacy & Security",
+                expanded = expandedSection == "privacy",
+                onToggle = { expandedSection = if (expandedSection == "privacy") null else "privacy" }
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "🔒 Your privacy is our priority. ERICKeyboard:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = "✓ Does NOT collect any text you type\n" +
-                                "✓ Does NOT store passwords or personal data\n" +
-                                "✓ Does NOT transmit any data from your device\n" +
-                                "✓ Only stores your keyboard preferences locally\n" +
-                                "✓ Has no internet permissions\n" +
-                                "✓ Is 100% open source for full transparency",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                Text(
+                    text = "🔒 Your privacy is our priority. ERICKeyboard:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "✓ Does NOT collect any text you type\n" +
+                            "✓ Does NOT store passwords or personal data\n" +
+                            "✓ Does NOT transmit any data from your device\n" +
+                            "✓ Only stores your keyboard preferences locally\n" +
+                            "✓ Has no internet permissions\n" +
+                            "✓ Is 100% open source for full transparency",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CollapsibleSection(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        label = "chevron"
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggle() }
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.rotate(rotationAngle)
+                )
+            }
+
+            AnimatedVisibility(visible = expanded) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    content = content
+                )
             }
         }
     }

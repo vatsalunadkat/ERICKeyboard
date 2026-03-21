@@ -5,10 +5,10 @@ import kotlin.math.PI
 
 class KeyboardLogic {
 
-    // --- 第一部分：纯数学计算坐标转方向 ---
+    // --- Part 1: Pure math — convert coordinates to direction ---
     fun getDirectionFromXY(x: Float, y: Float): Direction {
         val radians = atan2(y.toDouble(), x.toDouble())
-        var degrees = (radians * 180.0 / PI) // 替换了 Math.toDegrees，使用更纯粹的 Kotlin Math
+        var degrees = (radians * 180.0 / PI) // Replaced Math.toDegrees with pure Kotlin Math
         if (degrees < 0) {
             degrees += 360.0
         }
@@ -26,7 +26,7 @@ class KeyboardLogic {
         }
     }
 
-    // --- 第二部分：和弦数据字典 (保持不变) ---
+    // --- Part 2: Chord data dictionary (unchanged) ---
 
     // ========== LOGICAL LAYOUT ==========
     private val normalMap = mapOf(
@@ -144,9 +144,9 @@ class KeyboardLogic {
         }
     }
 
-    // --- 第三部分：动作映射 (替换为我们刚刚定义的跨平台 InputAction) ---
+    // --- Part 3: Action mapping (uses cross-platform InputAction) ---
 
-    // 注意这里：返回值变成了 Any，因为单滑可能返回字符 (String)，也可能返回指令 (InputAction)
+    // Note: Return type is Any because a single swipe may return a character (String) or a command (InputAction)
     fun getSingleSwipeResult(dir: Direction, mode: KeyboardMode, customLayout: CustomLayout? = null): Any? {
         if (customLayout != null) {
             val map = if (mode != KeyboardMode.NORMAL) customLayout.singleSwipeShiftedMap else customLayout.singleSwipeNormalMap

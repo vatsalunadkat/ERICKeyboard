@@ -72,128 +72,161 @@ struct SettingsView: View {
         }
     }
 
-    private var mainSettingsForm: some View {
-        // Content
-        Form {
-            // Layout Section
-            Section(header: Text("Keyboard Layout")) {
-                Picker("Layout Type", selection: $layoutType) {
-                    Text("Logical (A–Z)").tag("logical")
-                    Text("Efficiency").tag("efficiency")
-                }
-                .pickerStyle(.inline)
+    @State private var expandedSection: String? = "layout"
 
-                // Custom layouts
-                let storage = IOSCustomLayoutStorage()
-                let manager = CustomLayoutManager(storage: storage)
-                let _ = manager.loadAll()
-                let customs = manager.getAll()
-                ForEach(Array(customs.enumerated()), id: \.element.id) { _, cl in
-                    Button(action: {
-                        customLayoutId = cl.id
-                        layoutType = "custom"
-                    }) {
-                        HStack {
-                            Image(systemName: layoutType == "custom" && customLayoutId == cl.id
-                                  ? "largecircle.fill.circle" : "circle")
-                                .foregroundColor(layoutType == "custom" && customLayoutId == cl.id ? .accentColor : .secondary)
-                            VStack(alignment: .leading) {
-                                Text(cl.name).foregroundColor(.primary)
-                                Text("Custom layout").font(.caption).foregroundColor(.secondary)
+    private var mainSettingsForm: some View {
+        ScrollView {
+            VStack(spacing: 8) {
+                // Layout Section
+                CollapsibleSettingsSection(
+                    title: "Keyboard Layout",
+                    isExpanded: expandedSection == "layout",
+                    onToggle: { expandedSection = expandedSection == "layout" ? nil : "layout" }
+                ) {
+                    VStack(spacing: 0) {
+                        settingsRadioRow(label: "Logical (A–Z)", selected: layoutType == "logical") {
+                            layoutType = "logical"
+                        }
+                        settingsRadioRow(label: "Efficiency", selected: layoutType == "efficiency") {
+                            layoutType = "efficiency"
+                        }
+
+                        // Custom layouts
+                        let storage = IOSCustomLayoutStorage()
+                        let manager = CustomLayoutManager(storage: storage)
+                        let _ = manager.loadAll()
+                        let customs = manager.getAll()
+                        ForEach(Array(customs.enumerated()), id: \.element.id) { _, cl in
+                            settingsRadioRow(label: cl.name, selected: layoutType == "custom" && customLayoutId == cl.id) {
+                                customLayoutId = cl.id
+                                layoutType = "custom"
                             }
+                        }
+
+                        Divider().padding(.vertical, 4)
+
+                        Button(action: { showCustomLayoutList = true }) {
+                            HStack {
+                                Image(systemName: "pencil.circle")
+                                Text("Manage Custom Layouts")
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12).padding(.vertical, 8)
                         }
                     }
                 }
 
-                Button(action: { showCustomLayoutList = true }) {
-                    HStack {
-                        Image(systemName: "pencil.circle")
-                        Text("Manage Custom Layouts")
+                // Appearance Section
+                CollapsibleSettingsSection(
+                    title: "Appearance",
+                    isExpanded: expandedSection == "appearance",
+                    onToggle: { expandedSection = expandedSection == "appearance" ? nil : "appearance" }
+                ) {
+                    VStack(spacing: 0) {
+                        Text("Theme").font(.subheadline).fontWeight(.medium)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12).padding(.bottom, 4)
+
+                        settingsRadioRow(label: "System Default", selected: themeMode == "system") { themeMode = "system" }
+                        settingsRadioRow(label: "Light", selected: themeMode == "light") { themeMode = "light" }
+                        settingsRadioRow(label: "Dark", selected: themeMode == "dark") { themeMode = "dark" }
+
+                        Divider().padding(.vertical, 4)
+
+                        Text("Font").font(.subheadline).fontWeight(.medium)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12).padding(.bottom, 4)
+
+                        settingsRadioRow(label: "System Default", selected: fontPreference == "system") { fontPreference = "system" }
+                        settingsRadioRow(label: "Verdana", selected: fontPreference == "verdana") { fontPreference = "verdana" }
+                        settingsRadioRow(label: "Georgia", selected: fontPreference == "georgia") { fontPreference = "georgia" }
+                        settingsRadioRow(label: "OpenDyslexic", selected: fontPreference == "opendyslexic") { fontPreference = "opendyslexic" }
                     }
                 }
-            }
-            
-            // Appearance Section
-            Section(header: Text("Appearance")) {
-                Picker("Theme", selection: $themeMode) {
-                    Text("System Default").tag("system")
-                    Text("Light").tag("light")
-                    Text("Dark").tag("dark")
-                }
-                .pickerStyle(.inline)
-            }
-
-            // Font Section
-            Section(header: Text("Font")) {
-                fontOption(key: "system", label: "System Default", font: .body)
-                fontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
-                fontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
-                fontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
-            }
 
                 // Accessibility Section
-                Section(header: Text("Accessibility")) {
-                    Toggle("Enable Colorblind Mode", isOn: $colorblindMode)
+                CollapsibleSettingsSection(
+                    title: "Accessibility",
+                    isExpanded: expandedSection == "accessibility",
+                    onToggle: { expandedSection = expandedSection == "accessibility" ? nil : "accessibility" }
+                ) {
+                    VStack(spacing: 4) {
+                        Toggle("Enable Colorblind Mode", isOn: $colorblindMode)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
 
-                    if colorblindMode {
-                        Text("Select the palette that works best for your type of color vision. Each option shows a preview of the 8 colors used on the keyboard.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        if colorblindMode {
+                            ColorPaletteOption(
+                                title: "Okabe-Ito (Universal)",
+                                subtitle: "Recommended for all types",
+                                palette: ColorPaletteDefinitions.okabeIto,
+                                selected: colorPalette == "okabe_ito",
+                                onSelect: { colorPalette = "okabe_ito" }
+                            )
+                            ColorPaletteOption(
+                                title: "Deuteranopia (Green-blind)",
+                                subtitle: "Optimized for green-blind users",
+                                palette: ColorPaletteDefinitions.deuteranopia,
+                                selected: colorPalette == "deuteranopia",
+                                onSelect: { colorPalette = "deuteranopia" }
+                            )
+                            ColorPaletteOption(
+                                title: "Protanopia (Red-blind)",
+                                subtitle: "Optimized for red-blind users",
+                                palette: ColorPaletteDefinitions.protanopia,
+                                selected: colorPalette == "protanopia",
+                                onSelect: { colorPalette = "protanopia" }
+                            )
+                            ColorPaletteOption(
+                                title: "Tritanopia (Blue-blind)",
+                                subtitle: "Optimized for blue-blind users",
+                                palette: ColorPaletteDefinitions.tritanopia,
+                                selected: colorPalette == "tritanopia",
+                                onSelect: { colorPalette = "tritanopia" }
+                            )
+                            ColorPaletteOption(
+                                title: "Pastel (Soft)",
+                                subtitle: "Softer colors",
+                                palette: ColorPaletteDefinitions.pastel,
+                                selected: colorPalette == "pastel",
+                                onSelect: { colorPalette = "pastel" }
+                            )
+                        }
 
-                        ColorPaletteOption(
-                            title: "Okabe-Ito (Universal)",
-                            subtitle: "Recommended for all types of color vision deficiency",
-                            palette: ColorPaletteDefinitions.okabeIto,
-                            selected: colorPalette == "okabe_ito",
-                            onSelect: { colorPalette = "okabe_ito" }
-                        )
-                        ColorPaletteOption(
-                            title: "Deuteranopia (Green-blind)",
-                            subtitle: "Optimized for green-blind users",
-                            palette: ColorPaletteDefinitions.deuteranopia,
-                            selected: colorPalette == "deuteranopia",
-                            onSelect: { colorPalette = "deuteranopia" }
-                        )
-                        ColorPaletteOption(
-                            title: "Protanopia (Red-blind)",
-                            subtitle: "Optimized for red-blind users",
-                            palette: ColorPaletteDefinitions.protanopia,
-                            selected: colorPalette == "protanopia",
-                            onSelect: { colorPalette = "protanopia" }
-                        )
-                        ColorPaletteOption(
-                            title: "Tritanopia (Blue-blind)",
-                            subtitle: "Optimized for blue-blind users",
-                            palette: ColorPaletteDefinitions.tritanopia,
-                            selected: colorPalette == "tritanopia",
-                            onSelect: { colorPalette = "tritanopia" }
-                        )
-                        ColorPaletteOption(
-                            title: "Pastel (Soft)",
-                            subtitle: "Softer colors that are easier on the eyes",
-                            palette: ColorPaletteDefinitions.pastel,
-                            selected: colorPalette == "pastel",
-                            onSelect: { colorPalette = "pastel" }
-                        )
+                        Toggle("Left-Handed Mode", isOn: $leftHandedMode)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
                     }
-
-                    Toggle("Left-Handed Mode", isOn: $leftHandedMode)
                 }
-                
+
                 // Privacy & Security Section
-                Section(header: Text("Privacy & Security")) {
-                    VStack(alignment: .leading, spacing: 10) {
+                CollapsibleSettingsSection(
+                    title: "Privacy & Security",
+                    isExpanded: expandedSection == "privacy",
+                    onToggle: { expandedSection = expandedSection == "privacy" ? nil : "privacy" }
+                ) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("🔒 Your privacy is our priority. ERICKeyboard:")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                        
+                            .font(.caption).fontWeight(.semibold)
                         Text("✓ Does NOT collect any text you type\n✓ Does NOT store passwords\n✓ Only stores preferences locally")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .font(.caption2).foregroundColor(.secondary)
                     }
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, 12).padding(.vertical, 4)
                 }
             }
+            .padding(.horizontal, 8).padding(.vertical, 4)
+        }
+    }
+
+    @ViewBuilder
+    private func settingsRadioRow(label: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                    .font(.body)
+                Text(label).foregroundColor(.primary).font(.body)
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
         }
     }
 
@@ -203,12 +236,43 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: fontPreference == key ? "largecircle.fill.circle" : "circle")
                     .foregroundColor(fontPreference == key ? .accentColor : .secondary)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label).foregroundColor(.primary)
-                    Text("The quick brown fox").font(font).foregroundColor(.secondary)
-                }
+                Text(label).foregroundColor(.primary)
             }
         }
+    }
+}
+
+// MARK: - Collapsible Settings Section
+
+private struct CollapsibleSettingsSection<Content: View>: View {
+    let title: String
+    let isExpanded: Bool
+    let onToggle: () -> Void
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: onToggle) {
+                HStack {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.accentColor)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        .foregroundColor(.accentColor)
+                        .animation(.easeInOut(duration: 0.2), value: isExpanded)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+            }
+
+            if isExpanded {
+                content()
+            }
+        }
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .cornerRadius(10)
     }
 }
 
