@@ -37,6 +37,10 @@ class KeyboardStateMachine(
     var activeCustomLayout: CustomLayout? = null
     private var isChordExecuted = false
 
+    // Accelerating backspace state
+    private var backspaceRepeatJob: Job? = null
+    private var backspaceHoldFired = false  // true if hold-repeat already deleted chars
+
     // 接收来自原生平台的触摸更新
     fun handleTouch(x: Float, y: Float, isLeft: Boolean, actionDownOrMove: Boolean, actionUp: Boolean) {
         val effectiveIsLeft = getEffectiveSide(isLeft)
@@ -150,6 +154,7 @@ class KeyboardStateMachine(
     private fun updateDirectionalState(source: InputSource, isLeft: Boolean, dir: Direction) {
         setSourceDirection(source, isLeft, dir)
         recomputeActiveDirections()
+        checkBackspaceHold()
     }
 
     private fun releaseDirectionalState(source: InputSource, isLeft: Boolean) {
@@ -157,6 +162,10 @@ class KeyboardStateMachine(
         val wasEffectiveSource = getEffectiveSource(isLeft) == source
         val leftDirBeforeRelease = leftActiveDir
         val rightDirBeforeRelease = rightActiveDir
+
+        // Cancel any active backspace repeat
+        val wasBackspaceHold = backspaceHoldFired
+        cancelBackspaceRepeat()
 
         if (sourceDir != Direction.NONE && wasEffectiveSource) {
             if (isLeft) {
@@ -166,7 +175,7 @@ class KeyboardStateMachine(
             } else {
                 if (leftDirBeforeRelease != Direction.NONE && !isChordExecuted) {
                     fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
-                } else if (leftDirBeforeRelease == Direction.NONE && !isChordExecuted) {
+                } else if (leftDirBeforeRelease == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
                     handleRightOnlySwipe(rightDirBeforeRelease)
                 }
             }
@@ -259,11 +268,71 @@ class KeyboardStateMachine(
                 when (result) {
                     InputAction.TOGGLE_SHIFT -> currentMode = if (currentMode == KeyboardMode.NORMAL) KeyboardMode.SHIFTED else KeyboardMode.NORMAL
                     InputAction.TOGGLE_CAPS -> currentMode = if (currentMode == KeyboardMode.CAPS_LOCKED) KeyboardMode.NORMAL else KeyboardMode.CAPS_LOCKED
-                    else -> delegate.sendInputAction(result) // 交给原生平台处理回车、退格等
+                    else -> delegate.sendInputAction(result)
                 }
             }
         }
     }
+
+    // --- Accelerating Backspace Hold Logic ---
+
+    private fun isBackspaceDirection(dir: Direction): Boolean {
+        val customLayout = if (currentLayoutType == LayoutType.CUSTOM) activeCustomLayout else null
+        val result = processor.getSingleSwipeResult(dir, currentMode, customLayout)
+        return result == InputAction.BACKSPACE
+    }
+
+    private fun checkBackspaceHold() {
+        // Only start hold-repeat when: right dial is in backspace direction,
+        // left dial is idle (not a chord), and no chord has been executed
+        val rightDir = rightActiveDir
+        if (leftActiveDir == Direction.NONE && rightDir != Direction.NONE
+            && !isChordExecuted && isBackspaceDirection(rightDir)
+        ) {
+            // Already running? Don't restart
+            if (backspaceRepeatJob?.isActive == true) return
+            startBackspaceRepeat()
+        } else {
+            cancelBackspaceRepeat()
+        }
+    }
+
+    private fun startBackspaceRepeat() {
+        backspaceHoldFired = false
+        backspaceRepeatJob = coroutineScope.launch {
+            // Phase 1: Initial delay before repeating (300ms)
+            delay(300L)
+            backspaceHoldFired = true
+            // Phase 2: Character deletion at 100ms intervals (until 1.5s total = 1200ms more)
+            val charRepeatEnd = 1200L // 1.5s total - 300ms initial = 1200ms of char repeats
+            var elapsed = 0L
+            while (elapsed < charRepeatEnd) {
+                delegate.sendInputAction(InputAction.BACKSPACE)
+                delay(100L)
+                elapsed += 100L
+            }
+            // Phase 3: Word deletion at 200ms intervals (until 3s total = 1500ms more)
+            val wordSlowEnd = 1500L // 3s total - 1.5s = 1500ms of slow word deletion
+            elapsed = 0L
+            while (elapsed < wordSlowEnd) {
+                delegate.sendInputAction(InputAction.DELETE_WORD)
+                delay(200L)
+                elapsed += 200L
+            }
+            // Phase 4: Fast word deletion at 100ms intervals (indefinitely until cancelled)
+            while (true) {
+                delegate.sendInputAction(InputAction.DELETE_WORD)
+                delay(100L)
+            }
+        }
+    }
+
+    private fun cancelBackspaceRepeat() {
+        backspaceRepeatJob?.cancel()
+        backspaceRepeatJob = null
+        backspaceHoldFired = false
+    }
+
     // 专门为 iOS 准备的无痛初始化工厂函数
     fun createKeyboardStateMachineForIOS(delegate: KeyboardActionDelegate): KeyboardStateMachine {
         // 自动在 Kotlin 端创建一个绑定主线程的作用域供 iOS 使用
