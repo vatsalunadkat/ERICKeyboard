@@ -3,17 +3,9 @@
 **Sprint**: SCRUM Sprint 1  
 **Start Date**: February 23, 2026 (Monday)  
 **End Date**: February 27, 2026 (Friday)  
-**Project**: ERICK - Agile Methods  
+**Project**: ERICK 
 
-**Sprint Goal**: MVP product delivered by Friday  
-**Basic Mindset**: Well documented work for each group  
-
-**Team**:
-- **Group 1** — Research Team (keyboard/joystick library exploration)
-- **Group 2** — Lead UI Designer + Documentation
-- **Group 3** — Game Development / Jetpack Compose Design
-- **Group 4** — System Integration (Android IME)
-- **Product Owner** — Backlog management and sprint planning
+**Sprint Goal**: MVP product delivered by Friday
 
 ---
 
@@ -23,7 +15,7 @@
 |---|---|
 | **Type** | Task |
 | **Priority** | High |
-| **Assignee** | Khair Muhammad, Taimoor Athar Malik |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 1 |
 | **Labels** | research, android |
 | **Dependencies** | None |
@@ -45,13 +37,13 @@ An evaluated list of candidate libraries with a working proof-of-concept or note
 
 ---
 
-## SCRUM-20 — UI Design: App Wireframes and Screen Mockups
+## ERICK-20 — UI Design: App Wireframes and Screen Mockups
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | High |
-| **Assignee** | Angel, Irshad |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 2 |
 | **Labels** | design, UI |
 | **Dependencies** | Group 3 + Group 2 must sync early on visual style so SCRUM-27 assets match the design |
@@ -73,13 +65,13 @@ Figma (or equivalent) design files covering the keyboard screen and at least one
 
 ---
 
-## SCRUM-21 — Documentation: Architecture Diagrams and File Structure
+## ERICK-21 — Documentation: Architecture Diagrams and File Structure
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Medium |
-| **Assignee** | Angel, Irshad |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 2 |
 | **Labels** | documentation |
 | **Dependencies** | None |
@@ -106,7 +98,7 @@ Architecture diagram and file structure documentation committed to the repositor
 |---|---|
 | **Type** | Task |
 | **Priority** | High |
-| **Assignee** | Adi, Nazgul |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 3 |
 | **Labels** | android, UI, keyboard |
 | **Dependencies** | Group 3 + Group 2 must sync early on visual style so SCRUM-27 assets match the design |
@@ -128,72 +120,13 @@ A working keyboard screen that displays the 2-joystick ERICK keyboard layout in 
 
 ---
 
-## SCRUM-26 — Jetpack Compose / XML: Game Screen Implementation
-
-| Field | Value |
-|---|---|
-| **Type** | Task |
-| **Priority** | Medium |
-| **Assignee** | Adi, Nazgul |
-| **Group** | Group 3 |
-| **Labels** | android, UI, game |
-| **Dependencies** | Group 3 + Group 2 must sync early on visual style |
-
-### Description
-
-Create XML or Compose game screens in Android Studio. The screens represent the game area where keyboard typing exercises take place. The design must be dynamic and display properly on all common screen sizes.
-
-### Deliverable
-
-XML or Compose game screen(s) that can serve as the foundation for game development work in Sprint 2.
-
-### Acceptance Criteria
-
-- [ ] Screen(s) for the game area created in Android Studio
-- [ ] Layout is dynamic and responsive across screen sizes
-- [ ] Visual style is consistent with the keyboard screen (SCRUM-22)
-
----
-
-## SCRUM-27 — Game Assets: Open-Source Asset Collection and First Prototype
-
-| Field | Value |
-|---|---|
-| **Type** | Task |
-| **Priority** | Medium |
-| **Assignee** | Adi, Nazgul |
-| **Group** | Group 3 |
-| **Labels** | game, assets |
-| **Dependencies** | Must align with visual style from Group 2 (SCRUM-20) |
-
-### Description
-
-Build the first prototype gameplay/training flow and make it look real using open-source (CC0/MIT) assets. Explore Godot as a potential game engine and find resources or templates to prepare for full game development in Sprint 2.
-
-**Standup update (Feb 26)**: New direction — explore Godot, find resources or templates to learn and prepare for game design. The team needs to figure out what kind of game best fits the ERICK use case — something that keeps the user engaged while practicing keyboard input.
-
-**Product Owner guidance**: The game assets collected now are likely to be reusable in the future, especially small materials like menu buttons and interface buttons. Once the game type is confirmed, this document will be referenced for basic gameplay design through to complex function planning.
-
-### Deliverable
-
-A collection of CC0/open-source assets relevant to the intended game scenario and/or a Godot prototype scene.
-
-### Acceptance Criteria
-
-- [ ] Open-source game assets collected and documented
-- [ ] Initial exploration of Godot engine completed
-- [ ] Findings or prototype committed to the repository
-- [ ] Assets are reusable for Sprint 2 game development
-
----
-
-## SCRUM-23 — System Integration: InputMethodService Implementation
+## ERICK-23 — System Integration: InputMethodService Implementation
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | Highest |
-| **Assignee** | Xingxing, Valgot |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 4 |
 | **Labels** | android, IME |
 | **Dependencies** | None |
@@ -215,13 +148,13 @@ A working Android keyboard service that the system can activate and that can inj
 
 ---
 
-## SCRUM-25 — System Integration: AndroidManifest Keyboard Configuration
+## ERICK-25 — System Integration: AndroidManifest Keyboard Configuration
 
 | Field | Value |
 |---|---|
 | **Type** | Task |
 | **Priority** | High |
-| **Assignee** | Xingxing, Valgot |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 4 |
 | **Labels** | android, IME, infrastructure |
 | **Dependencies** | SCRUM-23 |
@@ -248,7 +181,7 @@ A correctly configured `AndroidManifest.xml` with the full IME service declarati
 |---|---|
 | **Type** | Task |
 | **Priority** | Medium |
-| **Assignee** | Valgot |
+| **Assignee** | Vatsal Unadkat |
 | **Group** | Group 4 |
 | **Labels** | iOS, research |
 | **Sprint** | Sprint 1 (added mid-sprint) |
@@ -276,9 +209,9 @@ Research notes and/or a proof-of-concept Xcode project demonstrating how a custo
 |---|---|
 | **Type** | Task |
 | **Priority** | Low |
-| **Assignee** | Vatsal (Product Owner) |
+| **Assignee** | Vatsal Unadkat |
 | **Labels** | onboarding, UX |
-| **Sprint** | Sprint 1 (added mid-sprint) |
+| **Sprint** | Sprint 1 |
 | **Dependencies** | Keyboard design must be complete |
 
 ### Description

@@ -10,8 +10,7 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 
 ## Architecture Overview
 
-### High-Level Architecture
-
+### High-Level System Architecture
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                 Platform Layer (UI/OS)                   │
@@ -61,6 +60,345 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 │  │  - Direction-to-color mapping                   │    │
 │  └─────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────┘
+```
+
+### High-Level System Architecture (Mermaid)
+
+```mermaid
+graph TB
+    subgraph Platform["Platform Layer (UI / OS)"]
+        subgraph Android["Android IME"]
+            A1[MyInputMethodService]
+            A2[JoystickView]
+            A3[SettingsScreen / SettingsActivity]
+            A4[MainActivity — Onboarding]
+            A5[PreferencesManager — DataStore]
+        end
+        subgraph iOS["iOS Keyboard Extension"]
+            I1[KeyboardViewController]
+            I2[JoystickView — SwiftUI]
+            I3[SettingsView — Extension]
+            I4[ContentView — Host App]
+            I5[App Group UserDefaults]
+            I6[ControllerBridge]
+        end
+    end
+
+    subgraph Shared["Shared Module — Kotlin Multiplatform"]
+        S1[KeyboardStateMachine]
+        S2[KeyboardLogic]
+        S3[WordPredictionEngine]
+        S4[KeyboardContracts — Interfaces & Enums]
+        S5[ColorPalettes — 6 Palettes]
+        S6[CustomLayout + CustomLayoutSerializer]
+        S7[KeyboardFactory — iOS Init Helper]
+    end
+
+    A1 -->|implements KeyboardActionDelegate| S4
+    A1 -->|handleTouch| S1
+    A1 -->|chord resolution| S2
+    A2 -->|touch dx,dy| A1
+    A3 -->|layout/theme/font prefs| A5
+    A5 -->|Flow updates| A1
+
+    I1 -->|implements KeyboardActionDelegate| S4
+    I1 -->|handleTouch| S1
+    I6 -->|controller stick data via App Group| I1
+    I2 -->|touch dx,dy| I1
+    I3 -->|preferences| I5
+    I5 -->|settings read| I1
+
+    S1 -->|resolveChord| S2
+    S1 -->|getSuggestions| S3
+    S1 -->|commitText / sendInputAction| S4
+    S2 -->|custom layout lookup| S6
+    S2 -->|palette colors| S5
+```
+
+### Detailed Class Diagram — Shared Module
+
+```mermaid
+classDiagram
+    class KeyboardStateMachine {
+        -delegate: KeyboardActionDelegate
+        -coroutineScope: CoroutineScope
+        -keyboardLogic: KeyboardLogic
+        -predictor: WordPredictionEngine
+        +currentMode: KeyboardMode
+        +leftHandedMode: Boolean
+        +isNextWordMode: Boolean
+        +handleTouch(x, y, isLeft, actionDown, actionUp)
+        +fireChord()
+        +getPreviewCharacter(): String
+        +acceptSuggestion(suggestion): Pair
+        +updateSuggestions()
+        +setLayoutType(type: LayoutType)
+        +setCustomLayout(layout: CustomLayout)
+        +setControllerDeadZone(dz: Float)
+    }
+
+    class KeyboardLogic {
+        +getDirectionFromXY(x, y): Direction
+        +getChordResult(left, right, mode, layout?): Any?
+        +getSingleSwipeResult(dir, mode, layout?): Any?
+        +getPreviewItems(dir, mode, layout?): List
+    }
+
+    class WordPredictionEngine {
+        +getSuggestions(currentWord, limit): List~String~
+        +getNextWordSuggestions(prevWord, limit): List~String~
+        +getDefaultSuggestions(limit): List~String~
+        +acceptSuggestion(suggestion): Pair
+    }
+
+    class KeyboardContracts {
+        <<interface>> KeyboardActionDelegate
+        <<enum>> Direction
+        <<enum>> KeyboardMode
+        <<enum>> LayoutType
+        <<enum>> InputAction
+        <<enum>> ControllerButton
+    }
+
+    class KeyboardActionDelegate {
+        <<interface>>
+        +commitText(text: String)
+        +sendInputAction(action: InputAction)
+        +onModeChanged(mode: KeyboardMode)
+        +onSuggestionsUpdated(suggestions: List)
+        +getCurrentWordPrefix(): String
+    }
+
+    class ColorPalettes {
+        <<object>>
+        +getPalette(type: ColorPaletteType): List~ColorEntry~
+    }
+
+    class CustomLayout {
+        +name: String
+        +singleSwipeNormalMap: Map
+        +singleSwipeShiftedMap: Map
+        +chordNormalMap: Map
+        +chordShiftedMap: Map
+    }
+
+    class CustomLayoutManager {
+        -storage: CustomLayoutStorage
+        +getAllLayouts(): List~CustomLayout~
+        +saveLayout(layout: CustomLayout)
+        +deleteLayout(name: String)
+    }
+
+    class CustomLayoutSerializer {
+        <<object>>
+        +serialize(layout: CustomLayout): String
+        +deserialize(json: String): CustomLayout
+    }
+
+    class KeyboardFactory {
+        <<object>>
+        +createEngine(delegate: KeyboardActionDelegate): KeyboardStateMachine
+    }
+
+    KeyboardStateMachine --> KeyboardLogic : uses
+    KeyboardStateMachine --> WordPredictionEngine : uses
+    KeyboardStateMachine --> KeyboardActionDelegate : calls delegate
+    KeyboardLogic --> CustomLayout : optional layout
+    KeyboardLogic --> ColorPalettes : palette lookup
+    CustomLayoutManager --> CustomLayoutSerializer : JSON conversion
+    KeyboardFactory --> KeyboardStateMachine : creates
+```
+
+### Class Diagram — Android Platform Layer
+
+```mermaid
+classDiagram
+    class MyInputMethodService {
+        -stateMachine: KeyboardStateMachine
+        -leftJoystick: JoystickView
+        -rightJoystick: JoystickView
+        -serviceScope: CoroutineScope
+        -preferencesManager: PreferencesManager
+        +onCreate()
+        +onDestroy()
+        +commitText(text: String)
+        +sendInputAction(action: InputAction)
+        +onModeChanged(mode: KeyboardMode)
+        +onSuggestionsUpdated(suggestions: List)
+    }
+
+    class JoystickView {
+        -keyboardMode: KeyboardMode
+        +onDraw(canvas: Canvas)
+        +onTouchEvent(event: MotionEvent): Boolean
+        +updateThumb(dx, dy)
+        +resetThumb()
+    }
+
+    class MainActivity {
+        +onCreate(savedInstanceState: Bundle?)
+    }
+
+    class SettingsActivity {
+        +onCreate(savedInstanceState: Bundle?)
+    }
+
+    class PreferencesManager {
+        +layoutType: Flow~String~
+        +theme: Flow~String~
+        +font: Flow~String~
+        +colorPalette: Flow~String~
+        +leftHanded: Flow~Boolean~
+        +customLayoutId: Flow~String~
+        +createCustomLayoutStorage(): CustomLayoutStorage
+    }
+
+    MyInputMethodService ..|> KeyboardActionDelegate : implements
+    MyInputMethodService --> JoystickView : touch dispatch
+    MyInputMethodService --> PreferencesManager : observes
+    SettingsActivity --> PreferencesManager : writes
+```
+
+### Class Diagram — iOS Platform Layer
+
+```mermaid
+classDiagram
+    class KeyboardViewController {
+        -stateMachine: KeyboardStateMachine
+        -viewModel: KeyboardViewModel
+        -keyboardLogic: KeyboardLogic
+        +viewDidLoad()
+        +commitText(text: String)
+        +sendInputAction(action: InputAction)
+        +onModeChanged(mode: KeyboardMode)
+        +handleTouch(dx, dy, isLeft, isDown, isUp)
+    }
+
+    class KeyboardViewModel {
+        +previewText: String
+        +previewItems: [KeyboardPreviewItem]
+        +keyboardMode: WheelMode
+        +suggestions: [String]
+        +isLeftHanded: Bool
+        +isDarkMode: Bool
+        +fontPreference: String
+        +resolvedFont: Font
+    }
+
+    class JoystickView_SwiftUI {
+        +direction: WheelDirection
+        +mode: WheelMode
+        +onTouch: Closure
+    }
+
+    class ControllerBridge {
+        +shared: ControllerBridge
+        +start()
+        +stop()
+        -pollStickData()
+        -writeToAppGroup()
+    }
+
+    class SettingsView_Extension {
+        -expandedSection: String?
+        +mainSettingsForm: View
+    }
+
+    class IOSCustomLayoutStorage {
+        +loadAll(): [CustomLayout]
+        +save(layout: CustomLayout)
+        +delete(name: String)
+    }
+
+    KeyboardViewController ..|> KeyboardActionDelegate : implements
+    KeyboardViewController --> KeyboardViewModel : updates
+    KeyboardViewController --> JoystickView_SwiftUI : touch events
+    KeyboardViewController --> ControllerBridge : controller polling
+    SettingsView_Extension --> IOSCustomLayoutStorage : manages layouts
+```
+
+### Sequence Diagram — Chord Input (Touch → Character)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant JoystickView
+    participant IMEService as MyInputMethodService / KeyboardViewController
+    participant SM as KeyboardStateMachine
+    participant Logic as KeyboardLogic
+    participant WPE as WordPredictionEngine
+    participant TextField
+
+    User->>JoystickView: Touch & swipe left dial (direction N)
+    JoystickView->>IMEService: onTouch(dx, dy, isLeft=true, down=true)
+    IMEService->>SM: handleTouch(dx, dy, isLeft=true, down, up=false)
+    SM->>Logic: getDirectionFromXY(dx, dy) → Direction.N
+    Note over SM: Store leftDirection = N
+
+    User->>JoystickView: Touch & swipe right dial (direction E)
+    JoystickView->>IMEService: onTouch(dx, dy, isLeft=false, down=true)
+    IMEService->>SM: handleTouch(dx, dy, isLeft=false, down, up=false)
+    SM->>Logic: getDirectionFromXY(dx, dy) → Direction.E
+    Note over SM: Store rightDirection = E
+
+    User->>JoystickView: Release both dials
+    JoystickView->>IMEService: onTouch(0, 0, isLeft, down=false, up=true)
+    IMEService->>SM: handleTouch(0, 0, isLeft, false, true)
+    SM->>SM: fireChord()
+    SM->>Logic: getChordResult(N, E, NORMAL) → "m"
+    SM->>IMEService: delegate.commitText("m")
+    IMEService->>TextField: insertText("m")
+    SM->>WPE: getSuggestions("m", 3)
+    WPE-->>SM: ["my", "me", "make"]
+    SM->>IMEService: delegate.onSuggestionsUpdated(["my", "me", "make"])
+```
+
+### Sequence Diagram — Settings Change (UI → Persistence → Keyboard)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant SettingsUI as SettingsScreen / SettingsView
+    participant Prefs as PreferencesManager / UserDefaults
+    participant IME as MyInputMethodService / KeyboardViewController
+    participant SM as KeyboardStateMachine
+
+    User->>SettingsUI: Select "Efficiency" layout
+    SettingsUI->>Prefs: write layoutType = "efficiency"
+    Prefs-->>IME: Flow emits "efficiency" (Android) / UserDefaults read (iOS)
+    IME->>SM: setLayoutType(LayoutType.EFFICIENCY)
+    Note over SM: All subsequent chords use Efficiency layout maps
+    SM-->>IME: Layout updated (preview data changes)
+    IME-->>User: Keyboard reflects new layout immediately
+```
+
+### Sequence Diagram — Word Prediction & Suggestion Tap
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant SuggestionBar
+    participant IME as MyInputMethodService / KeyboardViewController
+    participant SM as KeyboardStateMachine
+    participant WPE as WordPredictionEngine
+    participant TextField
+
+    Note over User: User has typed "hel" via chords
+    SM->>WPE: getSuggestions("hel", 3)
+    WPE-->>SM: ["hello", "help", "held"]
+    SM->>IME: onSuggestionsUpdated(["hello", "help", "held"])
+    IME->>SuggestionBar: Display ["hello", "help", "held"]
+
+    User->>SuggestionBar: Tap "hello"
+    SuggestionBar->>IME: onSuggestionTapped(0)
+    IME->>SM: acceptSuggestion("hello")
+    SM-->>IME: (charsToDelete=3, word="hello")
+    IME->>TextField: deleteBackward() × 3
+    IME->>TextField: insertText("hello")
+
+    SM->>WPE: getNextWordSuggestions("hello", 3)
+    WPE-->>SM: ["world", "there", "how"]
+    SM->>IME: onSuggestionsUpdated(["world", "there", "how"])
 ```
 
 ### Technology Stack
@@ -145,6 +483,19 @@ Located in `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt`
 - `getNextWordSuggestions(previousWord, limit)`: Bigram-based next-word predictions
 - `getDefaultSuggestions(limit)`: Fallback suggestions for start of input
 - `acceptSuggestion(suggestion)`: Returns (charsToDelete, wordToInsert) for proper replacement
+
+### 2.5. CustomLayout & CustomLayoutSerializer (Shared Module)
+
+Located in `android/shared/src/commonMain/kotlin/CustomLayout.kt` and `CustomLayoutSerializer.kt`
+
+**Purpose**: Defines, manages, and persists user-created custom keyboard layouts.
+
+**Key Classes**:
+- **`CustomLayout`** (data class): Holds a named layout with separate normal/shifted maps for single-swipe and chord bindings
+- **`SingleSwipeBinding`** (sealed class): Represents either a character or an InputAction for a single-swipe direction
+- **`CustomLayoutManager`**: CRUD operations for custom layouts, backed by a `CustomLayoutStorage` interface
+- **`CustomLayoutStorage`** (interface): Platform-specific persistence — implemented by `AndroidCustomLayoutStorage` (DataStore) and `IOSCustomLayoutStorage` (App Group UserDefaults)
+- **`CustomLayoutSerializer`** (object): JSON serialization/deserialization of `CustomLayout` objects
 
 ### 3. Android Implementation
 
@@ -287,49 +638,29 @@ Located in `ios/ERICK/`
 
 ### 5. Data Flow
 
+> **Note**: Detailed sequence diagrams for all three flows below are provided in the Architecture Overview section above as Mermaid diagrams that render on GitHub.
+
 #### Input Flow (Touch to Character)
 
-```
-User Touch on JoystickView
-    ↓
-JoystickView detects direction
-    ↓
-Callback to MyInputMethodService
-    ↓
-Dispatch to KeyboardStateMachine.processInput()
-    ↓
-State machine checks current state:
-  - Idle → FirstStickActive (store direction)
-  - FirstStickActive → ChordComplete (both directions recorded)
-    ↓
-KeyboardLogic.resolveChord(leftDir, rightDir)
-    ↓
-Character returned (e.g., "A", "5", "?")
-    ↓
-MyInputMethodService.getCurrentInputConnection().commitText()
-    ↓
-Character appears in text field
-```
+1. User touches and swipes a JoystickView dial
+2. JoystickView detects direction and calculates dx/dy offset
+3. Platform IME service receives the touch callback
+4. `KeyboardStateMachine.handleTouch(dx, dy, isLeft, isDown, isUp)` processes the input
+5. `KeyboardLogic.getDirectionFromXY()` converts coordinates to a `Direction` enum
+6. When both dials release, `fireChord()` is called
+7. `KeyboardLogic.getChordResult(leftDir, rightDir, mode)` resolves the character
+8. `delegate.commitText(character)` sends text to the active text field
+9. `WordPredictionEngine.getSuggestions()` updates the suggestion bar
 
 #### Settings Flow
 
-```
-User opens Settings (from MainActivity or IME settings button)
-    ↓
-SettingsActivity/SettingsScreen rendered (Compose)
-    ↓
-User changes setting (toggle/radio button)
-    ↓
-SettingsViewModel updates state
-    ↓
-LayoutPreferences writes to DataStore
-    ↓
-Flow emits new preference value
-    ↓
-MyInputMethodService observes Flow
-    ↓
-Keyboard behavior updates (layout/theme/etc.)
-```
+1. User opens Settings (from onboarding screen or keyboard gear button)
+2. SettingsScreen (Android Compose) or SettingsView (iOS SwiftUI) renders collapsible sections
+3. User changes a setting (radio button, toggle, or picker)
+4. Preference is written to DataStore (Android) or App Group UserDefaults (iOS)
+5. IME service observes the change via Flow (Android) or reads on next keyboard open (iOS)
+6. `KeyboardStateMachine` is updated (e.g., `setLayoutType()`, `setCustomLayout()`)
+7. Keyboard behavior reflects the change immediately
 
 ## Chord Input System
 
@@ -498,32 +829,42 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 - `android/settings.gradle.kts` - Module declarations
 
 ### Shared Module (Kotlin Multiplatform)
-- `android/shared/src/commonMain/kotlin/.../KeyboardStateMachine.kt` - Core state logic, word buffer, suggestion orchestration
-- `android/shared/src/commonMain/kotlin/.../KeyboardLogic.kt` - Chord resolution, layout maps (Efficient, Accessible, Legacy, Custom)
-- `android/shared/src/commonMain/kotlin/.../KeyboardContracts.kt` - Platform interfaces
-- `android/shared/src/commonMain/kotlin/.../WordPredictionEngine.kt` - Trie, bigrams, autocorrect
-- `android/shared/src/commonMain/kotlin/.../ColorPalettes.kt` - 6 accessibility color palettes
+- `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` - Core state logic, word buffer, suggestion orchestration, KeyboardFactory
+- `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` - Chord resolution, layout maps (Logical, Efficiency, Custom)
+- `android/shared/src/commonMain/kotlin/KeyboardContracts.kt` - Platform interfaces (Direction, KeyboardMode, LayoutType, InputAction, KeyboardActionDelegate)
+- `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` - Trie, bigrams, autocorrect
+- `android/shared/src/commonMain/kotlin/ColorPalettes.kt` - 6 accessibility color palettes (ColorPaletteType, ColorEntry)
+- `android/shared/src/commonMain/kotlin/CustomLayout.kt` - Custom layout data model, manager, storage interface
+- `android/shared/src/commonMain/kotlin/CustomLayoutSerializer.kt` - JSON serialization for custom layouts
 
 ### Android Source Files
-- `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` - IME service
-- `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` - Touch input view
-- `android/app/src/main/java/com/vatoo/erick/MainActivity.kt` - Onboarding UI
-- `android/app/src/main/java/com/vatoo/erick/SettingsActivity.kt` - Settings UI
-- `android/app/src/main/java/com/vatoo/erick/LayoutPreferences.kt` - DataStore wrapper
+- `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` - IME service (preview bar, suggestions, controller, theming)
+- `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` - Canvas-based touch input with radial dials
+- `android/app/src/main/java/com/vatoo/erick/MainActivity.kt` - Onboarding/setup flow
+- `android/app/src/main/java/com/vatoo/erick/SettingsActivity.kt` - Settings host activity
+- `android/app/src/main/java/com/vatoo/erick/SettingsScreen.kt` - Jetpack Compose settings (CollapsibleSection accordion)
+- `android/app/src/main/java/com/vatoo/erick/SettingsViewModel.kt` - Settings MVVM state holder
+- `android/app/src/main/java/com/vatoo/erick/PreferencesManager.kt` - DataStore preferences + AndroidCustomLayoutStorage
+- `android/app/src/main/java/com/vatoo/erick/LayoutPreferences.kt` - Legacy layout preference wrapper
 
 ### iOS Source Files
-- `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` - Keyboard extension entry point
-- `ios/ERICK/ErickKeyBoard/JoystickView.swift` - SwiftUI joystick
-- `ios/ERICK/ErickKeyBoard/SettingsView.swift` - Keyboard extension settings
-- `ios/ERICK/ERICK/ContentView.swift` - Host app main view
+- `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` - Keyboard extension entry point (KeyboardViewModel, KeyboardContainerView)
+- `ios/ERICK/ErickKeyBoard/JoystickView.swift` - SwiftUI joystick (WheelDirection, WheelMode)
+- `ios/ERICK/ErickKeyBoard/SettingsView.swift` - Extension settings (CollapsibleSettingsSection, custom layout editor)
+- `ios/ERICK/ErickKeyBoard/IOSCustomLayoutStorage.swift` - App Group-based custom layout persistence
+- `ios/ERICK/ERICK/ContentView.swift` - Host app onboarding (StepCard, ControllerStatusCard)
 - `ios/ERICK/ERICK/SettingsView.swift` - Host app settings
+- `ios/ERICK/ERICK/ERICKApp.swift` - SwiftUI app entry point
+- `ios/ERICK/ERICK/ControllerBridge.swift` - GameController ↔ App Group bridge for extension
+- `ios/ERICK/ERICK/IOSCustomLayoutStorage.swift` - Custom layout storage (host app target)
 - `ios/ERICK/SharedKeyboard.xcframework/` - KMP compiled framework
 
 ### Resource Files
 - `android/app/src/main/res/xml/method.xml` - IME metadata
-- `android/app/src/main/res/layout/keyboard_simple.xml` - Keyboard layout (joystick + preview + suggestions)
+- `android/app/src/main/res/layout/keyboard_simple.xml` - Keyboard XML layout (joystick + preview + suggestions)
 - `android/app/src/main/res/drawable/erick_logo.png` - App logo
 - `android/app/src/main/res/values/strings.xml` - String resources
+- `android/app/src/main/assets/OpenDyslexic-Regular.otf` - Dyslexia-friendly font
 
 ## Troubleshooting & Common Issues
 
@@ -541,5 +882,5 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 
 ---
 
-**Document Maintained By**: ERICK Development Team  
+**Document Maintained By**: Vatsal Unadkat
 **For Questions**: See [GitHub Issues](https://github.com/vatsalunadkat/ERICKeyboard/issues)
