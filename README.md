@@ -212,22 +212,22 @@ See the [open issues](https://github.com/vatsalunadkat/ERICKeyboard/issues) for 
 ERICK uses **Kotlin Multiplatform (KMP)** to share all core keyboard logic between Android and iOS. The shared module contains the state machine, chord processing, word prediction engine, color palettes, layout definitions, and settings contracts — platform layers only implement the UI and OS-specific integration.
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   Platform Layer                     │
-│  ┌──────────────────┐    ┌────────────────────────┐  │
-│  │   Android (IME)  │    │   iOS (Keyboard Ext.)  │  │
-│  │  JoystickView    │    │  KeyboardViewController│  │
-│  │  SettingsScreen   │    │  JoystickView (SwiftUI)│  │
-│  │  PreferencesManager│   │  ControllerBridge      │  │
-│  └────────┬─────────┘    └────────┬───────────────┘  │
-│           │      Shared Module     │                  │
-│           └──────────┬─────────────┘                  │
+┌───────────────────────────────────────────────────────┐
+│                   Platform Layer                      │
+│  ┌────────────────────┐    ┌────────────────────────┐ │
+│  │   Android (IME)    │    │   iOS (Keyboard Ext.)  │ │
+│  │  JoystickView      │    │  KeyboardViewController│ │
+│  │  SettingsScreen    │    │  JoystickView (SwiftUI)│ │
+│  │  PreferencesManager│    │  ControllerBridge      │ │
+│  └────────┬───────────┘    └────────┬───────────────┘ │
+│           │      Shared Module      │                 │
+│           └──────────┬──────────────┘                 │
 │  ┌───────────────────┴──────────────────────────────┐ │
 │  │  KeyboardStateMachine · KeyboardLogic            │ │
 │  │  WordPredictionEngine · KeyboardContracts        │ │
 │  │  ColorPalettes · CustomLayout · SettingsRepo     │ │
 │  └──────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────┘
 ```
 
 For detailed architecture diagrams (Mermaid class diagrams, sequence diagrams, data flow), see [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md).
@@ -259,12 +259,13 @@ Please read the platform-specific setup guides before contributing:
 | [Sprint Retrospectives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospective documents |
 
 <!-- CONTACT -->
-<!-- ## Contact
+## Contact
 
-Vatsal Paresh Unadkat
-Project Link: [https://github.com/vatsalunadkat/ERICKeyboard](https://github.com/vatsalunadkat/ERICKeyboard)
+Vatsal Paresh Unadkat <br />
+LinkedIn: [https://www.linkedin.com/in/vatsalunadkat/](https://www.linkedin.com/in/vatsalunadkat/) <br />
+Project Link: [https://github.com/vatsalunadkat/ERICKeyboard](https://github.com/vatsalunadkat/ERICKeyboard) <br />
 
--->
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -13,52 +13,52 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 ### High-Level System Architecture
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                 Platform Layer (UI/OS)                   │
-│  ┌─────────────────────┐      ┌─────────────────────┐  │
-│  │   Android IME       │      │   iOS Extension     │  │
-│  │  - MyInputMethod    │      │  - KeyboardView     │  │
-│  │    Service          │      │    Controller       │  │
-│  │  - JoystickView     │      │  - JoystickView     │  │
-│  │  - XML Layout       │      │    (SwiftUI)        │  │
-│  │  - DataStore prefs  │      │  - App Group prefs  │  │
-│  └──────────┬──────────┘      └──────────┬──────────┘  │
-└─────────────┼─────────────────────────────┼─────────────┘
-              │                             │
-              └──────────┬──────────────────┘
+│                 Platform Layer (UI/OS)                  │
+│  ┌─────────────────────┐      ┌─────────────────────┐   │
+│  │   Android IME       │      │   iOS Extension     │   │
+│  │  - MyInputMethod    │      │  - KeyboardView     │   │
+│  │    Service          │      │    Controller       │   │
+│  │  - JoystickView     │      │  - JoystickView     │   │
+│  │  - XML Layout       │      │    (SwiftUI)        │   │
+│  │  - DataStore prefs  │      │  - App Group prefs  │   │
+│  └──────────┬──────────┘      └──────────┬──────────┘   │
+└─────────────┼────────────────────────────┼─────────────┘
+              │                            │
+              └──────────┬─────────────────┘
                          │
 ┌────────────────────────▼─────────────────────────────────┐
 │          Shared Module (Kotlin Multiplatform)            │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  KeyboardStateMachine                           │    │
-│  │  - Chord input processing & state tracking      │    │
-│  │  - Word buffer management                       │    │
-│  │  - Suggestion orchestration                     │    │
-│  │  - Accelerating backspace logic                 │    │
-│  │  - Controller input normalization               │    │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  KeyboardLogic                                  │    │
-│  │  - Direction mapping (8-way radial)             │    │
-│  │  - Character resolution (Logical/Efficiency)    │    │
-│  │  - Custom layout support                        │    │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  WordPredictionEngine                           │    │
-│  │  - Trie-based word completions                  │    │
-│  │  - Bigram next-word predictions                 │    │
-│  │  - Levenshtein edit-distance autocorrect        │    │
-│  │  - ~700 word dictionary with frequency tiers    │    │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  KeyboardContracts                              │    │
-│  │  - Interfaces and data classes                  │    │
-│  │  - Platform abstractions (KeyboardActionDelegate)│   │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  ColorPalettes                                  │    │
-│  │  - 6 colorblind-safe palettes                   │    │
-│  │  - Direction-to-color mapping                   │    │
-│  └─────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────┐     │
+│  │  KeyboardStateMachine                           │     │
+│  │  - Chord input processing & state tracking      │     │
+│  │  - Word buffer management                       │     │
+│  │  - Suggestion orchestration                     │     │
+│  │  - Accelerating backspace logic                 │     │
+│  │  - Controller input normalization               │     │
+│  └─────────────────────────────────────────────────┘     │
+│  ┌─────────────────────────────────────────────────┐     │
+│  │  KeyboardLogic                                  │     │
+│  │  - Direction mapping (8-way radial)             │     │
+│  │  - Character resolution (Logical/Efficiency)    │     │
+│  │  - Custom layout support                        │     │
+│  └─────────────────────────────────────────────────┘     │
+│  ┌─────────────────────────────────────────────────┐     │
+│  │  WordPredictionEngine                           │     │
+│  │  - Trie-based word completions                  │     │
+│  │  - Bigram next-word predictions                 │     │
+│  │  - Levenshtein edit-distance autocorrect        │     │
+│  │  - ~700 word dictionary with frequency tiers    │     │
+│  └─────────────────────────────────────────────────┘     │
+│  ┌─────────────────────────────────────────────────┐     │
+│  │  KeyboardContracts                              │     │
+│  │  - Interfaces and data classes                  │     │
+│  │  - Platform abstractions (KeyboardActionDelegate)│    │
+│  └─────────────────────────────────────────────────┘     │
+│  ┌─────────────────────────────────────────────────┐     │
+│  │  ColorPalettes                                  │     │
+│  │  - 6 colorblind-safe palettes                   │     │
+│  │  - Direction-to-color mapping                   │     │
+│  └─────────────────────────────────────────────────┘     │
 └──────────────────────────────────────────────────────────┘
 ```
 
