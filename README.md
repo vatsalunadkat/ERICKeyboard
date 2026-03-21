@@ -257,7 +257,6 @@ Please read the platform-specific setup guides before contributing:
 | [Research](docs/documentation/Research/README.md) | Layout optimization research, 43 academic papers, optimizer scripts |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
 | [Sprint Retrospectives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospective documents |
-| [Burndown Charts](docs/documentation/Jira/Burndown_Burnup_Charts.md) | Sprint velocity, burndown, and burnup data |
 
 <!-- CONTACT -->
 <!-- ## Contact

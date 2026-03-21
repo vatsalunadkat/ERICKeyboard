@@ -178,7 +178,7 @@ ERICKeyboard/
 │   └── documentation/
 │       ├── APP_CONTEXT.md      # Copy of architecture doc
 │       ├── User_Guide.md       # End-user guide
-│       ├── Jira/               # Sprint tickets, retrospectives, burndown charts
+│       ├── Jira/               # Sprint tickets, retrospectives
 │       ├── Research/           # Layout optimization research, academic references
 │       └── logo/               # Branding assets
 │
