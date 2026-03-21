@@ -1,12 +1,12 @@
 # ERICK - Application Context & Architecture
 
-**Version**: 0.2.1-alpha  
-**Last Updated**: March 8, 2026  
+**Version**: 0.4.2-alpha  
+**Last Updated**: March 21, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 
 ## Executive Summary
 
-ERICK is a cross-platform chorded keyboard system that enables text input through dual joystick movements (touch or physical controller). The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations, with Android currently featuring a fully functional Input Method Editor (IME) service.
+ERICK is a cross-platform chorded keyboard system that enables text input through dual joystick movements (touch or physical controller). The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations. Both platforms feature fully functional keyboard extensions with identical chord logic, word prediction, accessibility features, and controller support.
 
 ## Architecture Overview
 
@@ -17,9 +17,11 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 │                 Platform Layer (UI/OS)                   │
 │  ┌─────────────────────┐      ┌─────────────────────┐  │
 │  │   Android IME       │      │   iOS Extension     │  │
-│  │  - Activities       │      │  (In Development)   │  │
-│  │  - IME Service      │      │                     │  │
-│  │  - Compose UI       │      │                     │  │
+│  │  - MyInputMethod    │      │  - KeyboardView     │  │
+│  │    Service          │      │    Controller       │  │
+│  │  - JoystickView     │      │  - JoystickView     │  │
+│  │  - XML Layout       │      │    (SwiftUI)        │  │
+│  │  - DataStore prefs  │      │  - App Group prefs  │  │
 │  └──────────┬──────────┘      └──────────┬──────────┘  │
 └─────────────┼─────────────────────────────┼─────────────┘
               │                             │
@@ -29,20 +31,34 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 │          Shared Module (Kotlin Multiplatform)            │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  KeyboardStateMachine                           │    │
-│  │  - State tracking (idle, first stick, complete) │    │
-│  │  - Chord validation                             │    │
-│  │  - Event processing                             │    │
+│  │  - Chord input processing & state tracking      │    │
+│  │  - Word buffer management                       │    │
+│  │  - Suggestion orchestration                     │    │
+│  │  - Accelerating backspace logic                 │    │
+│  │  - Controller input normalization               │    │
 │  └─────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  KeyboardLogic                                  │    │
-│  │  - Direction mapping                            │    │
-│  │  - Character resolution                          │    │
-│  │  - Chord combinations                           │    │
+│  │  - Direction mapping (8-way radial)             │    │
+│  │  - Character resolution (Logical/Efficiency)    │    │
+│  │  - Custom layout support                        │    │
+│  └─────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  WordPredictionEngine                           │    │
+│  │  - Trie-based word completions                  │    │
+│  │  - Bigram next-word predictions                 │    │
+│  │  - Levenshtein edit-distance autocorrect        │    │
+│  │  - ~700 word dictionary with frequency tiers    │    │
 │  └─────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  KeyboardContracts                              │    │
 │  │  - Interfaces and data classes                  │    │
-│  │  - Platform abstractions                        │    │
+│  │  - Platform abstractions (KeyboardActionDelegate)│   │
+│  └─────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  ColorPalettes                                  │    │
+│  │  - 6 colorblind-safe palettes                   │    │
+│  │  - Direction-to-color mapping                   │    │
 │  └─────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -55,14 +71,17 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 
 **Android:**
 - Kotlin - Primary language
-- Jetpack Compose - Modern declarative UI
-- DataStore - Type-safe preferences storage
 - Android IME Framework - Custom keyboard implementation
-- Material Design 3 - UI components
+- XML Layouts + Canvas - JoystickView and keyboard UI
+- DataStore - Type-safe preferences storage
+- Material Design 3 - Settings UI components
 
-**iOS (Planned):**
-- Swift/Objective-C interop with KMP
-- Custom Keyboard Extension
+**iOS:**
+- Swift + SwiftUI - Keyboard extension UI
+- UIInputViewController - Custom Keyboard Extension
+- GameController framework - Physical controller support
+- App Group UserDefaults - Shared preferences between app and extension
+- SharedKeyboard.xcframework - KMP compiled binary
 
 ## Core Components
 
@@ -71,17 +90,23 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 Located in `android/shared/src/commonMain/kotlin/`
 
 #### KeyboardStateMachine
-**Purpose**: Manages the state transitions of joystick inputs to form complete chords.
+**Purpose**: Manages the state transitions of joystick inputs to form complete chords, tracks word buffer for predictions, and orchestrates suggestion updates.
 
-**States**:
-- `Idle`: No joystick active
-- `FirstStickActive`: One joystick moved (awaiting second)
-- `ChordComplete`: Both joysticks registered (ready to output character)
+**Key Responsibilities**:
+- Chord input processing (left/right dial direction → character output)
+- Word buffer management (tracks current partial word for predictions)
+- Suggestion orchestration (triggers WordPredictionEngine on each keystroke)
+- Accelerating backspace (hold to delete chars, then words with increasing speed)
+- Controller input normalization (dead zone, axis mapping)
+- Left-handed mode (swaps dial roles)
+- Preview data generation (characters for held dial directions)
 
 **Key Methods**:
-- `processInput(leftDirection, rightDirection)`: Processes joystick positions
-- `reset()`: Returns to idle state
-- `getCurrentChord()`: Returns the active chord combination
+- `handleTouch(dx, dy, isLeft, isDown, isUp)`: Processes touch/controller input
+- `fireChord()`: Resolves and commits the active chord
+- `acceptSuggestion(suggestion)`: Replaces partial word with tapped suggestion
+- `areBothDialsAtHome()`: Returns true when no dials are active (for showing suggestions)
+- `updateSuggestions()`: Queries predictor and notifies delegate
 
 #### KeyboardLogic
 **Purpose**: Translates chord combinations into characters.
@@ -96,11 +121,32 @@ Located in `android/shared/src/commonMain/kotlin/`
 **Purpose**: Defines interfaces and data structures shared between platforms.
 
 **Key Interfaces**:
-- `KeyboardActionDelegate`: Platform callback for key events
-- `ChordDefinition`: Data class for chord configurations
-- `KeyboardLayout`: Interface for different layout modes
+- `KeyboardActionDelegate`: Platform callback for key events (`commitText`, `sendInputAction`, `onModeChanged`, `onSuggestionsUpdated`, `getCurrentWordPrefix`)
+- `Direction`: 8-way directional enum (N, NE, E, SE, S, SW, W, NW, NONE)
+- `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED)
+- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, etc.)
+- `LayoutType`: Layout selection (LOGICAL, EFFICIENCY, CUSTOM)
 
-### 2. Android Implementation
+### 2. WordPredictionEngine (Shared Module)
+
+Located in `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt`
+
+**Purpose**: Trie-based word prediction with completions, autocorrect, and next-word predictions.
+
+**Features**:
+- **Word Completions**: Prefix-based search sorted by frequency (e.g., "ca" → "can", "call", "case")
+- **Spelling Corrections**: Levenshtein edit distance with trie pruning (max distance 2)
+- **Bigram Next-Word Predictions**: ~70 common word pairs (e.g., "my" → "name", "name" → "is")
+- **Default Suggestions**: Common sentence starters ("I", "The", "Hello") when no context is available
+- **~700 Word Dictionary**: 4 frequency tiers (ultra-common 1000, common 500, everyday 200, extended 100)
+
+**Key Methods**:
+- `getSuggestions(currentWord, limit)`: Completions + corrections for a partial word
+- `getNextWordSuggestions(previousWord, limit)`: Bigram-based next-word predictions
+- `getDefaultSuggestions(limit)`: Fallback suggestions for start of input
+- `acceptSuggestion(suggestion)`: Returns (charsToDelete, wordToInsert) for proper replacement
+
+### 3. Android Implementation
 
 Located in `android/app/src/main/java/com/vatoo/erick/`
 
@@ -110,15 +156,20 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 **Responsibilities**:
 - IME lifecycle management (onCreate, onDestroy)
 - Input view creation and management
-- Connection to text fields
+- Connection to text fields via InputConnection
 - Integration with KeyboardStateMachine
-- Coroutine scope management for async operations
+- Preview bar rendering (animated capsule with color-coded characters)
+- Suggestion bar rendering (3-suggestion strip for word predictions)
+- Physical controller support (InputManager polling)
+- Theme support (light/dark mode, colorblind palettes, fonts)
+- Accelerating backspace behavior
 
 **Key Features**:
-- Uses custom keyboard layout (XML + programmatic views)
-- Handles touch events from JoystickView
-- Dispatches characters to active input connections
-- Launches settings activity
+- Custom XML layout (`keyboard_simple.xml`) with Canvas-based JoystickView
+- Preview capsule with animated text highlighting
+- Suggestion bar in same row as preview, showing completions or next-word predictions
+- Smart suggestion insertion (replaces partial word, adds space for next-word predictions)
+- Settings button for quick access to preferences
 
 #### JoystickView
 **Purpose**: Custom Android View for rendering and handling touch-based joystick input.
@@ -152,35 +203,89 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 **Purpose**: Configuration UI for keyboard preferences.
 
 **Settings Available**:
-- **Layout Mode**: Efficient, Accessible, Legacy
+- **Layout Mode**: Efficient, Accessible, Legacy, Custom
 - **Theme**: Light, Dark, System Default
+- **Font**: Default, OpenDyslexic, Atkinson Hyperlegible
 - **Accessibility**:
-  - Colorblind mode (adjust colors)
-  - Left-handed mode (mirror layout)
-- **Future**: Typing speed, haptic feedback, sound effects
+  - Colorblind mode with 6 palettes (Protanopia, Deuteranopia, Tritanopia, Achromatopsia, High Contrast, Default)
+  - Left-handed mode (mirrors joystick layout)
+- **Custom Layout**: Full chord-to-character editor with color indicators
 
 **Technical Details**:
-- Built with Jetpack Compose
-- Material Design 3 components
-- Real-time preview of settings
+- Built with Jetpack Compose (Material Design 3)
+- Accordion-style collapsible sections (Layout, Appearance, Accessibility, Privacy & Security) — only one section expanded at a time
+- Compact radio buttons for font and theme selection
+- Animated chevron rotation on expand/collapse
 - Persists to DataStore
 
 #### LayoutPreferences (DataStore)
 **Purpose**: Type-safe, asynchronous persistence of user settings.
 
 **Stored Preferences**:
-- `selectedLayout: String`
-- `theme: String`
+- `selectedLayout: String` (efficient / accessible / legacy / custom)
+- `theme: String` (light / dark / system)
 - `colorblindMode: Boolean`
+- `colorblindPalette: String` (protanopia / deuteranopia / tritanopia / achromatopsia / high-contrast / default)
 - `leftHandedMode: Boolean`
+- `selectedFont: String`
+- `customLayout: String` (JSON-encoded chord map)
 
 **Technical Approach**:
 - Uses Preferences DataStore (key-value)
 - Coroutine-based async reads/writes
 - Flow-based reactive updates
-- Migration support from SharedPreferences (if needed)
 
-### 3. Data Flow
+### 4. iOS Implementation
+
+Located in `ios/ERICK/`
+
+#### KeyboardViewController
+**Purpose**: iOS Custom Keyboard Extension (`UIInputViewController`) — the core entry point for the ERICK keyboard on iOS.
+
+**Responsibilities**:
+- Hosts SwiftUI keyboard UI via `UIHostingController`
+- Connects to text fields via `textDocumentProxy`
+- Integrates `KeyboardStateMachine` from SharedKeyboard.xcframework
+- Physical controller support via `GCController` notifications
+- Forwards joystick directions to shared state machine
+
+**Key Features**:
+- SwiftUI-based UI hierarchy (KeyboardContainerView → JoystickView + PreviewBar + SuggestionBar)
+- Live preview capsule with color-coded character display
+- 3-suggestion bar for word completions and next-word predictions
+- Controller polling via `DisplayLink` for analog stick input
+- Settings persistence via App Group UserDefaults (`group.com.vatoo.erick`)
+
+#### JoystickView (SwiftUI)
+**Purpose**: Touch-based joystick input rendered in SwiftUI.
+
+**Features**:
+- Circular touch area with visual knob
+- 8-directional detection with configurable dead zone
+- Spring-back animation to center
+- Left-handed mode support (swaps joystick positions)
+
+#### SettingsView
+**Purpose**: In-app and keyboard extension settings UI.
+
+**Settings Available** (mirrors Android):
+- Layout mode, theme, font, colorblind palette, left-handed mode, custom layout
+- Keyboard extension uses accordion-style collapsible sections (matching Android), with animated chevron and compact radio rows
+- Host app uses standard SwiftUI Form with Section
+- Persisted via App Group UserDefaults (shared between host app and keyboard extension)
+
+#### SharedKeyboard.xcframework
+**Purpose**: Kotlin Multiplatform compiled framework consumed by Swift.
+
+**Provides**:
+- `KeyboardStateMachine` — same chord processing, word buffer, suggestion engine
+- `KeyboardLogic` — chord resolution and layout maps
+- `WordPredictionEngine` — trie, bigrams, autocorrect
+- `ColorPalettes` — accessibility color schemes
+
+**Integration**: Built via Gradle `assembleSharedKeyboardXCFramework` task, copied into `ios/ERICK/SharedKeyboard.xcframework/`.
+
+### 5. Data Flow
 
 #### Input Flow (Touch to Character)
 
@@ -239,9 +344,10 @@ A "chord" is a combination of two joystick directions (left stick + right stick)
 
 ### Layout Modes
 
-1. **Efficient Mode**: Optimized for typing speed, common letters on easy chords
+1. **Efficient Mode**: Optimized for typing speed — most common English letters on easiest chords
 2. **Accessible Mode**: Simplified layout for users with motor impairments
 3. **Legacy Mode**: Traditional layout similar to OrbiTouch keyboard
+4. **Custom Mode**: User-defined chord-to-character mapping via the Custom Layout Creator
 
 ### State Machine Logic
 
@@ -263,21 +369,31 @@ The state machine prevents accidental inputs and ensures proper chord completion
 
 ## Configuration and Preferences
 
-### DataStore Schema (Preferences)
+### DataStore Schema (Android — Preferences DataStore)
 
 ```kotlin
 // Key definitions
 private val LAYOUT_KEY = stringPreferencesKey("selected_layout")
 private val THEME_KEY = stringPreferencesKey("theme")
 private val COLORBLIND_KEY = booleanPreferencesKey("colorblind_mode")
+private val COLORBLIND_PALETTE_KEY = stringPreferencesKey("colorblind_palette")
 private val LEFT_HANDED_KEY = booleanPreferencesKey("left_handed_mode")
+private val FONT_KEY = stringPreferencesKey("selected_font")
+private val CUSTOM_LAYOUT_KEY = stringPreferencesKey("custom_layout")
 
 // Default values
 selectedLayout: "efficient"
 theme: "system"
 colorblindMode: false
+colorblindPalette: "default"
 leftHandedMode: false
+selectedFont: "default"
+customLayout: "" // JSON, empty = not set
 ```
+
+### App Group UserDefaults (iOS)
+
+Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the host app and the keyboard extension share the same preferences. Keys mirror the Android schema above.
 
 ### Build Configuration
 
@@ -314,7 +430,31 @@ leftHandedMode: false
 
 ### Version History
 
-- **v0.2.1-alpha** (Current):
+- **v0.4.2-alpha** (Current):
+  - Collapsible accordion-style settings menu (Android + iOS)
+  - Compact radio buttons for font/theme selection
+  - All code comments translated to English
+  - Comprehensive documentation updates
+
+- **v0.4.0-alpha**:
+  - Word prediction & autocorrect (trie, bigrams, Levenshtein)
+  - Next-word and sentence-level predictions
+  - Accelerating backspace
+  - Always-on suggestion bar with smart space insertion
+  - Physical gaming controller input (Android + iOS)
+  - iOS keyboard extension fully functional
+
+- **v0.3.0-alpha**:
+  - Custom Layout Creator with chord editor and color indicators
+  - Preview bar with animated capsule and color-coded characters
+  - Light/Dark mode + System theme support
+  - Accessibility fonts (OpenDyslexic, Atkinson Hyperlegible)
+  - Shift / CapsLock indicators
+  - Left-handed mode
+  - Colorblind mode with 6 palettes
+  - Efficiency layout (letter-frequency optimized)
+
+- **v0.2.1-alpha**:
   - Kotlin Multiplatform shared module
   - Settings UI with DataStore
   - JoystickView touch input
@@ -328,18 +468,18 @@ leftHandedMode: false
 
 ## Future Architecture Considerations
 
-### iOS Integration
-- XCFramework built from shared module
-- Swift code will import `SharedKeyboard` framework
-- Custom Keyboard Extension will call KMP APIs
+### Multi-Language Support
+- Extend `WordPredictionEngine` with language-specific dictionaries and bigram tables
+- Support character sets beyond ASCII (accented Latin, CJK exploration)
+- Language detection or manual language switching in settings
 
-### Physical Controller Support
-- Detect gamepad connection (Android: InputManager, iOS: GCController)
-- Map analog stick inputs to same state machine
-- Handle button inputs for additional chords (triggers, bumpers)
+### Mini Typing Game
+- In-app typing practice mode with gamified feedback
+- Chord learning exercises for new users
+- Speed and accuracy tracking with personal bests
 
 ### Cloud Sync
-- Backend service for settings sync
+- Backend service for settings and custom layout sync
 - Authentication (Google, Apple Sign-In)
 - Conflict resolution for multi-device users
 
@@ -357,18 +497,31 @@ leftHandedMode: false
 - `android/shared/build.gradle.kts` - KMP shared module config
 - `android/settings.gradle.kts` - Module declarations
 
-### Source Files
-- `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` - Core state logic
-- `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` - Chord mapping
+### Shared Module (Kotlin Multiplatform)
+- `android/shared/src/commonMain/kotlin/.../KeyboardStateMachine.kt` - Core state logic, word buffer, suggestion orchestration
+- `android/shared/src/commonMain/kotlin/.../KeyboardLogic.kt` - Chord resolution, layout maps (Efficient, Accessible, Legacy, Custom)
+- `android/shared/src/commonMain/kotlin/.../KeyboardContracts.kt` - Platform interfaces
+- `android/shared/src/commonMain/kotlin/.../WordPredictionEngine.kt` - Trie, bigrams, autocorrect
+- `android/shared/src/commonMain/kotlin/.../ColorPalettes.kt` - 6 accessibility color palettes
+
+### Android Source Files
 - `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` - IME service
 - `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` - Touch input view
 - `android/app/src/main/java/com/vatoo/erick/MainActivity.kt` - Onboarding UI
 - `android/app/src/main/java/com/vatoo/erick/SettingsActivity.kt` - Settings UI
 - `android/app/src/main/java/com/vatoo/erick/LayoutPreferences.kt` - DataStore wrapper
 
+### iOS Source Files
+- `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` - Keyboard extension entry point
+- `ios/ERICK/ErickKeyBoard/JoystickView.swift` - SwiftUI joystick
+- `ios/ERICK/ErickKeyBoard/SettingsView.swift` - Keyboard extension settings
+- `ios/ERICK/ERICK/ContentView.swift` - Host app main view
+- `ios/ERICK/ERICK/SettingsView.swift` - Host app settings
+- `ios/ERICK/SharedKeyboard.xcframework/` - KMP compiled framework
+
 ### Resource Files
 - `android/app/src/main/res/xml/method.xml` - IME metadata
-- `android/app/src/main/res/layout/keyboard_simple.xml` - Keyboard layout
+- `android/app/src/main/res/layout/keyboard_simple.xml` - Keyboard layout (joystick + preview + suggestions)
 - `android/app/src/main/res/drawable/erick_logo.png` - App logo
 - `android/app/src/main/res/values/strings.xml` - String resources
 
