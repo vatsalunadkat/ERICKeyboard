@@ -68,7 +68,7 @@ The keyboard is designed with accessibility at its core: large touch targets eli
 
 ERICK includes smart word prediction and autocorrect — a suggestion bar shows up to three completions or next-word predictions at all times, powered by a Trie-based engine with bigram sentence prediction. A live preview bar shows available characters as you hold a dial, with animated highlighting and a capsule design. All logic is shared between Android and iOS via Kotlin Multiplatform (KMP), ensuring identical behavior on both platforms.
 
-The keyboard is 100% open-source, runs fully offline with zero internet permissions, and collects no data whatsoever — every keystroke stays on your device.
+The keyboard is source available, runs fully offline with zero internet permissions, and collects no data whatsoever — every keystroke stays on your device.
 
 **Key use cases:**
 - Accessible typing for people with motor disabilities, limited finger dexterity, or repetitive strain injuries
@@ -136,7 +136,7 @@ ERICK/
 ├── documentation/       # Research papers, logo assets, demos
 ├── README.md            # This file
 ├── CHANGELOG.md         # Version history
-└── LICENSE              # Project license
+└── LICENSE              # Project license (ERICK Source Available License 1.0)
 ```
 
 **Architecture Highlights:**
@@ -176,7 +176,7 @@ ERICK/
 - [x] **Collapsible Settings Menu**: Accordion-style settings with animated expandable sections on both Android (Jetpack Compose) and iOS (SwiftUI); only one section open at a time
 - [x] **Kotlin Multiplatform Shared Module**: Identical keyboard logic on Android and iOS
 - [x] **Guided Onboarding**: Step-by-step IME setup flow on both platforms
-- [x] **Privacy Focused**: Zero data collection, no internet permissions, fully offline, 100% open-source
+- [x] **Privacy Focused**: Zero data collection, no internet permissions, fully offline, source available
 
 ### Future Scope
 
@@ -257,6 +257,14 @@ Please read the platform-specific setup guides before contributing:
 | [Research](docs/documentation/Research/README.md) | Layout optimization research, 43 academic papers, optimizer scripts |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
 | [Sprint Retrospectives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospective documents |
+
+## License
+
+[![License: Source Available](https://img.shields.io/badge/License-Source%20Available-blue.svg)](./LICENSE)
+
+This project is **source available**, not open source. It is free for personal, educational, and accessibility use. Commercial use and modified redistribution require written permission. See [LICENSE](./LICENSE) for full terms.
+
+---
 
 <!-- CONTACT -->
 ## Contact

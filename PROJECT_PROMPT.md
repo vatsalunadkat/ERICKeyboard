@@ -6,7 +6,7 @@
 
 **Current version**: 0.4.2-alpha (March 21, 2026)  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
-**License**: Open-source  
+**License**: ERICK Source Available License 1.0  
 **Privacy stance**: 100% offline, zero data collection, no internet permissions, COPPA/GDPR/CCPA compliant.
 
 ---

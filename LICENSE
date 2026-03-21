@@ -1,21 +1,85 @@
-MIT License
+ERICK Keyboard — Source Available License
+Version 1.0, 2026
 
 Copyright (c) 2026 Vatsal Paresh Unadkat
+Project: https://github.com/vatsalunadkat/ERICKeyboard
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PREAMBLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+ERICK is an accessibility tool built to help people with motor
+disabilities, limited finger dexterity, and other physical challenges
+type more easily. This license exists to ensure the project remains
+freely available to the people it was designed to help, while
+preventing commercial exploitation of that mission.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERMISSIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You are permitted, free of charge, to:
+
+1. USE this software for personal, educational, research, or other
+   non-commercial purposes.
+
+2. VIEW and STUDY the source code for learning or research purposes.
+
+3. CONTRIBUTE to the original project by submitting pull requests
+   to the official repository at:
+   https://github.com/vatsalunadkat/ERICKeyboard
+
+4. SHARE the original, unmodified source code or binaries, provided
+   that this license and all copyright notices are retained in full,
+   and clear attribution is given to the original author.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RESTRICTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You may NOT, without explicit written permission from the author:
+
+1. COMMERCIAL USE — Use, integrate, or deploy this software or any
+   derivative of it in any product, service, or workflow that is
+   sold, monetized, or used for commercial gain, directly or
+   indirectly.
+
+2. MODIFIED REDISTRIBUTION — Publicly distribute, publish, or
+   deploy any modified version of this software under your own name,
+   brand, or repository. Forks created solely for the purpose of
+   submitting pull requests to the original project are permitted.
+
+3. SUBLICENSE — Grant others rights to this software beyond what
+   this license permits.
+
+4. REBRANDING — Remove, alter, or obscure the original author
+   attribution, project name, or this license notice in any
+   distribution or deployment of this software.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ATTRIBUTION REQUIREMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Any permitted use or sharing of this software must clearly state:
+
+  "ERICK Keyboard by Vatsal Paresh Unadkat
+   https://github.com/vatsalunadkat/ERICKeyboard"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMERCIAL LICENSING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you wish to use ERICK in a commercial product or distribute a
+modified version, please contact the author to discuss a separate
+commercial license agreement:
+
+  LinkedIn: https://www.linkedin.com/in/vatsalunadkat/
+  GitHub:   https://github.com/vatsalunadkat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISCLAIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED. THE AUTHOR SHALL NOT BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THIS SOFTWARE.
