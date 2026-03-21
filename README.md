@@ -1,4 +1,4 @@
-<a name="readme-top"></a>
+﻿<a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
 <div align="center">
@@ -11,13 +11,16 @@
     <a href="docs/documentation/APP_CONTEXT.md"><strong>📘 View Architecture & App Context »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues">TODO - Visit App - Playstore Link</a>
+    <a href="docs/documentation/User_Guide.md"><strong>📖 User Guide</strong></a>
     ·
-    <a href="https://youtu.be/rrk0dRZUqbY"> TODO - View Demo</a>
+    <a href="docs/documentation/Research/README.md"><strong>🔬 Research</strong></a>
     ·
-    <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues">Report Bug</a>
+    <a href="CHANGELOG.md"><strong>📋 Changelog</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/vatsalunadkat/ERICKeyboard/issues">Report Bug</a>
     ·
-    <a href="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues">Request Feature</a>
+    <a href="https://github.com/vatsalunadkat/ERICKeyboard/issues">Request Feature</a>
   </p>
 </div>
 
@@ -41,13 +44,13 @@
         <li><a href="#swipe-typing">Swipe Typing</a></li>
         <li><a href="#typing-with-controller">Typing with Controller</a></li>
         <li><a href="#keyboard-typing-with-no-fingers-vs-typing-with-controller">Keyboard Typing with No Fingers vs Typing with Controller</a></li>
-        <li><a href="#todo-architecture-diagram">TODO Architecture Diagram</a></li>
-        <li><a href="#controller-input-data-calculations-todo">Controller INPUT Data Calculations TODO</a></li>
+        <li><a href="#architecture-overview">Architecture Overview</a></li>
       </ul>
     </li>
-    <li>
-      <a href="docs/documentation/APP_CONTEXT.md">📘 Architecture & App Context (Detailed)</a>
-    </li>
+    <li><a href="docs/documentation/APP_CONTEXT.md">📘 Architecture & App Context (Detailed)</a></li>
+    <li><a href="docs/documentation/User_Guide.md">📖 User Guide</a></li>
+    <li><a href="docs/documentation/Research/README.md">🔬 Research Documentation</a></li>
+    <li><a href="#contributing">Contributing</a></li>
   </ol>
 </details>
 
@@ -102,6 +105,10 @@ ERICK/
 │   │   │   ├── KeyboardContracts.kt     # Interfaces, enums & contracts
 │   │   │   ├── WordPredictionEngine.kt  # Trie-based prediction & autocorrect
 │   │   │   ├── ColorPalettes.kt         # 6 colorblind-safe palettes
+│   │   │   ├── CustomLayout.kt          # Custom layout data models & manager
+│   │   │   ├── CustomLayoutSerializer.kt# JSON serialization for layouts
+│   │   │   ├── SettingsRepository.kt    # Cross-platform settings contracts
+│   │   │   ├── Platform.kt             # Platform abstraction
 │   │   │   └── KeyboardFactory.kt       # Platform factory
 │   │   ├── androidMain/ # Android-specific implementations
 │   │   └── iosMain/     # iOS-specific bridge code
@@ -113,14 +120,19 @@ ERICK/
 │   │   ├── ErickKeyBoard/ # Keyboard extension target
 │   │   │   ├── KeyboardViewController.swift  # IME controller
 │   │   │   ├── JoystickView.swift            # SwiftUI radial dial
-│   │   │   └── SettingsView.swift            # In-keyboard settings
+│   │   │   ├── SettingsView.swift            # In-keyboard settings
+│   │   │   └── ControllerBridge.swift        # App Group controller bridge
 │   │   └── SharedKeyboard.xcframework/       # KMP shared module binary
 │   └── README.md        # iOS setup instructions
-├── docs/                # GitHub Pages website
+├── docs/                # GitHub Pages website & documentation
+│   ├── documentation/   # Architecture docs, sprint tickets, research
+│   │   ├── APP_CONTEXT.md       # Full architecture & component docs
+│   │   ├── User_Guide.md       # End-user guide
+│   │   ├── Jira/               # Sprint tickets & retrospectives
+│   │   └── Research/           # Optimization research & papers
 │   ├── index.html       # Landing page
 │   ├── accessibility.html # Accessibility features page
-│   ├── privacy-policy.html # Privacy policy
-│   └── documentation/   # Architecture docs & sprint tickets
+│   └── privacy-policy.html # Privacy policy
 ├── documentation/       # Research papers, logo assets, demos
 ├── README.md            # This file
 ├── CHANGELOG.md         # Version history
@@ -177,7 +189,7 @@ ERICK/
 - [ ] Cloud sync for settings and custom layouts across devices
 - [ ] Tablet-optimized layout
 
-See the [open issues](https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/vatsalunadkat/ERICKeyboard/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -187,26 +199,71 @@ See the [open issues](https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusiv
 ## Project Artifacts
 
 ### Swipe Typing
-<img src="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/blob/main/documentation/swipe.gif" height="400" />
+<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/swipe.gif" height="400" />
 
 ### Typing with Controller
-<img src="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/blob/main/documentation/controller.gif" height="400" />
+<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/controller.gif" height="400" />
 
 ### Keyboard Typing with No Fingers vs Typing with Controller
-<img src="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/blob/main/documentation/no%20hands.gif" height="400" /> vs <img src="https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard/blob/main/documentation/no%20hands%20type.gif" height="400" />
+<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/no%20hands.gif" height="400" /> vs <img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/no%20hands%20type.gif" height="400" />
 
-### TODO Architecture Diagram
-<img src="https://github.com/vatsalunadkat/sleep-pattern-analysis/blob/e9c002705fff6561a0f68450b7da10759fb7592b/documentation/Images/architecture_diagram.png" height="300" />
+### Architecture Overview
 
-### Controller INPUT Data Calculations TODO
-TODO
+ERICK uses **Kotlin Multiplatform (KMP)** to share all core keyboard logic between Android and iOS. The shared module contains the state machine, chord processing, word prediction engine, color palettes, layout definitions, and settings contracts — platform layers only implement the UI and OS-specific integration.
 
+```
+┌─────────────────────────────────────────────────────┐
+│                   Platform Layer                     │
+│  ┌──────────────────┐    ┌────────────────────────┐  │
+│  │   Android (IME)  │    │   iOS (Keyboard Ext.)  │  │
+│  │  JoystickView    │    │  KeyboardViewController│  │
+│  │  SettingsScreen   │    │  JoystickView (SwiftUI)│  │
+│  │  PreferencesManager│   │  ControllerBridge      │  │
+│  └────────┬─────────┘    └────────┬───────────────┘  │
+│           │      Shared Module     │                  │
+│           └──────────┬─────────────┘                  │
+│  ┌───────────────────┴──────────────────────────────┐ │
+│  │  KeyboardStateMachine · KeyboardLogic            │ │
+│  │  WordPredictionEngine · KeyboardContracts        │ │
+│  │  ColorPalettes · CustomLayout · SettingsRepo     │ │
+│  └──────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+For detailed architecture diagrams (Mermaid class diagrams, sequence diagrams, data flow), see [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md).
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/your-feature`.
+3. Make your changes and ensure they build on both platforms.
+4. Commit with a descriptive message.
+5. Open a Pull Request against `main`.
+
+Please read the platform-specific setup guides before contributing:
+- [Android setup](android/README.md)
+- [iOS setup](ios/README.md)
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md) | Architecture, class diagrams, sequence diagrams, component docs |
+| [User Guide](docs/documentation/User_Guide.md) | End-user guide: chord mechanics, settings, accessibility, troubleshooting |
+| [Research](docs/documentation/Research/README.md) | Layout optimization research, 43 academic papers, optimizer scripts |
+| [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
+| [Sprint Retrospectives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospective documents |
+| [Burndown Charts](docs/documentation/Jira/Burndown_Burnup_Charts.md) | Sprint velocity, burndown, and burnup data |
 
 <!-- CONTACT -->
 <!-- ## Contact
 
 Vatsal Paresh Unadkat
-Project Link: [https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard](https://github.com/vatsalunadkat/Ergonomic-Radial-Inclusive-Chorded-Keyboard)
+Project Link: [https://github.com/vatsalunadkat/ERICKeyboard](https://github.com/vatsalunadkat/ERICKeyboard)
 
 -->
 

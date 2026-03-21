@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to the ERICK (Ergonomic Radial Inclusive Controller Keyboard) project will be documented in this file.
 
@@ -135,7 +135,7 @@ iOS keyboard with native SwiftUI interface and shared Kotlin logic.
 ---
 
 ### User Onboarding & Typing Demo
-<img src="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/v0.2.1a_user_onboarding.gif" height="400" /> & <img src="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/v0.2.1a_typing_demo.gif" height="400" /> 
+<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/v0.2.1a_user_onboarding.gif" height="400" /> & <img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/v0.2.1a_typing_demo.gif" height="400" /> 
 
 ---
 ---
@@ -151,10 +151,10 @@ This release includes:
 Install using APK file provided.
 
 ### Swipe Typing vs Typing with Controller
-<img src="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/swipe.gif" height="200" /> vs <img src="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/controller.gif" height="200" />
+<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/swipe.gif" height="200" /> vs <img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/controller.gif" height="200" />
 
 ### Keyboard Typing with No Fingers vs Typing with Controller
-<img src="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/no%20hands.gif" height="200" /> vs <img src="https://github.com/vatsalunadkat/Ergonomic-Inclusive-Controller-Keybord/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/no%20hands%20type.gif" height="200" />
+<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/no%20hands.gif" height="200" /> vs <img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/0cdf578a7a3596009c78906d2e717a7c7de9afdd/documentation/demo%20files/no%20hands%20type.gif" height="200" />
 
 <br>
 Worked on by @VatsalUnadkat and @bisensamiksha 
