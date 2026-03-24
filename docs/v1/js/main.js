@@ -1,16 +1,16 @@
-﻿/* ERICK Website ΓÇö Interactivity: theme, font controls, nav */
+/* ERICK Website — Interactivity: theme, font controls, nav */
 
 (function () {
   "use strict";
 
-  // ---- Theme toggle (light / dark) ΓÇö DISABLED: hidden for now, light theme is default ----
+  // ---- Theme toggle (light / dark) — DISABLED: hidden for now, light theme is default ----
   /*
   var themeBtn = document.getElementById("theme-toggle");
   var html = document.documentElement;
 
   function applyTheme(theme) {
     html.setAttribute("data-theme", theme);
-    if (themeBtn) themeBtn.textContent = theme === "dark" ? "ΓÿÇ∩╕Å" : "≡ƒîÖ";
+    if (themeBtn) themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
     try { localStorage.setItem("erick-theme", theme); } catch (e) { /* ignore */ }
   }
 

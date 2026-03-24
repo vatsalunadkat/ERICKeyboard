@@ -1,5 +1,5 @@
-﻿/* ========================================
-   ERICK Website ΓÇö Stylesheet
+/* ========================================
+   ERICK Website — Stylesheet
    Soft pastel palette with light/dark themes
    ======================================== */
 
@@ -66,7 +66,7 @@
     --nav-height: 64px;
     --radius: 12px;
     --radius-sm: 8px;
-    /* Base font size ΓÇö adjustable by JS */
+    /* Base font size — adjustable by JS */
     --base-font-size: 16px;
 }
 
@@ -442,7 +442,7 @@ img {
 }
 
 .step:not(:last-child)::after {
-    content: "ΓåÆ";
+    content: "→";
     position: absolute;
     right: -1.25rem;
     top: 1rem;
@@ -791,7 +791,7 @@ img {
     }
 
     .step:not(:last-child)::after {
-        content: "Γåô";
+        content: "↓";
         position: static;
         display: block;
         margin: 0.5rem 0;
