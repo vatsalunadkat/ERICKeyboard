@@ -1,9 +1,9 @@
-/* ERICK Website — Interactivity: theme, font controls, nav */
+/* ERICK Website - Interactivity: theme, font controls, nav */
 
 (function () {
   "use strict";
 
-  // ---- Theme toggle (light / dark) — DISABLED: hidden for now, light theme is default ----
+  // ---- Theme toggle (light / dark) - DISABLED: hidden for now, light theme is default ----
   /*
   var themeBtn = document.getElementById("theme-toggle");
   var html = document.documentElement;
