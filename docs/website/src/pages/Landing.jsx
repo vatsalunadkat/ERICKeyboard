@@ -100,7 +100,7 @@ export default function Landing() {
                             href="#"
                             className="inline-flex items-center gap-2 bg-white/60 text-text px-7 py-3 rounded-2xl font-semibold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-lavender/30"
                         >
-                             App Store - Coming May 2026
+                            App Store - Coming May 2026
                         </a>
                     </motion.div>
                 </div>
