@@ -54,7 +54,6 @@ const timeline = [
         media: [
             { src: `${BASE}documentation/demo%20files/v0.2.1a_typing_demo.gif`, alt: 'Typing demo' },
             { src: `${BASE}documentation/demo%20files/v0.2.1a_user_onboarding.gif`, alt: 'User onboarding' },
-            { src: `${BASE}documentation/demo%20files/v0.2.1_dials.png`, alt: 'Dial interface' },
         ],
     },
     {
@@ -72,7 +71,7 @@ const timeline = [
         media: [
             { src: `${BASE}documentation/demo%20files/v0.1.7_swipe_input.gif`, alt: 'Swipe input' },
             { src: `${BASE}documentation/demo%20files/v0.1.7_controller.gif`, alt: 'Controller input' },
-            { src: `${BASE}documentation/demo%20files/v0.1.7_no_hands_type.gif`, alt: 'Hands-free typing' },
+            { src: `${BASE}documentation/demo%20files/v0.1.7_no_hands%20type.gif`, alt: 'Hands-free typing' },
         ],
     },
 ]

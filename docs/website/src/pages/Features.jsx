@@ -89,25 +89,25 @@ export default function Features() {
 
             {/* Chord System Deep Dive */}
             <SectionWrapper className="bg-lavender/10">
-                <div className="text-center mb-12">
-                    <span className="inline-block text-sm font-semibold uppercase tracking-wider text-periwinkle mb-3">The Chord System</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+                <div className="text-center mb-8">
+                    <span className="inline-block text-sm font-semibold uppercase tracking-wider text-periwinkle mb-2">The Chord System</span>
+                    <h2 className="text-2xl md:text-3xl font-bold text-text mb-3">
                         Two dials, infinite possibilities
                     </h2>
-                    <p className="text-text-muted max-w-2xl mx-auto">
+                    <p className="text-text-muted max-w-2xl mx-auto text-sm">
                         Instead of hunting for individual keys, ERICKeyboard combines two directional inputs into a single character.
                         The left dial selects a group, the right dial picks the character. Every letter requires equal effort.
                     </p>
                 </div>
 
                 {/* Placeholder for chord system demo GIF */}
-                <div className="max-w-2xl mx-auto mb-12 flex justify-center">
+                <div className="max-w-lg mx-auto mb-8 flex justify-center">
                     <div className="w-full aspect-video rounded-3xl bg-lavender/20 border-2 border-dashed border-lavender/40 flex items-center justify-center">
                         <p className="text-text-muted text-sm">Chord system demo GIF placeholder</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
                     {[
                         { icon: '⚡', title: 'Equal Effort', desc: 'Every character requires exactly two directional swipes. No key is harder to reach than any other.' },
                         { icon: '🧠', title: 'Muscle Memory', desc: 'Consistent motor patterns build fast. Users report significant speed gains after just a few days of practice.' },
@@ -194,17 +194,17 @@ export default function Features() {
 
             {/* Accessibility Deep Dive */}
             <SectionWrapper className="bg-peach/10">
-                <div className="text-center mb-16">
-                    <span className="inline-block text-sm font-semibold uppercase tracking-wider text-blush mb-3">Accessibility</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+                <div className="text-center mb-10">
+                    <span className="inline-block text-sm font-semibold uppercase tracking-wider text-blush mb-2">Accessibility</span>
+                    <h2 className="text-2xl md:text-3xl font-bold text-text mb-3">
                         Accessibility is not a feature - it's the foundation
                     </h2>
-                    <p className="text-text-muted max-w-2xl mx-auto">
+                    <p className="text-text-muted max-w-2xl mx-auto text-sm">
                         Every design decision in ERICKeyboard considers users with different vision, motor, and cognitive needs.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                     {accessibilityDetails.map((item, i) => (
                         <motion.div
                             key={i}

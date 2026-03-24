@@ -6,7 +6,6 @@ const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/features', label: 'Features' },
     { to: '/evolution', label: 'Evolution' },
-    { to: '/privacy', label: 'Privacy' },
 ]
 
 export default function Navbar() {

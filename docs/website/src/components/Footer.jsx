@@ -23,8 +23,8 @@ export default function Footer() {
                             <Link to="/" className="text-sm text-text-muted hover:text-text transition-colors">Home</Link>
                             <Link to="/features" className="text-sm text-text-muted hover:text-text transition-colors">Features</Link>
                             <Link to="/evolution" className="text-sm text-text-muted hover:text-text transition-colors">Evolution</Link>
-                            <Link to="/privacy" className="text-sm text-text-muted hover:text-text transition-colors">Privacy</Link>
-                            <a href={`${import.meta.env.BASE_URL}docs/v1/index.html`} className="text-sm text-text-muted hover:text-text transition-colors">Old Website (v1)</a>
+                            <a href={`${import.meta.env.BASE_URL}v1/privacy-policy.html`} className="text-sm text-text-muted hover:text-text transition-colors">Privacy</a>
+                            <a href={`${import.meta.env.BASE_URL}v1/index.html`} className="text-sm text-text-muted hover:text-text transition-colors">Old Website (v1)</a>
                         </div>
                     </div>
 
@@ -42,6 +42,7 @@ export default function Footer() {
                     <div>
                         <h4 className="font-semibold text-text mb-4 text-sm uppercase tracking-wider">Developer</h4>
                         <div className="flex flex-col gap-2">
+                            <span className="text-sm text-text-muted">Vatsal Unadkat</span>
                             <a href="https://github.com/vatsalunadkat" target="_blank" rel="noopener noreferrer" className="text-sm text-text-muted hover:text-text transition-colors">GitHub Profile ↗</a>
                             <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener noreferrer" className="text-sm text-text-muted hover:text-text transition-colors">LinkedIn ↗</a>
                         </div>
