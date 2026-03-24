@@ -8,7 +8,7 @@ export default function SectionWrapper({ children, className = '', id }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className={`py-20 md:py-28 ${className}`}
+            className={`py-12 md:py-16 ${className}`}
         >
             <div className="max-w-6xl mx-auto px-6">
                 {children}
