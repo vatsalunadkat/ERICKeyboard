@@ -18,6 +18,11 @@ const timeline = [
             'Accordion-style collapsible settings menu on both platforms',
             'Translated all code comments to English across 6 source files',
         ],
+        media: [
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_normal.jpg`, alt: 'Android keyboard' },
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_dark_mode_whatsapp.jpg`, alt: 'Dark mode on WhatsApp' },
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_colorblind_mode_instagram.jpg`, alt: 'Colorblind mode' },
+        ],
         isLatest: true,
     },
     {
