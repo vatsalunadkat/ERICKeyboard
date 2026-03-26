@@ -163,8 +163,8 @@ export default function Landing() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                     {[
-                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.2.1a_typing_demo.gif`, label: 'Touch-based typing', color: 'bg-lavender/30' },
-                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif`, label: 'Controller input', color: 'bg-mint/30' },
+                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.4.2-alpha_iOS_typing.gif`, label: 'Touch-based typing', color: 'bg-lavender/30' },
+                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.4.2-alpha_Android_controller_support.gif`, label: 'Controller input', color: 'bg-mint/30' },
                     ].map((item, i) => (
                         <motion.div
                             key={i}
