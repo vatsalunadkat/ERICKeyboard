@@ -19,9 +19,10 @@ const timeline = [
             'Translated all code comments to English across 6 source files',
         ],
         media: [
-            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_normal.jpg`, alt: 'Android keyboard' },
-            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_dark_mode_whatsapp.jpg`, alt: 'Dark mode on WhatsApp' },
-            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_colorblind_mode_instagram.jpg`, alt: 'Colorblind mode' },
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_iOS_typing.gif`, alt: 'iOS typing demo' },
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif`, alt: 'iOS controller support' },
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_dyslexia_font_reddit.jpg`, alt: 'Dyslexia font on Reddit' },
+            { src: `${BASE}documentation/demo%20files/v0.4.2-alpha_Android_pastel_colors_dark_mode_gmail.jpg`, alt: 'Pastel dark mode on Gmail' },
         ],
         isLatest: true,
     },

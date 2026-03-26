@@ -15,6 +15,7 @@ venv/
 __pycache__/
 
 # Build artifacts (root level)
+build/
 .gradle/
 .kotlin/
 .vite/
