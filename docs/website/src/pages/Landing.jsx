@@ -175,8 +175,8 @@ export default function Landing() {
                             whileHover={{ y: -4 }}
                             className={`${item.color} rounded-3xl p-5 flex flex-col items-center shadow-sm hover:shadow-md transition-shadow`}
                         >
-                            <div className="w-full max-w-[220px] rounded-2xl overflow-hidden bg-white/40 mb-3">
-                                <img src={item.src} alt={item.label} loading="lazy" className="w-full h-auto rounded-2xl" />
+                            <div className="w-full max-w-[220px] h-[400px] rounded-2xl overflow-hidden bg-white/40 mb-3">
+                                <img src={item.src} alt={item.label} loading="lazy" className="w-full h-full object-contain rounded-2xl" />
                             </div>
                             <p className="text-sm font-medium text-text">{item.label}</p>
                         </motion.div>
