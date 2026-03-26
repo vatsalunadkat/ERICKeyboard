@@ -55,10 +55,12 @@ export default function TimelineCard({ version, date, title, features, milestone
 
                 {/* Demo media */}
                 {media && media.length > 0 && (
-                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className={`mt-6 grid gap-3 ${media.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3'}`}>
                         {media.map((item, i) => (
                             <div key={i} className="rounded-2xl overflow-hidden bg-white/40 shadow-sm">
-                                <img src={item.src} alt={item.alt} loading="lazy" className="w-full h-auto object-contain" />
+                                <div className="h-48 overflow-hidden">
+                                    <img src={item.src} alt={item.alt} loading="lazy" className="w-full h-full object-contain" />
+                                </div>
                                 <p className="text-xs text-text-muted text-center py-1.5">{item.alt}</p>
                             </div>
                         ))}
