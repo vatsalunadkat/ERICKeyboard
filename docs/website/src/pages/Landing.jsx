@@ -51,7 +51,7 @@ export default function Landing() {
                         transition={{ duration: 0.6 }}
                         className="mb-6"
                     >
-                        <img src={`${import.meta.env.BASE_URL}images/erick-logo.png`} alt="ERICKeyboard logo" className="w-28 h-28 mx-auto rounded-3xl shadow-xl" />
+                        <img src={`${import.meta.env.BASE_URL}documentation/logo/ERICK_feature_graphic_black.png`} alt="ERICKeyboard feature graphic" className="max-w-md w-full mx-auto rounded-3xl shadow-xl" />
                     </motion.div>
 
                     <motion.h1
@@ -163,8 +163,8 @@ export default function Landing() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                     {[
-                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.1.7_swipe_input.gif`, label: 'Touch-based swipe input', color: 'bg-lavender/30' },
-                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.1.7_controller.gif`, label: 'Physical controller input', color: 'bg-mint/30' },
+                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.2.1a_typing_demo.gif`, label: 'Touch-based typing', color: 'bg-lavender/30' },
+                        { src: `${import.meta.env.BASE_URL}documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif`, label: 'Controller input', color: 'bg-mint/30' },
                     ].map((item, i) => (
                         <motion.div
                             key={i}
@@ -175,8 +175,8 @@ export default function Landing() {
                             whileHover={{ y: -4 }}
                             className={`${item.color} rounded-3xl p-5 flex flex-col items-center shadow-sm hover:shadow-md transition-shadow`}
                         >
-                            <div className="w-full aspect-[9/16] max-w-[180px] rounded-2xl overflow-hidden bg-white/40 mb-3">
-                                <img src={item.src} alt={item.label} loading="lazy" className="w-full h-full object-cover" />
+                            <div className="w-full max-w-[220px] rounded-2xl overflow-hidden bg-white/40 mb-3">
+                                <img src={item.src} alt={item.label} loading="lazy" className="w-full h-auto rounded-2xl" />
                             </div>
                             <p className="text-sm font-medium text-text">{item.label}</p>
                         </motion.div>
