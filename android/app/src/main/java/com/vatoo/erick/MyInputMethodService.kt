@@ -347,6 +347,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 cornerRadius = 999f * resources.displayMetrics.density
                 setColor(if (isDark) Color.argb(245, 50, 50, 50) else Color.argb(245, 255, 255, 255))
             }
+            // Rebuild preview views so stroke color matches new theme
+            previewCapsule.removeAllViews()
         }
 
         // Joystick views
@@ -448,15 +450,17 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         if (previewCapsule.childCount != previewChars.size) {
             previewCapsule.removeAllViews()
             val spacingPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+            val isDark = isEffectiveDarkMode()
             for (i in previewChars.indices) {
-                val tv = TextView(this).apply {
+                val tv = OutlinedTextView(this).apply {
                     textSize = 22f
                     val baseTf = resolveTypeface() ?: Typeface.DEFAULT
                     typeface = Typeface.create(baseTf, Typeface.BOLD)
                     gravity = Gravity.CENTER
                     minWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20f, resources.displayMetrics).toInt()
                     includeFontPadding = true
-                    setShadowLayer(1.5f, 0f, 0f, Color.argb(166, 255, 255, 255))
+                    strokeColor = if (isDark) Color.WHITE else Color.BLACK
+                    strokeWidthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1.2f, resources.displayMetrics)
                 }
                 val lp = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,

@@ -210,21 +210,33 @@ private struct KeyboardPreviewBar: View {
         }
     }
 
+    private var strokeColor: Color {
+        isDarkMode ? .white : .black
+    }
+
     var body: some View {
         HStack(spacing: 8) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
-                Text(item.text)
-                    .font(
-                        resolvedPreviewFont(
-                            size: highlightedIndex == index ? 27 : 22,
-                            weight: highlightedIndex == index ? .heavy : .bold
-                        )
-                    )
-                    .foregroundColor(item.color)
-                    .frame(minWidth: 20)
-                    .scaleEffect(highlightedIndex == index ? 1.08 : 1.0)
-                    .shadow(color: .white.opacity(0.65), radius: 0.6)
-                    .animation(.easeInOut(duration: 0.12), value: highlightedIndex)
+                let font = resolvedPreviewFont(
+                    size: highlightedIndex == index ? 27 : 22,
+                    weight: highlightedIndex == index ? .heavy : .bold
+                )
+                ZStack {
+                    // Stroke outline using offset text in 8 directions
+                    ForEach(Self.strokeOffsets, id: \.0) { dx, dy in
+                        Text(item.text)
+                            .font(font)
+                            .foregroundColor(strokeColor)
+                            .offset(x: dx, y: dy)
+                    }
+                    // Fill text on top
+                    Text(item.text)
+                        .font(font)
+                        .foregroundColor(item.color)
+                }
+                .frame(minWidth: 20)
+                .scaleEffect(highlightedIndex == index ? 1.08 : 1.0)
+                .animation(.easeInOut(duration: 0.12), value: highlightedIndex)
             }
         }
         .padding(.horizontal, 18)
@@ -236,6 +248,15 @@ private struct KeyboardPreviewBar: View {
         )
         .frame(maxWidth: .infinity, alignment: .center)
     }
+
+    private static let strokeOffsets: [(CGFloat, CGFloat)] = {
+        let w: CGFloat = 0.8
+        return [
+            (-w, -w), (0, -w), (w, -w),
+            (-w,  0),          (w,  0),
+            (-w,  w), (0,  w), (w,  w)
+        ]
+    }()
 }
 
 private struct KeyboardSuggestionBar: View {
