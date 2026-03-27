@@ -79,17 +79,17 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│              Platform UI Layer (Android / iOS)            │
+│              Platform UI Layer (Android / iOS)           │
 │                                                          │
 │  IME Service / UIInputViewController                     │
 │  JoystickView (radial touch input)                       │
-│  SettingsScreen / SettingsView (accordion sections)       │
-│  PreferencesManager / App Group UserDefaults              │
+│  SettingsScreen / SettingsView (accordion sections)      │
+│  PreferencesManager / App Group UserDefaults             │
 │  Physical Controller Polling                             │
 └─────────────────────┬────────────────────────────────────┘
                       │ implements KeyboardActionDelegate
 ┌─────────────────────▼────────────────────────────────────┐
-│        Shared Kotlin Multiplatform Module                 │
+│        Shared Kotlin Multiplatform Module                │
 │                                                          │
 │  KeyboardStateMachine  ←→  KeyboardLogic                 │
 │  WordPredictionEngine  ←→  KeyboardContracts             │
@@ -228,8 +228,7 @@ The project has been developed in 2-week-ish sprints with a team that varied fro
 - **Sprint 1** (Feb 23–27, 2026): Project setup, initial task breakdown. 11 tasks, 100% velocity. Team of 8 in 4 groups.
 - **Sprint 2** (Mar 2–6, 2026): KMP setup, full iOS implementation, shared logic wiring. 95 SP, 100% velocity.
 - **Sprint 3** (Mar 9–13, 2026): Radial UI overhaul, efficiency layout, colorblind palettes. 67 SP, 100% velocity.
-- **Sprint 4** (Mar 16–20, 2026): Controller support, word prediction, settings polish, documentation. 29/32 SP (91%). 2-person team.
-- **Sprint 5** (Mar 21–22, 2026): Word prediction refinement, comprehensive documentation.
+- **Sprint 4** (Mar 16–20, 2026): Controller support, word prediction, settings polish, documentation. 29/32 SP (91%).
 
 ---
 
