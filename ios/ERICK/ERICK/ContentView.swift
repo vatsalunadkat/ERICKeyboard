@@ -6,6 +6,7 @@ struct ContentView: View {
     @AppStorage("hasEnabledKeyboard") private var hasEnabledKeyboard = false
     @State private var isKeyboardActuallyEnabled: Bool = false
     @State private var testText: String = ""
+    @State private var showTypingGame: Bool = false
     
     private var isStep1Completed: Bool {
         hasEnabledKeyboard || isKeyboardActuallyEnabled
@@ -167,6 +168,16 @@ struct ContentView: View {
                         TextField("Tap here to test the keyboard", text: $testText, axis: .vertical)
                             .lineLimit(4...8)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .onChange(of: testText) { newValue in
+                                if newValue.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare("start") == .orderedSame {
+                                    testText = ""
+                                    showTypingGame = true
+                                }
+                            }
+                        
+                        Text("Type 'start' to begin the typing game \u{1F3AE}")
+                            .font(.caption)
+                            .foregroundColor(.gray)
                     }
                     .padding(.top, 8)
                     
@@ -190,6 +201,9 @@ struct ContentView: View {
                 .padding()
             }
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $showTypingGame) {
+                TypingGameView()
+            }
         }
         .onAppear {
             checkKeyboardStatus()

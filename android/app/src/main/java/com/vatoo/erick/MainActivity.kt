@@ -82,9 +82,23 @@ fun MainScreen(
     isKeyboardEnabled: State<Boolean>,
     isKeyboardCurrent: State<Boolean>
 ) {
+    var showTypingGame by remember { mutableStateOf(false) }
+
+    if (showTypingGame) {
+        TypingGameScreen(onBack = { showTypingGame = false })
+        return
+    }
+
     val context = LocalContext.current
     var text by remember { mutableStateOf("") }
     val isFullyEnabled = isKeyboardEnabled.value && isKeyboardCurrent.value
+
+    LaunchedEffect(text) {
+        if (text.trim().equals("start", ignoreCase = true)) {
+            text = ""
+            showTypingGame = true
+        }
+    }
 
     Column(
         modifier = modifier
@@ -408,8 +422,15 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
-                .padding(bottom = 16.dp),
+                .padding(bottom = 4.dp),
             maxLines = 4
+        )
+
+        Text(
+            text = "Type 'start' to begin the typing game \uD83C\uDFAE",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray,
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
         )
 
         // Additional Info
