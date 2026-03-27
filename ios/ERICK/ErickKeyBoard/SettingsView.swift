@@ -208,6 +208,20 @@ struct SettingsView: View {
                             .font(.caption).fontWeight(.semibold)
                         Text("✓ Does NOT collect any text you type\n✓ Does NOT store passwords\n✓ Only stores preferences locally")
                             .font(.caption2).foregroundColor(.secondary)
+                        Link(destination: URL(string: "https://github.com/vatsalunadkat/ERICKeyboard")!) {
+                            HStack {
+                                Text("\u{1F4BB} View on GitHub")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                        }
+                        .padding(.top, 4)
                     }
                     .padding(.horizontal, 12).padding(.vertical, 4)
                 }

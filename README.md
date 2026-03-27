@@ -41,9 +41,10 @@
     <li>
       <a href="#project-artifacts">Project Artifacts</a>
       <ul>
-        <li><a href="#swipe-typing">Swipe Typing</a></li>
-        <li><a href="#typing-with-controller">Typing with Controller</a></li>
-        <li><a href="#keyboard-typing-with-no-fingers-vs-typing-with-controller">Keyboard Typing with No Fingers vs Typing with Controller</a></li>
+        <li><a href="#touch-typing-ios">Touch Typing (iOS)</a></li>
+        <li><a href="#controller-typing-android">Controller Typing (Android)</a></li>
+        <li><a href="#controller-typing-ios">Controller Typing (iOS)</a></li>
+        <li><a href="#screenshots">Screenshots</a></li>
         <li><a href="#architecture-overview">Architecture Overview</a></li>
       </ul>
     </li>
@@ -59,7 +60,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <div align="center">
-  <img src="" height="400" />
+  <img src="docs/documentation/logo/ERICK_feature_graphic_black.png" alt="ERICK Feature Graphic" width="700" />
 </div>
 
 ERICK is a cross-platform chorded keyboard that replaces dozens of tiny keys with two intuitive joystick dials. Users swipe on both dials to combine directions into character "chords" — making every letter, number, and symbol equally easy to type. It works with on-screen touch joysticks or physical gaming controllers (DualShock 4, Xbox, 8BitDo, etc.).
@@ -70,10 +71,23 @@ ERICK includes smart word prediction and autocorrect — a suggestion bar shows 
 
 The keyboard is source available, runs fully offline with zero internet permissions, and collects no data whatsoever — every keystroke stays on your device.
 
+**The Curb Cut Effect — Designed for Accessibility, Better for Everyone:**
+
+ERICK is built accessibility-first, but its design benefits all users — a phenomenon known as the [curb cut effect](https://ssir.org/articles/entry/the_curb_cut_effect). Just as sidewalk curb cuts were designed for wheelchair users but are now used by everyone with strollers, luggage, or bicycles, ERICK's accessible features make typing easier and more versatile for mainstream users too:
+
+- **Large touch targets** — designed for users with limited dexterity, but also great for typing on the go, in cold weather with gloves, or on small screens where tiny keys cause constant typos
+- **Controller support** — essential for users who can't touch a screen, but equally useful for gaming setups, smart TVs, and couch browsing where a physical controller is the natural input device
+- **Eyes-free typing** — built for visually impaired users, but perfect for taking notes in class, typing while walking, or discreet messaging without looking at your phone
+- **Word prediction & autocorrect** — helps users with cognitive disabilities compose text faster, while also boosting typing speed for everyone
+- **Efficiency layout** — an alternative chord arrangement optimized by character frequency, placing common letters on the easiest swipes so power users can type faster with less effort
+- **Customizable layouts** — allows users with specific motor needs to rearrange chords, but also lets power users optimize for speed or personal preference
+- **Privacy by design** — zero data collection protects vulnerable users from surveillance, and gives privacy-conscious mainstream users a keyboard they can actually trust
+
 **Key use cases:**
 - Accessible typing for people with motor disabilities, limited finger dexterity, or repetitive strain injuries
 - Controller-based typing on gaming consoles, smart TVs, and set-top boxes
 - Eyes-free typing (e.g., taking notes in class without looking at the screen)
+- While commuting, or multitasking
 - Privacy-preserving alternative to data-collecting commercial keyboards
 
 ### Built With
@@ -198,14 +212,23 @@ See the [open issues](https://github.com/vatsalunadkat/ERICKeyboard/issues) for 
 <!-- OTHER ARTIFACTS -->
 ## Project Artifacts
 
-### Swipe Typing
-<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/swipe.gif" height="400" />
+### Touch Typing (iOS)
+<img src="docs/documentation/demo%20files/v0.4.2-alpha_iOS_typing.gif" height="400" />
 
-### Typing with Controller
-<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/controller.gif" height="400" />
+### Controller Typing (Android)
+<img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_controller_support.gif" height="400" />
 
-### Keyboard Typing with No Fingers vs Typing with Controller
-<img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/no%20hands.gif" height="400" /> vs <img src="https://github.com/vatsalunadkat/ERICKeyboard/blob/main/documentation/no%20hands%20type.gif" height="400" />
+### Controller Typing (iOS)
+<img src="docs/documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif" height="400" />
+
+### Screenshots
+<p>
+  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_normal.jpg" height="400" />
+  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_dark_mode_whatsapp.jpg" height="400" />
+  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_pastel_colors_dark_mode_gmail.jpg" height="400" />
+  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_dyslexia_font_reddit.jpg" height="400" />
+  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_colorblind_mode_instagram.jpg" height="400" />
+</p>
 
 ### Architecture Overview
 
