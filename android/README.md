@@ -4,7 +4,7 @@ This folder contains the Android implementation of ERICK (Ergonomic Radial Inclu
 
 ## Overview
 
-ERICK Android is a custom Input Method Editor (IME) that provides chord-based text input using dual touch joysticks or a physical gaming controller. It features word prediction & autocorrect, multiple accessibility options, and a fully customizable layout — all powered by a Kotlin Multiplatform shared module.
+ERICK Android is a custom Input Method Editor (IME) that provides chord-based text input using dual touch joysticks or a physical gaming controller. It features word prediction & autocorrect, a typing practice mini-game, outlined preview text for readability, multiple accessibility options, and a fully customizable layout — all powered by a Kotlin Multiplatform shared module.
 
 ## Setup
 
@@ -32,6 +32,8 @@ android/
 │   │   ├── MainActivity.kt      # Onboarding and IME setup UI
 │   │   ├── MyInputMethodService.kt  # IME service (preview bar, suggestions, controller)
 │   │   ├── JoystickView.kt      # Custom Canvas-based touch joystick
+│   │   ├── OutlinedTextView.kt   # Stroked preview text for contrast
+│   │   ├── TypingGameScreen.kt   # Compose typing practice mini-game
 │   │   ├── SettingsActivity.kt   # Settings UI
 │   │   ├── SettingsScreen.kt     # Compose settings screen
 │   │   ├── SettingsViewModel.kt  # Settings state management
@@ -60,13 +62,17 @@ android/
 ### Input Method Editor (IME)
 - **MyInputMethodService**: Main IME service — handles keyboard lifecycle, preview bar rendering, suggestion bar display, physical controller polling, theme application, and accelerating backspace.
 - **JoystickView**: Custom Canvas-based View for touch joystick input with visual knob and return-to-center animation.
-- **Preview Bar**: Animated capsule showing color-coded characters as chords form.
+- **Preview Bar**: Animated capsule showing color-coded characters as chords form, with outlined text (`OutlinedTextView`) for improved readability across light and dark themes.
 - **Suggestion Bar**: 3-suggestion strip displaying word completions, spelling corrections, or next-word predictions. Appears at the same level as the preview capsule.
 
 ### Word Prediction & Autocorrect
 - **WordPredictionEngine** (shared): Trie-based dictionary with prefix completions, Levenshtein spelling corrections, and bigram next-word predictions.
 - Always-on suggestions — predictions shown immediately on keyboard open (defaults like "I", "The", "Hello").
 - Smart space insertion when accepting next-word suggestions.
+
+### Typing Practice Mini-Game
+- **TypingGameScreen**: Full Jetpack Compose screen with a curated quote library, invisible input capture, real-time WPM/accuracy/streak tracking, per-character correctness highlighting, shake animation on errors, and a stats bar.
+- Activated by typing "start" in the test field from `MainActivity`.
 
 ### Physical Controller Support
 - Detects connected gamepads via `InputManager`

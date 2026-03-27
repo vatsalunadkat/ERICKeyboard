@@ -4,7 +4,7 @@ This folder contains the iOS implementation of ERICK (Ergonomic Radial Inclusive
 
 ## Overview
 
-ERICK iOS is a Custom Keyboard Extension that provides chord-based text input using dual touch joysticks or a physical gaming controller. It shares its core logic with the Android app via a Kotlin Multiplatform `SharedKeyboard.xcframework` and presents a native SwiftUI interface.
+ERICK iOS is a Custom Keyboard Extension that provides chord-based text input using dual touch joysticks or a physical gaming controller. It shares its core logic with the Android app via a Kotlin Multiplatform `SharedKeyboard.xcframework` and presents a native SwiftUI interface. Features include word prediction & autocorrect, a typing practice mini-game, stroked preview text for readability across themes, and multiple accessibility options.
 
 ## Setup
 
@@ -45,7 +45,8 @@ ios/
 │   ├── ERICK/                    # Host app
 │   │   ├── ERICKApp.swift        # App entry point
 │   │   ├── ContentView.swift     # Main content view
-│   │   ├── SettingsView.swift    # Host app settings UI
+│   │   ├── TypingGameView.swift   # SwiftUI typing practice mini-game
+│   │   ├── SettingsView.swift    # Host app settings UI (with GitHub link)
 │   │   ├── ERICK.entitlements    # App Group entitlement
 │   │   └── Assets.xcassets/      # App icons and assets
 │   ├── ErickKeyBoard/            # Keyboard Extension
@@ -66,13 +67,17 @@ ios/
 ### Keyboard Extension
 - **KeyboardViewController**: `UIInputViewController` subclass that hosts the SwiftUI keyboard UI, connects to text fields via `textDocumentProxy`, and manages controller input.
 - **JoystickView**: SwiftUI view with circular touch area, 8-directional detection, spring-back animation, and left-handed mode support.
-- **KeyboardPreviewBar**: Animated capsule showing color-coded characters as chords form.
+- **KeyboardPreviewBar**: Animated capsule showing color-coded characters as chords form, with stroked text (stacked offset views) for improved readability across light and dark themes.
 - **KeyboardSuggestionBar**: 3-suggestion strip for word completions, spelling corrections, and next-word predictions.
 
 ### Word Prediction & Autocorrect
 - Uses `WordPredictionEngine` from SharedKeyboard.xcframework
 - Always-on suggestions with default sentence starters
 - Smart space insertion for next-word predictions
+
+### Typing Practice Mini-Game
+- **TypingGameView**: SwiftUI screen providing the same curated-quote gameplay as Android, with real-time WPM/accuracy/streak tracking, per-character correctness highlighting, shake animation on errors, and a stats bar.
+- Activated by typing "start" in the test `TextField` from `ContentView`, navigated via `navigationDestination`.
 
 ### Physical Controller Support
 - Listens for `GCController.didConnect` / `didDisconnect` notifications

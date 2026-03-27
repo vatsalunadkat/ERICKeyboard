@@ -4,7 +4,7 @@
 
 **ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** — a combination of a left-stick direction and a right-stick direction (8 directions each, yielding 64 chord slots). Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
 
-**Current version**: 0.4.2-alpha (March 21, 2026)  
+**Current version**: 0.5.1-alpha (March 28, 2026)  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
 **License**: ERICK Source Available License 1.0  
 **Privacy stance**: 100% offline, zero data collection, no internet permissions, COPPA/GDPR/CCPA compliant.
@@ -207,6 +207,7 @@ ERICKeyboard/
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| **v0.5.1-alpha** | Mar 28, 2026 | Typing practice mini-game, outlined preview text, website redesign, source available license |
 | **v0.4.2-alpha** | Mar 21, 2026 | Word prediction, controller support, collapsible settings, accelerating backspace |
 | **v0.3.2-alpha** | Mar 14, 2026 | Radial dial UI redesign, efficiency layout, iOS radial UI, live character preview |
 | **v0.2.1-alpha** | Mar 7, 2026 | KMP architecture, Material 3 settings, onboarding flow, ERICK branding |
@@ -216,7 +217,7 @@ ERICKeyboard/
 
 | Version | Features |
 |---------|----------|
-| **v0.5.0** | Multi-language support, typing practice game |
+| **v0.6.0** | Multi-language support, complex controller mode, haptic feedback |
 | **v1.0.0** | Production stability, App Store / Play Store main release, typing analytics |
 
 ---

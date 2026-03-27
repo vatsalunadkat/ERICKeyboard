@@ -1,7 +1,7 @@
 ﻿# ERICK - Application Context & Architecture
 
-**Version**: 0.4.2-alpha  
-**Last Updated**: March 21, 2026  
+**Version**: 0.5.1-alpha  
+**Last Updated**: March 28, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 
 ## Executive Summary
@@ -761,7 +761,17 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 
 ### Version History
 
-- **v0.4.2-alpha** (Current):
+- **v0.5.1-alpha** (Current):
+  - Typing practice mini-game (Android Compose + iOS SwiftUI)
+  - Outlined/stroked preview text for readability across light/dark themes
+  - Website redesign (React + Vite + Tailwind SPA)
+  - Architecture diagrams (drawio + PNG)
+  - AD_ID opt-out in Android manifest
+  - iOS Settings GitHub link
+  - Shift indicator relocation to prevent capsule overlap
+  - Switched to ERICK Source Available License 1.0
+
+- **v0.4.2-alpha**:
   - Collapsible accordion-style settings menu (Android + iOS)
   - Compact radio buttons for font/theme selection
   - All code comments translated to English

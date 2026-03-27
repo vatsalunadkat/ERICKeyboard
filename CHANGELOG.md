@@ -5,6 +5,50 @@ All notable changes to the ERICK (Ergonomic Radial Inclusive Controller Keyboard
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.1-alpha] - Mar 28, 2026
+
+## What's New
+
+### Major Features
+- **Typing Practice Mini-Game** — In-app typing game on both Android (Jetpack Compose) and iOS (SwiftUI). Presents curated quotes for practice with real-time WPM, accuracy, and streak tracking. Features per-character correctness highlighting, shake animation on errors, invisible input capture, and a live stats bar. Activated by typing "start" in the test field.
+- **Website Redesign** — Complete rebuild of the documentation site using React 19, Vite 8, and Tailwind CSS v4. New SPA with Landing, Features, Evolution timeline, and Privacy pages. GitHub Pages deployment via dedicated workflow. Legacy v1 site preserved under `docs/v1/`.
+- **Architecture Diagrams** — Added `ERICK_architecture.drawio` and exported PNG documenting the full KMP shared module, platform layers, controller/touch input flows, and build artifacts.
+
+### Improvements
+- **Preview Text Readability** — Added outlined/stroked preview text on both platforms for better contrast across light and dark themes. Android uses a custom `OutlinedTextView` with configurable stroke color/width; iOS uses stacked offset `Text` views with `strokeOffsets` helper.
+- **Shift Indicator Relocation** — Moved the Android shift indicator into the preview row to prevent overlap with the capsule.
+- **UI Contrast Fixes** — Forced preview card content color to black on Android Compose screens for better legibility; iOS cards forced to light color scheme where needed.
+- **iOS Settings GitHub Link** — Added a GitHub repository link button in the iOS SettingsView.
+- **AD_ID Opt-Out** — Added `com.google.android.gms.permission.AD_ID` with `tools:node="remove"` in the Android manifest to explicitly opt out of advertising ID collection.
+- **Demo Media Refresh** — Replaced landscape GIFs with new portrait typing/controller demos, added v0.4.2 screenshots to the Evolution timeline, updated hero banner to `ERICK_feature_graphic_black.png`.
+- **GIF Cropping Fix** — Removed forced `aspect-[9/16]` and `object-cover` constraints on website demo media.
+- **Build Hygiene** — Added `build/` to root `.gitignore`, cleaned up stale build assets.
+
+### Breaking Changes
+None — existing user preferences remain compatible.
+
+---
+
+## Installation
+
+### Android (Available Now)
+Download the .apk file and install it.
+
+**Requirements:**
+- Android 7.0 (API 24) or higher
+- ~20 MB storage space
+
+### iOS
+iOS keyboard with native SwiftUI interface and shared Kotlin logic. Build from source via the Xcode project.
+
+---
+
+## Demo
+TODO
+
+---
+---
+
 ## [v0.4.2-alpha] - Mar 21, 2026
 
 ## What's New
@@ -164,14 +208,16 @@ Worked on by @VatsalUnadkat and @bisensamiksha
 
 ## Upcoming in Future Releases
 
-### [Planned for 0.5.0]
+### [Planned for 0.6.0]
 - Multi-language support (extended dictionaries, character sets)
-- Mini typing game for chord learning and speed practice
+- Complex mode with trigger/button combinations for faster controller typing
+- Haptic feedback options
 
 ### [Planned for 1.0.0]
 - Production-ready stability
 - Cloud settings sync
 - Typing speed analytics and personal bests
+- Tablet-optimized layout
 - App Store and Play Store releases
 
 ---

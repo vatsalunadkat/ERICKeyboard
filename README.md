@@ -3,7 +3,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 0.4.2-alpha</strong></p>
+  <p align="center"><strong>Version 0.5.1-alpha</strong></p>
 
   <p align="center">
     A cross-platform ergonomic chorded keyboard for Android &amp; iOS — type with two joystick dials using touch or a physical gaming controller, featuring word prediction, accessibility-first design, and fully offline privacy.
@@ -73,7 +73,7 @@ The keyboard is source available, runs fully offline with zero internet permissi
 
 **The Curb Cut Effect — Designed for Accessibility, Better for Everyone:**
 
-ERICK is built accessibility-first, but its design benefits all users — a phenomenon known as the [curb cut effect](https://ssir.org/articles/entry/the_curb_cut_effect). Just as sidewalk curb cuts were designed for wheelchair users but are now used by everyone with strollers, luggage, or bicycles, ERICK's accessible features make typing easier and more versatile for mainstream users too:
+ERICK is built accessibility-first, but its design benefits all users — a phenomenon known as the <a href="https://www.youtube.com/shorts/54VG3Q66Qtg?feature=share" target="_blank">curb cut effect</a>. Just as sidewalk curb cuts were designed for wheelchair users but are now used by everyone with strollers, luggage, or bicycles, ERICK's accessible features make typing easier and more versatile for mainstream users too:
 
 - **Large touch targets** — designed for users with limited dexterity, but also great for typing on the go, in cold weather with gloves, or on small screens where tiny keys cause constant typos
 - **Controller support** — essential for users who can't touch a screen, but equally useful for gaming setups, smart TVs, and couch browsing where a physical controller is the natural input device
@@ -172,14 +172,15 @@ ERICK/
 
 ### Features
 
-**Current Implementation (v0.4.2-alpha):**
+**Current Implementation (v0.5.1-alpha):**
 - [x] **Dual-Platform Support**: Full keyboard on both Android (IME) and iOS (Keyboard Extension)
 - [x] **Chorded Input**: Two radial dials combine to form character chords (8 directions × 8 = 64 characters)
 - [x] **Three Layout Modes**: Logical (A–Z alphabetical), Efficiency (frequency-optimized), Custom (user-defined)
 - [x] **Custom Layout Creator**: Design, save, and switch between personalized chord layouts with color-coded UI
 - [x] **Word Prediction & Autocorrect**: Trie-based engine with ~700-word dictionary, bigram next-word prediction, and spelling corrections
 - [x] **Suggestion Bar**: Always-visible bar showing up to 3 word completions or next-word predictions; tapping inserts with smart spacing
-- [x] **Live Preview Bar**: Animated capsule preview showing available characters when holding a dial direction
+- [x] **Live Preview Bar**: Animated capsule preview showing available characters when holding a dial direction, with outlined/stroked text for readability across themes
+- [x] **Typing Practice Mini-Game**: In-app typing game with curated quotes, WPM/accuracy/streak tracking, per-character correctness highlighting, and shake animation on errors
 - [x] **Physical Controller Support**: DualShock 4, Xbox, 8BitDo and other Bluetooth/USB gamepads via analog sticks
 - [x] **Colorblind Mode**: 6 palettes — Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel
 - [x] **Left-Handed Mode**: Mirrors dial layout so the primary selector is under the dominant hand
@@ -190,13 +191,13 @@ ERICK/
 - [x] **Collapsible Settings Menu**: Accordion-style settings with animated expandable sections on both Android (Jetpack Compose) and iOS (SwiftUI); only one section open at a time
 - [x] **Kotlin Multiplatform Shared Module**: Identical keyboard logic on Android and iOS
 - [x] **Guided Onboarding**: Step-by-step IME setup flow on both platforms
+- [x] **Documentation Website**: React + Vite + Tailwind SPA with landing, features, evolution timeline, and privacy pages hosted on GitHub Pages
 - [x] **Privacy Focused**: Zero data collection, no internet permissions, fully offline, source available
 
 ### Future Scope
 
 **Planned Features:**
 - [ ] Multi-language support (Spanish, French, German, Mandarin, and more)
-- [ ] Mini typing game — learn chord combinations through a relaxing practice mode with curated quotes
 - [ ] Complex mode with trigger/button combinations for faster typing on controllers
 - [ ] Typing speed analytics and improvement tracking
 - [ ] Haptic feedback options
