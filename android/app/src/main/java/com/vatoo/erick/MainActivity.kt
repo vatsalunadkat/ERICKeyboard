@@ -178,7 +178,8 @@ fun MainScreen(
                         Color(0xFFE8F5E9) // Light green
                     } else {
                         Color(0xFFFFEBEE) // Light red
-                    }
+                    },
+                    contentColor = Color.Black
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -219,7 +220,7 @@ fun MainScreen(
                                 Text(
                                     text = "Go to Android Settings > System > Languages & input > On-screen keyboard > Manage keyboards, then toggle on \"ERICKeyboard\".",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color.Black
                                 )
                             }
                         }
@@ -307,7 +308,8 @@ fun MainScreen(
                         Color(0xFFE8F5E9) // Light green
                     } else {
                         Color(0xFFFFEBEE) // Light red
-                    }
+                    },
+                    contentColor = Color.Black
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -348,7 +350,7 @@ fun MainScreen(
                                 Text(
                                     text = "Tap the button below or tap any text field, then select \"ERICKeyboard\" from the keyboard picker.",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color.Black
                                 )
                             }
                         }
@@ -504,7 +506,8 @@ fun InstructionStepWithStatus(
                 Color(0xFFE8F5E9) // Light green
             } else {
                 Color(0xFFFFEBEE) // Light red
-            }
+            },
+            contentColor = Color.Black
         )
     ) {
         Row(
@@ -542,7 +545,7 @@ fun InstructionStepWithStatus(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.Black
                 )
             }
             Spacer(Modifier.width(12.dp))

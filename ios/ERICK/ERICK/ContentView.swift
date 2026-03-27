@@ -73,6 +73,7 @@ struct ContentView: View {
                         .padding()
                         .background(Color.green.opacity(0.1))
                         .cornerRadius(16)
+                        .environment(\.colorScheme, .light)
                     } else {
                         Text("Setup Instructions:")
                             .font(.title2)
@@ -279,6 +280,7 @@ struct StepCard<Content: View>: View {
         .padding()
         .background(containerColor)
         .cornerRadius(16)
+        .environment(\.colorScheme, .light)
     }
 }
 
