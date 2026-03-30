@@ -375,7 +375,19 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // 2. Dispatch data to the cross-platform state machine (it doesn't need to know about MotionEvent)
         stateMachine.handleTouch(dx, dy, isLeft, isDownOrMove, isUpOrCancel)
 
-        // 3. Update the action-wheel joystick mode (whichever currently shows right-side content)
+        // 3. In one-handed mode, sync the left dial to show the locked direction
+        //    When the left dial is idle (not being actively touched), show the locked direction.
+        //    When a chord fires and the lock clears, this resets the highlight.
+        if (stateMachine.inputMode == InputMode.ASSISTED) {
+            val letterJoystick = if (stateMachine.leftHandedMode) rightJoystick else leftJoystick
+            val isThisTheLetterJoystick = (isLeft && !stateMachine.leftHandedMode) || (!isLeft && stateMachine.leftHandedMode)
+            if (!isThisTheLetterJoystick || isUpOrCancel) {
+                letterJoystick.activeDirection = stateMachine.lockedLeftDir
+                letterJoystick.invalidate()
+            }
+        }
+
+        // 4. Update the action-wheel joystick mode (whichever currently shows right-side content)
         val actionJoystick = if (stateMachine.leftHandedMode) leftJoystick else rightJoystick
         actionJoystick.keyboardMode = stateMachine.currentMode
 

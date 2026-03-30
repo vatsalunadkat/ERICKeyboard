@@ -29,6 +29,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var customShiftedSections: [[String]]? = nil
     @Published var suggestions: [String] = []
     @Published var bothDialsAtHome: Bool = true
+    @Published var lockedLeftDirection: WheelDirection = .none
     /// Physical controller stick position (-1...1), used to move on-screen thumb when controller is active
     @Published var leftControllerStickNormalized: (x: Float, y: Float) = (0, 0)
     @Published var rightControllerStickNormalized: (x: Float, y: Float) = (0, 0)
@@ -81,7 +82,7 @@ struct KeyboardContainerView: View {
                 HStack(spacing: controlSpacing) {
                     JoystickView(
                         isRightSide: viewModel.isLeftHanded,
-                        activeDirection: viewModel.leftDirection,
+                        activeDirection: viewModel.leftDirection != .none ? viewModel.leftDirection : viewModel.lockedLeftDirection,
                         keyboardMode: viewModel.keyboardMode,
                         isEfficiency: viewModel.isEfficiency,
                         colorPaletteKey: viewModel.colorPaletteKey,
@@ -785,6 +786,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.isEfficiency = isEfficiencyLayout
         viewModel.colorPaletteKey = currentColorPaletteKey
         viewModel.bothDialsAtHome = stateMachine.areBothDialsAtHome()
+        viewModel.lockedLeftDirection = wheelDirection(for: stateMachine.lockedLeftDir)
         updatePreviewState()
     }
 
@@ -1018,6 +1020,21 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case .shifted: return .shifted
         case .capsLocked: return .capsLocked
         default: return .normal
+        }
+    }
+
+    private func wheelDirection(for direction: Direction) -> WheelDirection {
+        switch direction {
+        case .none: return .none
+        case .n: return .n
+        case .ne: return .ne
+        case .e: return .e
+        case .se: return .se
+        case .s: return .s
+        case .sw: return .sw
+        case .w: return .w
+        case .nw: return .nw
+        default: return .none
         }
     }
 }

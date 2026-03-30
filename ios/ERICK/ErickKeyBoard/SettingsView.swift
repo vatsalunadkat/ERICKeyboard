@@ -163,6 +163,37 @@ struct SettingsView: View {
                         settingsRadioRow(label: "Verdana", selected: fontPreference == "verdana") { fontPreference = "verdana" }
                         settingsRadioRow(label: "Georgia", selected: fontPreference == "georgia") { fontPreference = "georgia" }
                         settingsRadioRow(label: "OpenDyslexic", selected: fontPreference == "opendyslexic") { fontPreference = "opendyslexic" }
+
+                        Divider().padding(.vertical, 4)
+
+                        Text("Custom Colors").font(.subheadline).fontWeight(.medium)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12).padding(.bottom, 4)
+
+                        settingsRadioRow(label: "None", selected: colorPalette != "pastel" && colorPalette != "custom") {
+                            colorPalette = "okabe_ito"
+                        }
+
+                        ColorPaletteOption(
+                            title: "Pastel",
+                            subtitle: "Softer colors that are easier on the eyes",
+                            palette: ColorPaletteDefinitions.pastel,
+                            selected: colorPalette == "pastel",
+                            onSelect: {
+                                colorPalette = "pastel"
+                                if colorblindMode { colorblindMode = false }
+                            }
+                        )
+
+                        CustomPaletteOption(
+                            customColors: customPaletteColors,
+                            selected: colorPalette == "custom",
+                            onSelect: {
+                                colorPalette = "custom"
+                                if colorblindMode { colorblindMode = false }
+                            },
+                            onEditColors: { showCustomPaletteEditor = true }
+                        )
                     }
                 }
 
@@ -173,7 +204,15 @@ struct SettingsView: View {
                     onToggle: { expandedSection = expandedSection == "accessibility" ? nil : "accessibility" }
                 ) {
                     VStack(spacing: 4) {
-                        Toggle("Enable Colorblind Mode", isOn: $colorblindMode)
+                        Toggle("Enable Colorblind Mode", isOn: Binding(
+                            get: { colorblindMode },
+                            set: { newValue in
+                                colorblindMode = newValue
+                                if newValue && (colorPalette == "pastel" || colorPalette == "custom") {
+                                    colorPalette = "okabe_ito"
+                                }
+                            }
+                        ))
                             .padding(.horizontal, 12).padding(.vertical, 4)
 
                         if colorblindMode {
@@ -204,21 +243,6 @@ struct SettingsView: View {
                                 palette: ColorPaletteDefinitions.tritanopia,
                                 selected: colorPalette == "tritanopia",
                                 onSelect: { colorPalette = "tritanopia" }
-                            )
-                            ColorPaletteOption(
-                                title: "Pastel (Soft)",
-                                subtitle: "Softer colors",
-                                palette: ColorPaletteDefinitions.pastel,
-                                selected: colorPalette == "pastel",
-                                onSelect: { colorPalette = "pastel" }
-                            )
-
-                            // Custom palette option
-                            CustomPaletteOption(
-                                customColors: customPaletteColors,
-                                selected: colorPalette == "custom",
-                                onSelect: { colorPalette = "custom" },
-                                onEditColors: { showCustomPaletteEditor = true }
                             )
                         }
 

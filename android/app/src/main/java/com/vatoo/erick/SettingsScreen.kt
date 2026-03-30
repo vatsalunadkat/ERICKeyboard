@@ -346,6 +346,51 @@ private fun MainSettingsContent(
                         )
                     }
                 }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text(
+                    text = "Custom Colors",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+
+                LayoutRadioOption(
+                    title = "None",
+                    subtitle = null,
+                    selected = colorPalette != PreferencesManager.PALETTE_PASTEL && colorPalette != PreferencesManager.PALETTE_CUSTOM,
+                    enabled = true,
+                    onClick = {
+                        scope.launch {
+                            preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO)
+                        }
+                    }
+                )
+
+                PaletteRadioOption(
+                    title = "Pastel",
+                    subtitle = "Softer colors that are easier on the eyes",
+                    paletteType = ColorPaletteType.PASTEL,
+                    selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
+                    onClick = {
+                        scope.launch {
+                            preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL)
+                            if (colorblindMode) preferencesManager.setColorblindMode(false)
+                        }
+                    }
+                )
+
+                CustomPaletteRadioOption(
+                    customPaletteColors = customPaletteColors,
+                    selected = colorPalette == PreferencesManager.PALETTE_CUSTOM,
+                    onSelect = {
+                        scope.launch {
+                            preferencesManager.setColorPalette(PreferencesManager.PALETTE_CUSTOM)
+                            if (colorblindMode) preferencesManager.setColorblindMode(false)
+                        }
+                    },
+                    onEditColors = onEditCustomPalette
+                )
             }
 
             // Accessibility Section
@@ -361,6 +406,9 @@ private fun MainSettingsContent(
                     onCheckedChange = { checked ->
                         scope.launch {
                             preferencesManager.setColorblindMode(checked)
+                            if (checked && (colorPalette == PreferencesManager.PALETTE_PASTEL || colorPalette == PreferencesManager.PALETTE_CUSTOM)) {
+                                preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO)
+                            }
                         }
                     }
                 )
@@ -411,26 +459,6 @@ private fun MainSettingsContent(
                         onClick = {
                             scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_TRITANOPIA) }
                         }
-                    )
-
-                    PaletteRadioOption(
-                        title = "Pastel (Soft)",
-                        subtitle = "Softer colors that are easier on the eyes",
-                        paletteType = ColorPaletteType.PASTEL,
-                        selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
-                        onClick = {
-                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL) }
-                        }
-                    )
-
-                    // Custom palette option
-                    CustomPaletteRadioOption(
-                        customPaletteColors = customPaletteColors,
-                        selected = colorPalette == PreferencesManager.PALETTE_CUSTOM,
-                        onSelect = {
-                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_CUSTOM) }
-                        },
-                        onEditColors = onEditCustomPalette
                     )
                 }
 

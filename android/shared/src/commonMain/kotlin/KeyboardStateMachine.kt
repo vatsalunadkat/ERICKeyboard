@@ -269,15 +269,18 @@ class KeyboardStateMachine(
             // If right is also active, fire the chord immediately
             if (rightDir != Direction.NONE && !isChordExecuted) {
                 fireChord(leftDir, rightDir)
+                lockedLeftDir = Direction.NONE
             }
         } else {
             // Right dial released
             if (leftDir != Direction.NONE && !isChordExecuted) {
                 // Both active: fire chord (normal behavior)
                 fireChord(leftDir, rightDir)
+                lockedLeftDir = Direction.NONE
             } else if (lockedLeftDir != Direction.NONE && leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
                 // Left is released but locked: fire chord with locked+right
                 fireChord(lockedLeftDir, rightDir)
+                lockedLeftDir = Direction.NONE
             } else if (lockedLeftDir == Direction.NONE && leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
                 handleRightOnlySwipe(rightDir)
             }

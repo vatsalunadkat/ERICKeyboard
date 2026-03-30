@@ -84,9 +84,38 @@ struct SettingsView: View {
                     appFontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
                 }
 
+                // Custom Colors Section
+                Section(header: Text("Custom Colors")) {
+                    Button(action: { colorPalette = "okabe_ito" }) {
+                        HStack {
+                            Image(systemName: (colorPalette != "pastel" && colorPalette != "custom") ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor((colorPalette != "pastel" && colorPalette != "custom") ? .accentColor : .secondary)
+                            Text("None").foregroundColor(.primary)
+                        }
+                    }
+                    AppColorPaletteOption(
+                        title: "Pastel",
+                        subtitle: "Softer colors that are easier on the eyes",
+                        palette: AppColorPaletteDefinitions.pastel,
+                        selected: colorPalette == "pastel",
+                        onSelect: {
+                            colorPalette = "pastel"
+                            if colorblindMode { colorblindMode = false }
+                        }
+                    )
+                }
+
                 // Accessibility Section
                 Section(header: Text("Accessibility")) {
-                    Toggle("Enable Colorblind Mode", isOn: $colorblindMode)
+                    Toggle("Enable Colorblind Mode", isOn: Binding(
+                        get: { colorblindMode },
+                        set: { newValue in
+                            colorblindMode = newValue
+                            if newValue && (colorPalette == "pastel" || colorPalette == "custom") {
+                                colorPalette = "okabe_ito"
+                            }
+                        }
+                    ))
 
                     if colorblindMode {
                         Text("Select the palette that works best for your type of color vision. Each option shows a preview of the 8 colors used on the keyboard.")
@@ -120,13 +149,6 @@ struct SettingsView: View {
                             palette: AppColorPaletteDefinitions.tritanopia,
                             selected: colorPalette == "tritanopia",
                             onSelect: { colorPalette = "tritanopia" }
-                        )
-                        AppColorPaletteOption(
-                            title: "Pastel (Soft)",
-                            subtitle: "Softer colors that are easier on the eyes",
-                            palette: AppColorPaletteDefinitions.pastel,
-                            selected: colorPalette == "pastel",
-                            onSelect: { colorPalette = "pastel" }
                         )
                     }
 
