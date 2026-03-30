@@ -61,6 +61,7 @@ fun SettingsScreen(
     val leftHandedMode by preferencesManager.leftHandedMode.collectAsState(initial = false)
     val customLayoutId by preferencesManager.customLayoutId.collectAsState(initial = "")
     val fontPreference by preferencesManager.fontPreference.collectAsState(initial = PreferencesManager.FONT_SYSTEM)
+    val customPaletteColors by preferencesManager.customPaletteColors.collectAsState(initial = PreferencesManager.DEFAULT_CUSTOM_COLORS)
 
     val scope = rememberCoroutineScope()
 
@@ -82,13 +83,15 @@ fun SettingsScreen(
             fontPreference = fontPreference,
             colorblindMode = colorblindMode,
             colorPalette = colorPalette,
+            customPaletteColors = customPaletteColors,
             leftHandedMode = leftHandedMode,
             customLayoutId = customLayoutId,
             customLayouts = customLayouts,
             scope = scope,
             onClose = onClose,
             onManageCustomLayouts = { currentScreen = SettingsNav.CustomLayoutList },
-            onEditCustomLayout = { layout -> currentScreen = SettingsNav.CustomLayoutEditor(layout) }
+            onEditCustomLayout = { layout -> currentScreen = SettingsNav.CustomLayoutEditor(layout) },
+            onEditCustomPalette = { currentScreen = SettingsNav.CustomPaletteEditor }
         )
         is SettingsNav.CustomLayoutList -> CustomLayoutListScreen(
             customLayoutManager = customLayoutManager,
@@ -110,6 +113,14 @@ fun SettingsScreen(
             },
             onBack = { currentScreen = SettingsNav.CustomLayoutList }
         )
+        is SettingsNav.CustomPaletteEditor -> CustomPaletteEditorScreen(
+            initialColors = customPaletteColors,
+            onSave = { colorsStr ->
+                scope.launch { preferencesManager.setCustomPaletteColors(colorsStr) }
+                currentScreen = SettingsNav.Main
+            },
+            onBack = { currentScreen = SettingsNav.Main }
+        )
     }
 }
 
@@ -117,6 +128,7 @@ sealed class SettingsNav {
     data object Main : SettingsNav()
     data object CustomLayoutList : SettingsNav()
     data class CustomLayoutEditor(val layout: CustomLayout) : SettingsNav()
+    data object CustomPaletteEditor : SettingsNav()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,13 +141,15 @@ private fun MainSettingsContent(
     fontPreference: String,
     colorblindMode: Boolean,
     colorPalette: String,
+    customPaletteColors: String,
     leftHandedMode: Boolean,
     customLayoutId: String,
     customLayouts: List<CustomLayout>,
     scope: kotlinx.coroutines.CoroutineScope,
     onClose: () -> Unit,
     onManageCustomLayouts: () -> Unit,
-    onEditCustomLayout: (CustomLayout) -> Unit
+    onEditCustomLayout: (CustomLayout) -> Unit,
+    onEditCustomPalette: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -399,6 +413,16 @@ private fun MainSettingsContent(
                             scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL) }
                         }
                     )
+
+                    // Custom palette option
+                    CustomPaletteRadioOption(
+                        customPaletteColors = customPaletteColors,
+                        selected = colorPalette == PreferencesManager.PALETTE_CUSTOM,
+                        onSelect = {
+                            scope.launch { preferencesManager.setColorPalette(PreferencesManager.PALETTE_CUSTOM) }
+                        },
+                        onEditColors = onEditCustomPalette
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -640,6 +664,327 @@ private fun parseHexColor(hex: String): Color {
         green = ((colorLong shr 8) and 0xFF) / 255f,
         blue = (colorLong and 0xFF) / 255f
     )
+}
+
+// =====================================================================
+// Custom Palette Components
+// =====================================================================
+
+@Composable
+fun CustomPaletteRadioOption(
+    customPaletteColors: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    onEditColors: () -> Unit
+) {
+    val hexList = customPaletteColors.split(",").map { it.trim() }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onSelect() }
+            .padding(vertical = 8.dp, horizontal = 8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = selected, onClick = onSelect)
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Create Your Own", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "Pick your own 8 colors",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+            TextButton(onClick = onEditColors) {
+                Text("Edit Colors")
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(start = 48.dp, top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            hexList.forEachIndexed { i, hex ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(parseHexColor(hex))
+                            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                    )
+                    Text(
+                        text = "${i + 1}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomPaletteEditorScreen(
+    initialColors: String,
+    onSave: (String) -> Unit,
+    onBack: () -> Unit
+) {
+    val directionLabels = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+    val initialHexList = initialColors.split(",").map { it.trim() }
+    var colors by remember { mutableStateOf(initialHexList.toMutableList().also { while (it.size < 8) it.add("#CCCCCC") }) }
+    var selectedIndex by remember { mutableIntStateOf(0) }
+
+    // HSV state for the currently selected color
+    var hue by remember { mutableFloatStateOf(0f) }
+    var saturation by remember { mutableFloatStateOf(1f) }
+    var brightness by remember { mutableFloatStateOf(1f) }
+
+    // Hex text field
+    var hexInput by remember { mutableStateOf(colors[0].trimStart('#')) }
+
+    // RGB text fields
+    var rInput by remember { mutableStateOf("") }
+    var gInput by remember { mutableStateOf("") }
+    var bInput by remember { mutableStateOf("") }
+
+    // Update HSV + text fields when a new color slot is selected
+    fun syncFromHex(hex: String) {
+        val c = parseHexColor(hex)
+        val hsv = FloatArray(3)
+        android.graphics.Color.RGBToHSV(
+            (c.red * 255).toInt(),
+            (c.green * 255).toInt(),
+            (c.blue * 255).toInt(),
+            hsv
+        )
+        hue = hsv[0]
+        saturation = hsv[1]
+        brightness = hsv[2]
+        hexInput = hex.trimStart('#')
+        rInput = (c.red * 255).toInt().toString()
+        gInput = (c.green * 255).toInt().toString()
+        bInput = (c.blue * 255).toInt().toString()
+    }
+
+    fun hsvToHex(h: Float, s: Float, v: Float): String {
+        val color = android.graphics.Color.HSVToColor(floatArrayOf(h, s, v))
+        return String.format("#%02X%02X%02X",
+            android.graphics.Color.red(color),
+            android.graphics.Color.green(color),
+            android.graphics.Color.blue(color)
+        )
+    }
+
+    fun updateFromHSV() {
+        val hex = hsvToHex(hue, saturation, brightness)
+        val updatedList = colors.toMutableList()
+        updatedList[selectedIndex] = hex
+        colors = updatedList
+        hexInput = hex.trimStart('#')
+        val c = parseHexColor(hex)
+        rInput = (c.red * 255).toInt().toString()
+        gInput = (c.green * 255).toInt().toString()
+        bInput = (c.blue * 255).toInt().toString()
+    }
+
+    // Initialize from the first color
+    LaunchedEffect(Unit) { syncFromHex(colors[0]) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Custom Palette") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { onSave(colors.joinToString(",")) }) {
+                        Text("Save")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Color slots row
+            Text("Tap a slot to edit its color:", style = MaterialTheme.typography.bodyMedium)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                colors.forEachIndexed { index, hex ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable {
+                            selectedIndex = index
+                            syncFromHex(colors[index])
+                        }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(parseHexColor(hex))
+                                .border(
+                                    width = if (index == selectedIndex) 3.dp else 1.dp,
+                                    color = if (index == selectedIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                        )
+                        Text(
+                            text = directionLabels[index],
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (index == selectedIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            // Current color preview
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(parseHexColor(colors[selectedIndex]))
+                    .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+            )
+
+            // Hue slider
+            Text("Hue", style = MaterialTheme.typography.labelMedium)
+            Slider(
+                value = hue,
+                onValueChange = { hue = it; updateFromHSV() },
+                valueRange = 0f..360f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Saturation slider
+            Text("Saturation", style = MaterialTheme.typography.labelMedium)
+            Slider(
+                value = saturation,
+                onValueChange = { saturation = it; updateFromHSV() },
+                valueRange = 0f..1f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Brightness slider
+            Text("Brightness", style = MaterialTheme.typography.labelMedium)
+            Slider(
+                value = brightness,
+                onValueChange = { brightness = it; updateFromHSV() },
+                valueRange = 0f..1f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Hex input
+            OutlinedTextField(
+                value = hexInput,
+                onValueChange = { input ->
+                    val filtered = input.filter { it in "0123456789ABCDEFabcdef" }.take(6)
+                    hexInput = filtered
+                    if (filtered.length == 6) {
+                        val hex = "#$filtered"
+                        val updatedList = colors.toMutableList()
+                        updatedList[selectedIndex] = hex
+                        colors = updatedList
+                        syncFromHex(hex)
+                    }
+                },
+                label = { Text("Hex Color") },
+                prefix = { Text("#") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // RGB inputs
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = rInput,
+                    onValueChange = { input ->
+                        val v = input.filter { it.isDigit() }.take(3)
+                        rInput = v
+                        val r = v.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val g = gInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val b = bInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val hex = String.format("#%02X%02X%02X", r, g, b)
+                        val updatedList = colors.toMutableList()
+                        updatedList[selectedIndex] = hex
+                        colors = updatedList
+                        syncFromHex(hex)
+                    },
+                    label = { Text("R") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                )
+                OutlinedTextField(
+                    value = gInput,
+                    onValueChange = { input ->
+                        val v = input.filter { it.isDigit() }.take(3)
+                        gInput = v
+                        val r = rInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val g = v.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val b = bInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val hex = String.format("#%02X%02X%02X", r, g, b)
+                        val updatedList = colors.toMutableList()
+                        updatedList[selectedIndex] = hex
+                        colors = updatedList
+                        syncFromHex(hex)
+                    },
+                    label = { Text("G") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                )
+                OutlinedTextField(
+                    value = bInput,
+                    onValueChange = { input ->
+                        val v = input.filter { it.isDigit() }.take(3)
+                        bInput = v
+                        val r = rInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val g = gInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val b = v.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                        val hex = String.format("#%02X%02X%02X", r, g, b)
+                        val updatedList = colors.toMutableList()
+                        updatedList[selectedIndex] = hex
+                        colors = updatedList
+                        syncFromHex(hex)
+                    },
+                    label = { Text("B") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                )
+            }
+        }
+    }
 }
 
 // =====================================================================

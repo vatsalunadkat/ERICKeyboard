@@ -8,6 +8,7 @@ import android.view.View
 import android.view.InputDevice
 import kotlin.math.abs
 import android.view.inputmethod.EditorInfo
+import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
 import com.vatoo.erick.shared.InputAction
@@ -142,6 +143,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                     PreferencesManager.PALETTE_PROTANOPIA -> ColorPaletteType.PROTANOPIA
                     PreferencesManager.PALETTE_TRITANOPIA -> ColorPaletteType.TRITANOPIA
                     PreferencesManager.PALETTE_PASTEL -> ColorPaletteType.PASTEL
+                    PreferencesManager.PALETTE_CUSTOM -> ColorPaletteType.CUSTOM
                     else -> ColorPaletteType.OKABE_ITO
                 }
             } else {
@@ -151,6 +153,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             stateMachine.setColorPalette(paletteType)
             if (::leftJoystick.isInitialized) leftJoystick.colorPaletteType = paletteType
             if (::rightJoystick.isInitialized) rightJoystick.colorPaletteType = paletteType
+        }.launchIn(serviceScope)
+
+        // Monitor custom palette color changes
+        preferencesManager.customPaletteColors.onEach { colorsStr ->
+            val hexList = colorsStr.split(",").map { it.trim() }
+            val names = listOf("Color 1", "Color 2", "Color 3", "Color 4", "Color 5", "Color 6", "Color 7", "Color 8")
+            val entries = hexList.mapIndexed { i, hex ->
+                ColorEntry(names.getOrElse(i) { "Color ${i + 1}" }, hex)
+            }
+            if (entries.size == 8) {
+                ColorPalettes.setCustomPalette(entries)
+                if (::leftJoystick.isInitialized) leftJoystick.invalidate()
+                if (::rightJoystick.isInitialized) rightJoystick.invalidate()
+            }
         }.launchIn(serviceScope)
 
         // Monitor theme mode changes
