@@ -117,65 +117,58 @@ struct KeyboardContainerView: View {
             }
             .allowsHitTesting(!showSettings)
 
-            VStack(spacing: 0) {
-                if !viewModel.previewItems.isEmpty {
-                    KeyboardPreviewBar(
-                        items: viewModel.previewItems,
-                        highlightedIndex: viewModel.highlightedPreviewIndex,
-                        isDarkMode: viewModel.isDarkMode,
-                        fontPreference: viewModel.fontPreference
-                    )
-                        .padding(.top, 8)
-                } else if viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
-                    KeyboardSuggestionBar(
-                        suggestions: viewModel.suggestions,
-                        isDarkMode: viewModel.isDarkMode,
-                        onTap: onSuggestionTapped
-                    )
-                        .padding(.top, 8)
-                }
-
-                HStack {
-                    // Shift / Caps Lock indicator
+            // Top bar: shift indicator (left) | preview/suggestions (center) | settings (right)
+            HStack(spacing: 0) {
+                // Shift / Caps Lock indicator — left side
+                Group {
                     if viewModel.keyboardMode == .shifted {
-                        Text("⇧ Shift")
-                            .font(.system(size: 12, weight: .semibold))
+                        Text("↑")
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundColor(viewModel.isDarkMode ? .white : Color(hex: "#333333"))
-                            .padding(.horizontal, 6)
-                            .padding(.top, 2)
-                            .transition(.opacity)
                             .accessibilityLabel("Shift mode active")
                     } else if viewModel.keyboardMode == .capsLocked {
-                        Text("⇧⇧ CAPS")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.red)
-                            )
-                            .padding(.top, 2)
-                            .transition(.opacity)
+                        Text("↑↑")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color(hex: "#D32F2F"))
                             .accessibilityLabel("Caps Lock active")
                     }
+                }
+                .frame(width: 36, alignment: .center)
+                .animation(.easeInOut(duration: 0.15), value: viewModel.keyboardMode)
 
-                    Spacer()
-                    Button(action: {
-                        withAnimation {
-                            showSettings = true
-                        }
-                    }) {
-                        Image(systemName: "gear")
-                            .font(.title2)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
-                            .padding(.top, 4)
+                // Center: preview or suggestions
+                ZStack {
+                    if !viewModel.previewItems.isEmpty {
+                        KeyboardPreviewBar(
+                            items: viewModel.previewItems,
+                            highlightedIndex: viewModel.highlightedPreviewIndex,
+                            isDarkMode: viewModel.isDarkMode,
+                            fontPreference: viewModel.fontPreference
+                        )
+                    } else if viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
+                        KeyboardSuggestionBar(
+                            suggestions: viewModel.suggestions,
+                            isDarkMode: viewModel.isDarkMode,
+                            onTap: onSuggestionTapped
+                        )
                     }
                 }
-                .padding(.leading, 8)
-                .animation(.easeInOut(duration: 0.15), value: viewModel.keyboardMode)
+                .frame(maxWidth: .infinity)
+
+                // Settings button — right side
+                Button(action: {
+                    withAnimation {
+                        showSettings = true
+                    }
+                }) {
+                    Image(systemName: "gear")
+                        .font(.system(size: 20))
+                        .foregroundColor(.gray)
+                }
+                .frame(width: 36)
             }
+            .frame(height: 40)
+            .padding(.horizontal, 4)
 
             // Settings overlay
             if showSettings {

@@ -648,28 +648,21 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val isDark = isEffectiveDarkMode()
         when (mode) {
             com.vatoo.erick.shared.KeyboardMode.SHIFTED -> {
-                shiftIndicator.text = "⬆ Shift"
+                shiftIndicator.text = "↑"
                 shiftIndicator.setTextColor(if (isDark) Color.WHITE else Color.DKGRAY)
+                shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
                 shiftIndicator.contentDescription = "Shift mode active"
             }
             com.vatoo.erick.shared.KeyboardMode.CAPS_LOCKED -> {
-                shiftIndicator.text = "⬆⬆ CAPS"
-                shiftIndicator.setTextColor(Color.WHITE)
-                shiftIndicator.setBackgroundColor(Color.parseColor("#D32F2F"))
-                shiftIndicator.setPadding(
-                    (6 * resources.displayMetrics.density).toInt(),
-                    (2 * resources.displayMetrics.density).toInt(),
-                    (6 * resources.displayMetrics.density).toInt(),
-                    (2 * resources.displayMetrics.density).toInt()
-                )
+                shiftIndicator.text = "↑↑"
+                shiftIndicator.setTextColor(Color.parseColor("#D32F2F"))
+                shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
                 shiftIndicator.contentDescription = "Caps Lock active"
             }
             else -> {
                 shiftIndicator.visibility = View.GONE
-                shiftIndicator.background = null
-                shiftIndicator.setPadding(0, 0, 0, 0)
             }
         }
     }
