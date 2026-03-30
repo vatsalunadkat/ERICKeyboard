@@ -64,6 +64,7 @@ fun SettingsScreen(
     val customPaletteColors by preferencesManager.customPaletteColors.collectAsState(initial = PreferencesManager.DEFAULT_CUSTOM_COLORS)
     val hapticFeedback by preferencesManager.hapticFeedback.collectAsState(initial = false)
     val typingSounds by preferencesManager.typingSounds.collectAsState(initial = false)
+    val inputMode by preferencesManager.inputMode.collectAsState(initial = PreferencesManager.INPUT_MODE_INSTANT)
 
     val scope = rememberCoroutineScope()
 
@@ -89,6 +90,7 @@ fun SettingsScreen(
             leftHandedMode = leftHandedMode,
             hapticFeedback = hapticFeedback,
             typingSounds = typingSounds,
+            inputMode = inputMode,
             customLayoutId = customLayoutId,
             customLayouts = customLayouts,
             scope = scope,
@@ -149,6 +151,7 @@ private fun MainSettingsContent(
     leftHandedMode: Boolean,
     hapticFeedback: Boolean,
     typingSounds: Boolean,
+    inputMode: String,
     customLayoutId: String,
     customLayouts: List<CustomLayout>,
     scope: kotlinx.coroutines.CoroutineScope,
@@ -475,6 +478,42 @@ private fun MainSettingsContent(
                     onCheckedChange = { checked ->
                         scope.launch { preferencesManager.setTypingSounds(checked) }
                     }
+                )
+            }
+
+            // Input Mode Section
+            CollapsibleSection(
+                title = "Input Mode",
+                expanded = expandedSection == "input_mode",
+                onToggle = { expandedSection = if (expandedSection == "input_mode") null else "input_mode" }
+            ) {
+                Text(
+                    text = "Choose how chords are triggered when using the dials.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                LayoutRadioOption(
+                    title = "Instant",
+                    subtitle = "Character types as soon as either dial is released. Default and fastest mode.",
+                    selected = inputMode == PreferencesManager.INPUT_MODE_INSTANT,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_INSTANT) } }
+                )
+                LayoutRadioOption(
+                    title = "Confirm",
+                    subtitle = "Character types only when both dials return to center. More deliberate typing.",
+                    selected = inputMode == PreferencesManager.INPUT_MODE_CONFIRM,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_CONFIRM) } }
+                )
+                LayoutRadioOption(
+                    title = "Assisted",
+                    subtitle = "Lock a direction on the left dial, then type with the right dial only. Great for one-handed use.",
+                    selected = inputMode == PreferencesManager.INPUT_MODE_ASSISTED,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_ASSISTED) } }
                 )
             }
 

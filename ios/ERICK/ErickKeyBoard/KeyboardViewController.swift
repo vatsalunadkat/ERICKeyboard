@@ -790,6 +790,19 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
         // Apply font preference
         viewModel.fontPreference = Self.appGroupDefaults.string(forKey: "font_preference") ?? "system"
+
+        // Apply input mode
+        let inputModeStr = Self.appGroupDefaults.string(forKey: "input_mode") ?? "instant"
+        let inputMode: InputMode
+        switch inputModeStr {
+        case "confirm":
+            inputMode = .confirm
+        case "assisted":
+            inputMode = .assisted
+        default:
+            inputMode = .instant
+        }
+        stateMachine.setInputMode(mode: inputMode)
     }
 
     override func viewWillAppear(_ animated: Bool) {

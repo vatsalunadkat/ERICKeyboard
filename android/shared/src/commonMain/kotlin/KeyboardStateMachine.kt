@@ -55,6 +55,18 @@ class KeyboardStateMachine(
     var activeCustomLayout: CustomLayout? = null
     private var isChordExecuted = false
 
+    // Input mode
+    var inputMode = InputMode.INSTANT
+        private set
+
+    // Confirm mode: pending chord directions
+    private var pendingChordLeft = Direction.NONE
+    private var pendingChordRight = Direction.NONE
+
+    // Assisted mode: locked left direction
+    var lockedLeftDir = Direction.NONE
+        private set
+
     // Accelerating backspace state
     private var backspaceRepeatJob: Job? = null
     private var backspaceHoldFired = false  // true if hold-repeat already deleted chars
@@ -112,14 +124,25 @@ class KeyboardStateMachine(
         leftHandedMode = enabled
     }
 
+    fun setInputMode(mode: InputMode) {
+        inputMode = mode
+        // Clear mode-specific state on switch
+        pendingChordLeft = Direction.NONE
+        pendingChordRight = Direction.NONE
+        lockedLeftDir = Direction.NONE
+    }
+
     fun getCurrentPalette(): List<ColorEntry> {
         return ColorPalettes.getPalette(currentPaletteType)
     }
 
     // Returns the live preview character for UI rendering
     fun getPreviewText(): String {
-        return if (leftActiveDir != Direction.NONE && rightActiveDir != Direction.NONE) {
-            processor.getChordResult(leftActiveDir, rightActiveDir, currentMode, currentLayoutType, activeCustomLayout)
+        val effectiveLeft = if (leftActiveDir != Direction.NONE) leftActiveDir
+            else if (inputMode == InputMode.ASSISTED) lockedLeftDir
+            else Direction.NONE
+        return if (effectiveLeft != Direction.NONE && rightActiveDir != Direction.NONE) {
+            processor.getChordResult(effectiveLeft, rightActiveDir, currentMode, currentLayoutType, activeCustomLayout)
         } else {
             ""
         }
@@ -186,16 +209,10 @@ class KeyboardStateMachine(
         cancelBackspaceRepeat()
 
         if (sourceDir != Direction.NONE && wasEffectiveSource) {
-            if (isLeft) {
-                if (rightDirBeforeRelease != Direction.NONE && !isChordExecuted) {
-                    fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
-                }
-            } else {
-                if (leftDirBeforeRelease != Direction.NONE && !isChordExecuted) {
-                    fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
-                } else if (leftDirBeforeRelease == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
-                    handleRightOnlySwipe(rightDirBeforeRelease)
-                }
+            when (inputMode) {
+                InputMode.INSTANT -> handleInstantRelease(isLeft, leftDirBeforeRelease, rightDirBeforeRelease, wasBackspaceHold)
+                InputMode.CONFIRM -> handleConfirmRelease(isLeft, leftDirBeforeRelease, rightDirBeforeRelease, wasBackspaceHold)
+                InputMode.ASSISTED -> handleAssistedRelease(isLeft, leftDirBeforeRelease, rightDirBeforeRelease, wasBackspaceHold)
             }
         }
 
@@ -204,6 +221,66 @@ class KeyboardStateMachine(
 
         if (leftActiveDir == Direction.NONE && rightActiveDir == Direction.NONE) {
             isChordExecuted = false
+            // In Confirm mode, fire pending chord when both dials return to center
+            if (inputMode == InputMode.CONFIRM && pendingChordLeft != Direction.NONE && pendingChordRight != Direction.NONE) {
+                fireChord(pendingChordLeft, pendingChordRight)
+                pendingChordLeft = Direction.NONE
+                pendingChordRight = Direction.NONE
+            }
+        }
+    }
+
+    private fun handleInstantRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        if (isLeft) {
+            if (rightDir != Direction.NONE && !isChordExecuted) {
+                fireChord(leftDir, rightDir)
+            }
+        } else {
+            if (leftDir != Direction.NONE && !isChordExecuted) {
+                fireChord(leftDir, rightDir)
+            } else if (leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                handleRightOnlySwipe(rightDir)
+            }
+        }
+    }
+
+    private fun handleConfirmRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        if (isLeft) {
+            if (rightDir != Direction.NONE && !isChordExecuted) {
+                // Store pending chord — will fire when both release
+                pendingChordLeft = leftDir
+                pendingChordRight = rightDir
+            }
+        } else {
+            if (leftDir != Direction.NONE && !isChordExecuted) {
+                // Store pending chord — will fire when both release
+                pendingChordLeft = leftDir
+                pendingChordRight = rightDir
+            } else if (leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                handleRightOnlySwipe(rightDir)
+            }
+        }
+    }
+
+    private fun handleAssistedRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        if (isLeft) {
+            // Lock the left direction for use with the right dial
+            lockedLeftDir = leftDir
+            // If right is also active, fire the chord immediately
+            if (rightDir != Direction.NONE && !isChordExecuted) {
+                fireChord(leftDir, rightDir)
+            }
+        } else {
+            // Right dial released
+            if (leftDir != Direction.NONE && !isChordExecuted) {
+                // Both active: fire chord (normal behavior)
+                fireChord(leftDir, rightDir)
+            } else if (lockedLeftDir != Direction.NONE && leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                // Left is released but locked: fire chord with locked+right
+                fireChord(lockedLeftDir, rightDir)
+            } else if (lockedLeftDir == Direction.NONE && leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                handleRightOnlySwipe(rightDir)
+            }
         }
     }
 

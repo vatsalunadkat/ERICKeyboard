@@ -22,6 +22,7 @@ struct SettingsView: View {
     @AppStorage("custom_palette_colors", store: SettingsView.appGroupDefaults) private var customPaletteColors: String = ColorPaletteDefinitions.defaultCustomColors
     @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
+    @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
@@ -86,6 +87,9 @@ struct SettingsView: View {
             onSettingsChanged?()
         }
         .onChange(of: typingSounds) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: inputMode) { _ in
             onSettingsChanged?()
         }
     }
@@ -244,6 +248,39 @@ struct SettingsView: View {
                     }
                 }
 
+                // Input Mode Section
+                CollapsibleSettingsSection(
+                    title: "Input Mode",
+                    isExpanded: expandedSection == "input_mode",
+                    onToggle: { expandedSection = expandedSection == "input_mode" ? nil : "input_mode" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Choose how chords are triggered when using the dials.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12).padding(.bottom, 4)
+
+                        InputModeRadioOption(
+                            title: "Instant",
+                            description: "Character types as soon as either dial is released. Default and fastest mode.",
+                            selected: inputMode == "instant",
+                            action: { inputMode = "instant" }
+                        )
+                        InputModeRadioOption(
+                            title: "Confirm",
+                            description: "Character types only when both dials return to center. More deliberate typing.",
+                            selected: inputMode == "confirm",
+                            action: { inputMode = "confirm" }
+                        )
+                        InputModeRadioOption(
+                            title: "Assisted",
+                            description: "Lock a direction on the left dial, then type with the right dial only. Great for one-handed use.",
+                            selected: inputMode == "assisted",
+                            action: { inputMode = "assisted" }
+                        )
+                    }
+                }
+
                 // Privacy & Security Section
                 CollapsibleSettingsSection(
                     title: "Privacy & Security",
@@ -334,6 +371,34 @@ private struct CollapsibleSettingsSection<Content: View>: View {
         }
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(10)
+    }
+}
+
+private struct InputModeRadioOption: View {
+    let title: String
+    let description: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
+        }
+        .buttonStyle(.plain)
     }
 }
 

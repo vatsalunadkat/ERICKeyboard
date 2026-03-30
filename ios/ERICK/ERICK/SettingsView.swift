@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
     @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
     @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
+    @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
     
     @Environment(\.dismiss) var dismiss
 
@@ -130,6 +131,50 @@ struct SettingsView: View {
                     }
 
                     Toggle("Left-Handed Mode", isOn: $leftHandedMode)
+                }
+
+                // Input Mode Section
+                Section(header: Text("Input Mode")) {
+                    Text("Choose how chords are triggered when using the dials.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    Button(action: { inputMode = "instant" }) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: inputMode == "instant" ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(inputMode == "instant" ? .accentColor : .secondary)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Instant").foregroundColor(.primary)
+                                Text("Character types as soon as either dial is released. Default and fastest mode.")
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    Button(action: { inputMode = "confirm" }) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: inputMode == "confirm" ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(inputMode == "confirm" ? .accentColor : .secondary)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Confirm").foregroundColor(.primary)
+                                Text("Character types only when both dials return to center. More deliberate typing.")
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    Button(action: { inputMode = "assisted" }) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: inputMode == "assisted" ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(inputMode == "assisted" ? .accentColor : .secondary)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Assisted").foregroundColor(.primary)
+                                Text("Lock a direction on the left dial, then type with the right dial only. Great for one-handed use.")
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
                 
                 // Privacy & Security Section

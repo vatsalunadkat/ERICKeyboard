@@ -12,6 +12,7 @@ import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
 import com.vatoo.erick.shared.InputAction
+import com.vatoo.erick.shared.InputMode
 import com.vatoo.erick.shared.KeyboardActionDelegate
 import com.vatoo.erick.shared.KeyboardStateMachine
 import com.vatoo.erick.shared.LayoutType
@@ -202,6 +203,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // Monitor haptic + sound preferences
         preferencesManager.hapticFeedback.onEach { hapticEnabled = it }.launchIn(serviceScope)
         preferencesManager.typingSounds.onEach { soundsEnabled = it }.launchIn(serviceScope)
+
+        // Monitor input mode preference
+        preferencesManager.inputMode.onEach { mode ->
+            val inputMode = when (mode) {
+                PreferencesManager.INPUT_MODE_CONFIRM -> InputMode.CONFIRM
+                PreferencesManager.INPUT_MODE_ASSISTED -> InputMode.ASSISTED
+                else -> InputMode.INSTANT
+            }
+            stateMachine.setInputMode(inputMode)
+        }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {

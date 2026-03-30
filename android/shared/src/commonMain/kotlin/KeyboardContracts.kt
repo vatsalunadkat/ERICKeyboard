@@ -14,6 +14,13 @@ enum class KeyboardMode {
 enum class LayoutType {
     LOGICAL, EFFICIENCY, CUSTOM
 }
+
+// 2.6 Input mode definitions
+enum class InputMode {
+    INSTANT,   // Default — chord fires on first dial release
+    CONFIRM,   // Chord fires only when both dials return to center
+    ASSISTED   // Lock left direction for one-handed typing
+}
 enum class ControllerButton {
     A, B, X, Y,
     LEFT_BUMPER, RIGHT_BUMPER,
