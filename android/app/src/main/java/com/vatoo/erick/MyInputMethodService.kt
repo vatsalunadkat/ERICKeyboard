@@ -382,8 +382,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             val letterJoystick = if (stateMachine.leftHandedMode) rightJoystick else leftJoystick
             val isThisTheLetterJoystick = (isLeft && !stateMachine.leftHandedMode) || (!isLeft && stateMachine.leftHandedMode)
             if (!isThisTheLetterJoystick || isUpOrCancel) {
-                letterJoystick.activeDirection = stateMachine.lockedLeftDir
-                letterJoystick.invalidate()
+                letterJoystick.setLockedDirection(stateMachine.lockedLeftDir)
             }
         }
 

@@ -91,6 +91,11 @@ class JoystickView @JvmOverloads constructor(
     var activeDirection: Direction = Direction.NONE
         private set
 
+    fun setLockedDirection(dir: Direction) {
+        activeDirection = dir
+        invalidate()
+    }
+
     private val basePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#121212") // Dark background for the dial base
         style = Paint.Style.FILL
