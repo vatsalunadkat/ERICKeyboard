@@ -86,6 +86,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // Listen for layout preference changes and switch layouts in real-time (uses the same PreferencesManager as SettingsScreen)
         preferencesManager = PreferencesManager(this)
         customLayoutManager = CustomLayoutManager(preferencesManager.createCustomLayoutStorage())
+        customLayoutManager.loadAll()
 
         // Combine layout type and custom layout ID so we can apply both together
         preferencesManager.layoutType.combine(preferencesManager.customLayoutId) { layout, customId ->
@@ -98,6 +99,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
             stateMachine.setLayoutType(layoutType)
             if (layoutType == LayoutType.CUSTOM && customId.isNotEmpty()) {
+                customLayoutManager.loadAll()  // Reload in case layouts were edited in settings
                 val cl = customLayoutManager.getById(customId)
                 stateMachine.activeCustomLayout = cl
                 if (::leftJoystick.isInitialized) {
