@@ -115,6 +115,7 @@ struct JoystickView: View {
     var fontPreference: String = "system"
     var customNormalSections: [[String]]? = nil
     var customShiftedSections: [[String]]? = nil
+    var paletteRefreshToken: Int = 0
     var controllerStickNormalized: (x: Float, y: Float) = (0, 0)
     var onTouch: ((Float, Float, Bool, Bool) -> Void)?
 

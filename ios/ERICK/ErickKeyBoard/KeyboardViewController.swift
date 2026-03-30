@@ -30,6 +30,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var suggestions: [String] = []
     @Published var bothDialsAtHome: Bool = true
     @Published var lockedLeftDirection: WheelDirection = .none
+    @Published var paletteRefreshToken: Int = 0
     /// Physical controller stick position (-1...1), used to move on-screen thumb when controller is active
     @Published var leftControllerStickNormalized: (x: Float, y: Float) = (0, 0)
     @Published var rightControllerStickNormalized: (x: Float, y: Float) = (0, 0)
@@ -89,6 +90,7 @@ struct KeyboardContainerView: View {
                         fontPreference: viewModel.fontPreference,
                         customNormalSections: viewModel.customNormalSections,
                         customShiftedSections: viewModel.customShiftedSections,
+                        paletteRefreshToken: viewModel.paletteRefreshToken,
                         controllerStickNormalized: viewModel.leftControllerStickNormalized
                     ) { dx, dy, isDownOrMove, isUp in
                         onTouch(dx, dy, true, isDownOrMove, isUp)
@@ -104,6 +106,7 @@ struct KeyboardContainerView: View {
                         fontPreference: viewModel.fontPreference,
                         customNormalSections: viewModel.customNormalSections,
                         customShiftedSections: viewModel.customShiftedSections,
+                        paletteRefreshToken: viewModel.paletteRefreshToken,
                         controllerStickNormalized: viewModel.rightControllerStickNormalized
                     ) { dx, dy, isDownOrMove, isUp in
                         onTouch(dx, dy, false, isDownOrMove, isUp)
@@ -548,7 +551,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     func commitText(text: String) {
         self.textDocumentProxy.insertText(text)
         performHaptic(strong: false)
-        playClickSound()
+        playClickSound(soft: true)
     }
 
     func onModeChanged(mode: KeyboardMode) {
@@ -587,7 +590,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             break
         }
         performHaptic(strong: true)
-        playClickSound()
+        playClickSound(soft: false)
     }
 
     private func deleteWordBackward() {
@@ -611,14 +614,16 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func performHaptic(strong: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "haptic_feedback") else { return }
-        let style: UIImpactFeedbackGenerator.FeedbackStyle = strong ? .heavy : .light
+        let style: UIImpactFeedbackGenerator.FeedbackStyle = strong ? .medium : .light
         let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
         generator.impactOccurred()
     }
 
-    private func playClickSound() {
+    private func playClickSound(soft: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "typing_sounds") else { return }
-        AudioServicesPlaySystemSound(1104) // Standard keyboard click
+        // 1519 = Peek (very soft), 1104 = standard keyboard click
+        AudioServicesPlaySystemSound(soft ? 1519 : 1104)
     }
 
     func onSuggestionsUpdated(suggestions: [String]) {
@@ -683,8 +688,16 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private var currentColorPaletteKey: String {
         let enabled = Self.appGroupDefaults.bool(forKey: "colorblind_mode")
-        guard enabled else { return "default" }
-        return Self.appGroupDefaults.string(forKey: "color_palette") ?? "okabe_ito"
+        let palette = Self.appGroupDefaults.string(forKey: "color_palette") ?? "okabe_ito"
+        if enabled {
+            return palette
+        } else {
+            // When colorblind mode is off, still honor pastel and custom palette selections
+            if palette == "pastel" || palette == "custom" {
+                return palette
+            }
+            return "default"
+        }
     }
 
     private var isLeftHandedMode: Bool {
@@ -774,6 +787,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func handleSettingsChanged() {
         applyLayoutPreference()
+        viewModel.paletteRefreshToken += 1
         refreshViewState()
     }
 
@@ -792,8 +806,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func syncVisualState(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {
         let currentDirection = direction(forX: dx, y: dy)
-        // In left-handed mode, swap which physical side is the "letter" vs "action" dial
         let effectiveIsLeft = viewModel.isLeftHanded ? !isLeft : isLeft
+        let currentInputMode = Self.appGroupDefaults.string(forKey: "input_mode") ?? "instant"
 
         if isDown {
             if effectiveIsLeft {
@@ -819,6 +833,10 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
                 mirroredChordExecuted = true
                 if mirroredMode == .shifted {
                     mirroredMode = .normal
+                }
+                // In Quick Type (instant), allow subsequent right swipes while left held
+                if currentInputMode == "instant" {
+                    mirroredChordExecuted = false
                 }
             } else if mirroredLeftDirection == .none && !mirroredChordExecuted {
                 applyRightOnlyVisualAction(for: mirroredRightDirection)

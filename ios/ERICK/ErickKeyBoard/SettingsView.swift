@@ -145,55 +145,68 @@ struct SettingsView: View {
                     onToggle: { expandedSection = expandedSection == "appearance" ? nil : "appearance" }
                 ) {
                     VStack(spacing: 0) {
+                        // Theme toggle
                         Text("Theme").font(.subheadline).fontWeight(.medium)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 12).padding(.bottom, 4)
 
-                        settingsRadioRow(label: "System Default", selected: themeMode == "system") { themeMode = "system" }
-                        settingsRadioRow(label: "Light", selected: themeMode == "light") { themeMode = "light" }
-                        settingsRadioRow(label: "Dark", selected: themeMode == "dark") { themeMode = "dark" }
+                        Picker("Theme", selection: $themeMode) {
+                            Text("System").tag("system")
+                            Text("Light").tag("light")
+                            Text("Dark").tag("dark")
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, 12).padding(.vertical, 4)
 
                         Divider().padding(.vertical, 4)
 
-                        Text("Font").font(.subheadline).fontWeight(.medium)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 12).padding(.bottom, 4)
+                        // Custom Font toggle
+                        Toggle("Custom Font", isOn: Binding(
+                            get: { fontPreference != "system" },
+                            set: { newValue in
+                                fontPreference = newValue ? "verdana" : "system"
+                            }
+                        ))
+                            .padding(.horizontal, 12).padding(.vertical, 4)
 
-                        settingsRadioRow(label: "System Default", selected: fontPreference == "system") { fontPreference = "system" }
-                        settingsRadioRow(label: "Verdana", selected: fontPreference == "verdana") { fontPreference = "verdana" }
-                        settingsRadioRow(label: "Georgia", selected: fontPreference == "georgia") { fontPreference = "georgia" }
-                        settingsRadioRow(label: "OpenDyslexic", selected: fontPreference == "opendyslexic") { fontPreference = "opendyslexic" }
-
-                        Divider().padding(.vertical, 4)
-
-                        Text("Custom Colors").font(.subheadline).fontWeight(.medium)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 12).padding(.bottom, 4)
-
-                        settingsRadioRow(label: "None", selected: colorPalette != "pastel" && colorPalette != "custom") {
-                            colorPalette = "okabe_ito"
+                        if fontPreference != "system" {
+                            settingsRadioRow(label: "Verdana", selected: fontPreference == "verdana") { fontPreference = "verdana" }
+                            settingsRadioRow(label: "Georgia", selected: fontPreference == "georgia") { fontPreference = "georgia" }
+                            settingsRadioRow(label: "OpenDyslexic", selected: fontPreference == "opendyslexic") { fontPreference = "opendyslexic" }
                         }
 
-                        ColorPaletteOption(
-                            title: "Pastel",
-                            subtitle: "Softer colors that are easier on the eyes",
-                            palette: ColorPaletteDefinitions.pastel,
-                            selected: colorPalette == "pastel",
-                            onSelect: {
-                                colorPalette = "pastel"
-                                if colorblindMode { colorblindMode = false }
-                            }
-                        )
+                        Divider().padding(.vertical, 4)
 
-                        CustomPaletteOption(
-                            customColors: customPaletteColors,
-                            selected: colorPalette == "custom",
-                            onSelect: {
-                                colorPalette = "custom"
-                                if colorblindMode { colorblindMode = false }
-                            },
-                            onEditColors: { showCustomPaletteEditor = true }
-                        )
+                        // Custom Colors toggle
+                        Toggle("Custom Colors", isOn: Binding(
+                            get: { colorPalette == "pastel" || colorPalette == "custom" },
+                            set: { newValue in
+                                if newValue {
+                                    colorPalette = "pastel"
+                                    if colorblindMode { colorblindMode = false }
+                                } else {
+                                    colorPalette = "okabe_ito"
+                                }
+                            }
+                        ))
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+
+                        if colorPalette == "pastel" || colorPalette == "custom" {
+                            ColorPaletteOption(
+                                title: "Pastel",
+                                subtitle: "Softer colors that are easier on the eyes",
+                                palette: ColorPaletteDefinitions.pastel,
+                                selected: colorPalette == "pastel",
+                                onSelect: { colorPalette = "pastel" }
+                            )
+
+                            CustomPaletteOption(
+                                customColors: customPaletteColors,
+                                selected: colorPalette == "custom",
+                                onSelect: { colorPalette = "custom" },
+                                onEditColors: { showCustomPaletteEditor = true }
+                            )
+                        }
                     }
                 }
 
@@ -583,6 +596,7 @@ private struct ColorPaletteOption: View {
                     .padding(.leading, 28)
                 }
             }
+            .padding(.horizontal, 12).padding(.vertical, 4)
         }
     }
 }
@@ -637,6 +651,7 @@ private struct CustomPaletteOption: View {
                     .padding(.leading, 28)
                 }
             }
+            .padding(.horizontal, 12).padding(.vertical, 4)
         }
     }
 }
