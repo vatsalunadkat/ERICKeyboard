@@ -56,7 +56,7 @@ struct ContentView: View {
                     HStack(spacing: 12) {
                         NavigationLink(destination: HelpView()) {
                             HStack {
-                                Text("❓")
+                                Text("📖")
                                 Text("How to Type")
                             }
                             .frame(maxWidth: .infinity)

@@ -152,7 +152,7 @@ fun MainScreen(
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("❓ How to Type")
+                Text("📖 How to Type")
             }
             OutlinedButton(
                 onClick = {
