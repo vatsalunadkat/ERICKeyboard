@@ -529,6 +529,10 @@ private struct RightActionLabel: View {
     let size: CGFloat
     var textColor: Color = .white
 
+    private var isBigPunctuation: Bool {
+        action.systemImage == nil && action.title.count == 1 && ".,<>".contains(action.title)
+    }
+
     var body: some View {
         VStack(spacing: 3) {
             if let systemImage = action.systemImage {
@@ -537,7 +541,7 @@ private struct RightActionLabel: View {
             }
 
             Text(action.title)
-                .font(.system(size: action.title.count > 3 ? size * 0.24 : size * 0.34, weight: .bold, design: .rounded))
+                .font(.system(size: isBigPunctuation ? size * 0.7 : (action.title.count > 3 ? size * 0.24 : size * 0.34), weight: .bold, design: .rounded))
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.45)
                 .lineLimit(2)
