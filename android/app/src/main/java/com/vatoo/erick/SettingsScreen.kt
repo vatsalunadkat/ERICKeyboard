@@ -1,5 +1,7 @@
 package com.vatoo.erick
 
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -28,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -165,6 +168,18 @@ private fun MainSettingsContent(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Switch keyboard shortcut — always visible at top
+            val context = LocalContext.current
+            OutlinedButton(
+                onClick = {
+                    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.showInputMethodPicker()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Switch Keyboard")
+            }
+
             // Layout Section
             CollapsibleSection(
                 title = "Keyboard Layout",

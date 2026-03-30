@@ -32,6 +32,8 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
 
@@ -233,6 +235,13 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)
+        }
+
+        // Add bottom padding for 3-button navigation bar overlap
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBarInsets.bottom)
+            insets
         }
 
         return view
