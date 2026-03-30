@@ -62,6 +62,8 @@ fun SettingsScreen(
     val customLayoutId by preferencesManager.customLayoutId.collectAsState(initial = "")
     val fontPreference by preferencesManager.fontPreference.collectAsState(initial = PreferencesManager.FONT_SYSTEM)
     val customPaletteColors by preferencesManager.customPaletteColors.collectAsState(initial = PreferencesManager.DEFAULT_CUSTOM_COLORS)
+    val hapticFeedback by preferencesManager.hapticFeedback.collectAsState(initial = false)
+    val typingSounds by preferencesManager.typingSounds.collectAsState(initial = false)
 
     val scope = rememberCoroutineScope()
 
@@ -85,6 +87,8 @@ fun SettingsScreen(
             colorPalette = colorPalette,
             customPaletteColors = customPaletteColors,
             leftHandedMode = leftHandedMode,
+            hapticFeedback = hapticFeedback,
+            typingSounds = typingSounds,
             customLayoutId = customLayoutId,
             customLayouts = customLayouts,
             scope = scope,
@@ -143,6 +147,8 @@ private fun MainSettingsContent(
     colorPalette: String,
     customPaletteColors: String,
     leftHandedMode: Boolean,
+    hapticFeedback: Boolean,
+    typingSounds: Boolean,
     customLayoutId: String,
     customLayouts: List<CustomLayout>,
     scope: kotlinx.coroutines.CoroutineScope,
@@ -435,6 +441,39 @@ private fun MainSettingsContent(
                         scope.launch {
                             preferencesManager.setLeftHandedMode(checked)
                         }
+                    }
+                )
+            }
+
+            // Feedback Section
+            CollapsibleSection(
+                title = "Feedback",
+                expanded = expandedSection == "feedback",
+                onToggle = { expandedSection = if (expandedSection == "feedback") null else "feedback" }
+            ) {
+                SettingToggle(
+                    title = "Haptic Feedback",
+                    checked = hapticFeedback,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch { preferencesManager.setHapticFeedback(checked) }
+                    }
+                )
+                if (hapticFeedback) {
+                    Text(
+                        text = "Strong vibration for utility keys, light for letters.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                    )
+                }
+
+                SettingToggle(
+                    title = "Typing Sounds",
+                    checked = typingSounds,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch { preferencesManager.setTypingSounds(checked) }
                     }
                 )
             }

@@ -23,6 +23,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import android.content.Intent
+import android.media.AudioManager
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.widget.ImageButton
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -75,6 +80,19 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private var currentThemeMode: String = PreferencesManager.THEME_SYSTEM
     private var currentFontPreference: String = PreferencesManager.FONT_SYSTEM
     private var keyboardRootView: View? = null
+    private var hapticEnabled: Boolean = false
+    private var soundsEnabled: Boolean = false
+    private val vibrator: Vibrator by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+    }
+    private val audioManager: AudioManager by lazy {
+        getSystemService(AUDIO_SERVICE) as AudioManager
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -180,6 +198,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             currentFontPreference = font
             applyKeyboardFont()
         }.launchIn(serviceScope)
+
+        // Monitor haptic + sound preferences
+        preferencesManager.hapticFeedback.onEach { hapticEnabled = it }.launchIn(serviceScope)
+        preferencesManager.typingSounds.onEach { soundsEnabled = it }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {
@@ -543,11 +565,15 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     override fun commitText(text: String) {
         currentInputConnection?.commitText(text, 1)
+        performHaptic(strong = false)
+        playClickSound()
     }
 
     override fun sendInputAction(action: InputAction) {
         if (action == InputAction.DELETE_WORD) {
             deleteWordBackward()
+            performHaptic(strong = true)
+            playClickSound()
             return
         }
         val keyCode = when (action) {
@@ -571,7 +597,25 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         if (keyCode != -1) {
             currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
             currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+            performHaptic(strong = true)
+            playClickSound()
         }
+    }
+
+    private fun performHaptic(strong: Boolean) {
+        if (!hapticEnabled) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val amplitude = if (strong) 180 else 60
+            vibrator.vibrate(VibrationEffect.createOneShot(if (strong) 30L else 15L, amplitude))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(if (strong) 30L else 15L)
+        }
+    }
+
+    private fun playClickSound() {
+        if (!soundsEnabled) return
+        audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, -1f)
     }
 
     private fun deleteWordBackward() {
