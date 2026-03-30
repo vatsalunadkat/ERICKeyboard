@@ -213,7 +213,7 @@ private struct KeyboardPreviewBar: View {
         HStack(spacing: 8) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                 let font = resolvedPreviewFont(
-                    size: highlightedIndex == index ? 27 : 22,
+                    size: highlightedIndex == index ? 21 : 17,
                     weight: highlightedIndex == index ? .heavy : .bold
                 )
                 ZStack {
@@ -234,8 +234,8 @@ private struct KeyboardPreviewBar: View {
                 .animation(.easeInOut(duration: 0.12), value: highlightedIndex)
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 4)
         .background(
             Capsule()
                 .fill(isDarkMode ? Color(hex: "#323232").opacity(0.96) : Color.white.opacity(0.96))

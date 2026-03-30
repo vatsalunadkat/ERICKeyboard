@@ -464,7 +464,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             val isDark = isEffectiveDarkMode()
             for (i in previewChars.indices) {
                 val tv = OutlinedTextView(this).apply {
-                    textSize = 22f
+                    textSize = 17f
                     val baseTf = resolveTypeface() ?: Typeface.DEFAULT
                     typeface = Typeface.create(baseTf, Typeface.BOLD)
                     gravity = Gravity.CENTER
@@ -491,7 +491,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             tv.setTextColor(Color.parseColor(pc.colorHex))
 
             val isHighlighted = (i == highlightIndex)
-            val targetSize = if (isHighlighted) 27f else 22f
+            val targetSize = if (isHighlighted) 21f else 17f
             val targetScale = if (isHighlighted) 1.08f else 1.0f
             val targetTypeface = if (isHighlighted) {
                 val baseTf = resolveTypeface() ?: Typeface.DEFAULT

@@ -40,8 +40,8 @@
                 android:orientation="horizontal"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingHorizontal="18dp"
-                android:paddingVertical="10dp"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
                 android:elevation="6dp"
                 android:visibility="gone"
                 android:background="@drawable/preview_capsule_bg" />
