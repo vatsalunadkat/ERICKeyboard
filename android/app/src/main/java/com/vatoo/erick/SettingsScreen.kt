@@ -267,130 +267,126 @@ private fun MainSettingsContent(
                 expanded = expandedSection == "appearance",
                 onToggle = { expandedSection = if (expandedSection == "appearance") null else "appearance" }
             ) {
+                // Theme: System / Light / Dark segmented control
                 Text(
                     text = "Theme",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
 
-                LayoutRadioOption(
-                    title = "System Default",
-                    subtitle = null,
-                    selected = themeMode == PreferencesManager.THEME_SYSTEM,
-                    enabled = true,
-                    onClick = {
-                        scope.launch {
-                            preferencesManager.setThemeMode(PreferencesManager.THEME_SYSTEM)
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val themeOptions = listOf(
+                        PreferencesManager.THEME_SYSTEM to "System",
+                        PreferencesManager.THEME_LIGHT to "Light",
+                        PreferencesManager.THEME_DARK to "Dark"
+                    )
+                    themeOptions.forEachIndexed { index, (key, label) ->
+                        SegmentedButton(
+                            selected = themeMode == key,
+                            onClick = { scope.launch { preferencesManager.setThemeMode(key) } },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = themeOptions.size)
+                        ) {
+                            Text(label)
                         }
-                    }
-                )
-
-                LayoutRadioOption(
-                    title = "Light",
-                    subtitle = null,
-                    selected = themeMode == PreferencesManager.THEME_LIGHT,
-                    enabled = true,
-                    onClick = {
-                        scope.launch {
-                            preferencesManager.setThemeMode(PreferencesManager.THEME_LIGHT)
-                        }
-                    }
-                )
-
-                LayoutRadioOption(
-                    title = "Dark",
-                    subtitle = null,
-                    selected = themeMode == PreferencesManager.THEME_DARK,
-                    enabled = true,
-                    onClick = {
-                        scope.launch {
-                            preferencesManager.setThemeMode(PreferencesManager.THEME_DARK)
-                        }
-                    }
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                Text(
-                    text = "Font",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                val fontOptions = listOf(
-                    Triple(PreferencesManager.FONT_SYSTEM, "System Default", null as FontFamily?),
-                    Triple(PreferencesManager.FONT_VERDANA, "Verdana", FontFamily(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL))),
-                    Triple(PreferencesManager.FONT_GEORGIA, "Georgia", FontFamily(android.graphics.Typeface.create("serif", android.graphics.Typeface.NORMAL))),
-                    Triple(PreferencesManager.FONT_OPENDYSLEXIC, "OpenDyslexic", FontFamily(Font(R.font.opendyslexic_regular)))
-                )
-
-                fontOptions.forEach { (key, name, fontFamily) ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                scope.launch { preferencesManager.setFontPreference(key) }
-                            }
-                            .padding(vertical = 6.dp, horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = fontPreference == key,
-                            onClick = { scope.launch { preferencesManager.setFontPreference(key) } }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontFamily = fontFamily
-                        )
                     }
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                Text(
-                    text = "Custom Colors",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                LayoutRadioOption(
-                    title = "None",
-                    subtitle = null,
-                    selected = colorPalette != PreferencesManager.PALETTE_PASTEL && colorPalette != PreferencesManager.PALETTE_CUSTOM,
+                // Custom Font toggle
+                val isCustomFont = fontPreference != PreferencesManager.FONT_SYSTEM
+                SettingToggle(
+                    title = "Custom Font",
+                    checked = isCustomFont,
                     enabled = true,
-                    onClick = {
+                    onCheckedChange = { checked ->
                         scope.launch {
-                            preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO)
+                            if (!checked) {
+                                preferencesManager.setFontPreference(PreferencesManager.FONT_SYSTEM)
+                            } else {
+                                preferencesManager.setFontPreference(PreferencesManager.FONT_VERDANA)
+                            }
                         }
                     }
                 )
 
-                PaletteRadioOption(
-                    title = "Pastel",
-                    subtitle = "Softer colors that are easier on the eyes",
-                    paletteType = ColorPaletteType.PASTEL,
-                    selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
-                    onClick = {
+                if (isCustomFont) {
+                    val fontOptions = listOf(
+                        Triple(PreferencesManager.FONT_VERDANA, "Verdana", FontFamily(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL))),
+                        Triple(PreferencesManager.FONT_GEORGIA, "Georgia", FontFamily(android.graphics.Typeface.create("serif", android.graphics.Typeface.NORMAL))),
+                        Triple(PreferencesManager.FONT_OPENDYSLEXIC, "OpenDyslexic", FontFamily(Font(R.font.opendyslexic_regular)))
+                    )
+
+                    fontOptions.forEach { (key, name, fontFamily) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch { preferencesManager.setFontPreference(key) }
+                                }
+                                .padding(vertical = 6.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = fontPreference == key,
+                                onClick = { scope.launch { preferencesManager.setFontPreference(key) } }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontFamily = fontFamily
+                            )
+                        }
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                // Custom Colors toggle
+                val isCustomColors = colorPalette == PreferencesManager.PALETTE_PASTEL || colorPalette == PreferencesManager.PALETTE_CUSTOM
+                SettingToggle(
+                    title = "Custom Colors",
+                    checked = isCustomColors,
+                    enabled = true,
+                    onCheckedChange = { checked ->
                         scope.launch {
-                            preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL)
-                            if (colorblindMode) preferencesManager.setColorblindMode(false)
+                            if (checked) {
+                                preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL)
+                                if (colorblindMode) preferencesManager.setColorblindMode(false)
+                            } else {
+                                preferencesManager.setColorPalette(PreferencesManager.PALETTE_OKABE_ITO)
+                            }
                         }
                     }
                 )
 
-                CustomPaletteRadioOption(
-                    customPaletteColors = customPaletteColors,
-                    selected = colorPalette == PreferencesManager.PALETTE_CUSTOM,
-                    onSelect = {
-                        scope.launch {
-                            preferencesManager.setColorPalette(PreferencesManager.PALETTE_CUSTOM)
-                            if (colorblindMode) preferencesManager.setColorblindMode(false)
+                if (isCustomColors) {
+                    PaletteRadioOption(
+                        title = "Pastel",
+                        subtitle = "Softer colors that are easier on the eyes",
+                        paletteType = ColorPaletteType.PASTEL,
+                        selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
+                        onClick = {
+                            scope.launch {
+                                preferencesManager.setColorPalette(PreferencesManager.PALETTE_PASTEL)
+                            }
                         }
-                    },
-                    onEditColors = onEditCustomPalette
-                )
+                    )
+
+                    CustomPaletteRadioOption(
+                        customPaletteColors = customPaletteColors,
+                        selected = colorPalette == PreferencesManager.PALETTE_CUSTOM,
+                        onSelect = {
+                            scope.launch {
+                                preferencesManager.setColorPalette(PreferencesManager.PALETTE_CUSTOM)
+                            }
+                        },
+                        onEditColors = onEditCustomPalette
+                    )
+                }
             }
 
             // Accessibility Section

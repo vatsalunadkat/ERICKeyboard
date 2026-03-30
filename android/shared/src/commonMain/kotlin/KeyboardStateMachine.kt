@@ -59,10 +59,6 @@ class KeyboardStateMachine(
     var inputMode = InputMode.INSTANT
         private set
 
-    // Confirm mode: pending chord directions
-    private var pendingChordLeft = Direction.NONE
-    private var pendingChordRight = Direction.NONE
-
     // Assisted mode: locked left direction
     var lockedLeftDir = Direction.NONE
         private set
@@ -126,10 +122,8 @@ class KeyboardStateMachine(
 
     fun setInputMode(mode: InputMode) {
         inputMode = mode
-        // Clear mode-specific state on switch
-        pendingChordLeft = Direction.NONE
-        pendingChordRight = Direction.NONE
         lockedLeftDir = Direction.NONE
+        isChordExecuted = false
     }
 
     fun getCurrentPalette(): List<ColorEntry> {
@@ -221,41 +215,36 @@ class KeyboardStateMachine(
 
         if (leftActiveDir == Direction.NONE && rightActiveDir == Direction.NONE) {
             isChordExecuted = false
-            // In Confirm mode, fire pending chord when both dials return to center
-            if (inputMode == InputMode.CONFIRM && pendingChordLeft != Direction.NONE && pendingChordRight != Direction.NONE) {
-                fireChord(pendingChordLeft, pendingChordRight)
-                pendingChordLeft = Direction.NONE
-                pendingChordRight = Direction.NONE
-            }
         }
     }
 
     private fun handleInstantRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
         if (isLeft) {
-            if (rightDir != Direction.NONE && !isChordExecuted) {
-                fireChord(leftDir, rightDir)
-            }
+            // Left release alone does not fire — left just sets the chord row.
+            // The chord fires only when right releases while left is held.
         } else {
-            if (leftDir != Direction.NONE && !isChordExecuted) {
+            if (leftDir != Direction.NONE) {
+                // Right released while left is held — fire chord
                 fireChord(leftDir, rightDir)
-            } else if (leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                // Allow subsequent right swipes to fire while left stays held
+                isChordExecuted = false
+            } else if (!isChordExecuted && !wasBackspaceHold) {
                 handleRightOnlySwipe(rightDir)
             }
         }
     }
 
     private fun handleConfirmRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        // Steady Type: fire chord when either dial releases while both active.
+        // Only one chord per left-hold session -- isChordExecuted stays true
+        // until both dials return to center.
         if (isLeft) {
             if (rightDir != Direction.NONE && !isChordExecuted) {
-                // Store pending chord — will fire when both release
-                pendingChordLeft = leftDir
-                pendingChordRight = rightDir
+                fireChord(leftDir, rightDir)
             }
         } else {
             if (leftDir != Direction.NONE && !isChordExecuted) {
-                // Store pending chord — will fire when both release
-                pendingChordLeft = leftDir
-                pendingChordRight = rightDir
+                fireChord(leftDir, rightDir)
             } else if (leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
                 handleRightOnlySwipe(rightDir)
             }
