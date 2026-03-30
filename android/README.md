@@ -4,7 +4,7 @@ This folder contains the Android implementation of ERICK (Ergonomic Radial Inclu
 
 ## Overview
 
-ERICK Android is a custom Input Method Editor (IME) that provides chord-based text input using dual touch joysticks or a physical gaming controller. It features word prediction & autocorrect, a typing practice mini-game, outlined preview text for readability, multiple accessibility options, and a fully customizable layout — all powered by a Kotlin Multiplatform shared module.
+ERICK Android is a custom Input Method Editor (IME) that provides chord-based text input using dual touch joysticks or a physical gaming controller. It features three input modes (Instant, Confirm, Assisted for one-handed use), word prediction & autocorrect, a typing practice mini-game, custom color palettes, haptic feedback & typing sounds, outlined preview text for readability, multiple accessibility options, and a fully customizable layout — all powered by a Kotlin Multiplatform shared module.
 
 ## Setup
 
@@ -45,9 +45,9 @@ android/
 │   ├── src/commonMain/kotlin/    # Cross-platform keyboard logic
 │   │   ├── KeyboardStateMachine.kt   # State machine, word buffer, suggestion orchestration
 │   │   ├── KeyboardLogic.kt          # Chord resolution, 4 layout maps
-│   │   ├── KeyboardContracts.kt      # Platform interfaces
+│   │   ├── KeyboardContracts.kt      # Platform interfaces & enums (InputMode, LayoutType)
 │   │   ├── WordPredictionEngine.kt   # Trie, bigrams, autocorrect (~700 words)
-│   │   └── ColorPalettes.kt          # 6 accessibility color palettes
+│   │   └── ColorPalettes.kt          # 7 accessibility color palettes (incl. custom)
 │   ├── src/androidMain/          # Android platform code
 │   └── src/iosMain/              # iOS platform code
 ├── gradle/
@@ -81,10 +81,13 @@ android/
 
 ### Settings & Preferences
 - **SettingsActivity/Screen**: Jetpack Compose UI for:
-  - Layout (Efficient, Accessible, Legacy, Custom)
-  - Theme (Light, Dark, System)
-  - Font (Default, OpenDyslexic, Atkinson Hyperlegible)
-  - Colorblind palette (6 options)
+  - Layout (Logical A–Z, Efficiency, Custom)
+  - Theme (System Default, Light, Dark) via segmented control
+  - Font (System, Verdana, Georgia, OpenDyslexic)
+  - Colorblind palette (7 options including custom)
+  - Custom color palette editor (HSV sliders, hex/RGB input)
+  - Input mode (Quick Type, Steady Type, One-Handed)
+  - Haptic feedback & typing sounds
   - Left-handed mode
   - Custom Layout Creator with chord editor and color indicators
 - **LayoutPreferences**: DataStore-based persistence for all above settings plus custom layout JSON.
@@ -94,7 +97,7 @@ The `shared` module contains platform-agnostic logic compiled for both Android (
 - Chord state machine and word buffer management
 - 4 layout maps (Efficient, Accessible, Legacy, Custom)
 - Word prediction engine (trie + bigrams + autocorrect)
-- 6 colorblind-safe palettes
+- 7 colorblind-safe palettes (including user-created custom palettes)
 - Platform interfaces for settings, input connection, and controller events
 
 ## Building

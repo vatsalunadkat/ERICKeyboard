@@ -29,6 +29,8 @@ class KeyboardViewModel: ObservableObject {
     @Published var customShiftedSections: [[String]]? = nil
     @Published var suggestions: [String] = []
     @Published var bothDialsAtHome: Bool = true
+    @Published var lockedLeftDirection: WheelDirection = .none
+    @Published var paletteRefreshToken: Int = 0
     /// Physical controller stick position (-1...1), used to move on-screen thumb when controller is active
     @Published var leftControllerStickNormalized: (x: Float, y: Float) = (0, 0)
     @Published var rightControllerStickNormalized: (x: Float, y: Float) = (0, 0)
@@ -81,13 +83,14 @@ struct KeyboardContainerView: View {
                 HStack(spacing: controlSpacing) {
                     JoystickView(
                         isRightSide: viewModel.isLeftHanded,
-                        activeDirection: viewModel.leftDirection,
+                        activeDirection: viewModel.leftDirection != .none ? viewModel.leftDirection : viewModel.lockedLeftDirection,
                         keyboardMode: viewModel.keyboardMode,
                         isEfficiency: viewModel.isEfficiency,
                         colorPaletteKey: viewModel.colorPaletteKey,
                         fontPreference: viewModel.fontPreference,
                         customNormalSections: viewModel.customNormalSections,
                         customShiftedSections: viewModel.customShiftedSections,
+                        paletteRefreshToken: viewModel.paletteRefreshToken,
                         controllerStickNormalized: viewModel.leftControllerStickNormalized
                     ) { dx, dy, isDownOrMove, isUp in
                         onTouch(dx, dy, true, isDownOrMove, isUp)
@@ -103,6 +106,7 @@ struct KeyboardContainerView: View {
                         fontPreference: viewModel.fontPreference,
                         customNormalSections: viewModel.customNormalSections,
                         customShiftedSections: viewModel.customShiftedSections,
+                        paletteRefreshToken: viewModel.paletteRefreshToken,
                         controllerStickNormalized: viewModel.rightControllerStickNormalized
                     ) { dx, dy, isDownOrMove, isUp in
                         onTouch(dx, dy, false, isDownOrMove, isUp)
@@ -372,7 +376,6 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     
     // MARK: - GameController (DualShock 4, etc.)
     private static let controllerDeadZone: Float = 0.25
-    private static let controllerToTouchScale: Float = 80
     
     private func setupControllerInput() {
         if !hasRegisteredControllerObservers {
@@ -410,27 +413,20 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             self.prevLocalRightActive = false
             self.viewModel.leftControllerStickNormalized = (0, 0)
             self.viewModel.rightControllerStickNormalized = (0, 0)
-            self.handleTouch(dx: 0, dy: 0, isLeft: true, isDown: false, isUp: true)
-            self.handleTouch(dx: 0, dy: 0, isLeft: false, isDown: false, isUp: true)
+            self.stateMachine.handleControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
+            self.refreshViewState()
         }
     }
     
     private func setupCurrentController() {
         guard let controller = GCController.controllers().first,
-              let extended = controller.extendedGamepad else { return }
+              let _ = controller.extendedGamepad else { return }
 
         if currentController !== controller {
             currentController = controller
         }
 
         startLocalControllerPolling()
-        
-        extended.leftThumbstick.valueChangedHandler = { [weak self] _, xValue, yValue in
-            self?.handleControllerStick(x: xValue, y: yValue, isLeft: true)
-        }
-        extended.rightThumbstick.valueChangedHandler = { [weak self] _, xValue, yValue in
-            self?.handleControllerStick(x: xValue, y: yValue, isLeft: false)
-        }
     }
 
     private func startLocalControllerPolling() {
@@ -444,38 +440,23 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private func pollLocalController() {
         guard let extended = currentController?.extendedGamepad else { return }
 
-        let left = normalizedControllerStick(x: extended.leftThumbstick.xAxis.value, y: extended.leftThumbstick.yAxis.value)
-        let right = normalizedControllerStick(x: extended.rightThumbstick.xAxis.value, y: extended.rightThumbstick.yAxis.value)
+        let lx = extended.leftThumbstick.xAxis.value
+        let ly = extended.leftThumbstick.yAxis.value
+        let rx = extended.rightThumbstick.xAxis.value
+        let ry = extended.rightThumbstick.yAxis.value
 
-        let leftActive = abs(left.x) > 0.01 || abs(left.y) > 0.01
-        let rightActive = abs(right.x) > 0.01 || abs(right.y) > 0.01
+        let leftNorm = normalizedControllerStick(x: lx, y: ly)
+        let rightNorm = normalizedControllerStick(x: rx, y: ry)
+        viewModel.leftControllerStickNormalized = leftNorm
+        viewModel.rightControllerStickNormalized = rightNorm
 
-        if leftActive || prevLocalLeftActive {
-            processControllerState(normalized: left, isLeft: true, wasActive: prevLocalLeftActive)
+        stateMachine.handleControllerInput(leftX: lx, leftY: ly, rightX: rx, rightY: ry)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshViewState()
         }
-        if rightActive || prevLocalRightActive {
-            processControllerState(normalized: right, isLeft: false, wasActive: prevLocalRightActive)
-        }
-
-        prevLocalLeftActive = leftActive
-        prevLocalRightActive = rightActive
     }
     
-    private func handleControllerStick(x: Float, y: Float, isLeft: Bool) {
-        let normalized = normalizedControllerStick(x: x, y: y)
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            let wasActive = isLeft ? self.prevLocalLeftActive : self.prevLocalRightActive
-            self.processControllerState(normalized: normalized, isLeft: isLeft, wasActive: wasActive)
-            if isLeft {
-                self.prevLocalLeftActive = abs(normalized.x) > 0.01 || abs(normalized.y) > 0.01
-            } else {
-                self.prevLocalRightActive = abs(normalized.x) > 0.01 || abs(normalized.y) > 0.01
-            }
-        }
-    }
-
     private func normalizedControllerStick(x: Float, y: Float) -> (x: Float, y: Float) {
         let dead = Self.controllerDeadZone
         var nx = x
@@ -492,24 +473,6 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return (nx, ny)
     }
 
-    private func processControllerState(normalized: (x: Float, y: Float), isLeft: Bool, wasActive: Bool) {
-        let isActive = abs(normalized.x) > 0.01 || abs(normalized.y) > 0.01
-        let dx = normalized.x * Self.controllerToTouchScale
-        let dy = -normalized.y * Self.controllerToTouchScale
-
-        if isLeft {
-            viewModel.leftControllerStickNormalized = normalized
-        } else {
-            viewModel.rightControllerStickNormalized = normalized
-        }
-
-        if isActive {
-            handleTouch(dx: dx, dy: dy, isLeft: isLeft, isDown: true, isUp: false)
-        } else if wasActive {
-            handleTouch(dx: 0, dy: 0, isLeft: isLeft, isDown: false, isUp: true)
-        }
-    }
-    
     // MARK: - App Group bridge (host app reads controller, keyboard extension reads)
     private func startControllerBridgePolling() {
         controllerBridgeTimer?.invalidate()
@@ -533,8 +496,11 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             viewModel.leftControllerStickNormalized = (0, 0)
             viewModel.rightControllerStickNormalized = (0, 0)
             if prevBridgeLeftActive || prevBridgeRightActive {
-                handleTouch(dx: 0, dy: 0, isLeft: true, isDown: false, isUp: true)
-                handleTouch(dx: 0, dy: 0, isLeft: false, isDown: false, isUp: true)
+                // Send zeroed input to release any held directions
+                stateMachine.handleControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
+                DispatchQueue.main.async { [weak self] in
+                    self?.refreshViewState()
+                }
             }
             prevBridgeLeftActive = false
             prevBridgeRightActive = false
@@ -548,24 +514,20 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         
         let leftActive = abs(lnx) > 0.01 || abs(lny) > 0.01
         let rightActive = abs(rnx) > 0.01 || abs(rny) > 0.01
-        
-        let scale = Self.controllerToTouchScale
+
         viewModel.leftControllerStickNormalized = (lnx, lny)
         viewModel.rightControllerStickNormalized = (rnx, rny)
-        
-        // Only send isUp when the stick transitions from active to inactive; otherwise it would be misinterpreted as a chord, causing the right stick solo actions (e.g. NW to toggle caps) not to update the UI
-        let leftRelease = !leftActive && prevBridgeLeftActive
-        let rightRelease = !rightActive && prevBridgeRightActive
-        if leftActive {
-            handleTouch(dx: lnx * scale, dy: -lny * scale, isLeft: true, isDown: true, isUp: false)
-        } else if leftRelease {
-            handleTouch(dx: 0, dy: 0, isLeft: true, isDown: false, isUp: true)
+
+        // Route through the KMP state machine's dedicated controller handler
+        // Note: bridge values are already dead-zone-filtered and normalized [0..1]
+        // by ControllerBridge.tick(), so pass them as raw axis values and let
+        // the state machine's normalizeControllerStick() handle scaling.
+        stateMachine.handleControllerInput(leftX: lnx, leftY: lny, rightX: rnx, rightY: rny)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshViewState()
         }
-        if rightActive {
-            handleTouch(dx: rnx * scale, dy: -rny * scale, isLeft: false, isDown: true, isUp: false)
-        } else if rightRelease {
-            handleTouch(dx: 0, dy: 0, isLeft: false, isDown: false, isUp: true)
-        }
+
         prevBridgeLeftActive = leftActive
         prevBridgeRightActive = rightActive
     }
@@ -589,7 +551,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     func commitText(text: String) {
         self.textDocumentProxy.insertText(text)
         performHaptic(strong: false)
-        playClickSound()
+        playClickSound(soft: true)
     }
 
     func onModeChanged(mode: KeyboardMode) {
@@ -628,7 +590,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             break
         }
         performHaptic(strong: true)
-        playClickSound()
+        playClickSound(soft: false)
     }
 
     private func deleteWordBackward() {
@@ -652,14 +614,16 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func performHaptic(strong: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "haptic_feedback") else { return }
-        let style: UIImpactFeedbackGenerator.FeedbackStyle = strong ? .heavy : .light
+        let style: UIImpactFeedbackGenerator.FeedbackStyle = strong ? .medium : .light
         let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
         generator.impactOccurred()
     }
 
-    private func playClickSound() {
+    private func playClickSound(soft: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "typing_sounds") else { return }
-        AudioServicesPlaySystemSound(1104) // Standard keyboard click
+        // 1519 = Peek (very soft), 1104 = standard keyboard click
+        AudioServicesPlaySystemSound(soft ? 1519 : 1104)
     }
 
     func onSuggestionsUpdated(suggestions: [String]) {
@@ -724,8 +688,16 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private var currentColorPaletteKey: String {
         let enabled = Self.appGroupDefaults.bool(forKey: "colorblind_mode")
-        guard enabled else { return "default" }
-        return Self.appGroupDefaults.string(forKey: "color_palette") ?? "okabe_ito"
+        let palette = Self.appGroupDefaults.string(forKey: "color_palette") ?? "okabe_ito"
+        if enabled {
+            return palette
+        } else {
+            // When colorblind mode is off, still honor pastel and custom palette selections
+            if palette == "pastel" || palette == "custom" {
+                return palette
+            }
+            return "default"
+        }
     }
 
     private var isLeftHandedMode: Bool {
@@ -790,6 +762,19 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
         // Apply font preference
         viewModel.fontPreference = Self.appGroupDefaults.string(forKey: "font_preference") ?? "system"
+
+        // Apply input mode
+        let inputModeStr = Self.appGroupDefaults.string(forKey: "input_mode") ?? "instant"
+        let inputMode: InputMode
+        switch inputModeStr {
+        case "confirm":
+            inputMode = .confirm
+        case "assisted":
+            inputMode = .assisted
+        default:
+            inputMode = .instant
+        }
+        stateMachine.setInputMode(mode: inputMode)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -802,6 +787,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func handleSettingsChanged() {
         applyLayoutPreference()
+        viewModel.paletteRefreshToken += 1
         refreshViewState()
     }
 
@@ -814,13 +800,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.isEfficiency = isEfficiencyLayout
         viewModel.colorPaletteKey = currentColorPaletteKey
         viewModel.bothDialsAtHome = stateMachine.areBothDialsAtHome()
+        viewModel.lockedLeftDirection = wheelDirection(for: stateMachine.lockedLeftDir)
         updatePreviewState()
     }
 
     private func syncVisualState(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {
         let currentDirection = direction(forX: dx, y: dy)
-        // In left-handed mode, swap which physical side is the "letter" vs "action" dial
         let effectiveIsLeft = viewModel.isLeftHanded ? !isLeft : isLeft
+        let currentInputMode = Self.appGroupDefaults.string(forKey: "input_mode") ?? "instant"
 
         if isDown {
             if effectiveIsLeft {
@@ -846,6 +833,10 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
                 mirroredChordExecuted = true
                 if mirroredMode == .shifted {
                     mirroredMode = .normal
+                }
+                // In Quick Type (instant), allow subsequent right swipes while left held
+                if currentInputMode == "instant" {
+                    mirroredChordExecuted = false
                 }
             } else if mirroredLeftDirection == .none && !mirroredChordExecuted {
                 applyRightOnlyVisualAction(for: mirroredRightDirection)
@@ -1047,6 +1038,21 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case .shifted: return .shifted
         case .capsLocked: return .capsLocked
         default: return .normal
+        }
+    }
+
+    private func wheelDirection(for direction: Direction) -> WheelDirection {
+        switch direction {
+        case .none: return .none
+        case .n: return .n
+        case .ne: return .ne
+        case .e: return .e
+        case .se: return .se
+        case .s: return .s
+        case .sw: return .sw
+        case .w: return .w
+        case .nw: return .nw
+        default: return .none
         }
     }
 }

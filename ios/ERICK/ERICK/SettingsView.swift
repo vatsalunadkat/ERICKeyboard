@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
     @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
     @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
+    @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
     
     @Environment(\.dismiss) var dismiss
 
@@ -83,9 +84,38 @@ struct SettingsView: View {
                     appFontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
                 }
 
+                // Custom Colors Section
+                Section(header: Text("Custom Colors")) {
+                    Button(action: { colorPalette = "okabe_ito" }) {
+                        HStack {
+                            Image(systemName: (colorPalette != "pastel" && colorPalette != "custom") ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor((colorPalette != "pastel" && colorPalette != "custom") ? .accentColor : .secondary)
+                            Text("None").foregroundColor(.primary)
+                        }
+                    }
+                    AppColorPaletteOption(
+                        title: "Pastel",
+                        subtitle: "Softer colors that are easier on the eyes",
+                        palette: AppColorPaletteDefinitions.pastel,
+                        selected: colorPalette == "pastel",
+                        onSelect: {
+                            colorPalette = "pastel"
+                            if colorblindMode { colorblindMode = false }
+                        }
+                    )
+                }
+
                 // Accessibility Section
                 Section(header: Text("Accessibility")) {
-                    Toggle("Enable Colorblind Mode", isOn: $colorblindMode)
+                    Toggle("Enable Colorblind Mode", isOn: Binding(
+                        get: { colorblindMode },
+                        set: { newValue in
+                            colorblindMode = newValue
+                            if newValue && (colorPalette == "pastel" || colorPalette == "custom") {
+                                colorPalette = "okabe_ito"
+                            }
+                        }
+                    ))
 
                     if colorblindMode {
                         Text("Select the palette that works best for your type of color vision. Each option shows a preview of the 8 colors used on the keyboard.")
@@ -120,16 +150,53 @@ struct SettingsView: View {
                             selected: colorPalette == "tritanopia",
                             onSelect: { colorPalette = "tritanopia" }
                         )
-                        AppColorPaletteOption(
-                            title: "Pastel (Soft)",
-                            subtitle: "Softer colors that are easier on the eyes",
-                            palette: AppColorPaletteDefinitions.pastel,
-                            selected: colorPalette == "pastel",
-                            onSelect: { colorPalette = "pastel" }
-                        )
                     }
 
                     Toggle("Left-Handed Mode", isOn: $leftHandedMode)
+                }
+
+                // Input Mode Section
+                Section(header: Text("Input Mode")) {
+                    Text("Choose how chords are triggered when using the dials.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    Button(action: { inputMode = "instant" }) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: inputMode == "instant" ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(inputMode == "instant" ? .accentColor : .secondary)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Quick Type").foregroundColor(.primary)
+                                Text("Type at full speed. Characters appear as soon as you release either dial.")
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    Button(action: { inputMode = "confirm" }) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: inputMode == "confirm" ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(inputMode == "confirm" ? .accentColor : .secondary)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Steady Type").foregroundColor(.primary)
+                                Text("Take your time. Characters appear only after both dials return to center.")
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    Button(action: { inputMode = "assisted" }) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: inputMode == "assisted" ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(inputMode == "assisted" ? .accentColor : .secondary)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("One-Handed").foregroundColor(.primary)
+                                Text("Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.")
+                                    .font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
                 
                 // Privacy & Security Section

@@ -22,6 +22,7 @@ struct SettingsView: View {
     @AppStorage("custom_palette_colors", store: SettingsView.appGroupDefaults) private var customPaletteColors: String = ColorPaletteDefinitions.defaultCustomColors
     @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
+    @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
@@ -88,6 +89,9 @@ struct SettingsView: View {
         .onChange(of: typingSounds) { _ in
             onSettingsChanged?()
         }
+        .onChange(of: inputMode) { _ in
+            onSettingsChanged?()
+        }
     }
 
     @State private var expandedSection: String? = "layout"
@@ -141,24 +145,68 @@ struct SettingsView: View {
                     onToggle: { expandedSection = expandedSection == "appearance" ? nil : "appearance" }
                 ) {
                     VStack(spacing: 0) {
+                        // Theme toggle
                         Text("Theme").font(.subheadline).fontWeight(.medium)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 12).padding(.bottom, 4)
 
-                        settingsRadioRow(label: "System Default", selected: themeMode == "system") { themeMode = "system" }
-                        settingsRadioRow(label: "Light", selected: themeMode == "light") { themeMode = "light" }
-                        settingsRadioRow(label: "Dark", selected: themeMode == "dark") { themeMode = "dark" }
+                        Picker("Theme", selection: $themeMode) {
+                            Text("System").tag("system")
+                            Text("Light").tag("light")
+                            Text("Dark").tag("dark")
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, 12).padding(.vertical, 4)
 
                         Divider().padding(.vertical, 4)
 
-                        Text("Font").font(.subheadline).fontWeight(.medium)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 12).padding(.bottom, 4)
+                        // Custom Font toggle
+                        Toggle("Custom Font", isOn: Binding(
+                            get: { fontPreference != "system" },
+                            set: { newValue in
+                                fontPreference = newValue ? "verdana" : "system"
+                            }
+                        ))
+                            .padding(.horizontal, 12).padding(.vertical, 4)
 
-                        settingsRadioRow(label: "System Default", selected: fontPreference == "system") { fontPreference = "system" }
-                        settingsRadioRow(label: "Verdana", selected: fontPreference == "verdana") { fontPreference = "verdana" }
-                        settingsRadioRow(label: "Georgia", selected: fontPreference == "georgia") { fontPreference = "georgia" }
-                        settingsRadioRow(label: "OpenDyslexic", selected: fontPreference == "opendyslexic") { fontPreference = "opendyslexic" }
+                        if fontPreference != "system" {
+                            settingsRadioRow(label: "Verdana", selected: fontPreference == "verdana") { fontPreference = "verdana" }
+                            settingsRadioRow(label: "Georgia", selected: fontPreference == "georgia") { fontPreference = "georgia" }
+                            settingsRadioRow(label: "OpenDyslexic", selected: fontPreference == "opendyslexic") { fontPreference = "opendyslexic" }
+                        }
+
+                        Divider().padding(.vertical, 4)
+
+                        // Custom Colors toggle
+                        Toggle("Custom Colors", isOn: Binding(
+                            get: { colorPalette == "pastel" || colorPalette == "custom" },
+                            set: { newValue in
+                                if newValue {
+                                    colorPalette = "pastel"
+                                    if colorblindMode { colorblindMode = false }
+                                } else {
+                                    colorPalette = "okabe_ito"
+                                }
+                            }
+                        ))
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+
+                        if colorPalette == "pastel" || colorPalette == "custom" {
+                            ColorPaletteOption(
+                                title: "Pastel",
+                                subtitle: "Softer colors that are easier on the eyes",
+                                palette: ColorPaletteDefinitions.pastel,
+                                selected: colorPalette == "pastel",
+                                onSelect: { colorPalette = "pastel" }
+                            )
+
+                            CustomPaletteOption(
+                                customColors: customPaletteColors,
+                                selected: colorPalette == "custom",
+                                onSelect: { colorPalette = "custom" },
+                                onEditColors: { showCustomPaletteEditor = true }
+                            )
+                        }
                     }
                 }
 
@@ -169,7 +217,15 @@ struct SettingsView: View {
                     onToggle: { expandedSection = expandedSection == "accessibility" ? nil : "accessibility" }
                 ) {
                     VStack(spacing: 4) {
-                        Toggle("Enable Colorblind Mode", isOn: $colorblindMode)
+                        Toggle("Enable Colorblind Mode", isOn: Binding(
+                            get: { colorblindMode },
+                            set: { newValue in
+                                colorblindMode = newValue
+                                if newValue && (colorPalette == "pastel" || colorPalette == "custom") {
+                                    colorPalette = "okabe_ito"
+                                }
+                            }
+                        ))
                             .padding(.horizontal, 12).padding(.vertical, 4)
 
                         if colorblindMode {
@@ -201,21 +257,6 @@ struct SettingsView: View {
                                 selected: colorPalette == "tritanopia",
                                 onSelect: { colorPalette = "tritanopia" }
                             )
-                            ColorPaletteOption(
-                                title: "Pastel (Soft)",
-                                subtitle: "Softer colors",
-                                palette: ColorPaletteDefinitions.pastel,
-                                selected: colorPalette == "pastel",
-                                onSelect: { colorPalette = "pastel" }
-                            )
-
-                            // Custom palette option
-                            CustomPaletteOption(
-                                customColors: customPaletteColors,
-                                selected: colorPalette == "custom",
-                                onSelect: { colorPalette = "custom" },
-                                onEditColors: { showCustomPaletteEditor = true }
-                            )
                         }
 
                         Toggle("Left-Handed Mode", isOn: $leftHandedMode)
@@ -241,6 +282,39 @@ struct SettingsView: View {
 
                         Toggle("Typing Sounds", isOn: $typingSounds)
                             .padding(.horizontal, 12).padding(.vertical, 4)
+                    }
+                }
+
+                // Input Mode Section
+                CollapsibleSettingsSection(
+                    title: "Input Mode",
+                    isExpanded: expandedSection == "input_mode",
+                    onToggle: { expandedSection = expandedSection == "input_mode" ? nil : "input_mode" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Choose how chords are triggered when using the dials.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12).padding(.bottom, 4)
+
+                        InputModeRadioOption(
+                            title: "Quick Type",
+                            description: "Type at full speed. Characters appear as soon as you release either dial.",
+                            selected: inputMode == "instant",
+                            action: { inputMode = "instant" }
+                        )
+                        InputModeRadioOption(
+                            title: "Steady Type",
+                            description: "Take your time. Characters appear only after both dials return to center.",
+                            selected: inputMode == "confirm",
+                            action: { inputMode = "confirm" }
+                        )
+                        InputModeRadioOption(
+                            title: "One-Handed",
+                            description: "Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.",
+                            selected: inputMode == "assisted",
+                            action: { inputMode = "assisted" }
+                        )
                     }
                 }
 
@@ -334,6 +408,34 @@ private struct CollapsibleSettingsSection<Content: View>: View {
         }
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(10)
+    }
+}
+
+private struct InputModeRadioOption: View {
+    let title: String
+    let description: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -494,6 +596,7 @@ private struct ColorPaletteOption: View {
                     .padding(.leading, 28)
                 }
             }
+            .padding(.horizontal, 12).padding(.vertical, 4)
         }
     }
 }
@@ -548,6 +651,7 @@ private struct CustomPaletteOption: View {
                     .padding(.leading, 28)
                 }
             }
+            .padding(.horizontal, 12).padding(.vertical, 4)
         }
     }
 }

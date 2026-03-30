@@ -1,9 +1,9 @@
-﻿<a name="readme-top"></a>
+<a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 0.5.1-alpha</strong></p>
+  <p align="center"><strong>Version 0.7.4-beta</strong></p>
 
   <p align="center">
     A cross-platform ergonomic chorded keyboard for Android &amp; iOS — type with two joystick dials using touch or a physical gaming controller, featuring word prediction, accessibility-first design, and fully offline privacy.
@@ -65,7 +65,7 @@
 
 ERICK is a cross-platform chorded keyboard that replaces dozens of tiny keys with two intuitive joystick dials. Users swipe on both dials to combine directions into character "chords" — making every letter, number, and symbol equally easy to type. It works with on-screen touch joysticks or physical gaming controllers (DualShock 4, Xbox, 8BitDo, etc.).
 
-The keyboard is designed with accessibility at its core: large touch targets eliminate the need for fine motor skills, six colorblind-safe palettes ensure readability for all forms of color vision, left-handed mode mirrors the layout, and dyslexia-friendly fonts are built in. Characters are arranged in a logical alphabetical order (A–Z), making it intuitive for users on the autism spectrum or anyone learning the system for the first time. An efficiency layout optimized by character frequency is also available for advanced typists.
+The keyboard is designed with accessibility at its core: large touch targets eliminate the need for fine motor skills, seven colorblind-safe palettes plus a custom color editor ensure readability for all forms of color vision, left-handed mode mirrors the layout, and dyslexia-friendly fonts are built in. Characters are arranged in a logical alphabetical order (A–Z), making it intuitive for users on the autism spectrum or anyone learning the system for the first time. An efficiency layout optimized by character frequency is also available for advanced typists.
 
 ERICK includes smart word prediction and autocorrect — a suggestion bar shows up to three completions or next-word predictions at all times, powered by a Trie-based engine with bigram sentence prediction. A live preview bar shows available characters as you hold a dial, with animated highlighting and a capsule design. All logic is shared between Android and iOS via Kotlin Multiplatform (KMP), ensuring identical behavior on both platforms.
 
@@ -118,7 +118,7 @@ ERICK/
 │   │   │   ├── KeyboardLogic.kt         # Chord processing & layout math
 │   │   │   ├── KeyboardContracts.kt     # Interfaces, enums & contracts
 │   │   │   ├── WordPredictionEngine.kt  # Trie-based prediction & autocorrect
-│   │   │   ├── ColorPalettes.kt         # 6 colorblind-safe palettes
+│   │   │   ├── ColorPalettes.kt         # 7 colorblind-safe palettes (incl. custom)
 │   │   │   ├── CustomLayout.kt          # Custom layout data models & manager
 │   │   │   ├── CustomLayoutSerializer.kt# JSON serialization for layouts
 │   │   │   ├── SettingsRepository.kt    # Cross-platform settings contracts
@@ -172,9 +172,10 @@ ERICK/
 
 ### Features
 
-**Current Implementation (v0.5.1-alpha):**
+**Current Implementation (v0.7.4-beta):**
 - [x] **Dual-Platform Support**: Full keyboard on both Android (IME) and iOS (Keyboard Extension)
 - [x] **Chorded Input**: Two radial dials combine to form character chords (8 directions × 8 = 64 characters)
+- [x] **Three Input Modes**: Quick Type (fires on first release), Steady Type (fires when both dials return to center), One-Handed (lock left dial for one-handed typing)
 - [x] **Three Layout Modes**: Logical (A–Z alphabetical), Efficiency (frequency-optimized), Custom (user-defined)
 - [x] **Custom Layout Creator**: Design, save, and switch between personalized chord layouts with color-coded UI
 - [x] **Word Prediction & Autocorrect**: Trie-based engine with ~700-word dictionary, bigram next-word prediction, and spelling corrections
@@ -182,7 +183,9 @@ ERICK/
 - [x] **Live Preview Bar**: Animated capsule preview showing available characters when holding a dial direction, with outlined/stroked text for readability across themes
 - [x] **Typing Practice Mini-Game**: In-app typing game with curated quotes, WPM/accuracy/streak tracking, per-character correctness highlighting, and shake animation on errors
 - [x] **Physical Controller Support**: DualShock 4, Xbox, 8BitDo and other Bluetooth/USB gamepads via analog sticks
-- [x] **Colorblind Mode**: 6 palettes — Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel
+- [x] **Colorblind Mode**: 7 palettes — Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, and Custom (create your own)
+- [x] **Custom Color Palettes**: Full color editor with HSV sliders (Android) or native ColorPicker (iOS), plus hex/RGB input
+- [x] **Haptic Feedback & Typing Sounds**: Toggleable vibration (strong for utility, light for letters) and system click sounds
 - [x] **Left-Handed Mode**: Mirrors dial layout so the primary selector is under the dominant hand
 - [x] **Light & Dark Mode**: Follows system preference or manual override; full theme support across UI
 - [x] **Font Selection**: System, Verdana, Georgia, and OpenDyslexic (dyslexia-friendly) fonts
@@ -191,7 +194,7 @@ ERICK/
 - [x] **Collapsible Settings Menu**: Accordion-style settings with animated expandable sections on both Android (Jetpack Compose) and iOS (SwiftUI); only one section open at a time
 - [x] **Kotlin Multiplatform Shared Module**: Identical keyboard logic on Android and iOS
 - [x] **Guided Onboarding**: Step-by-step IME setup flow on both platforms
-- [x] **Documentation Website**: React + Vite + Tailwind SPA with landing, features, evolution timeline, and privacy pages hosted on GitHub Pages
+- [x] **Documentation Website**: Static HTML/CSS/JS site with landing, features, accessibility, releases, and privacy pages hosted on GitHub Pages
 - [x] **Privacy Focused**: Zero data collection, no internet permissions, fully offline, source available
 
 ### Future Scope
@@ -200,7 +203,6 @@ ERICK/
 - [ ] Multi-language support (Spanish, French, German, Mandarin, and more)
 - [ ] Complex mode with trigger/button combinations for faster typing on controllers
 - [ ] Typing speed analytics and improvement tracking
-- [ ] Haptic feedback options
 - [ ] Cloud sync for settings and custom layouts across devices
 - [ ] Tablet-optimized layout
 

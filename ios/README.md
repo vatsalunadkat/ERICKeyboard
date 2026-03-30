@@ -4,7 +4,7 @@ This folder contains the iOS implementation of ERICK (Ergonomic Radial Inclusive
 
 ## Overview
 
-ERICK iOS is a Custom Keyboard Extension that provides chord-based text input using dual touch joysticks or a physical gaming controller. It shares its core logic with the Android app via a Kotlin Multiplatform `SharedKeyboard.xcframework` and presents a native SwiftUI interface. Features include word prediction & autocorrect, a typing practice mini-game, stroked preview text for readability across themes, and multiple accessibility options.
+ERICK iOS is a Custom Keyboard Extension that provides chord-based text input using dual touch joysticks or a physical gaming controller. It shares its core logic with the Android app via a Kotlin Multiplatform `SharedKeyboard.xcframework` and presents a native SwiftUI interface. Features include three input modes (Instant, Confirm, Assisted for one-handed use), word prediction & autocorrect, a typing practice mini-game, custom color palettes, haptic feedback & typing sounds, stroked preview text for readability across themes, and multiple accessibility options.
 
 ## Setup
 
@@ -86,14 +86,14 @@ ios/
 
 ### Settings & Persistence
 - Settings stored in **App Group UserDefaults** (`group.com.vatoo.erick`) so both the host app and the keyboard extension share the same preferences
-- Supports: layout mode, theme, font, colorblind palette, left-handed mode, custom layout
+- Supports: layout mode, theme, font, colorblind palette, custom color palette, input mode, haptic feedback, typing sounds, left-handed mode, custom layout
 
 ### Shared Framework
 The `SharedKeyboard.xcframework` provides:
 - `KeyboardStateMachine` — chord processing, word buffer, suggestion orchestration
 - `KeyboardLogic` — chord resolution with 4 layout maps
 - `WordPredictionEngine` — trie, bigrams, autocorrect
-- `ColorPalettes` — 6 accessibility color schemes
+- `ColorPalettes` — 7 accessibility color schemes (incl. custom palette)
 - `KeyboardContracts` — platform interfaces
 
 ## Architecture Notes

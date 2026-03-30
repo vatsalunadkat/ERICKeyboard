@@ -12,6 +12,7 @@ import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
 import com.vatoo.erick.shared.InputAction
+import com.vatoo.erick.shared.InputMode
 import com.vatoo.erick.shared.KeyboardActionDelegate
 import com.vatoo.erick.shared.KeyboardStateMachine
 import com.vatoo.erick.shared.LayoutType
@@ -160,12 +161,14 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                     PreferencesManager.PALETTE_DEUTERANOPIA -> ColorPaletteType.DEUTERANOPIA
                     PreferencesManager.PALETTE_PROTANOPIA -> ColorPaletteType.PROTANOPIA
                     PreferencesManager.PALETTE_TRITANOPIA -> ColorPaletteType.TRITANOPIA
-                    PreferencesManager.PALETTE_PASTEL -> ColorPaletteType.PASTEL
-                    PreferencesManager.PALETTE_CUSTOM -> ColorPaletteType.CUSTOM
                     else -> ColorPaletteType.OKABE_ITO
                 }
             } else {
-                ColorPaletteType.DEFAULT
+                when (palette) {
+                    PreferencesManager.PALETTE_PASTEL -> ColorPaletteType.PASTEL
+                    PreferencesManager.PALETTE_CUSTOM -> ColorPaletteType.CUSTOM
+                    else -> ColorPaletteType.DEFAULT
+                }
             }
         }.onEach { paletteType ->
             stateMachine.setColorPalette(paletteType)
@@ -202,6 +205,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // Monitor haptic + sound preferences
         preferencesManager.hapticFeedback.onEach { hapticEnabled = it }.launchIn(serviceScope)
         preferencesManager.typingSounds.onEach { soundsEnabled = it }.launchIn(serviceScope)
+
+        // Monitor input mode preference
+        preferencesManager.inputMode.onEach { mode ->
+            val inputMode = when (mode) {
+                PreferencesManager.INPUT_MODE_CONFIRM -> InputMode.CONFIRM
+                PreferencesManager.INPUT_MODE_ASSISTED -> InputMode.ASSISTED
+                else -> InputMode.INSTANT
+            }
+            stateMachine.setInputMode(inputMode)
+        }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {
@@ -364,7 +377,18 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // 2. Dispatch data to the cross-platform state machine (it doesn't need to know about MotionEvent)
         stateMachine.handleTouch(dx, dy, isLeft, isDownOrMove, isUpOrCancel)
 
-        // 3. Update the action-wheel joystick mode (whichever currently shows right-side content)
+        // 3. In one-handed mode, sync the left dial to show the locked direction
+        //    When the left dial is idle (not being actively touched), show the locked direction.
+        //    When a chord fires and the lock clears, this resets the highlight.
+        if (stateMachine.inputMode == InputMode.ASSISTED) {
+            val letterJoystick = if (stateMachine.leftHandedMode) rightJoystick else leftJoystick
+            val isThisTheLetterJoystick = (isLeft && !stateMachine.leftHandedMode) || (!isLeft && stateMachine.leftHandedMode)
+            if (!isThisTheLetterJoystick || isUpOrCancel) {
+                letterJoystick.setLockedDirection(stateMachine.lockedLeftDir)
+            }
+        }
+
+        // 4. Update the action-wheel joystick mode (whichever currently shows right-side content)
         val actionJoystick = if (stateMachine.leftHandedMode) leftJoystick else rightJoystick
         actionJoystick.keyboardMode = stateMachine.currentMode
 
@@ -566,14 +590,14 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     override fun commitText(text: String) {
         currentInputConnection?.commitText(text, 1)
         performHaptic(strong = false)
-        playClickSound()
+        playClickSound(soft = true)
     }
 
     override fun sendInputAction(action: InputAction) {
         if (action == InputAction.DELETE_WORD) {
             deleteWordBackward()
             performHaptic(strong = true)
-            playClickSound()
+            playClickSound(soft = false)
             return
         }
         val keyCode = when (action) {
@@ -598,24 +622,26 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
             currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
             performHaptic(strong = true)
-            playClickSound()
+            playClickSound(soft = false)
         }
     }
 
     private fun performHaptic(strong: Boolean) {
         if (!hapticEnabled) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val amplitude = if (strong) 180 else 60
-            vibrator.vibrate(VibrationEffect.createOneShot(if (strong) 30L else 15L, amplitude))
+            val amplitude = if (strong) 128 else 40
+            val duration = if (strong) 25L else 10L
+            vibrator.vibrate(VibrationEffect.createOneShot(duration, amplitude))
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(if (strong) 30L else 15L)
+            vibrator.vibrate(if (strong) 25L else 10L)
         }
     }
 
-    private fun playClickSound() {
+    private fun playClickSound(soft: Boolean) {
         if (!soundsEnabled) return
-        audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, -1f)
+        val volume = if (soft) 0.1f else 0.4f
+        audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, volume)
     }
 
     private fun deleteWordBackward() {

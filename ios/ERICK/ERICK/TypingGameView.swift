@@ -175,6 +175,19 @@ struct TypingGameView: View {
                 .frame(width: 1, height: 1)
                 .opacity(0.01)
                 
+                Button(action: skipQuote) {
+                    Text("Skip Quote")
+                        .font(.subheadline)
+                        .foregroundColor(.accentColor)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.accentColor, lineWidth: 1)
+                        )
+                }
+                .padding(.bottom, 8)
+
                 Text("Start typing with your keyboard!")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -282,6 +295,16 @@ struct TypingGameView: View {
     
     // MARK: - Input Processing
     
+    private func skipQuote() {
+        currentQuoteIndex += 1
+        if currentQuoteIndex >= quoteOrder.count {
+            quoteOrder = Array(quotes.indices).shuffled()
+            currentQuoteIndex = 0
+        }
+        typedText = ""
+        currentQuoteHasError = false
+    }
+
     private func processInput(_ newValue: String) {
         let quote = currentQuote
         let quoteChars = Array(quote)

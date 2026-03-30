@@ -306,7 +306,23 @@ fun TypingGameScreen(onBack: () -> Unit) {
                     cursorBrush = SolidColor(Color.Transparent)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        currentQuoteIndex++
+                        if (currentQuoteIndex >= quoteOrder.size) {
+                            quoteOrder = quotes.indices.shuffled()
+                            currentQuoteIndex = 0
+                        }
+                        typedText = ""
+                        currentQuoteHasError = false
+                    }
+                ) {
+                    Text("Skip Quote")
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Start typing with your keyboard!",

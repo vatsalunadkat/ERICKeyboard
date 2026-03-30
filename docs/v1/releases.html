@@ -203,17 +203,42 @@
 
   <!-- ===== Stats ===== -->
   <div class="stats-grid">
-    <div class="stat-card"><div class="stat-value">4+</div><div class="stat-label">Alpha Releases</div></div>
+    <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Releases</div></div>
     <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Platforms</div></div>
-    <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Color Palettes</div></div>
+    <div class="stat-card"><div class="stat-value">7+</div><div class="stat-label">Color Palettes</div></div>
     <div class="stat-card"><div class="stat-value">0</div><div class="stat-label">Data Collected</div></div>
   </div>
 
   <!-- ===== Timeline ===== -->
   <div class="timeline">
 
-    <!-- v0.5.1-alpha -->
+    <!-- v0.7.4-beta -->
     <div class="release-card latest">
+      <div class="release-header">
+        <span class="release-version">v0.7.4-beta</span>
+        <span class="release-date">March 2026</span>
+      </div>
+      <div class="release-title">Input Modes, Custom Colors &amp; Haptic Feedback</div>
+      <div class="milestones">
+        <span class="milestone-tag">Input Modes</span>
+        <span class="milestone-tag">One-Handed Typing</span>
+        <span class="milestone-tag">Custom Color Palettes</span>
+        <span class="milestone-tag">Haptic Feedback</span>
+        <span class="milestone-tag">Typing Sounds</span>
+      </div>
+      <ul class="release-features">
+        <li>Three input modes: Quick Type (rapid fire), Steady Type (one chord per hold), and One-Handed (lock left dial, swipe right)</li>
+        <li>Custom color palette editor with HSV sliders (Android) and native ColorPicker (iOS) for full 8-color personalization</li>
+        <li>Haptic feedback with intensity levels for utility keys vs. letters, plus soft typing sounds</li>
+        <li>Fixed pastel palette icon contrast for right-dial utility icons</li>
+        <li>Removed React SPA, replaced with lightweight static HTML/CSS/JS site</li>
+        <li>Fixed CORS vulnerability in research prototype dependency</li>
+        <li>iOS controller support fix and UI/UX polish across both platforms</li>
+      </ul>
+    </div>
+
+    <!-- v0.5.1-alpha -->
+    <div class="release-card">
       <div class="release-header">
         <span class="release-version">v0.5.1-alpha</span>
         <span class="release-date">March 28, 2026</span>
@@ -355,11 +380,12 @@
     <h2>What's coming next</h2>
     <div class="roadmap-grid">
       <div class="roadmap-card">
-        <span class="roadmap-version">v0.6.0</span>
+        <span class="roadmap-version">v0.8.0</span>
         <h3>Planned Next</h3>
         <ul>
           <li>Multi-language support with extended dictionaries</li>
-          <li>Mini typing game for chord learning and speed practice</li>
+          <li>Typing speed analytics and personal bests</li>
+          <li>Tablet-optimized layout</li>
         </ul>
       </div>
       <div class="roadmap-card">
@@ -368,7 +394,6 @@
         <ul>
           <li>Production-ready stability</li>
           <li>Cloud settings sync</li>
-          <li>Typing speed analytics</li>
           <li>App Store and Play Store releases</li>
         </ul>
       </div>

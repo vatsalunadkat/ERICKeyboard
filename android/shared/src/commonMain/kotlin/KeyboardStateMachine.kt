@@ -55,6 +55,14 @@ class KeyboardStateMachine(
     var activeCustomLayout: CustomLayout? = null
     private var isChordExecuted = false
 
+    // Input mode
+    var inputMode = InputMode.INSTANT
+        private set
+
+    // Assisted mode: locked left direction
+    var lockedLeftDir = Direction.NONE
+        private set
+
     // Accelerating backspace state
     private var backspaceRepeatJob: Job? = null
     private var backspaceHoldFired = false  // true if hold-repeat already deleted chars
@@ -112,14 +120,23 @@ class KeyboardStateMachine(
         leftHandedMode = enabled
     }
 
+    fun setInputMode(mode: InputMode) {
+        inputMode = mode
+        lockedLeftDir = Direction.NONE
+        isChordExecuted = false
+    }
+
     fun getCurrentPalette(): List<ColorEntry> {
         return ColorPalettes.getPalette(currentPaletteType)
     }
 
     // Returns the live preview character for UI rendering
     fun getPreviewText(): String {
-        return if (leftActiveDir != Direction.NONE && rightActiveDir != Direction.NONE) {
-            processor.getChordResult(leftActiveDir, rightActiveDir, currentMode, currentLayoutType, activeCustomLayout)
+        val effectiveLeft = if (leftActiveDir != Direction.NONE) leftActiveDir
+            else if (inputMode == InputMode.ASSISTED) lockedLeftDir
+            else Direction.NONE
+        return if (effectiveLeft != Direction.NONE && rightActiveDir != Direction.NONE) {
+            processor.getChordResult(effectiveLeft, rightActiveDir, currentMode, currentLayoutType, activeCustomLayout)
         } else {
             ""
         }
@@ -186,16 +203,10 @@ class KeyboardStateMachine(
         cancelBackspaceRepeat()
 
         if (sourceDir != Direction.NONE && wasEffectiveSource) {
-            if (isLeft) {
-                if (rightDirBeforeRelease != Direction.NONE && !isChordExecuted) {
-                    fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
-                }
-            } else {
-                if (leftDirBeforeRelease != Direction.NONE && !isChordExecuted) {
-                    fireChord(leftDirBeforeRelease, rightDirBeforeRelease)
-                } else if (leftDirBeforeRelease == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
-                    handleRightOnlySwipe(rightDirBeforeRelease)
-                }
+            when (inputMode) {
+                InputMode.INSTANT -> handleInstantRelease(isLeft, leftDirBeforeRelease, rightDirBeforeRelease, wasBackspaceHold)
+                InputMode.CONFIRM -> handleConfirmRelease(isLeft, leftDirBeforeRelease, rightDirBeforeRelease, wasBackspaceHold)
+                InputMode.ASSISTED -> handleAssistedRelease(isLeft, leftDirBeforeRelease, rightDirBeforeRelease, wasBackspaceHold)
             }
         }
 
@@ -204,6 +215,64 @@ class KeyboardStateMachine(
 
         if (leftActiveDir == Direction.NONE && rightActiveDir == Direction.NONE) {
             isChordExecuted = false
+        }
+    }
+
+    private fun handleInstantRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        if (isLeft) {
+            // Left release alone does not fire — left just sets the chord row.
+            // The chord fires only when right releases while left is held.
+        } else {
+            if (leftDir != Direction.NONE) {
+                // Right released while left is held — fire chord
+                fireChord(leftDir, rightDir)
+                // Allow subsequent right swipes to fire while left stays held
+                isChordExecuted = false
+            } else if (!isChordExecuted && !wasBackspaceHold) {
+                handleRightOnlySwipe(rightDir)
+            }
+        }
+    }
+
+    private fun handleConfirmRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        // Steady Type: fire chord when either dial releases while both active.
+        // Only one chord per left-hold session -- isChordExecuted stays true
+        // until both dials return to center.
+        if (isLeft) {
+            if (rightDir != Direction.NONE && !isChordExecuted) {
+                fireChord(leftDir, rightDir)
+            }
+        } else {
+            if (leftDir != Direction.NONE && !isChordExecuted) {
+                fireChord(leftDir, rightDir)
+            } else if (leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                handleRightOnlySwipe(rightDir)
+            }
+        }
+    }
+
+    private fun handleAssistedRelease(isLeft: Boolean, leftDir: Direction, rightDir: Direction, wasBackspaceHold: Boolean) {
+        if (isLeft) {
+            // Lock the left direction for use with the right dial
+            lockedLeftDir = leftDir
+            // If right is also active, fire the chord immediately
+            if (rightDir != Direction.NONE && !isChordExecuted) {
+                fireChord(leftDir, rightDir)
+                lockedLeftDir = Direction.NONE
+            }
+        } else {
+            // Right dial released
+            if (leftDir != Direction.NONE && !isChordExecuted) {
+                // Both active: fire chord (normal behavior)
+                fireChord(leftDir, rightDir)
+                lockedLeftDir = Direction.NONE
+            } else if (lockedLeftDir != Direction.NONE && leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                // Left is released but locked: fire chord with locked+right
+                fireChord(lockedLeftDir, rightDir)
+                lockedLeftDir = Direction.NONE
+            } else if (lockedLeftDir == Direction.NONE && leftDir == Direction.NONE && !isChordExecuted && !wasBackspaceHold) {
+                handleRightOnlySwipe(rightDir)
+            }
         }
     }
 
