@@ -13,24 +13,10 @@
         <FrameLayout
             android:id="@+id/live_preview_container"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="40dp"
             android:gravity="center"
             android:clipChildren="false"
             android:clipToPadding="false">
-
-            <!-- Shift / Caps Lock indicator (inside preview row to avoid overlapping capsule) -->
-            <TextView
-                android:id="@+id/shift_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|start"
-                android:layout_marginStart="8dp"
-                android:elevation="8dp"
-                android:textSize="13sp"
-                android:textColor="#FFFFFF"
-                android:background="@android:color/transparent"
-                android:visibility="gone"
-                android:importantForAccessibility="yes" />
 
             <LinearLayout
                 android:id="@+id/live_preview_capsule"
@@ -105,6 +91,21 @@
                     android:focusable="true" />
             </LinearLayout>
         </FrameLayout>
+
+        <!-- Shift / Caps Lock indicator (below suggestions, above joysticks) -->
+        <TextView
+            android:id="@+id/shift_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:background="@android:color/transparent"
+            android:visibility="gone"
+            android:importantForAccessibility="yes" />
 
         <LinearLayout
             android:layout_width="match_parent"

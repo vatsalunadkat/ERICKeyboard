@@ -137,6 +137,37 @@ fun MainScreen(
             )
         }
 
+        // Help & Settings buttons
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = {
+                    context.startActivity(
+                        Intent(context, HelpActivity::class.java)
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("❓ How to Type")
+            }
+            OutlinedButton(
+                onClick = {
+                    context.startActivity(
+                        Intent(context, SettingsActivity::class.java)
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Settings")
+            }
+        }
+
         // Show success message if fully enabled, otherwise show instructions
         if (isFullyEnabled) {
             Card(

@@ -548,15 +548,21 @@ class JoystickView @JvmOverloads constructor(
         val availableWidth = if (hasIcon) baseRadius * 0.43f else baseRadius * 0.48f
         val availableHeight = if (hasIcon) baseRadius * 0.36f else baseRadius * 0.30f
 
+        // Use larger font for single-char punctuation (.,<>) so they're easily visible
+        val isBigPunctuation = !hasIcon && lines.size == 1 && lines[0].length == 1 && lines[0][0] in ".,<>"
         val textPaint = Paint(labelTextPaint).apply {
             this.alpha = alpha
             this.color = textColor
-            textSize = fittedTextSize(
-                lines = lines,
-                maxWidth = availableWidth,
-                maxHeight = availableHeight,
-                preferredSizes = listOf(20f, 18f, 16f, 14f, 12f)
-            )
+            textSize = if (isBigPunctuation) {
+                minOf(baseRadius * 0.22f, availableHeight)
+            } else {
+                fittedTextSize(
+                    lines = lines,
+                    maxWidth = availableWidth,
+                    maxHeight = availableHeight,
+                    preferredSizes = listOf(20f, 18f, 16f, 14f, 12f)
+                )
+            }
         }
 
         val lineHeight = textPaint.fontSpacing * 0.9f

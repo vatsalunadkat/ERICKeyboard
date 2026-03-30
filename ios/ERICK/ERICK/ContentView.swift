@@ -52,6 +52,35 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                     
+                    // Help & Settings buttons
+                    HStack(spacing: 12) {
+                        NavigationLink(destination: HelpView()) {
+                            HStack {
+                                Text("❓")
+                                Text("How to Type")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                        }
+
+                        NavigationLink(destination: SettingsView()) {
+                            HStack {
+                                Image(systemName: "gearshape")
+                                Text("Settings")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                        }
+                    }
+
                     // Success or Instructions
                     if isStep1Completed {
                         // All good!
