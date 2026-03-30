@@ -261,20 +261,20 @@ struct SettingsView: View {
                             .padding(.horizontal, 12).padding(.bottom, 4)
 
                         InputModeRadioOption(
-                            title: "Instant",
-                            description: "Character types as soon as either dial is released. Default and fastest mode.",
+                            title: "Quick Type",
+                            description: "Type at full speed. Characters appear as soon as you release either dial.",
                             selected: inputMode == "instant",
                             action: { inputMode = "instant" }
                         )
                         InputModeRadioOption(
-                            title: "Confirm",
-                            description: "Character types only when both dials return to center. More deliberate typing.",
+                            title: "Steady Type",
+                            description: "Take your time. Characters appear only after both dials return to center.",
                             selected: inputMode == "confirm",
                             action: { inputMode = "confirm" }
                         )
                         InputModeRadioOption(
-                            title: "Assisted",
-                            description: "Lock a direction on the left dial, then type with the right dial only. Great for one-handed use.",
+                            title: "One-Handed",
+                            description: "Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.",
                             selected: inputMode == "assisted",
                             action: { inputMode = "assisted" }
                         )

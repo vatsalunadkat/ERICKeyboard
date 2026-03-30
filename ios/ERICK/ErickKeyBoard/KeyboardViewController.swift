@@ -372,7 +372,6 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     
     // MARK: - GameController (DualShock 4, etc.)
     private static let controllerDeadZone: Float = 0.25
-    private static let controllerToTouchScale: Float = 80
     
     private func setupControllerInput() {
         if !hasRegisteredControllerObservers {
@@ -410,27 +409,20 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             self.prevLocalRightActive = false
             self.viewModel.leftControllerStickNormalized = (0, 0)
             self.viewModel.rightControllerStickNormalized = (0, 0)
-            self.handleTouch(dx: 0, dy: 0, isLeft: true, isDown: false, isUp: true)
-            self.handleTouch(dx: 0, dy: 0, isLeft: false, isDown: false, isUp: true)
+            self.stateMachine.handleControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
+            self.refreshViewState()
         }
     }
     
     private func setupCurrentController() {
         guard let controller = GCController.controllers().first,
-              let extended = controller.extendedGamepad else { return }
+              let _ = controller.extendedGamepad else { return }
 
         if currentController !== controller {
             currentController = controller
         }
 
         startLocalControllerPolling()
-        
-        extended.leftThumbstick.valueChangedHandler = { [weak self] _, xValue, yValue in
-            self?.handleControllerStick(x: xValue, y: yValue, isLeft: true)
-        }
-        extended.rightThumbstick.valueChangedHandler = { [weak self] _, xValue, yValue in
-            self?.handleControllerStick(x: xValue, y: yValue, isLeft: false)
-        }
     }
 
     private func startLocalControllerPolling() {
@@ -444,38 +436,23 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private func pollLocalController() {
         guard let extended = currentController?.extendedGamepad else { return }
 
-        let left = normalizedControllerStick(x: extended.leftThumbstick.xAxis.value, y: extended.leftThumbstick.yAxis.value)
-        let right = normalizedControllerStick(x: extended.rightThumbstick.xAxis.value, y: extended.rightThumbstick.yAxis.value)
+        let lx = extended.leftThumbstick.xAxis.value
+        let ly = extended.leftThumbstick.yAxis.value
+        let rx = extended.rightThumbstick.xAxis.value
+        let ry = extended.rightThumbstick.yAxis.value
 
-        let leftActive = abs(left.x) > 0.01 || abs(left.y) > 0.01
-        let rightActive = abs(right.x) > 0.01 || abs(right.y) > 0.01
+        let leftNorm = normalizedControllerStick(x: lx, y: ly)
+        let rightNorm = normalizedControllerStick(x: rx, y: ry)
+        viewModel.leftControllerStickNormalized = leftNorm
+        viewModel.rightControllerStickNormalized = rightNorm
 
-        if leftActive || prevLocalLeftActive {
-            processControllerState(normalized: left, isLeft: true, wasActive: prevLocalLeftActive)
+        stateMachine.handleControllerInput(leftX: lx, leftY: ly, rightX: rx, rightY: ry)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshViewState()
         }
-        if rightActive || prevLocalRightActive {
-            processControllerState(normalized: right, isLeft: false, wasActive: prevLocalRightActive)
-        }
-
-        prevLocalLeftActive = leftActive
-        prevLocalRightActive = rightActive
     }
     
-    private func handleControllerStick(x: Float, y: Float, isLeft: Bool) {
-        let normalized = normalizedControllerStick(x: x, y: y)
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            let wasActive = isLeft ? self.prevLocalLeftActive : self.prevLocalRightActive
-            self.processControllerState(normalized: normalized, isLeft: isLeft, wasActive: wasActive)
-            if isLeft {
-                self.prevLocalLeftActive = abs(normalized.x) > 0.01 || abs(normalized.y) > 0.01
-            } else {
-                self.prevLocalRightActive = abs(normalized.x) > 0.01 || abs(normalized.y) > 0.01
-            }
-        }
-    }
-
     private func normalizedControllerStick(x: Float, y: Float) -> (x: Float, y: Float) {
         let dead = Self.controllerDeadZone
         var nx = x
@@ -492,24 +469,6 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return (nx, ny)
     }
 
-    private func processControllerState(normalized: (x: Float, y: Float), isLeft: Bool, wasActive: Bool) {
-        let isActive = abs(normalized.x) > 0.01 || abs(normalized.y) > 0.01
-        let dx = normalized.x * Self.controllerToTouchScale
-        let dy = -normalized.y * Self.controllerToTouchScale
-
-        if isLeft {
-            viewModel.leftControllerStickNormalized = normalized
-        } else {
-            viewModel.rightControllerStickNormalized = normalized
-        }
-
-        if isActive {
-            handleTouch(dx: dx, dy: dy, isLeft: isLeft, isDown: true, isUp: false)
-        } else if wasActive {
-            handleTouch(dx: 0, dy: 0, isLeft: isLeft, isDown: false, isUp: true)
-        }
-    }
-    
     // MARK: - App Group bridge (host app reads controller, keyboard extension reads)
     private func startControllerBridgePolling() {
         controllerBridgeTimer?.invalidate()
@@ -533,8 +492,11 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             viewModel.leftControllerStickNormalized = (0, 0)
             viewModel.rightControllerStickNormalized = (0, 0)
             if prevBridgeLeftActive || prevBridgeRightActive {
-                handleTouch(dx: 0, dy: 0, isLeft: true, isDown: false, isUp: true)
-                handleTouch(dx: 0, dy: 0, isLeft: false, isDown: false, isUp: true)
+                // Send zeroed input to release any held directions
+                stateMachine.handleControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
+                DispatchQueue.main.async { [weak self] in
+                    self?.refreshViewState()
+                }
             }
             prevBridgeLeftActive = false
             prevBridgeRightActive = false
@@ -548,24 +510,20 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         
         let leftActive = abs(lnx) > 0.01 || abs(lny) > 0.01
         let rightActive = abs(rnx) > 0.01 || abs(rny) > 0.01
-        
-        let scale = Self.controllerToTouchScale
+
         viewModel.leftControllerStickNormalized = (lnx, lny)
         viewModel.rightControllerStickNormalized = (rnx, rny)
-        
-        // Only send isUp when the stick transitions from active to inactive; otherwise it would be misinterpreted as a chord, causing the right stick solo actions (e.g. NW to toggle caps) not to update the UI
-        let leftRelease = !leftActive && prevBridgeLeftActive
-        let rightRelease = !rightActive && prevBridgeRightActive
-        if leftActive {
-            handleTouch(dx: lnx * scale, dy: -lny * scale, isLeft: true, isDown: true, isUp: false)
-        } else if leftRelease {
-            handleTouch(dx: 0, dy: 0, isLeft: true, isDown: false, isUp: true)
+
+        // Route through the KMP state machine's dedicated controller handler
+        // Note: bridge values are already dead-zone-filtered and normalized [0..1]
+        // by ControllerBridge.tick(), so pass them as raw axis values and let
+        // the state machine's normalizeControllerStick() handle scaling.
+        stateMachine.handleControllerInput(leftX: lnx, leftY: lny, rightX: rnx, rightY: rny)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshViewState()
         }
-        if rightActive {
-            handleTouch(dx: rnx * scale, dy: -rny * scale, isLeft: false, isDown: true, isUp: false)
-        } else if rightRelease {
-            handleTouch(dx: 0, dy: 0, isLeft: false, isDown: false, isUp: true)
-        }
+
         prevBridgeLeftActive = leftActive
         prevBridgeRightActive = rightActive
     }

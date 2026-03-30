@@ -243,8 +243,15 @@ struct ContentView: View {
             case .active:
                 checkKeyboardStatus()
                 ControllerBridge.shared.start()
-            case .background, .inactive:
-                ControllerBridge.shared.stop()
+            case .inactive:
+                // Keep the bridge running when switching apps so the keyboard
+                // extension can still read controller data via App Group.
+                break
+            case .background:
+                // iOS may suspend the host app shortly after backgrounding.
+                // Keep the bridge alive so its CADisplayLink continues as long
+                // as the process is active.
+                break
             @unknown default:
                 break
             }

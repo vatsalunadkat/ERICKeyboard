@@ -1,6 +1,6 @@
 ﻿# ERICK — User Guide
 
-**Version**: 0.6.0-alpha  
+**Version**: 0.7.4-beta  
 **Last Updated**: 2026  
 
 ---
@@ -279,9 +279,9 @@ Settings are organized into collapsible accordion sections. Only one section is 
 - **Typing Sounds** — Toggle system click sounds when typing.
 
 ### Input Mode Section
-- **Instant** (default) — Character types as soon as either dial is released. Fastest mode.
-- **Confirm** — Character types only when both dials return to center. Reduces accidental inputs.
-- **Assisted** — Lock a direction on the left dial, then type with the right dial only. Designed for one-handed use.
+- **Quick Type** (default) — Type at full speed. Characters appear as soon as you release either dial.
+- **Steady Type** — Take your time. Characters appear only after both dials return to center.
+- **One-Handed** — Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.
 
 ### Privacy & Security Section
 - Privacy-related settings (data handling preferences)
@@ -292,17 +292,17 @@ Settings are organized into collapsible accordion sections. Only one section is 
 
 ERICK offers three input modes that change how chords are triggered. You can switch between them in **Settings → Input Mode**.
 
-### Instant Mode (Default)
+### Quick Type (Default)
 
 The standard typing experience. When you swipe both dials to form a chord, the character is typed as soon as **either dial is released**. This is the fastest mode and recommended for most users.
 
-### Confirm Mode
+### Steady Type
 
 A more deliberate typing mode. Both dials must **return to center** before the chord fires. This gives you time to verify your selection before committing, reducing accidental inputs. Useful for:
 - Users who are still learning the chord layout
 - Situations where accuracy matters more than speed
 
-### Assisted Mode
+### One-Handed
 
 Designed for **one-handed typing**. In this mode:
 1. Swipe the left dial to a direction — it **locks** in that direction when you release

@@ -3,7 +3,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 0.6.0-alpha</strong></p>
+  <p align="center"><strong>Version 0.7.4-beta</strong></p>
 
   <p align="center">
     A cross-platform ergonomic chorded keyboard for Android &amp; iOS — type with two joystick dials using touch or a physical gaming controller, featuring word prediction, accessibility-first design, and fully offline privacy.
@@ -172,10 +172,10 @@ ERICK/
 
 ### Features
 
-**Current Implementation (v0.6.0-alpha):**
+**Current Implementation (v0.7.4-beta):**
 - [x] **Dual-Platform Support**: Full keyboard on both Android (IME) and iOS (Keyboard Extension)
 - [x] **Chorded Input**: Two radial dials combine to form character chords (8 directions × 8 = 64 characters)
-- [x] **Three Input Modes**: Instant (fires on first release), Confirm (fires when both dials return to center), Assisted (lock left dial for one-handed typing)
+- [x] **Three Input Modes**: Quick Type (fires on first release), Steady Type (fires when both dials return to center), One-Handed (lock left dial for one-handed typing)
 - [x] **Three Layout Modes**: Logical (A–Z alphabetical), Efficiency (frequency-optimized), Custom (user-defined)
 - [x] **Custom Layout Creator**: Design, save, and switch between personalized chord layouts with color-coded UI
 - [x] **Word Prediction & Autocorrect**: Trie-based engine with ~700-word dictionary, bigram next-word prediction, and spelling corrections

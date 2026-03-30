@@ -145,8 +145,8 @@ struct SettingsView: View {
                                 .foregroundColor(inputMode == "instant" ? .accentColor : .secondary)
                                 .padding(.top, 2)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Instant").foregroundColor(.primary)
-                                Text("Character types as soon as either dial is released. Default and fastest mode.")
+                                Text("Quick Type").foregroundColor(.primary)
+                                Text("Type at full speed. Characters appear as soon as you release either dial.")
                                     .font(.caption).foregroundColor(.secondary)
                             }
                         }
@@ -157,8 +157,8 @@ struct SettingsView: View {
                                 .foregroundColor(inputMode == "confirm" ? .accentColor : .secondary)
                                 .padding(.top, 2)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Confirm").foregroundColor(.primary)
-                                Text("Character types only when both dials return to center. More deliberate typing.")
+                                Text("Steady Type").foregroundColor(.primary)
+                                Text("Take your time. Characters appear only after both dials return to center.")
                                     .font(.caption).foregroundColor(.secondary)
                             }
                         }
@@ -169,8 +169,8 @@ struct SettingsView: View {
                                 .foregroundColor(inputMode == "assisted" ? .accentColor : .secondary)
                                 .padding(.top, 2)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Assisted").foregroundColor(.primary)
-                                Text("Lock a direction on the left dial, then type with the right dial only. Great for one-handed use.")
+                                Text("One-Handed").foregroundColor(.primary)
+                                Text("Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.")
                                     .font(.caption).foregroundColor(.secondary)
                             }
                         }

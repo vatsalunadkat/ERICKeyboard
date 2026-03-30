@@ -495,22 +495,22 @@ private fun MainSettingsContent(
                 )
 
                 LayoutRadioOption(
-                    title = "Instant",
-                    subtitle = "Character types as soon as either dial is released. Default and fastest mode.",
+                    title = "Quick Type",
+                    subtitle = "Type at full speed. Characters appear as soon as you release either dial.",
                     selected = inputMode == PreferencesManager.INPUT_MODE_INSTANT,
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_INSTANT) } }
                 )
                 LayoutRadioOption(
-                    title = "Confirm",
-                    subtitle = "Character types only when both dials return to center. More deliberate typing.",
+                    title = "Steady Type",
+                    subtitle = "Take your time. Characters appear only after both dials return to center.",
                     selected = inputMode == PreferencesManager.INPUT_MODE_CONFIRM,
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_CONFIRM) } }
                 )
                 LayoutRadioOption(
-                    title = "Assisted",
-                    subtitle = "Lock a direction on the left dial, then type with the right dial only. Great for one-handed use.",
+                    title = "One-Handed",
+                    subtitle = "Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.",
                     selected = inputMode == PreferencesManager.INPUT_MODE_ASSISTED,
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_ASSISTED) } }
