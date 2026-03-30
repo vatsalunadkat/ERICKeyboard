@@ -19,12 +19,14 @@ struct SettingsView: View {
     @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
     @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
     @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
+    @AppStorage("custom_palette_colors", store: SettingsView.appGroupDefaults) private var customPaletteColors: String = ColorPaletteDefinitions.defaultCustomColors
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
     var onSettingsChanged: (() -> Void)? = nil
 
     @State private var showCustomLayoutList = false
+    @State private var showCustomPaletteEditor = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,7 +45,12 @@ struct SettingsView: View {
             }
             .background(Color(UIColor.systemGray6))
 
-            if showCustomLayoutList {
+            if showCustomPaletteEditor {
+                CustomPaletteEditorView(
+                    customColors: $customPaletteColors,
+                    onBack: { showCustomPaletteEditor = false }
+                )
+            } else if showCustomLayoutList {
                 CustomLayoutListView(onBack: { showCustomLayoutList = false })
             } else {
                 mainSettingsForm
@@ -56,6 +63,9 @@ struct SettingsView: View {
             onSettingsChanged?()
         }
         .onChange(of: colorPalette) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: customPaletteColors) { _ in
             onSettingsChanged?()
         }
         .onChange(of: themeMode) { _ in
@@ -189,6 +199,14 @@ struct SettingsView: View {
                                 palette: ColorPaletteDefinitions.pastel,
                                 selected: colorPalette == "pastel",
                                 onSelect: { colorPalette = "pastel" }
+                            )
+
+                            // Custom palette option
+                            CustomPaletteOption(
+                                customColors: customPaletteColors,
+                                selected: colorPalette == "custom",
+                                onSelect: { colorPalette = "custom" },
+                                onEditColors: { showCustomPaletteEditor = true }
                             )
                         }
 
@@ -370,6 +388,18 @@ struct ColorPaletteDefinitions {
         .init(name: "Slate", hex: "#8B8B8B")
     ]
 
+    static let defaultCustomColors = "#E60012,#F39800,#FFF100,#009944,#0068B7,#1D2088,#920783,#000000"
+
+    static func customPalette() -> [ColorPaletteEntry] {
+        let defaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
+        let stored = defaults.string(forKey: "custom_palette_colors") ?? defaultCustomColors
+        let hexList = stored.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let labels = ["Color 1", "Color 2", "Color 3", "Color 4", "Color 5", "Color 6", "Color 7", "Color 8"]
+        return hexList.enumerated().map { (i, hex) in
+            ColorPaletteEntry(name: labels[min(i, labels.count - 1)], hex: hex)
+        }
+    }
+
     static func palette(for key: String) -> [ColorPaletteEntry] {
         switch key {
         case "okabe_ito": return okabeIto
@@ -377,11 +407,13 @@ struct ColorPaletteDefinitions {
         case "protanopia": return protanopia
         case "tritanopia": return tritanopia
         case "pastel": return pastel
+        case "custom": return customPalette()
         default: return defaultPalette
         }
     }
 
-    static func contrastTextColor(hex: String) -> Color {
+    static func contrastTextColor(hex: String, paletteKey: String? = nil) -> Color {
+        if paletteKey == "pastel" { return .black }
         let clean = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
         guard clean.count >= 6 else { return .white }
         let r = Double(Int(clean.prefix(2), radix: 16) ?? 0)
@@ -434,6 +466,230 @@ private struct ColorPaletteOption: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Custom Palette Option
+
+private struct CustomPaletteOption: View {
+    let customColors: String
+    let selected: Bool
+    let onSelect: () -> Void
+    let onEditColors: () -> Void
+
+    private var hexList: [String] {
+        customColors.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+    }
+
+    var body: some View {
+        Button(action: onSelect) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                        .foregroundColor(selected ? .accentColor : .secondary)
+                    VStack(alignment: .leading) {
+                        Text("Create Your Own").foregroundColor(.primary)
+                        Text("Pick your own 8 colors")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button("Edit") { onEditColors() }
+                        .font(.caption)
+                        .buttonStyle(.bordered)
+                }
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(Array(hexList.enumerated()), id: \.offset) { i, hex in
+                            VStack(spacing: 2) {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color(hex: hex))
+                                    .frame(width: 32, height: 32)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                                    )
+                                Text("\(i + 1)")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .padding(.leading, 28)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Custom Palette Editor View
+
+struct CustomPaletteEditorView: View {
+    @Binding var customColors: String
+    var onBack: () -> Void
+
+    private let directionLabels = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+    @State private var colors: [String] = []
+    @State private var selectedIndex: Int = 0
+    @State private var pickerColor: Color = .red
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Button(action: onBack) {
+                    Image(systemName: "arrow.left")
+                        .font(.title3)
+                        .padding()
+                }
+                Text("Custom Palette")
+                    .font(.headline)
+                Spacer()
+                Button("Save") {
+                    customColors = colors.joined(separator: ",")
+                    onBack()
+                }
+                .padding()
+            }
+            .background(Color(UIColor.systemGray6))
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    Text("Tap a slot to edit its color:")
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // Color slots
+                    HStack(spacing: 8) {
+                        ForEach(0..<8, id: \.self) { index in
+                            VStack(spacing: 2) {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(index < colors.count ? Color(hex: colors[index]) : Color.gray)
+                                    .frame(width: 36, height: 36)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(index == selectedIndex ? Color.accentColor : Color.secondary.opacity(0.3),
+                                                    lineWidth: index == selectedIndex ? 3 : 1)
+                                    )
+                                    .onTapGesture {
+                                        selectedIndex = index
+                                        if index < colors.count {
+                                            pickerColor = Color(hex: colors[index])
+                                        }
+                                    }
+                                Text(directionLabels[index])
+                                    .font(.system(size: 10))
+                                    .foregroundColor(index == selectedIndex ? .accentColor : .secondary)
+                            }
+                        }
+                    }
+
+                    // Current color preview
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selectedIndex < colors.count ? Color(hex: colors[selectedIndex]) : Color.gray)
+                        .frame(height: 48)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                        )
+
+                    // Color picker
+                    ColorPicker("Pick Color", selection: $pickerColor, supportsOpacity: false)
+                        .onChange(of: pickerColor) { newColor in
+                            if selectedIndex < colors.count {
+                                colors[selectedIndex] = newColor.toHexString()
+                            }
+                        }
+
+                    // Hex input
+                    HStack {
+                        Text("#")
+                        TextField("Hex", text: Binding(
+                            get: {
+                                if selectedIndex < colors.count {
+                                    return colors[selectedIndex].trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+                                }
+                                return ""
+                            },
+                            set: { newValue in
+                                let filtered = String(newValue.filter { "0123456789ABCDEFabcdef".contains($0) }.prefix(6))
+                                if filtered.count == 6 && selectedIndex < colors.count {
+                                    let hex = "#\(filtered.uppercased())"
+                                    colors[selectedIndex] = hex
+                                    pickerColor = Color(hex: hex)
+                                }
+                            }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .autocapitalization(.allCharacters)
+                        .disableAutocorrection(true)
+                    }
+
+                    // RGB inputs
+                    HStack(spacing: 8) {
+                        rgbField(label: "R", component: 0)
+                        rgbField(label: "G", component: 1)
+                        rgbField(label: "B", component: 2)
+                    }
+                }
+                .padding(16)
+            }
+        }
+        .onAppear {
+            let hexList = customColors.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            colors = hexList
+            while colors.count < 8 { colors.append("#CCCCCC") }
+            if !colors.isEmpty {
+                pickerColor = Color(hex: colors[0])
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func rgbField(label: String, component: Int) -> some View {
+        VStack {
+            Text(label).font(.caption)
+            TextField(label, text: Binding(
+                get: {
+                    guard selectedIndex < colors.count else { return "0" }
+                    let hex = colors[selectedIndex].trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+                    guard hex.count >= 6 else { return "0" }
+                    let start = hex.index(hex.startIndex, offsetBy: component * 2)
+                    let end = hex.index(start, offsetBy: 2)
+                    return String(Int(hex[start..<end], radix: 16) ?? 0)
+                },
+                set: { newValue in
+                    guard selectedIndex < colors.count else { return }
+                    let val255 = max(0, min(255, Int(newValue) ?? 0))
+                    let hex = colors[selectedIndex].trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+                    guard hex.count >= 6 else { return }
+                    var components = [0, 0, 0]
+                    for c in 0..<3 {
+                        let s = hex.index(hex.startIndex, offsetBy: c * 2)
+                        let e = hex.index(s, offsetBy: 2)
+                        components[c] = Int(hex[s..<e], radix: 16) ?? 0
+                    }
+                    components[component] = val255
+                    let newHex = String(format: "#%02X%02X%02X", components[0], components[1], components[2])
+                    colors[selectedIndex] = newHex
+                    pickerColor = Color(hex: newHex)
+                }
+            ))
+            .textFieldStyle(.roundedBorder)
+            .keyboardType(.numberPad)
+        }
+    }
+}
+
+extension Color {
+    func toHexString() -> String {
+        guard let components = UIColor(self).cgColor.components else { return "#000000" }
+        let r = Int((components.count > 0 ? components[0] : 0) * 255)
+        let g = Int((components.count > 1 ? components[1] : 0) * 255)
+        let b = Int((components.count > 2 ? components[2] : 0) * 255)
+        return String(format: "#%02X%02X%02X", r, g, b)
     }
 }
 

@@ -273,7 +273,7 @@ class JoystickView @JvmOverloads constructor(
                 // Draw Icon and Label
                 val (iconName, label) = getInfoForDirection(dir)
                 val paintAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-                val contentColor = Color.parseColor(ColorPalettes.contrastTextColor(colorHex))
+                val contentColor = Color.parseColor(ColorPalettes.contrastTextColor(colorHex, colorPaletteType))
                 
                 // Content area center
                 val angleRad = Math.toRadians((startAngle + sweepAngle / 2f).toDouble())
@@ -520,7 +520,7 @@ class JoystickView @JvmOverloads constructor(
             preferredSizes = listOf(34f, 32f, 30f, 28f, 26f, 24f, 22f, 20f, 18f)
         )
 
-        val textColor = Color.parseColor(ColorPalettes.contrastTextColor(bgHex))
+        val textColor = Color.parseColor(ColorPalettes.contrastTextColor(bgHex, colorPaletteType))
         val textPaint = Paint(charTextPaint).apply {
             color = textColor
             alpha = alphaVal

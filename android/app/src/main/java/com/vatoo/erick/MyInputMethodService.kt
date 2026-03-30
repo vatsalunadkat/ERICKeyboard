@@ -8,6 +8,7 @@ import android.view.View
 import android.view.InputDevice
 import kotlin.math.abs
 import android.view.inputmethod.EditorInfo
+import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
 import com.vatoo.erick.shared.InputAction
@@ -142,6 +143,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                     PreferencesManager.PALETTE_PROTANOPIA -> ColorPaletteType.PROTANOPIA
                     PreferencesManager.PALETTE_TRITANOPIA -> ColorPaletteType.TRITANOPIA
                     PreferencesManager.PALETTE_PASTEL -> ColorPaletteType.PASTEL
+                    PreferencesManager.PALETTE_CUSTOM -> ColorPaletteType.CUSTOM
                     else -> ColorPaletteType.OKABE_ITO
                 }
             } else {
@@ -151,6 +153,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             stateMachine.setColorPalette(paletteType)
             if (::leftJoystick.isInitialized) leftJoystick.colorPaletteType = paletteType
             if (::rightJoystick.isInitialized) rightJoystick.colorPaletteType = paletteType
+        }.launchIn(serviceScope)
+
+        // Monitor custom palette color changes
+        preferencesManager.customPaletteColors.onEach { colorsStr ->
+            val hexList = colorsStr.split(",").map { it.trim() }
+            val names = listOf("Color 1", "Color 2", "Color 3", "Color 4", "Color 5", "Color 6", "Color 7", "Color 8")
+            val entries = hexList.mapIndexed { i, hex ->
+                ColorEntry(names.getOrElse(i) { "Color ${i + 1}" }, hex)
+            }
+            if (entries.size == 8) {
+                ColorPalettes.setCustomPalette(entries)
+                if (::leftJoystick.isInitialized) leftJoystick.invalidate()
+                if (::rightJoystick.isInitialized) rightJoystick.invalidate()
+            }
         }.launchIn(serviceScope)
 
         // Monitor theme mode changes
@@ -464,7 +480,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             val isDark = isEffectiveDarkMode()
             for (i in previewChars.indices) {
                 val tv = OutlinedTextView(this).apply {
-                    textSize = 22f
+                    textSize = 17f
                     val baseTf = resolveTypeface() ?: Typeface.DEFAULT
                     typeface = Typeface.create(baseTf, Typeface.BOLD)
                     gravity = Gravity.CENTER
@@ -491,7 +507,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             tv.setTextColor(Color.parseColor(pc.colorHex))
 
             val isHighlighted = (i == highlightIndex)
-            val targetSize = if (isHighlighted) 27f else 22f
+            val targetSize = if (isHighlighted) 21f else 17f
             val targetScale = if (isHighlighted) 1.08f else 1.0f
             val targetTypeface = if (isHighlighted) {
                 val baseTf = resolveTypeface() ?: Typeface.DEFAULT
@@ -648,28 +664,21 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val isDark = isEffectiveDarkMode()
         when (mode) {
             com.vatoo.erick.shared.KeyboardMode.SHIFTED -> {
-                shiftIndicator.text = "⬆ Shift"
+                shiftIndicator.text = "↑"
                 shiftIndicator.setTextColor(if (isDark) Color.WHITE else Color.DKGRAY)
+                shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
                 shiftIndicator.contentDescription = "Shift mode active"
             }
             com.vatoo.erick.shared.KeyboardMode.CAPS_LOCKED -> {
-                shiftIndicator.text = "⬆⬆ CAPS"
-                shiftIndicator.setTextColor(Color.WHITE)
-                shiftIndicator.setBackgroundColor(Color.parseColor("#D32F2F"))
-                shiftIndicator.setPadding(
-                    (6 * resources.displayMetrics.density).toInt(),
-                    (2 * resources.displayMetrics.density).toInt(),
-                    (6 * resources.displayMetrics.density).toInt(),
-                    (2 * resources.displayMetrics.density).toInt()
-                )
+                shiftIndicator.text = "↑↑"
+                shiftIndicator.setTextColor(Color.parseColor("#D32F2F"))
+                shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
                 shiftIndicator.contentDescription = "Caps Lock active"
             }
             else -> {
                 shiftIndicator.visibility = View.GONE
-                shiftIndicator.background = null
-                shiftIndicator.setPadding(0, 0, 0, 0)
             }
         }
     }

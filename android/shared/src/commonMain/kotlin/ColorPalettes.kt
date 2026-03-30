@@ -1,7 +1,7 @@
 package com.vatoo.erick.shared
 
 enum class ColorPaletteType {
-    DEFAULT, OKABE_ITO, DEUTERANOPIA, PROTANOPIA, TRITANOPIA, PASTEL
+    DEFAULT, OKABE_ITO, DEUTERANOPIA, PROTANOPIA, TRITANOPIA, PASTEL, CUSTOM
 }
 
 data class ColorEntry(val name: String, val hex: String)
@@ -75,6 +75,14 @@ object ColorPalettes {
         ColorEntry("Slate", "#8B8B8B")
     )
 
+    private var customColors: List<ColorEntry> = defaultColors.toList()
+
+    fun setCustomPalette(colors: List<ColorEntry>) {
+        customColors = colors
+    }
+
+    fun getCustomPalette(): List<ColorEntry> = customColors
+
     fun getPalette(type: ColorPaletteType): List<ColorEntry> {
         return when (type) {
             ColorPaletteType.DEFAULT -> defaultColors
@@ -83,6 +91,7 @@ object ColorPalettes {
             ColorPaletteType.PROTANOPIA -> protanopiaColors
             ColorPaletteType.TRITANOPIA -> tritanopiaColors
             ColorPaletteType.PASTEL -> pastelColors
+            ColorPaletteType.CUSTOM -> customColors
         }
     }
 
@@ -101,7 +110,8 @@ object ColorPalettes {
      * Returns "#000000" or "#FFFFFF" depending on the perceived luminance of [hex],
      * so text on that background is always legible.
      */
-    fun contrastTextColor(hex: String): String {
+    fun contrastTextColor(hex: String, paletteType: ColorPaletteType? = null): String {
+        if (paletteType == ColorPaletteType.PASTEL) return "#000000"
         val clean = hex.trimStart('#')
         if (clean.length < 6) return "#FFFFFF"
         val r = clean.substring(0, 2).toInt(16)

@@ -4,10 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/website/**'
-
-  schedule:
-    - cron: '0 6 * * *'
+      - 'docs/**'
 
   workflow_dispatch:
 
@@ -21,58 +18,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    defaults:
-      run:
-        working-directory: docs/website
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: docs/website/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Copy static assets to build output
-        run: |
-          cp -r ../v1 ../v1_copy || true
-          cp -r ../images ../images_copy || true
-          cp -r ../css ../css_copy || true
-          cp -r ../js ../js_copy || true
-          cp -r ../documentation ../documentation_copy || true
-          cp ../accessibility.html ../accessibility_copy.html || true
-          cp ../privacy-policy.html ../privacy_copy.html || true
-          cp ../404.html ../404_output.html || true
-          cp ../.nojekyll ../.nojekyll_copy || true
-
       - name: Prepare deploy directory
         run: |
-          mkdir -p ${{ github.workspace }}/deploy
-          cp ../index.html ${{ github.workspace }}/deploy/
-          cp -r ../assets ${{ github.workspace }}/deploy/ || true
-          cp ../404.html ${{ github.workspace }}/deploy/ || true
-          cp ../.nojekyll ${{ github.workspace }}/deploy/ || true
-          cp -r ../v1 ${{ github.workspace }}/deploy/v1 || true
-          cp -r ../images ${{ github.workspace }}/deploy/images || true
-          cp -r ../documentation ${{ github.workspace }}/deploy/documentation || true
-          cp -r ../css ${{ github.workspace }}/deploy/css || true
-          cp -r ../js ${{ github.workspace }}/deploy/js || true
-          cp ../accessibility.html ${{ github.workspace }}/deploy/ || true
-          cp ../privacy-policy.html ${{ github.workspace }}/deploy/ || true
+          mkdir -p deploy
+          cp docs/index.html deploy/
+          cp docs/404.html deploy/ || true
+          cp docs/.nojekyll deploy/ || true
+          cp -r docs/v1 deploy/v1 || true
+          cp -r docs/images deploy/images || true
+          cp -r docs/documentation deploy/documentation || true
+          cp -r docs/css deploy/css || true
+          cp -r docs/js deploy/js || true
+          cp docs/accessibility.html deploy/ || true
+          cp docs/privacy-policy.html deploy/ || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

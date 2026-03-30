@@ -9,14 +9,28 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Live Preview & Suggestion Bar (share the same row) -->
+        <!-- Top bar: shift indicator (left) | preview/suggestions (center) | settings (right) -->
         <FrameLayout
             android:id="@+id/live_preview_container"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:gravity="center"
             android:clipChildren="false"
             android:clipToPadding="false">
+
+            <!-- Shift / Caps Lock indicator — left side -->
+            <TextView
+                android:id="@+id/shift_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start|center_vertical"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="6dp"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:background="@android:color/transparent"
+                android:visibility="gone"
+                android:importantForAccessibility="yes" />
 
             <LinearLayout
                 android:id="@+id/live_preview_capsule"
@@ -26,13 +40,13 @@
                 android:orientation="horizontal"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingHorizontal="18dp"
-                android:paddingVertical="10dp"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
                 android:elevation="6dp"
                 android:visibility="gone"
                 android:background="@drawable/preview_capsule_bg" />
 
-            <!-- Suggestion Bar (shown when both dials at home and suggestions available) -->
+            <!-- Suggestion Bar -->
             <LinearLayout
                 android:id="@+id/suggestion_bar"
                 android:layout_width="match_parent"
@@ -40,7 +54,8 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:visibility="gone"
-                android:paddingHorizontal="12dp">
+                android:paddingStart="36dp"
+                android:paddingEnd="36dp">
 
                 <TextView
                     android:id="@+id/suggestion_1"
@@ -90,22 +105,20 @@
                     android:clickable="true"
                     android:focusable="true" />
             </LinearLayout>
-        </FrameLayout>
 
-        <!-- Shift / Caps Lock indicator (below suggestions, above joysticks) -->
-        <TextView
-            android:id="@+id/shift_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            android:textSize="12sp"
-            android:textColor="#FFFFFF"
-            android:background="@android:color/transparent"
-            android:visibility="gone"
-            android:importantForAccessibility="yes" />
+            <!-- Settings button — right side -->
+            <ImageButton
+                android:id="@+id/btn_settings"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_settings"
+                android:contentDescription="@string/settings"
+                android:scaleType="centerInside"
+                android:padding="8dp" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -128,17 +141,4 @@
                 android:layout_marginStart="8dp" />
         </LinearLayout>
     </LinearLayout>
-
-    <!-- Settings button positioned at top-right corner -->
-    <ImageButton
-        android:id="@+id/btn_settings"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="top|end"
-        android:layout_margin="8dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_settings"
-        android:contentDescription="@string/settings"
-        android:scaleType="centerInside"
-        android:padding="8dp" />
 </FrameLayout>

@@ -24,6 +24,7 @@ class PreferencesManager(private val context: Context) {
         private val CUSTOM_LAYOUT_ID_KEY = stringPreferencesKey("custom_layout_id")
         private val CUSTOM_LAYOUTS_JSON_KEY = stringPreferencesKey("custom_layouts_json")
         private val FONT_PREFERENCE_KEY = stringPreferencesKey("font_preference")
+        private val CUSTOM_PALETTE_COLORS_KEY = stringPreferencesKey("custom_palette_colors")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
@@ -43,6 +44,9 @@ class PreferencesManager(private val context: Context) {
         const val PALETTE_PROTANOPIA = "protanopia"
         const val PALETTE_TRITANOPIA = "tritanopia"
         const val PALETTE_PASTEL = "pastel"
+        const val PALETTE_CUSTOM = "custom"
+
+        const val DEFAULT_CUSTOM_COLORS = "#E60012,#F39800,#FFF100,#009944,#0068B7,#1D2088,#920783,#000000"
     }
 
     val layoutType: Flow<String> = context.dataStore.data
@@ -83,6 +87,11 @@ class PreferencesManager(private val context: Context) {
     val fontPreference: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[FONT_PREFERENCE_KEY] ?: FONT_SYSTEM
+        }
+
+    val customPaletteColors: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[CUSTOM_PALETTE_COLORS_KEY] ?: DEFAULT_CUSTOM_COLORS
         }
 
     suspend fun setLayoutType(layoutType: String) {
@@ -130,6 +139,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setFontPreference(font: String) {
         context.dataStore.edit { preferences ->
             preferences[FONT_PREFERENCE_KEY] = font
+        }
+    }
+
+    suspend fun setCustomPaletteColors(colors: String) {
+        context.dataStore.edit { preferences ->
+            preferences[CUSTOM_PALETTE_COLORS_KEY] = colors
         }
     }
 
