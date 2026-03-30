@@ -101,7 +101,8 @@ object ColorPalettes {
      * Returns "#000000" or "#FFFFFF" depending on the perceived luminance of [hex],
      * so text on that background is always legible.
      */
-    fun contrastTextColor(hex: String): String {
+    fun contrastTextColor(hex: String, paletteType: ColorPaletteType? = null): String {
+        if (paletteType == ColorPaletteType.PASTEL) return "#000000"
         val clean = hex.trimStart('#')
         if (clean.length < 6) return "#FFFFFF"
         val r = clean.substring(0, 2).toInt(16)

@@ -381,7 +381,8 @@ struct ColorPaletteDefinitions {
         }
     }
 
-    static func contrastTextColor(hex: String) -> Color {
+    static func contrastTextColor(hex: String, paletteKey: String? = nil) -> Color {
+        if paletteKey == "pastel" { return .black }
         let clean = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
         guard clean.count >= 6 else { return .white }
         let r = Double(Int(clean.prefix(2), radix: 16) ?? 0)

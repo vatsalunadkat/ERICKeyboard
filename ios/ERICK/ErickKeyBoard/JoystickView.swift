@@ -346,7 +346,7 @@ private struct LeftWheelBackground: View {
             if !item.isEmpty {
                 let textColor: Color = {
                     if index < colorHexes.count {
-                        return ColorPaletteDefinitions.contrastTextColor(hex: colorHexes[index])
+                        return ColorPaletteDefinitions.contrastTextColor(hex: colorHexes[index], paletteKey: colorPaletteKey)
                     }
                     return .white
                 }()
@@ -484,7 +484,7 @@ private struct RightWheelBackground: View {
                     .brightness(selected ? 0.08 : 0)
                     .opacity(dimmed ? 0.55 : 1)
 
-                    let contrastColor = ColorPaletteDefinitions.contrastTextColor(hex: sectorHexes[direction] ?? "#000000")
+                    let contrastColor = ColorPaletteDefinitions.contrastTextColor(hex: sectorHexes[direction] ?? "#000000", paletteKey: colorPaletteKey)
                     RightActionLabel(action: action, size: size * 0.17, textColor: contrastColor)
                         .position(labelPoint)
                         .opacity(dimmed ? 0.55 : 1)
