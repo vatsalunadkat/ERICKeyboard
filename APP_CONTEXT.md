@@ -1,6 +1,6 @@
 ﻿# ERICK - Application Context & Architecture
 
-**Version**: 0.5.1-alpha  
+**Version**: 0.6.0-alpha  
 **Last Updated**: March 28, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 
@@ -464,6 +464,7 @@ Located in `android/shared/src/commonMain/kotlin/`
 - `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED)
 - `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, etc.)
 - `LayoutType`: Layout selection (LOGICAL, EFFICIENCY, CUSTOM)
+- `InputMode`: Input mode selection (INSTANT, CONFIRM, ASSISTED)
 
 ### 2. WordPredictionEngine (Shared Module)
 
@@ -761,7 +762,15 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 
 ### Version History
 
-- **v0.5.1-alpha** (Current):
+- **v0.6.0-alpha** (Current):
+  - Three input modes: Instant, Confirm, Assisted (one-handed typing)
+  - Custom color palettes with full color editor (HSV/hex/RGB)
+  - Haptic feedback & typing sounds (toggleable)
+  - Pastel palette icon fix (black icons on low-luminance colors)
+  - Preview capsule text cutoff fix
+  - Shift/caps indicator redesign
+
+- **v0.5.1-alpha**:
   - Typing practice mini-game (Android Compose + iOS SwiftUI)
   - Outlined/stroked preview text for readability across light/dark themes
   - Website redesign (React + Vite + Tailwind SPA)

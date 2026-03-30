@@ -5,6 +5,30 @@ All notable changes to the ERICK (Ergonomic Radial Inclusive Controller Keyboard
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.6.0-alpha] - 2026
+
+## What's New
+
+### Major Features
+- **Three Input Modes** — Choose how chords are triggered via a new Input Mode settings section:
+  - **Instant** (default): Character types as soon as either dial is released — fastest mode, same as previous behavior.
+  - **Confirm**: Character types only when both dials return to center — more deliberate, reduces accidental inputs.
+  - **Assisted**: Lock a direction on the left dial, then type with the right dial only — great for one-handed use.
+- **Custom Color Palettes** — Create your own 8-color palette with a full color editor. Android uses HSV sliders with hex/RGB input; iOS uses the native ColorPicker with hex/RGB fields. Accessible via a "Create Your Own" option in the Colorblind Mode section.
+- **Haptic Feedback & Typing Sounds** — New Feedback settings section with toggleable haptic vibration (strong for utility keys, light for letters) and system typing sounds. Both default to off.
+
+### Improvements
+- **Pastel Palette Icon Fix** — Fixed utility icons on the right dial appearing invisible when using Pastel palette colors with low luminance (Lavender, Lilac, Slate). Icons now correctly use black instead of white on light-colored pastel backgrounds.
+- **Preview Text Capsule Fix** — Fixed text being cut off at 1 and 3 characters in the preview capsule.
+- **Shift/Caps Indicator Redesign** — Redesigned the shift indicator badge for better visibility.
+- **How to Type Emoji Update** — Changed the indicator icon/emoji for the How to Type overlay.
+- **Website Deployment Fix** — Updated deployment workflow for the documentation website.
+
+### Breaking Changes
+None — existing user preferences remain compatible. New preferences (`input_mode`, `custom_palette_colors`, `haptic_feedback`, `typing_sounds`) default to backward-compatible values.
+
+---
+
 ## [v0.5.1-alpha] - Mar 28, 2026
 
 ## What's New

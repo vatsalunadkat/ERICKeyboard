@@ -4,7 +4,7 @@ This folder contains the iOS implementation of ERICK (Ergonomic Radial Inclusive
 
 ## Overview
 
-ERICK iOS is a Custom Keyboard Extension that provides chord-based text input using dual touch joysticks or a physical gaming controller. It shares its core logic with the Android app via a Kotlin Multiplatform `SharedKeyboard.xcframework` and presents a native SwiftUI interface. Features include word prediction & autocorrect, a typing practice mini-game, stroked preview text for readability across themes, and multiple accessibility options.
+ERICK iOS is a Custom Keyboard Extension that provides chord-based text input using dual touch joysticks or a physical gaming controller. It shares its core logic with the Android app via a Kotlin Multiplatform `SharedKeyboard.xcframework` and presents a native SwiftUI interface. Features include three input modes (Instant, Confirm, Assisted for one-handed use), word prediction & autocorrect, a typing practice mini-game, custom color palettes, haptic feedback & typing sounds, stroked preview text for readability across themes, and multiple accessibility options.
 
 ## Setup
 

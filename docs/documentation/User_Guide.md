@@ -1,7 +1,7 @@
 ﻿# ERICK — User Guide
 
-**Version**: 0.4.2-alpha  
-**Last Updated**: March 22, 2026  
+**Version**: 0.6.0-alpha  
+**Last Updated**: 2026  
 
 ---
 
@@ -14,9 +14,10 @@
 5. [Word Prediction & Autocorrect](#5-word-prediction--autocorrect)
 6. [Custom Layout Creator](#6-custom-layout-creator)
 7. [Settings](#7-settings)
-8. [Accessibility Features](#8-accessibility-features)
-9. [Physical Controller Support](#9-physical-controller-support)
-10. [Troubleshooting](#10-troubleshooting)
+8. [Input Modes](#8-input-modes)
+9. [Accessibility Features](#9-accessibility-features)
+10. [Physical Controller Support](#10-physical-controller-support)
+11. [Troubleshooting](#11-troubleshooting)
 
 ---
 
@@ -270,18 +271,54 @@ Settings are organized into collapsible accordion sections. Only one section is 
   - Protanopia (Red-blind)
   - Tritanopia (Blue-blind)
   - Pastel (Soft)
+  - Create Your Own — opens a full color editor to design a custom 8-color palette
 - **Left-Handed Mode** — Mirrors joystick positions
+
+### Feedback Section
+- **Haptic Feedback** — Toggle vibration feedback. Strong vibration for utility keys (backspace, space, enter), lighter vibration for letter input.
+- **Typing Sounds** — Toggle system click sounds when typing.
+
+### Input Mode Section
+- **Instant** (default) — Character types as soon as either dial is released. Fastest mode.
+- **Confirm** — Character types only when both dials return to center. Reduces accidental inputs.
+- **Assisted** — Lock a direction on the left dial, then type with the right dial only. Designed for one-handed use.
 
 ### Privacy & Security Section
 - Privacy-related settings (data handling preferences)
 
 ---
 
-## 8. Accessibility Features
+## 8. Input Modes
+
+ERICK offers three input modes that change how chords are triggered. You can switch between them in **Settings → Input Mode**.
+
+### Instant Mode (Default)
+
+The standard typing experience. When you swipe both dials to form a chord, the character is typed as soon as **either dial is released**. This is the fastest mode and recommended for most users.
+
+### Confirm Mode
+
+A more deliberate typing mode. Both dials must **return to center** before the chord fires. This gives you time to verify your selection before committing, reducing accidental inputs. Useful for:
+- Users who are still learning the chord layout
+- Situations where accuracy matters more than speed
+
+### Assisted Mode
+
+Designed for **one-handed typing**. In this mode:
+1. Swipe the left dial to a direction — it **locks** in that direction when you release
+2. Now swipe the right dial — the chord is formed using the locked left direction plus the right direction
+3. Characters are typed each time you release the right dial
+4. To change the locked direction, swipe the left dial again
+
+This allows you to type with a single finger/thumb by locking the left direction and repeatedly swiping the right dial.
+
+---
+
+## 9. Accessibility Features
 
 ### Colorblind Mode
 
-ERICK uses color to distinguish the 8 radial directions. For users with color vision deficiency, 5 specialized palettes remap these colors to ensure every direction is visually distinguishable.
+ERICK uses color to distinguish the 8 radial directions. For users with color vision deficiency, 6 specialized palettes remap these colors to ensure every direction is visually distinguishable. You can also create a fully custom palette.
 
 | Palette | Best For |
 |---|---|
@@ -290,6 +327,7 @@ ERICK uses color to distinguish the 8 radial directions. For users with color vi
 | **Protanopia** | Red-blind users |
 | **Tritanopia** | Blue-blind users |
 | **Pastel** | Users who prefer softer, low-contrast colors |
+| **Custom** | Create your own 8-color palette with the built-in color editor |
 
 Text on colored backgrounds automatically switches between black and white for maximum readability.
 
@@ -316,7 +354,7 @@ This ensures a comfortable experience for left-handed users without relearning t
 
 ---
 
-## 9. Physical Controller Support
+## 10. Physical Controller Support
 
 ERICK supports physical game controllers (DualShock 4, Xbox controllers, etc.) as an alternative to touchscreen joysticks.
 
@@ -348,7 +386,7 @@ You can switch freely between touch and controller input. If both are active sim
 
 ---
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 ### Keyboard does not appear
 

@@ -3,7 +3,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 0.5.1-alpha</strong></p>
+  <p align="center"><strong>Version 0.6.0-alpha</strong></p>
 
   <p align="center">
     A cross-platform ergonomic chorded keyboard for Android &amp; iOS — type with two joystick dials using touch or a physical gaming controller, featuring word prediction, accessibility-first design, and fully offline privacy.
@@ -118,7 +118,7 @@ ERICK/
 │   │   │   ├── KeyboardLogic.kt         # Chord processing & layout math
 │   │   │   ├── KeyboardContracts.kt     # Interfaces, enums & contracts
 │   │   │   ├── WordPredictionEngine.kt  # Trie-based prediction & autocorrect
-│   │   │   ├── ColorPalettes.kt         # 6 colorblind-safe palettes
+│   │   │   ├── ColorPalettes.kt         # 7 colorblind-safe palettes (incl. custom)
 │   │   │   ├── CustomLayout.kt          # Custom layout data models & manager
 │   │   │   ├── CustomLayoutSerializer.kt# JSON serialization for layouts
 │   │   │   ├── SettingsRepository.kt    # Cross-platform settings contracts
@@ -172,9 +172,10 @@ ERICK/
 
 ### Features
 
-**Current Implementation (v0.5.1-alpha):**
+**Current Implementation (v0.6.0-alpha):**
 - [x] **Dual-Platform Support**: Full keyboard on both Android (IME) and iOS (Keyboard Extension)
 - [x] **Chorded Input**: Two radial dials combine to form character chords (8 directions × 8 = 64 characters)
+- [x] **Three Input Modes**: Instant (fires on first release), Confirm (fires when both dials return to center), Assisted (lock left dial for one-handed typing)
 - [x] **Three Layout Modes**: Logical (A–Z alphabetical), Efficiency (frequency-optimized), Custom (user-defined)
 - [x] **Custom Layout Creator**: Design, save, and switch between personalized chord layouts with color-coded UI
 - [x] **Word Prediction & Autocorrect**: Trie-based engine with ~700-word dictionary, bigram next-word prediction, and spelling corrections
@@ -182,7 +183,9 @@ ERICK/
 - [x] **Live Preview Bar**: Animated capsule preview showing available characters when holding a dial direction, with outlined/stroked text for readability across themes
 - [x] **Typing Practice Mini-Game**: In-app typing game with curated quotes, WPM/accuracy/streak tracking, per-character correctness highlighting, and shake animation on errors
 - [x] **Physical Controller Support**: DualShock 4, Xbox, 8BitDo and other Bluetooth/USB gamepads via analog sticks
-- [x] **Colorblind Mode**: 6 palettes — Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel
+- [x] **Colorblind Mode**: 7 palettes — Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, and Custom (create your own)
+- [x] **Custom Color Palettes**: Full color editor with HSV sliders (Android) or native ColorPicker (iOS), plus hex/RGB input
+- [x] **Haptic Feedback & Typing Sounds**: Toggleable vibration (strong for utility, light for letters) and system click sounds
 - [x] **Left-Handed Mode**: Mirrors dial layout so the primary selector is under the dominant hand
 - [x] **Light & Dark Mode**: Follows system preference or manual override; full theme support across UI
 - [x] **Font Selection**: System, Verdana, Georgia, and OpenDyslexic (dyslexia-friendly) fonts
@@ -200,7 +203,6 @@ ERICK/
 - [ ] Multi-language support (Spanish, French, German, Mandarin, and more)
 - [ ] Complex mode with trigger/button combinations for faster typing on controllers
 - [ ] Typing speed analytics and improvement tracking
-- [ ] Haptic feedback options
 - [ ] Cloud sync for settings and custom layouts across devices
 - [ ] Tablet-optimized layout
 

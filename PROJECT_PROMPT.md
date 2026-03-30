@@ -4,7 +4,7 @@
 
 **ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** — a combination of a left-stick direction and a right-stick direction (8 directions each, yielding 64 chord slots). Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
 
-**Current version**: 0.5.1-alpha (March 28, 2026)  
+**Current version**: 0.6.0-alpha  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
 **License**: ERICK Source Available License 1.0  
 **Privacy stance**: 100% offline, zero data collection, no internet permissions, COPPA/GDPR/CCPA compliant.
@@ -35,8 +35,8 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 | `KeyboardStateMachine` | Chord state tracking, word buffer, suggestion orchestration, accelerating backspace (4 phases), controller dead-zone normalization, left-handed mode (dial swapping) |
 | `KeyboardLogic` | 8-way direction detection via `atan2`, chord → character resolution across 3 layouts (Logical, Efficiency, Custom), single-swipe action mapping |
 | `WordPredictionEngine` | Trie-based dictionary (~700 words, 4 frequency tiers), Levenshtein autocorrect, ~70 bigram pairs for next-word prediction, default suggestions ("I", "The", "Hello") |
-| `KeyboardContracts` | `Direction` enum (NONE + 8 compass), `KeyboardMode` (NORMAL/SHIFTED/CAPS_LOCKED), `LayoutType` (LOGICAL/EFFICIENCY/CUSTOM), `InputAction` enum, `KeyboardActionDelegate` interface |
-| `ColorPalettes` | 6 accessibility palettes: Default (Rainbow), Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel. W3C luminance-based contrast text color. |
+| `KeyboardContracts` | `Direction` enum (NONE + 8 compass), `KeyboardMode` (NORMAL/SHIFTED/CAPS_LOCKED), `LayoutType` (LOGICAL/EFFICIENCY/CUSTOM), `InputMode` (INSTANT/CONFIRM/ASSISTED), `InputAction` enum, `KeyboardActionDelegate` interface |
+| `ColorPalettes` | 7 accessibility palettes: Default (Rainbow), Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, Custom. W3C luminance-based contrast text color with palette-aware overrides. |
 | `CustomLayout` / `CustomLayoutManager` | Data class for user layouts (chord maps + single-swipe maps), CRUD + validation, built-in layout cloning, platform `CustomLayoutStorage` interface |
 | `KeyboardFactory` | iOS-specific factory (exposes Kotlin default arguments to Swift/ObjC) |
 
@@ -125,7 +125,10 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 | **Autocorrect** | Levenshtein edit-distance matching |
 | **Accelerating backspace** | 4 phases: initial delay → char delete → word delete → fast word delete |
 | **3 keyboard layouts** | Logical, Efficiency, Custom (user-editable) |
-| **6 colorblind palettes** | Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel |
+| **3 input modes** | Instant (fire on first release), Confirm (fire when both dials return), Assisted (lock left dial for one-handed use) |
+| **7 colorblind palettes** | Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, Custom |
+| **Custom color palettes** | Full color editor with HSV sliders (Android) or native ColorPicker (iOS), hex/RGB input |
+| **Haptic feedback** | Toggleable vibration (strong for utility keys, light for letters) and system typing sounds |
 | **Dyslexia fonts** | OpenDyslexic, Atkinson Hyperlegible |
 | **Left-handed mode** | Swaps left/right dial functions |
 | **Light & dark themes** | System-aware + manual toggle |
@@ -207,6 +210,7 @@ ERICKeyboard/
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| **v0.6.0-alpha** | 2026 | Three input modes (Instant/Confirm/Assisted), custom color palettes, haptic feedback & typing sounds |
 | **v0.5.1-alpha** | Mar 28, 2026 | Typing practice mini-game, outlined preview text, website redesign, source available license |
 | **v0.4.2-alpha** | Mar 21, 2026 | Word prediction, controller support, collapsible settings, accelerating backspace |
 | **v0.3.2-alpha** | Mar 14, 2026 | Radial dial UI redesign, efficiency layout, iOS radial UI, live character preview |
@@ -217,7 +221,7 @@ ERICKeyboard/
 
 | Version | Features |
 |---------|----------|
-| **v0.6.0** | Multi-language support, complex controller mode, haptic feedback |
+| **v0.7.0** | Multi-language support, complex controller mode |
 | **v1.0.0** | Production stability, App Store / Play Store main release, typing analytics |
 
 ---
