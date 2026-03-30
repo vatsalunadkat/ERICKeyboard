@@ -1,4 +1,4 @@
-﻿<a name="readme-top"></a>
+<a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
 <div align="center">
@@ -65,7 +65,7 @@
 
 ERICK is a cross-platform chorded keyboard that replaces dozens of tiny keys with two intuitive joystick dials. Users swipe on both dials to combine directions into character "chords" — making every letter, number, and symbol equally easy to type. It works with on-screen touch joysticks or physical gaming controllers (DualShock 4, Xbox, 8BitDo, etc.).
 
-The keyboard is designed with accessibility at its core: large touch targets eliminate the need for fine motor skills, six colorblind-safe palettes ensure readability for all forms of color vision, left-handed mode mirrors the layout, and dyslexia-friendly fonts are built in. Characters are arranged in a logical alphabetical order (A–Z), making it intuitive for users on the autism spectrum or anyone learning the system for the first time. An efficiency layout optimized by character frequency is also available for advanced typists.
+The keyboard is designed with accessibility at its core: large touch targets eliminate the need for fine motor skills, seven colorblind-safe palettes plus a custom color editor ensure readability for all forms of color vision, left-handed mode mirrors the layout, and dyslexia-friendly fonts are built in. Characters are arranged in a logical alphabetical order (A–Z), making it intuitive for users on the autism spectrum or anyone learning the system for the first time. An efficiency layout optimized by character frequency is also available for advanced typists.
 
 ERICK includes smart word prediction and autocorrect — a suggestion bar shows up to three completions or next-word predictions at all times, powered by a Trie-based engine with bigram sentence prediction. A live preview bar shows available characters as you hold a dial, with animated highlighting and a capsule design. All logic is shared between Android and iOS via Kotlin Multiplatform (KMP), ensuring identical behavior on both platforms.
 
@@ -194,7 +194,7 @@ ERICK/
 - [x] **Collapsible Settings Menu**: Accordion-style settings with animated expandable sections on both Android (Jetpack Compose) and iOS (SwiftUI); only one section open at a time
 - [x] **Kotlin Multiplatform Shared Module**: Identical keyboard logic on Android and iOS
 - [x] **Guided Onboarding**: Step-by-step IME setup flow on both platforms
-- [x] **Documentation Website**: React + Vite + Tailwind SPA with landing, features, evolution timeline, and privacy pages hosted on GitHub Pages
+- [x] **Documentation Website**: Static HTML/CSS/JS site with landing, features, accessibility, releases, and privacy pages hosted on GitHub Pages
 - [x] **Privacy Focused**: Zero data collection, no internet permissions, fully offline, source available
 
 ### Future Scope

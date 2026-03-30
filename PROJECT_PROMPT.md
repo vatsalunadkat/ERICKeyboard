@@ -221,8 +221,7 @@ ERICKeyboard/
 
 | Version | Features |
 |---------|----------|
-| **v0.7.0** | Multi-language support, complex controller mode |
-| **v1.0.0** | Production stability, App Store / Play Store main release, typing analytics |
+| **v1.0.0** | Multi-language support, 6 section dials mode |
 
 ---
 

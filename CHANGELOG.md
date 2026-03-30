@@ -1,11 +1,11 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to the ERICK (Ergonomic Radial Inclusive Controller Keyboard) project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.7.4-beta] - 2026
+## [v0.7.4-beta] - Mar 31, 2026
 
 ## What's New
 
@@ -232,17 +232,9 @@ Worked on by @VatsalUnadkat and @bisensamiksha
 
 ## Upcoming in Future Releases
 
-### [Planned for 0.6.0]
-- Multi-language support (extended dictionaries, character sets)
-- Complex mode with trigger/button combinations for faster controller typing
-- Haptic feedback options
-
 ### [Planned for 1.0.0]
-- Production-ready stability
-- Cloud settings sync
-- Typing speed analytics and personal bests
-- Tablet-optimized layout
-- App Store and Play Store releases
+- Multi-language support (extended dictionaries, character sets)
+- 6 Section dials mode
 
 ---
 

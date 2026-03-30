@@ -81,12 +81,12 @@ android/
 
 ### Settings & Preferences
 - **SettingsActivity/Screen**: Jetpack Compose UI for:
-  - Layout (Efficient, Accessible, Legacy, Custom)
-  - Theme (Light, Dark, System)
-  - Font (Default, OpenDyslexic, Atkinson Hyperlegible)
+  - Layout (Logical A–Z, Efficiency, Custom)
+  - Theme (System Default, Light, Dark) via segmented control
+  - Font (System, Verdana, Georgia, OpenDyslexic)
   - Colorblind palette (7 options including custom)
   - Custom color palette editor (HSV sliders, hex/RGB input)
-  - Input mode (Instant, Confirm, Assisted)
+  - Input mode (Quick Type, Steady Type, One-Handed)
   - Haptic feedback & typing sounds
   - Left-handed mode
   - Custom Layout Creator with chord editor and color indicators

@@ -1,4 +1,4 @@
-﻿# ERICK - Application Context & Architecture
+# ERICK - Application Context & Architecture
 
 **Version**: 0.7.4-beta  
 **Last Updated**: March 28, 2026  
@@ -56,7 +56,7 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 │  └─────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  ColorPalettes                                  │    │
-│  │  - 6 colorblind-safe palettes                   │    │
+│  │  - 7 colorblind-safe palettes + custom editor   │    │
 │  │  - Direction-to-color mapping                   │    │
 │  └─────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────┘
@@ -89,7 +89,7 @@ graph TB
         S2[KeyboardLogic]
         S3[WordPredictionEngine]
         S4[KeyboardContracts — Interfaces & Enums]
-        S5[ColorPalettes — 6 Palettes]
+        S5[ColorPalettes — 7 Palettes + Custom]
         S6[CustomLayout + CustomLayoutSerializer]
         S7[KeyboardFactory — iOS Init Helper]
     end
@@ -555,12 +555,15 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 **Purpose**: Configuration UI for keyboard preferences.
 
 **Settings Available**:
-- **Layout Mode**: Efficient, Accessible, Legacy, Custom
-- **Theme**: Light, Dark, System Default
-- **Font**: Default, OpenDyslexic, Atkinson Hyperlegible
+- **Layout Mode**: Logical (A–Z), Efficiency, Custom
+- **Theme**: System Default, Light, Dark (segmented control)
+- **Font**: System, Verdana, Georgia, OpenDyslexic
+- **Custom Colors**: Pastel palette, Create Your Own (full color editor with HSV/hex/RGB)
 - **Accessibility**:
-  - Colorblind mode with 6 palettes (Protanopia, Deuteranopia, Tritanopia, Achromatopsia, High Contrast, Default)
+  - Colorblind mode with 7 palettes (Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, Custom)
   - Left-handed mode (mirrors joystick layout)
+- **Input Mode**: Quick Type, Steady Type, One-Handed
+- **Feedback**: Haptic vibration (strong for utility, light for letters), typing sounds
 - **Custom Layout**: Full chord-to-character editor with color indicators
 
 **Technical Details**:
@@ -621,7 +624,7 @@ Located in `ios/ERICK/`
 **Purpose**: In-app and keyboard extension settings UI.
 
 **Settings Available** (mirrors Android):
-- Layout mode, theme, font, colorblind palette, left-handed mode, custom layout
+- Layout mode, theme (segmented control), font, colorblind palette, custom color palette, input mode, haptic feedback, typing sounds, left-handed mode, custom layout
 - Keyboard extension uses accordion-style collapsible sections (matching Android), with animated chevron and compact radio rows
 - Host app uses standard SwiftUI Form with Section
 - Persisted via App Group UserDefaults (shared between host app and keyboard extension)
@@ -823,21 +826,15 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 - Support character sets beyond ASCII (accented Latin, CJK exploration)
 - Language detection or manual language switching in settings
 
-### Mini Typing Game
-- In-app typing practice mode with gamified feedback
-- Chord learning exercises for new users
-- Speed and accuracy tracking with personal bests
+### Typing Speed Analytics
+- Persistent WPM and accuracy tracking with personal bests
+- Chord frequency heatmaps and error rate analysis
+- Privacy-preserving (local-only, opt-in)
 
 ### Cloud Sync
 - Backend service for settings and custom layout sync
 - Authentication (Google, Apple Sign-In)
 - Conflict resolution for multi-device users
-
-### Analytics
-- Typing speed tracking
-- Common chord patterns
-- Error rate analysis
-- Privacy-preserving (local-first, opt-in)
 
 ## Key Files Reference
 
@@ -852,7 +849,7 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 - `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` - Chord resolution, layout maps (Logical, Efficiency, Custom)
 - `android/shared/src/commonMain/kotlin/KeyboardContracts.kt` - Platform interfaces (Direction, KeyboardMode, LayoutType, InputAction, KeyboardActionDelegate)
 - `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` - Trie, bigrams, autocorrect
-- `android/shared/src/commonMain/kotlin/ColorPalettes.kt` - 6 accessibility color palettes (ColorPaletteType, ColorEntry)
+- `android/shared/src/commonMain/kotlin/ColorPalettes.kt` - 7 accessibility color palettes incl. custom (ColorPaletteType, ColorEntry)
 - `android/shared/src/commonMain/kotlin/CustomLayout.kt` - Custom layout data model, manager, storage interface
 - `android/shared/src/commonMain/kotlin/CustomLayoutSerializer.kt` - JSON serialization for custom layouts
 

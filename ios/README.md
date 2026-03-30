@@ -86,14 +86,14 @@ ios/
 
 ### Settings & Persistence
 - Settings stored in **App Group UserDefaults** (`group.com.vatoo.erick`) so both the host app and the keyboard extension share the same preferences
-- Supports: layout mode, theme, font, colorblind palette, left-handed mode, custom layout
+- Supports: layout mode, theme, font, colorblind palette, custom color palette, input mode, haptic feedback, typing sounds, left-handed mode, custom layout
 
 ### Shared Framework
 The `SharedKeyboard.xcframework` provides:
 - `KeyboardStateMachine` — chord processing, word buffer, suggestion orchestration
 - `KeyboardLogic` — chord resolution with 4 layout maps
 - `WordPredictionEngine` — trie, bigrams, autocorrect
-- `ColorPalettes` — 6 accessibility color schemes
+- `ColorPalettes` — 7 accessibility color schemes (incl. custom palette)
 - `KeyboardContracts` — platform interfaces
 
 ## Architecture Notes
