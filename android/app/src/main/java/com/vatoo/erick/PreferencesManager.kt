@@ -25,6 +25,8 @@ class PreferencesManager(private val context: Context) {
         private val CUSTOM_LAYOUTS_JSON_KEY = stringPreferencesKey("custom_layouts_json")
         private val FONT_PREFERENCE_KEY = stringPreferencesKey("font_preference")
         private val CUSTOM_PALETTE_COLORS_KEY = stringPreferencesKey("custom_palette_colors")
+        private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback")
+        private val TYPING_SOUNDS_KEY = booleanPreferencesKey("typing_sounds")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
@@ -94,6 +96,16 @@ class PreferencesManager(private val context: Context) {
             preferences[CUSTOM_PALETTE_COLORS_KEY] ?: DEFAULT_CUSTOM_COLORS
         }
 
+    val hapticFeedback: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[HAPTIC_FEEDBACK_KEY] ?: false
+        }
+
+    val typingSounds: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[TYPING_SOUNDS_KEY] ?: false
+        }
+
     suspend fun setLayoutType(layoutType: String) {
         context.dataStore.edit { preferences ->
             preferences[LAYOUT_TYPE_KEY] = layoutType
@@ -145,6 +157,18 @@ class PreferencesManager(private val context: Context) {
     suspend fun setCustomPaletteColors(colors: String) {
         context.dataStore.edit { preferences ->
             preferences[CUSTOM_PALETTE_COLORS_KEY] = colors
+        }
+    }
+
+    suspend fun setHapticFeedback(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[HAPTIC_FEEDBACK_KEY] = enabled
+        }
+    }
+
+    suspend fun setTypingSounds(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[TYPING_SOUNDS_KEY] = enabled
         }
     }
 

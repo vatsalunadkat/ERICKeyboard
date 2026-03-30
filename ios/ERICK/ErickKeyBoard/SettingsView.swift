@@ -20,6 +20,8 @@ struct SettingsView: View {
     @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
     @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
     @AppStorage("custom_palette_colors", store: SettingsView.appGroupDefaults) private var customPaletteColors: String = ColorPaletteDefinitions.defaultCustomColors
+    @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
+    @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
@@ -78,6 +80,12 @@ struct SettingsView: View {
             onSettingsChanged?()
         }
         .onChange(of: customLayoutId) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: hapticFeedback) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: typingSounds) { _ in
             onSettingsChanged?()
         }
     }
@@ -211,6 +219,27 @@ struct SettingsView: View {
                         }
 
                         Toggle("Left-Handed Mode", isOn: $leftHandedMode)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+                    }
+                }
+
+                // Feedback Section
+                CollapsibleSettingsSection(
+                    title: "Feedback",
+                    isExpanded: expandedSection == "feedback",
+                    onToggle: { expandedSection = expandedSection == "feedback" ? nil : "feedback" }
+                ) {
+                    VStack(spacing: 4) {
+                        Toggle("Haptic Feedback", isOn: $hapticFeedback)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+                        if hapticFeedback {
+                            Text("Strong vibration for utility keys, light for letters.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 12)
+                        }
+
+                        Toggle("Typing Sounds", isOn: $typingSounds)
                             .padding(.horizontal, 12).padding(.vertical, 4)
                     }
                 }

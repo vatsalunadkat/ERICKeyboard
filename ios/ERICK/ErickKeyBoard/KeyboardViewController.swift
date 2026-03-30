@@ -2,6 +2,7 @@ import UIKit
 import SwiftUI
 import Combine
 import GameController
+import AudioToolbox
 import SharedKeyboard // Import the KMP shared module
 
 struct KeyboardPreviewItem: Identifiable {
@@ -587,6 +588,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     func commitText(text: String) {
         self.textDocumentProxy.insertText(text)
+        performHaptic(strong: false)
+        playClickSound()
     }
 
     func onModeChanged(mode: KeyboardMode) {
@@ -624,6 +627,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         default:
             break
         }
+        performHaptic(strong: true)
+        playClickSound()
     }
 
     private func deleteWordBackward() {
@@ -643,6 +648,18 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         for _ in 0..<charsToDelete {
             self.textDocumentProxy.deleteBackward()
         }
+    }
+
+    private func performHaptic(strong: Bool) {
+        guard Self.appGroupDefaults.bool(forKey: "haptic_feedback") else { return }
+        let style: UIImpactFeedbackGenerator.FeedbackStyle = strong ? .heavy : .light
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.impactOccurred()
+    }
+
+    private func playClickSound() {
+        guard Self.appGroupDefaults.bool(forKey: "typing_sounds") else { return }
+        AudioServicesPlaySystemSound(1104) // Standard keyboard click
     }
 
     func onSuggestionsUpdated(suggestions: [String]) {
