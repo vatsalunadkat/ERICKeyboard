@@ -1,4 +1,6 @@
-﻿<a name="readme-top"></a>
+> Archive note: This folder contains an older prototype and does not describe the current ERICK product. See the root README for the current project overview.
+
+<a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
 <div align="center">

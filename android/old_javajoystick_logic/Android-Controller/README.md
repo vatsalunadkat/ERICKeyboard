@@ -1,3 +1,5 @@
+> Archive note: This folder contains an older prototype and does not describe the current ERICK product. See the root README for the current project overview.
+
 # Ergonomic-Keybord-Controller
 A type of ergonomic keyboard that will take input from a controller/joystick.
 
