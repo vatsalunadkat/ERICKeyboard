@@ -622,8 +622,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func playClickSound(soft: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "typing_sounds") else { return }
-        // 1519 = Peek (very soft), 1104 = standard keyboard click
-        AudioServicesPlaySystemSound(soft ? 1519 : 1104)
+        // 1104 = standard keyboard click for both letter and utility keys
+        AudioServicesPlaySystemSound(1104)
     }
 
     func onSuggestionsUpdated(suggestions: [String]) {

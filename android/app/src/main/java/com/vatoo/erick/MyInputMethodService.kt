@@ -629,18 +629,18 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private fun performHaptic(strong: Boolean) {
         if (!hapticEnabled) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val amplitude = if (strong) 128 else 40
-            val duration = if (strong) 25L else 10L
+            val amplitude = if (strong) 128 else 80
+            val duration = if (strong) 25L else 18L
             vibrator.vibrate(VibrationEffect.createOneShot(duration, amplitude))
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(if (strong) 25L else 10L)
+            vibrator.vibrate(if (strong) 25L else 18L)
         }
     }
 
     private fun playClickSound(soft: Boolean) {
         if (!soundsEnabled) return
-        val volume = if (soft) 0.1f else 0.4f
+        val volume = if (soft) 0.2f else 0.25f
         audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, volume)
     }
 

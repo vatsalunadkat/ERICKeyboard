@@ -30,7 +30,7 @@
   <img src="docs/documentation/logo/ERICK_feature_graphic_black.png" alt="ERICK Feature Graphic" width="700" />
 </div>
 
-ERICK is a different kind of keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
+ERICK is an accessibility-first keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
 
 ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting low-visual-demand typing.
 
