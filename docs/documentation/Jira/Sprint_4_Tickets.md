@@ -1,17 +1,17 @@
-# ERICK — Sprint 4+ Tickets
+# ERICK - Sprint 4+ Tickets
 
 **Sprint**: SCRUM Sprint 4 (and beyond)  
 **Sprint 4 Start Date**: March 16, 2026 (Monday)  
 **Sprint 4 End Date**: March 20, 2026 (Friday)  
 **Project**: ERICK 
 
-**Note**: Tickets from Sprint 3 that carried over — ERICK-80 through ERICK-86 (Custom Keybinds, Controller Support) — remain in the backlog and are not re-listed here. This document covers new feature requests only.
+**Note**: Tickets from Sprint 3 that carried over - ERICK-80 through ERICK-86 (Custom Keybinds, Controller Support) - remain in the backlog and are not re-listed here. This document covers new feature requests only.
 
 **Ticket Numbering**: Continues from ERICK-86 (last Sprint 3 ticket).
 
 ---
 
-## ERICK-87 — Unify Android Preview Bar to Match iOS Capsule Design + Right-Dial Preview
+## ERICK-87 - Unify Android Preview Bar to Match iOS Capsule Design + Right-Dial Preview
 
 | Field | Value |
 |---|---|
@@ -26,16 +26,16 @@
 
 ### Description
 
-The iOS keyboard preview bar currently has a much more polished look than Android — it uses **elongated oval capsules** with a white semi-transparent background, drop shadows, and animated highlighting. The Android preview bar is a plain rectangular gray bar with `SpannableString` text.
+The iOS keyboard preview bar currently has a much more polished look than Android - it uses **elongated oval capsules** with a white semi-transparent background, drop shadows, and animated highlighting. The Android preview bar is a plain rectangular gray bar with `SpannableString` text.
 
 This ticket covers **two objectives**:
 
-1. **Visual redesign** — Make the Android preview bar look **identical** to iOS: white capsule shape, shadow, animated text highlighting, properly spaced character "blobs"
-2. **Right-dial preview** — Currently, holding the **left dial** on Android shows a preview of all 8 characters in that group (e.g., holding N shows `a b c d e '`). However, holding the **right dial alone** does **not** show a preview. We need to add a **right-dial preview**: when the user holds a direction on the right dial (e.g., N = Red), the preview bar should show the character at that color position across ALL left-dial groups. For example, holding right-dial N (Red) should preview: `a f k p u z 1 6` (the first character from every group in logical layout). This should work for both Logical and Efficiency layouts.
+1. **Visual redesign** - Make the Android preview bar look **identical** to iOS: white capsule shape, shadow, animated text highlighting, properly spaced character "blobs"
+2. **Right-dial preview** - Currently, holding the **left dial** on Android shows a preview of all 8 characters in that group (e.g., holding N shows `a b c d e '`). However, holding the **right dial alone** does **not** show a preview. We need to add a **right-dial preview**: when the user holds a direction on the right dial (e.g., N = Red), the preview bar should show the character at that color position across ALL left-dial groups. For example, holding right-dial N (Red) should preview: `a f k p u z 1 6` (the first character from every group in logical layout). This should work for both Logical and Efficiency layouts.
 
 ### Current State (what exists)
 
-**iOS (reference — target look)**:
+**iOS (reference - target look)**:
 - Preview bar uses `Capsule().fill(Color.white.opacity(0.96))` with `shadow(color: .black.opacity(0.08), radius: 6, y: 2)`
 - Characters displayed in `HStack` with 8pt spacing
 - Normal text: 22pt bold; Highlighted: 27pt heavy with 1.08x scale
@@ -43,7 +43,7 @@ This ticket covers **two objectives**:
 - Color-coded per ring layer (outer → Red/Orange/Yellow, middle → Green/Blue/Purple, inner → Black/Magenta)
 - Rendered conditionally: hidden when no preview data
 
-**Android (current — needs redesign)**:
+**Android (current - needs redesign)**:
 - Preview bar is a `FrameLayout` in `keyboard_simple.xml` with background `#D0D6DC` (gray)
 - Characters rendered via `SpannableStringBuilder` with `ForegroundColorSpan` and `RelativeSizeSpan(1.5f)` for highlighting
 - No shadow, no capsule shape, no animation
@@ -61,7 +61,7 @@ This ticket covers **two objectives**:
 2. **Open `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt`**:
    - In `updateLivePreview()`, update the rendering to match iOS:
      - Use individual `TextView` items in a `LinearLayout` (horizontal) inside the capsule, instead of a single `SpannableString`
-     - Each character gets its own small capsule background (optional — check iOS for exact styling)
+     - Each character gets its own small capsule background (optional - check iOS for exact styling)
      - Normal characters: 18sp bold, highlighted: 24sp extra-bold with a slight scale animation
    - OR refactor to use Compose for the preview bar:
      ```kotlin
@@ -145,7 +145,7 @@ This ticket covers **two objectives**:
 
 ---
 
-## ERICK-88 — iOS Right-Dial Preview + Preview Parity Check
+## ERICK-88 - iOS Right-Dial Preview + Preview Parity Check
 
 | Field | Value |
 |---|---|
@@ -182,7 +182,7 @@ Also perform a visual parity check to ensure Android (after ERICK-87) and iOS pr
 
 2. **Open `ios/ERICK/ErickKeyBoard/JoystickView.swift`**:
    - In `KeyboardContainerView`, update the preview bar rendering to handle the right-dial preview case
-   - The preview items should use a distinct color scheme for right-dial preview — consider coloring each character by its **left-dial direction** (N=group1 color, NE=group2 color, etc.) since the right-dial color is the common factor
+   - The preview items should use a distinct color scheme for right-dial preview - consider coloring each character by its **left-dial direction** (N=group1 color, NE=group2 color, etc.) since the right-dial color is the common factor
    - Alternatively, show all items in the right-dial's color (e.g., all Red if holding right N)
 
 3. **Update `KeyboardViewModel`** (or relevant state) to include a `previewMode` enum:
@@ -195,7 +195,7 @@ Also perform a visual parity check to ensure Android (after ERICK-87) and iOS pr
    }
    ```
 
-4. **Parity check** — After ERICK-87 is complete, compare Android and iOS side by side:
+4. **Parity check** - After ERICK-87 is complete, compare Android and iOS side by side:
    - [ ] Capsule shape and border radius identical
    - [ ] Background opacity identical (96% white)
    - [ ] Shadow depth and spread identical
@@ -216,7 +216,7 @@ Also perform a visual parity check to ensure Android (after ERICK-87) and iOS pr
 
 ---
 
-## ERICK-74 — Custom Layout Creator — Shared Module Data Model & Persistence
+## ERICK-74 - Custom Layout Creator - Shared Module Data Model & Persistence
 
 | Field | Value |
 |---|---|
@@ -227,7 +227,7 @@ Also perform a visual parity check to ensure Android (after ERICK-87) and iOS pr
 | **Sprint** | Sprint 4 |
 | **Parent Epic** | ERICK-41 Android IME Core |
 | **Labels** | shared-module, custom-layout |
-| **Dependencies** | ERICK-73 (Efficiency layout — for LayoutType enum) |
+| **Dependencies** | ERICK-73 (Efficiency layout - for LayoutType enum) |
 
 ### Description
 
@@ -342,7 +342,7 @@ This ticket covers the **shared module** data model, serialization, validation, 
 
 ---
 
-## ERICK-75 — Custom Layout Creator UI — Android & iOS
+## ERICK-75 - Custom Layout Creator UI - Android & iOS
 
 | Field | Value |
 |---|---|
@@ -435,7 +435,7 @@ From the Settings screen, users can tap "Manage Custom Layouts" to enter a layou
 
 ---
 
-## ERICK-91 — Left-Handed Mode — UI Swap on Android & iOS
+## ERICK-91 - Left-Handed Mode - UI Swap on Android & iOS
 
 | Field | Value |
 |---|---|
@@ -484,7 +484,7 @@ In left-handed mode:
 2. **Open `android/app/src/main/java/com/vatoo/erick/JoystickView.kt`**:
    - Ensure `isRightSide` property correctly switches between letter-group rendering and color-segment rendering
    - Verify that character labels update correctly when `isRightSide` is toggled
-   - The concentric ring rendering (letters) and solid color segment rendering should already be gated on `isRightSide` — verify this
+   - The concentric ring rendering (letters) and solid color segment rendering should already be gated on `isRightSide` - verify this
 
 3. **Test that settings changes take effect immediately** (or after keyboard is re-opened):
    - Toggle left-handed mode in settings
@@ -528,7 +528,7 @@ In left-handed mode:
 
 ---
 
-## ERICK-92 — Light/Dark Mode Theme Support — Shared Theme Definitions & Platform UI
+## ERICK-92 - Light/Dark Mode Theme Support - Shared Theme Definitions & Platform UI
 
 | Field | Value |
 |---|---|
@@ -546,14 +546,14 @@ In left-handed mode:
 Implement full light/dark mode support for the ERICK keyboard and app on both platforms. Currently a "Dark Theme" toggle exists in settings on both platforms, but it has **no effect** on the actual keyboard UI or app screens.
 
 The user should be able to choose between:
-- **System Default** — follows the device's light/dark mode setting
-- **Light Mode** — always light regardless of system setting
-- **Dark Mode** — always dark regardless of system setting
+- **System Default** - follows the device's light/dark mode setting
+- **Light Mode** - always light regardless of system setting
+- **Dark Mode** - always dark regardless of system setting
 
 This applies to:
-1. **Keyboard IME view** — joystick backgrounds, text colors, preview bar, borders
-2. **App screens** — Settings, Onboarding (MainActivity/ContentView)
-3. **Preference persistence** — user choice saved and applied on every launch
+1. **Keyboard IME view** - joystick backgrounds, text colors, preview bar, borders
+2. **App screens** - Settings, Onboarding (MainActivity/ContentView)
+3. **Preference persistence** - user choice saved and applied on every launch
 
 ### How to Get Started
 
@@ -608,11 +608,11 @@ This applies to:
 
 #### Android
 
-2. **Update `PreferencesManager.kt`** — change `dark_theme` from `Boolean` to a `String` with three values:
+2. **Update `PreferencesManager.kt`** - change `dark_theme` from `Boolean` to a `String` with three values:
    - `"system"` (default), `"light"`, `"dark"`
    - Add `Flow<String>` for `themeMode`
 
-3. **Update `SettingsScreen.kt`** — replace the toggle with a 3-option radio group:
+3. **Update `SettingsScreen.kt`** - replace the toggle with a 3-option radio group:
    ```kotlin
    // Theme Mode
    RadioGroup(
@@ -622,7 +622,7 @@ This applies to:
    )
    ```
 
-4. **Update `SettingsActivity.kt` and `MainActivity.kt`** — apply the theme:
+4. **Update `SettingsActivity.kt` and `MainActivity.kt`** - apply the theme:
    ```kotlin
    val themeMode by preferencesManager.themeMode.collectAsState(initial = "system")
    val darkTheme = when (themeMode) {
@@ -635,20 +635,20 @@ This applies to:
    }
    ```
 
-5. **Update `MyInputMethodService.kt`** — read theme preference and pass to joystick views:
+5. **Update `MyInputMethodService.kt`** - read theme preference and pass to joystick views:
    - Read `themeMode` from `PreferencesManager`
    - Resolve to light/dark based on system setting or user override
    - Pass `KeyboardTheme` colors to `JoystickView` for rendering
    - Apply to preview bar colors
 
-6. **Update `JoystickView.kt`** — accept theme colors:
+6. **Update `JoystickView.kt`** - accept theme colors:
    - Add a `theme: KeyboardTheme` property
    - Replace all hardcoded color values with theme references
    - Update `onDraw()` to use `theme.dialBackground`, `theme.textPrimary`, etc.
 
 #### iOS
 
-7. **Update `SettingsView.swift`** — change dark theme toggle to 3-option picker:
+7. **Update `SettingsView.swift`** - change dark theme toggle to 3-option picker:
    ```swift
    Picker("Theme", selection: $themeMode) {
        Text("System Default").tag("system")
@@ -659,7 +659,7 @@ This applies to:
    ```
    - Store as `@AppStorage("theme_mode")` with default `"system"`
 
-8. **Update `ERICKApp.swift`** — apply theme:
+8. **Update `ERICKApp.swift`** - apply theme:
    ```swift
    @AppStorage("theme_mode") var themeMode = "system"
    
@@ -679,12 +679,12 @@ This applies to:
    }
    ```
 
-9. **Update `KeyboardViewController.swift`** — apply theme to keyboard extension:
+9. **Update `KeyboardViewController.swift`** - apply theme to keyboard extension:
    - Read `theme_mode` from App Group UserDefaults
    - Resolve to light/dark
    - Pass theme colors to `KeyboardContainerView` and `JoystickView`
 
-10. **Update `JoystickView.swift`** — accept theme colors from `KeyboardTheme`:
+10. **Update `JoystickView.swift`** - accept theme colors from `KeyboardTheme`:
     - Replace hardcoded background/text colors with theme references
     - Update preview bar to respect dark mode (dark background + light text)
 
@@ -705,7 +705,7 @@ This applies to:
 
 ---
 
-## ERICK-103 — Accelerating Backspace — Hold to Delete Words
+## ERICK-103 - Accelerating Backspace - Hold to Delete Words
 
 | Field | Value |
 |---|---|
@@ -724,7 +724,7 @@ Implement Google Keyboard–style accelerating backspace behavior. When the user
 
 1. **First ~300ms**: Delete one character (like a normal backspace tap)
 2. **After 300ms hold**: Start repeating character deletion at ~100ms intervals
-3. **After ~1.5s of continuous hold**: Switch to **word deletion** — delete one word at a time at ~200ms intervals
+3. **After ~1.5s of continuous hold**: Switch to **word deletion** - delete one word at a time at ~200ms intervals
 4. **After ~3s of continuous hold**: Accelerate word deletion to ~100ms intervals
 
 This mimics the Google Keyboard behavior where holding backspace starts slow (characters), then accelerates to word-level deletion.
@@ -790,8 +790,8 @@ This mimics the Google Keyboard behavior where holding backspace starts slow (ch
    - When a right-only swipe is detected at West (Backspace direction):
      - On `ACTION_DOWN` / direction detected → call `startBackspaceRepeat()`
      - On `ACTION_UP` / return to center → call `stopBackspaceRepeat()`
-   - The existing touch handler already tracks action down/up — hook into the right-only swipe detection path
-   - **Important**: Do NOT trigger `startBackspaceRepeat()` for regular chord inputs where the right dial goes West — only for **right-dial-only** swipes (single-swipe backspace)
+   - The existing touch handler already tracks action down/up - hook into the right-only swipe detection path
+   - **Important**: Do NOT trigger `startBackspaceRepeat()` for regular chord inputs where the right dial goes West - only for **right-dial-only** swipes (single-swipe backspace)
 
 4. **Implement `DELETE_WORD` on Android** in `MyInputMethodService.kt`:
    ```kotlin
@@ -857,7 +857,7 @@ This mimics the Google Keyboard behavior where holding backspace starts slow (ch
 
 ---
 
-## ERICK-104 — Font Selection — Settings & Keyboard UI
+## ERICK-104 - Font Selection - Settings & Keyboard UI
 
 | Field | Value |
 |---|---|
@@ -874,10 +874,10 @@ This mimics the Google Keyboard behavior where holding backspace starts slow (ch
 
 Add a font selection option to the Settings screen on both Android and iOS. Users can choose from 4 font options that affect all text displayed **on the keyboard surface** (dial labels, preview bar, etc.):
 
-1. **System Default** — platform default sans-serif font
-2. **Verdana** — clean, readable sans-serif (preinstalled on most devices)
-3. **Georgia** — elegant serif font (preinstalled on most devices)
-4. **OpenDyslexic** — dyslexia-friendly font with weighted bottoms and distinct letter shapes (free and open-source, Apache 2.0 license)
+1. **System Default** - platform default sans-serif font
+2. **Verdana** - clean, readable sans-serif (preinstalled on most devices)
+3. **Georgia** - elegant serif font (preinstalled on most devices)
+4. **OpenDyslexic** - dyslexia-friendly font with weighted bottoms and distinct letter shapes (free and open-source, Apache 2.0 license)
 
 The font setting should be saved with other preferences and applied across the keyboard UI.
 
@@ -886,13 +886,13 @@ The font setting should be saved with other preferences and applied across the k
 #### Font Acquisition
 
 1. **OpenDyslexic font**:
-   - Download from: https://opendyslexic.org/ (Apache 2.0 license — free for commercial use)
+   - Download from: https://opendyslexic.org/ (Apache 2.0 license - free for commercial use)
    - Download `OpenDyslexic-Regular.otf` (and Bold variant if desired)
    - **Android**: Place in `android/app/src/main/res/font/opendyslexic_regular.otf`
    - **iOS**: Add to the `ErickKeyBoard` target's "Copy Bundle Resources" build phase
    - Add the font filename to `Info.plist` under `UIAppFonts` (iOS)
 
-2. **Verdana and Georgia**: These are system fonts on both Android and iOS — no bundling needed. Access via:
+2. **Verdana and Georgia**: These are system fonts on both Android and iOS - no bundling needed. Access via:
    - Android: `Typeface.create("verdana", Typeface.NORMAL)` or `ResourcesCompat.getFont()`
    - iOS: `UIFont(name: "Verdana", size: 16)` or `Font.custom("Verdana", size: 16)`
 
@@ -965,7 +965,7 @@ The font setting should be saved with other preferences and applied across the k
 
 ---
 
-## ERICK-105 — Shift & Caps Lock Visual Indicators
+## ERICK-105 - Shift & Caps Lock Visual Indicators
 
 | Field | Value |
 |---|---|
@@ -1097,7 +1097,7 @@ We need **prominent, unmistakable visual indicators** for:
 - [ ] **Caps Lock indicator**: visible double arrow + "CAPS" badge when Caps Lock is active
 - [ ] **Caps Lock indicator**: persists until Caps Lock is toggled off
 - [ ] Indicators are easily visible and unmistakable (not subtle)
-- [ ] Character labels on dials switch to uppercase (already works — verify no regression)
+- [ ] Character labels on dials switch to uppercase (already works - verify no regression)
 - [ ] Optional: keyboard background tint changes slightly for Caps Lock
 - [ ] Implemented on both Android and iOS
 - [ ] Indicators work correctly with all layout types (Logical, Efficiency, Custom)
@@ -1106,7 +1106,7 @@ We need **prominent, unmistakable visual indicators** for:
 
 ---
 
-## ERICK-106 — Symbols Keyboard Shortcut Button
+## ERICK-106 - Symbols Keyboard Shortcut Button
 
 | Field | Value |
 |---|---|
@@ -1140,7 +1140,7 @@ The goal is to provide a **symbols toggle button** on the keyboard surface that 
      W:  1  2  3  4  5
      NW: 6  7  8  9  0
      ```
-   - This layer is NOT a new `LayoutType` — it's a temporary overlay that works with any layout
+   - This layer is NOT a new `LayoutType` - it's a temporary overlay that works with any layout
    - Numbers row (W, NW) stays the same as the regular layout
 
 2. **Add `KeyboardMode.SYMBOLS`** or use a separate flag:
@@ -1193,7 +1193,7 @@ The goal is to provide a **symbols toggle button** on the keyboard surface that 
 
 ---
 
-## ERICK-107 — Emoji Keyboard Integration
+## ERICK-107 - Emoji Keyboard Integration
 
 | Field | Value |
 |---|---|
@@ -1214,11 +1214,11 @@ Add an emoji keyboard shortcut/button that launches the system emoji picker or d
 
 #### Approach Options (Choose One Per Platform)
 
-**Option A — Use System Emoji Picker (Recommended for v1)**:
+**Option A - Use System Emoji Picker (Recommended for v1)**:
 - **Android**: No built-in system emoji picker for IMEs. Need to build a simple emoji grid.
 - **iOS**: No built-in emoji picker API for keyboard extensions either. Need to build a simple emoji grid.
 
-**Option B — Build a Simple Emoji Grid (Both Platforms)**:
+**Option B - Build a Simple Emoji Grid (Both Platforms)**:
 This is the recommended approach for consistency.
 
 #### Implementation
@@ -1364,7 +1364,7 @@ This is the recommended approach for consistency.
 
 ---
 
-## ERICK-108 — CozyTyper-Style Typing Game
+## ERICK-108 - CozyTyper-Style Typing Game
 
 | Field | Value |
 |---|---|
@@ -1379,7 +1379,7 @@ This is the recommended approach for consistency.
 
 ### Description
 
-Add a calm, peaceful typing practice game accessible from the app home screen. When the user types "start" into the test text box on the home page, they are navigated to the game screen. The game is inspired by [CozyTyper](https://store.steampowered.com/app/2063420/CozyTyper/) — a relaxing environment where users type motivational quotes to practice with the ERICK keyboard.
+Add a calm, peaceful typing practice game accessible from the app home screen. When the user types "start" into the test text box on the home page, they are navigated to the game screen. The game is inspired by [CozyTyper](https://store.steampowered.com/app/2063420/CozyTyper/) - a relaxing environment where users type motivational quotes to practice with the ERICK keyboard.
 
 A hint text below the test box on the home screen should say: *"Type 'start' to begin the typing game 🎮"*
 
@@ -1388,13 +1388,13 @@ A hint text below the test box on the home screen should say: *"Type 'start' to 
 **Screens**: Home → (type "start") → Game Screen
 
 **Game Screen Layout**:
-- **Background**: Soft gradient or calming solid color (light lavender, soft green, or warm beige — follows light/dark mode)
+- **Background**: Soft gradient or calming solid color (light lavender, soft green, or warm beige - follows light/dark mode)
 - **Quote Display**: Large, centered text showing the quote to type
   - Characters not yet typed: default color
   - Correctly typed characters: green
   - Incorrectly typed characters: red with subtle shake animation
   - Current character position: underlined or highlighted cursor
-- **Typing Area**: Invisible text input that captures keyboard input (not a visible text box — the quote display IS the visual)
+- **Typing Area**: Invisible text input that captures keyboard input (not a visible text box - the quote display IS the visual)
 - **Stats Bar** (at top or bottom):
   - **WPM** (Words Per Minute): calculated as (characters typed / 5) / minutes elapsed
   - **Accuracy**: (correct keystrokes / total keystrokes) × 100%
@@ -1404,7 +1404,7 @@ A hint text below the test box on the home screen should say: *"Type 'start' to 
 
 ### Quote Collection
 
-Include at least **50 curated quotes** — relaxing, motivating, humorous, and positive:
+Include at least **50 curated quotes** - relaxing, motivating, humorous, and positive:
 
 ```kotlin
 val quotes = listOf(
@@ -1544,7 +1544,7 @@ val quotes = listOf(
 
 ---
 
-## ERICK-99 — GitHub Pages Website — Features, Accessibility & Privacy Policy
+## ERICK-99 - GitHub Pages Website - Features, Accessibility & Privacy Policy
 
 | Field | Value |
 |---|---|
@@ -1561,9 +1561,9 @@ val quotes = listOf(
 
 Create a public-facing project website hosted on GitHub Pages within the same repository. The website serves three purposes:
 
-1. **Feature showcase** — Explain ERICK's features, how it works, and who it's for
-2. **Accessibility** — Highlight how the app caters to different users (colorblind, left-handed, dyslexia-friendly, motor accessibility)
-3. **Privacy Policy** — Required public page for Google Play Store listing
+1. **Feature showcase** - Explain ERICK's features, how it works, and who it's for
+2. **Accessibility** - Highlight how the app caters to different users (colorblind, left-handed, dyslexia-friendly, motor accessibility)
+3. **Privacy Policy** - Required public page for Google Play Store listing
 
 The website should be designed with future expandability in mind since new features will be added over time.
 
@@ -1587,17 +1587,17 @@ website/
 ### Page Content
 
 #### Landing Page (index.html)
-- **Hero Section**: ERICK logo + tagline "A radial chorded keyboard for everyone" + download buttons (Play Store badge, App Store badge — placeholder links for now)
+- **Hero Section**: ERICK logo + tagline "A radial chorded keyboard for everyone" + download buttons (Play Store badge, App Store badge - placeholder links for now)
 - **What is ERICK?**: Brief explanation of chorded keyboard concept with an animated GIF or diagram showing two-joystick input
 - **Key Features**:
-  - 🎯 **Dual-Joystick Input** — Two radial dials combine to form character chords
-  - 🎨 **Multiple Layouts** — Logical (A-Z), Efficiency (frequency-optimized), or create your own
-  - 🌙 **Light & Dark Mode** — Follow system or set your preference
-  - 🎮 **Controller Support** — Use physical gaming controllers for text input
-  - ♿ **Accessibility First** — Colorblind palettes, left-handed mode, dyslexia-friendly fonts
-  - 🔒 **Privacy Focused** — No data collection, no internet, fully open-source
-  - 🎯 **Typing Practice** — Built-in relaxing typing game with quotes
-  - ✏️ **Custom Layouts** — Design your own keyboard layout
+  - 🎯 **Dual-Joystick Input** - Two radial dials combine to form character chords
+  - 🎨 **Multiple Layouts** - Logical (A-Z), Efficiency (frequency-optimized), or create your own
+  - 🌙 **Light & Dark Mode** - Follow system or set your preference
+  - 🎮 **Controller Support** - Use physical gaming controllers for text input
+  - ♿ **Accessibility First** - Colorblind palettes, left-handed mode, dyslexia-friendly fonts
+  - 🔒 **Privacy Focused** - No data collection, no internet, fully open-source
+  - 🎯 **Typing Practice** - Built-in relaxing typing game with quotes
+  - ✏️ **Custom Layouts** - Design your own keyboard layout
 - **How It Works**: Step-by-step illustration:
   1. Left dial selects a character group
   2. Right dial selects the specific character
@@ -1606,7 +1606,7 @@ website/
 - **Footer**: Copyright, links to Privacy Policy & Accessibility page
 
 #### Privacy Policy (privacy-policy.html)
-- **Title**: "ERICK Keyboard — Privacy Policy"
+- **Title**: "ERICK Keyboard - Privacy Policy"
 - **Effective Date**: March 2026
 - **Content** (Play Store compliant):
   - **Data Collection**: "ERICK does not collect, store, or transmit any personal data, typed text, passwords, or usage statistics."
@@ -1620,7 +1620,7 @@ website/
   - **Changes**: "Any changes to this privacy policy will be posted on this page with an updated effective date."
 
 #### Accessibility Page (accessibility.html)
-- **Title**: "ERICK — Designed for Everyone"
+- **Title**: "ERICK - Designed for Everyone"
 - **Sections**:
   - **Colorblind Support**: 5 color palette options with visual examples
   - **Left-Handed Mode**: Full dial swap for left-hand dominant users
@@ -1652,14 +1652,14 @@ website/
 3. **Design approach**:
    - Use clean, minimal HTML/CSS (no framework needed)
    - Mobile-responsive (flexbox/grid layout)
-   - ERICK brand colors — purple primary (#6650a4), dark purple (#381E72)
+   - ERICK brand colors - purple primary (#6650a4), dark purple (#381E72)
    - System font stack: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
    - Smooth scrolling: `html { scroll-behavior: smooth; }`
 
 4. **Screenshots**: When available (from ERICK-101), add actual app screenshots to the website
 
 5. **SEO basics**:
-   - `<title>ERICK — Ergonomic Radial Inclusive Chorded Keyboard</title>`
+   - `<title>ERICK - Ergonomic Radial Inclusive Chorded Keyboard</title>`
    - `<meta name="description" content="A cross-platform chorded keyboard...">`
    - Open Graph tags for social sharing
 
@@ -1678,7 +1678,7 @@ website/
 
 ---
 
-## ERICK-100 — Play Store Listing Assets — Screenshots, Graphics & Marketing
+## ERICK-100 - Play Store Listing Assets - Screenshots, Graphics & Marketing
 
 | Field | Value |
 |---|---|
@@ -1698,12 +1698,12 @@ Prepare all **required and recommended assets** for the Google Play Store listin
 ### Required Assets
 
 1. **App Screenshots** (minimum 2, maximum 8, recommended 4-8):
-   - **Screenshot 1**: Keyboard in action — typing text with both joysticks active, preview bar showing
-   - **Screenshot 2**: Settings screen — showing layout options, theme, accessibility
-   - **Screenshot 3**: Onboarding screen — the setup flow
-   - **Screenshot 4**: Left-handed mode — showing swapped dials
-   - **Screenshot 5**: Dark mode keyboard — full dark theme
-   - **Screenshot 6**: Colorblind mode — showing an alternative palette
+   - **Screenshot 1**: Keyboard in action - typing text with both joysticks active, preview bar showing
+   - **Screenshot 2**: Settings screen - showing layout options, theme, accessibility
+   - **Screenshot 3**: Onboarding screen - the setup flow
+   - **Screenshot 4**: Left-handed mode - showing swapped dials
+   - **Screenshot 5**: Dark mode keyboard - full dark theme
+   - **Screenshot 6**: Colorblind mode - showing an alternative palette
    - **Screenshot 7**: Custom layout editor (if implemented)
    - **Screenshot 8**: Typing game screen (if implemented)
    - **Specs**: Phone: 16:9 aspect ratio, minimum 320px–3840px per side; Best: 1080×1920 pixels
@@ -1713,7 +1713,7 @@ Prepare all **required and recommended assets** for the Google Play Store listin
    - Dimensions: 1024×500 pixels
    - Content: ERICK logo centered, app name, tagline "A radial chorded keyboard for everyone"
    - Background: ERICK brand gradient (purple to indigo)
-   - No device frames — just the graphic
+   - No device frames - just the graphic
    - **Format**: JPEG or 24-bit PNG
 
 3. **App Icon** (512×512 pixels):
@@ -1723,14 +1723,14 @@ Prepare all **required and recommended assets** for the Google Play Store listin
 
 4. **Short Description** (max 80 characters):
    ```
-   A two-joystick chorded keyboard — accessible, customizable, and private.
+   A two-joystick chorded keyboard - accessible, customizable, and private.
    ```
 
 5. **Full Description** (max 4000 characters):
    ```
    ERICK (Ergonomic Radial Inclusive Chorded Keyboard) reimagines mobile text input 
    with an innovative dual-joystick chord system. Instead of tapping individual keys, 
-   combine two directional inputs to produce characters — reducing finger travel and 
+   combine two directional inputs to produce characters - reducing finger travel and 
    enabling faster, more ergonomic typing.
 
    🎯 HOW IT WORKS
@@ -1746,13 +1746,13 @@ Prepare all **required and recommended assets** for the Google Play Store listin
 
    ♿ ACCESSIBILITY FIRST
    • Colorblind mode with 4 specialized color palettes (Okabe-Ito, Deuteranopia, Protanopia, Tritanopia)
-   • Left-handed mode — swap the dials
+   • Left-handed mode - swap the dials
    • Dyslexia-friendly OpenDyslexic font option
    • Large touch targets with configurable dead zones
    • Physical gaming controller support (Xbox, PlayStation)
 
    🔒 PRIVACY FOCUSED
-   • No data collection — ever
+   • No data collection - ever
    • No internet permissions
    • All processing is local
    • 100% open-source on GitHub
@@ -1816,7 +1816,7 @@ Prepare all **required and recommended assets** for the Google Play Store listin
 
 ---
 
-## ERICK-101 — Translate All Code Comments to English
+## ERICK-101 - Translate All Code Comments to English
 
 | Field | Value |
 |---|---|
@@ -1845,7 +1845,7 @@ Some comments in the codebase may be in other languages or use abbreviations tha
 1. **Search every source file** in these directories:
    - `android/shared/src/` (all Kotlin files)
    - `android/app/src/main/java/` (all Kotlin files)
-   - `android/app/src/main/res/` (XML files — check for comments)
+   - `android/app/src/main/res/` (XML files - check for comments)
    - `ios/ERICK/ERICK/` (all Swift files)
    - `ios/ERICK/ErickKeyBoard/` (all Swift files)
 
@@ -1866,7 +1866,7 @@ Some comments in the codebase may be in other languages or use abbreviations tha
       */
      ```
 
-3. **Do NOT change any code logic** — only modify comments and documentation strings.
+3. **Do NOT change any code logic** - only modify comments and documentation strings.
 
 4. **Add missing file-level comments** where absent:
    ```kotlin
@@ -1885,14 +1885,14 @@ Some comments in the codebase may be in other languages or use abbreviations tha
 - [ ] All comments in Swift files are in English
 - [ ] All comments in XML resource files are in English
 - [ ] KDoc comments follow standard format with `@param`, `@return` where applicable
-- [ ] No code logic changed — comment-only modifications
+- [ ] No code logic changed - comment-only modifications
 - [ ] Every source file has a file-level description comment
 - [ ] No orphaned TODO comments without context
 - [ ] All changes reviewed for accuracy (translations are correct)
 
 ---
 
-## ERICK-102 — Final Documentation Update — Architecture Diagrams, Sprint Docs & User Guides
+## ERICK-102 - Final Documentation Update - Architecture Diagrams, Sprint Docs & User Guides
 
 | Field | Value |
 |---|---|
@@ -1927,7 +1927,7 @@ Comprehensive documentation update at the end of the project. This is a catch-al
   - Chord input sequence (touch → state machine → character output)
   - Settings change sequence (UI → persistence → keyboard reload)
   - Typing game sequence (input capture → comparison → scoring)
-- **Format**: Use Mermaid diagrams in Markdown (renders on GitHub) or draw.io (already used — `joystick_wireframe.drawio`)
+- **Format**: Use Mermaid diagrams in Markdown (renders on GitHub) or draw.io (already used - `joystick_wireframe.drawio`)
 
 #### 2. Sprint Retrospective Documents
 
@@ -1948,7 +1948,7 @@ Comprehensive documentation update at the end of the project. This is a catch-al
 #### 4. Jira Ticket Archive
 
 - Ensure all sprint tickets are documented in `documentation/Jira/`:
-  - `Sprint_1_Tickets.md` (or CSV — already exists as `Sprint 1 Retrospective.csv`)
+  - `Sprint_1_Tickets.md` (or CSV - already exists as `Sprint 1 Retrospective.csv`)
   - `Sprint_2_Tickets.csv` (already exists)
   - `Sprint_3_Tickets.md` (already exists)
   - `Sprint_4_Tickets.md` (this document)
@@ -1988,7 +1988,7 @@ Comprehensive documentation update at the end of the project. This is a catch-al
 
 ### How to Get Started
 
-1. Start with architecture diagrams — read all source files to understand the final codebase state
+1. Start with architecture diagrams - read all source files to understand the final codebase state
 2. Use Mermaid syntax for diagrams (renders natively on GitHub):
    ```markdown
    ```mermaid
@@ -2019,7 +2019,7 @@ Comprehensive documentation update at the end of the project. This is a catch-al
 
 ---
 
-## ERICK-129 — Onboarding Tutorial & Accessibility Improvements
+## ERICK-129 - Onboarding Tutorial & Accessibility Improvements
 
 | Field | Value |
 |---|---|
@@ -2106,7 +2106,7 @@ This ticket covers additional improvements identified during sprint planning tha
 
 ---
 
-## ERICK-130 — Word Prediction & Autocorrect Foundation
+## ERICK-130 - Word Prediction & Autocorrect Foundation
 
 | Field | Value |
 |---|---|
@@ -2171,24 +2171,24 @@ Implement a basic word prediction and autocorrect system in the shared module. A
 
 | Ticket | Title | Assignee | Priority | SP | Target Sprint | Dependencies |
 |---|---|---|---|---|---|---|
-| ERICK-87 | Android Preview Bar Redesign + Right-Dial Preview | Dev 1 | High | 5 | Sprint 4 | — |
-| ERICK-88 | iOS Right-Dial Preview + Parity Check | Dev 1 | High | 3 | Sprint 4 | — |
-| ERICK-89 | Custom Layout Data Model — Shared Module | Dev 2 | Medium | 5 | Sprint 4 | ERICK-73 |
-| ERICK-90 | Custom Layout Creator UI — Android & iOS | Dev 1 | Medium | 5 | Sprint 5 | ERICK-89 |
-| ERICK-91 | Left-Handed Mode UI Swap — Android & iOS | Dev 1 | High | 3 | Sprint 4 | ERICK-74 |
-| ERICK-92 | Light/Dark Mode Theme Support | Dev 1 | High | 5 | Sprint 4 | — |
-| ERICK-93 | Accelerating Backspace — Hold to Delete Words | Dev 2 | High | 3 | Sprint 4 | — |
-| ERICK-94 | Font Selection — Settings & Keyboard UI | Dev 1 | Medium | 5 | Sprint 5 | — |
-| ERICK-95 | Shift & Caps Lock Visual Indicators | Dev 1 | High | 3 | Sprint 5 | — |
-| ERICK-96 | Symbols Keyboard Shortcut Button | Dev 2 | Medium | 3 | Sprint 5 | — |
-| ERICK-97 | Emoji Keyboard Integration | Dev 1 | Medium | 5 | Sprint 5 | — |
-| ERICK-98 | CozyTyper-Style Typing Game | Dev 1 | Medium | 5 | Sprint 5 | — |
-| ERICK-99 | GitHub Pages Website | Dev 2 | High | 5 | Sprint 6 | — |
+| ERICK-87 | Android Preview Bar Redesign + Right-Dial Preview | Dev 1 | High | 5 | Sprint 4 | - |
+| ERICK-88 | iOS Right-Dial Preview + Parity Check | Dev 1 | High | 3 | Sprint 4 | - |
+| ERICK-89 | Custom Layout Data Model - Shared Module | Dev 2 | Medium | 5 | Sprint 4 | ERICK-73 |
+| ERICK-90 | Custom Layout Creator UI - Android & iOS | Dev 1 | Medium | 5 | Sprint 5 | ERICK-89 |
+| ERICK-91 | Left-Handed Mode UI Swap - Android & iOS | Dev 1 | High | 3 | Sprint 4 | ERICK-74 |
+| ERICK-92 | Light/Dark Mode Theme Support | Dev 1 | High | 5 | Sprint 4 | - |
+| ERICK-93 | Accelerating Backspace - Hold to Delete Words | Dev 2 | High | 3 | Sprint 4 | - |
+| ERICK-94 | Font Selection - Settings & Keyboard UI | Dev 1 | Medium | 5 | Sprint 5 | - |
+| ERICK-95 | Shift & Caps Lock Visual Indicators | Dev 1 | High | 3 | Sprint 5 | - |
+| ERICK-96 | Symbols Keyboard Shortcut Button | Dev 2 | Medium | 3 | Sprint 5 | - |
+| ERICK-97 | Emoji Keyboard Integration | Dev 1 | Medium | 5 | Sprint 5 | - |
+| ERICK-98 | CozyTyper-Style Typing Game | Dev 1 | Medium | 5 | Sprint 5 | - |
+| ERICK-99 | GitHub Pages Website | Dev 2 | High | 5 | Sprint 6 | - |
 | ERICK-100 | Play Store Listing Assets | Dev 1 | High | 3 | Sprint 6 | ERICK-92, ERICK-87 |
-| ERICK-101 | Translate Code Comments to English | Dev 2 | Low | 3 | Sprint 7 | — |
+| ERICK-101 | Translate Code Comments to English | Dev 2 | Low | 3 | Sprint 7 | - |
 | ERICK-102 | Final Documentation Update | Dev 2 | Medium | 5 | Sprint 7 | All |
-| ERICK-103 | Onboarding Tutorial & Accessibility | Dev 1 | Medium | 3 | Sprint 6 | — |
-| ERICK-104 | Word Prediction & Autocorrect (Stretch) | Dev 2 | Low | 5 | Sprint 7 | — |
+| ERICK-103 | Onboarding Tutorial & Accessibility | Dev 1 | Medium | 3 | Sprint 6 | - |
+| ERICK-104 | Word Prediction & Autocorrect (Stretch) | Dev 2 | Low | 5 | Sprint 7 | - |
 
 ### Story Point Totals by Developer
 
@@ -2200,70 +2200,70 @@ Implement a basic word prediction and autocorrect system in the shared module. A
 
 ### Sprint 4 Plan (March 16–20, 2026)
 
-**Developer 1 (Platform Layer) — 16 SP**:
+**Developer 1 (Platform Layer) - 16 SP**:
 
 | Day | Ticket | SP |
 |---|---|---|
-| Mon–Tue | ERICK-87 — Android Preview Bar Redesign + Right-Dial Preview | 5 |
-| Wed | ERICK-88 — iOS Right-Dial Preview + Parity Check | 3 |
-| Thu | ERICK-91 — Left-Handed Mode UI Swap | 3 |
-| Fri | ERICK-92 — Light/Dark Mode Theme (start) | 5 (partial) |
+| Mon–Tue | ERICK-87 - Android Preview Bar Redesign + Right-Dial Preview | 5 |
+| Wed | ERICK-88 - iOS Right-Dial Preview + Parity Check | 3 |
+| Thu | ERICK-91 - Left-Handed Mode UI Swap | 3 |
+| Fri | ERICK-92 - Light/Dark Mode Theme (start) | 5 (partial) |
 
-**Developer 2 (Shared Module) — 8 SP**:
+**Developer 2 (Shared Module) - 8 SP**:
 
 | Day | Ticket | SP |
 |---|---|---|
-| Mon–Tue | ERICK-93 — Accelerating Backspace | 3 |
-| Wed–Fri | ERICK-89 — Custom Layout Data Model | 5 |
+| Mon–Tue | ERICK-93 - Accelerating Backspace | 3 |
+| Wed–Fri | ERICK-89 - Custom Layout Data Model | 5 |
 
 **Note**: ERICK-92 (5 SP) will likely carry into Sprint 5 for Dev 1.
 
 ### Sprint 5 Plan (March 23–27, 2026)
 
-**Developer 1 — ~18 SP**:
+**Developer 1 - ~18 SP**:
 
 | Ticket | SP |
 |---|---|
 | ERICK-92 (carry-over if needed) | 2-3 |
-| ERICK-95 — Shift/Caps Lock Indicators | 3 |
-| ERICK-94 — Font Selection | 5 |
-| ERICK-90 — Custom Layout Creator UI | 5 |
-| ERICK-97 — Emoji Keyboard (stretch) | 5 |
+| ERICK-95 - Shift/Caps Lock Indicators | 3 |
+| ERICK-94 - Font Selection | 5 |
+| ERICK-90 - Custom Layout Creator UI | 5 |
+| ERICK-97 - Emoji Keyboard (stretch) | 5 |
 
-**Developer 2 — ~3 SP + carry-over**:
+**Developer 2 - ~3 SP + carry-over**:
 
 | Ticket | SP |
 |---|---|
-| ERICK-96 — Symbols Keyboard Shortcut | 3 |
+| ERICK-96 - Symbols Keyboard Shortcut | 3 |
 | Sprint 3 carry-overs (ERICK-80–86) | varies |
 
 ### Sprint 6 Plan (March 30 – April 3, 2026)
 
-**Developer 1 — ~8 SP**:
+**Developer 1 - ~8 SP**:
 
 | Ticket | SP |
 |---|---|
-| ERICK-98 — Typing Game | 5 |
-| ERICK-100 — Play Store Assets | 3 |
-| ERICK-103 — Tutorial & Accessibility | 3 |
+| ERICK-98 - Typing Game | 5 |
+| ERICK-100 - Play Store Assets | 3 |
+| ERICK-103 - Tutorial & Accessibility | 3 |
 
-**Developer 2 — ~5 SP**:
+**Developer 2 - ~5 SP**:
 
 | Ticket | SP |
 |---|---|
-| ERICK-99 — GitHub Pages Website | 5 |
+| ERICK-99 - GitHub Pages Website | 5 |
 
 ### Sprint 7 Plan (April 6–10, 2026)
 
-**Developer 1** — Carry-overs, bug fixes, polish
+**Developer 1** - Carry-overs, bug fixes, polish
 
-**Developer 2 — ~13 SP**:
+**Developer 2 - ~13 SP**:
 
 | Ticket | SP |
 |---|---|
-| ERICK-101 — Translate Comments to English | 3 |
-| ERICK-102 — Final Documentation Update | 5 |
-| ERICK-104 — Word Prediction (Stretch) | 5 |
+| ERICK-101 - Translate Comments to English | 3 |
+| ERICK-102 - Final Documentation Update | 5 |
+| ERICK-104 - Word Prediction (Stretch) | 5 |
 
 ---
 
@@ -2271,11 +2271,11 @@ Implement a basic word prediction and autocorrect system in the shared module. A
 
 1. **Sprint 3 carry-overs**: Tickets ERICK-80 through ERICK-86 (Custom Keybinds Data Model, Custom Keybind Editor UIs, Controller Support) from Sprint 3 that weren't completed should be prioritized alongside these new tickets. ERICK-89 and ERICK-90 supersede ERICK-80/81/82 with expanded scope. ERICK-83/84/85/86 (Controller Support) should be scheduled into Sprint 5 or 6 based on remaining capacity.
 
-2. **Risk: Dev 1 workload** — Developer 1 has significantly more work (45 SP) than Developer 2 (34 SP). Consider:
+2. **Risk: Dev 1 workload** - Developer 1 has significantly more work (45 SP) than Developer 2 (34 SP). Consider:
    - Dev 2 can help with some platform UI work if they finish shared module tasks early
    - Some UI tickets (ERICK-94 Font Selection, ERICK-97 Emoji) could be split across developers
 
-3. **Testing time**: Reserve at least half a day per sprint for integration testing — both platforms, all layouts, all modes.
+3. **Testing time**: Reserve at least half a day per sprint for integration testing - both platforms, all layouts, all modes.
 
 4. **Play Store timeline**: If targeting a Play Store release, ERICK-99 (website with privacy policy) and ERICK-100 (listing assets) are critical-path items that should not slip.
 

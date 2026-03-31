@@ -1,8 +1,8 @@
-# ERICK — Full Project Context for AI Assistants
+# ERICK - Full Project Context for AI Assistants
 
 ## 1. What Is ERICK?
 
-**ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** — a combination of a left-stick direction and a right-stick direction (8 directions each, yielding 64 chord slots). Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
+**ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** - a combination of a left-stick direction and a right-stick direction (8 directions each, yielding 64 chord slots). Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
 
 **Current version**: 0.7.4-beta  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
@@ -110,7 +110,7 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 ### Layout Types
 
 - **Logical (A–Z)**: Alphabetical ordering across the 64 chord slots. Easy to learn.
-- **Efficiency**: Frequency-optimized — `e`, `t`, `a`, `o`, `i`, `n`, `s`, `h`, `r`, `d` on the easiest same-direction chords. Researched via Parallel Tempering optimization.
+- **Efficiency**: Frequency-optimized - `e`, `t`, `a`, `o`, `i`, `n`, `s`, `h`, `r`, `d` on the easiest same-direction chords. Researched via Parallel Tempering optimization.
 - **Custom**: User-defined chord maps with full editor UI.
 
 ---
@@ -145,7 +145,7 @@ ERICKeyboard/
 ├── APP_CONTEXT.md              # Detailed architecture doc (Mermaid diagrams, class hierarchies)
 ├── CHANGELOG.md                # Version history
 ├── README.md                   # Project overview
-├── PROJECT_PROMPT.md           # This file — AI context prompt
+├── PROJECT_PROMPT.md           # This file - AI context prompt
 │
 ├── android/
 │   ├── app/
@@ -336,7 +336,7 @@ enum class InputAction {
 Paste this document (or attach it) at the start of a conversation with any AI assistant. Then you can:
 
 - **Brainstorm**: "What features should we add for v0.5.0?"
-- **Debug**: "The accelerating backspace stops working after switching layouts — where should I look?"
+- **Debug**: "The accelerating backspace stops working after switching layouts - where should I look?"
 - **Code**: "Add a new 'High Contrast' color palette to ColorPalettes.kt"
 - **Plan**: "Help me write Sprint 6 tickets for multi-language support"
 - **Document**: "Update the User Guide to cover the new word prediction feature"

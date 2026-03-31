@@ -1,155 +1,121 @@
 # ERICK - Android
 
-This folder contains the Android implementation of ERICK (Ergonomic Radial Inclusive Controller Keyboard).
+This folder contains the Android implementation of ERICK, the Ergonomic Radial Inclusive Controller Keyboard.
 
 ## Overview
 
-ERICK Android is a custom Input Method Editor (IME) that provides chord-based text input using dual touch joysticks or a physical gaming controller. It features three input modes (Instant, Confirm, Assisted for one-handed use), word prediction & autocorrect, a typing practice mini-game, custom color palettes, haptic feedback & typing sounds, outlined preview text for readability, multiple accessibility options, and a fully customizable layout — all powered by a Kotlin Multiplatform shared module.
+ERICK Android is a custom Input Method Editor (IME) built around two large directional controls instead of rows of tiny keys. Users type by combining left and right directional swipes into character chords. The Android app supports touch input, physical game controllers, word prediction, accessibility features, and custom layouts while sharing its core typing logic with iOS through Kotlin Multiplatform.
 
-## Setup
+In practical terms, this build is for:
 
-### Requirements
+- users who need a more accessible typing option
+- users who want controller-based typing
+- developers working on the Android IME, onboarding flow, and settings UI
+
+## Requirements
 
 - Android Studio Hedgehog (2023.1.1) or later
-- Android SDK 24 or higher (target SDK 36)
-- Kotlin 1.9+
-- Gradle 8.0+
+- Android SDK 24 or higher
+- target SDK 36
 - JDK 17 or higher
 
-### Getting Started
+## Getting Started
 
-1. Open this folder (`android/`) in Android Studio
-2. Sync Gradle files
-3. Build and run on emulator or device (API level 24+)
-4. Follow the in-app onboarding to enable ERICK as an input method
+1. Open the `android/` folder in Android Studio.
+2. Sync Gradle files.
+3. Build and run on an emulator or device.
+4. Follow the in-app onboarding to enable ERICK as an input method.
+
+## Key Features in the Android Build
+
+- Android IME integration
+- Chorded typing with two radial controls
+- Three input modes: Quick Type, Steady Type, and One-Handed
+- Three layout modes: Logical, Efficiency, and Custom
+- Word prediction and autocorrect
+- Live preview bar and suggestion bar
+- Physical controller support
+- Typing practice mini-game
+- Colorblind-safe palettes and custom colors
+- Left-handed mode
+- Dyslexia-friendly font options
+- Haptic feedback and typing sounds
 
 ## Project Structure
 
-```
+```text
 android/
-├── app/                          # Main application module
-│   ├── src/main/java/            # Android-specific code
-│   │   ├── MainActivity.kt      # Onboarding and IME setup UI
-│   │   ├── MyInputMethodService.kt  # IME service (preview bar, suggestions, controller)
-│   │   ├── JoystickView.kt      # Custom Canvas-based touch joystick
-│   │   ├── OutlinedTextView.kt   # Stroked preview text for contrast
-│   │   ├── TypingGameScreen.kt   # Compose typing practice mini-game
-│   │   ├── SettingsActivity.kt   # Settings UI
-│   │   ├── SettingsScreen.kt     # Compose settings screen
-│   │   ├── SettingsViewModel.kt  # Settings state management
-│   │   └── LayoutPreferences.kt  # DataStore preferences
-│   ├── src/main/res/layout/
-│   │   └── keyboard_simple.xml   # Keyboard layout (joysticks + preview + suggestions)
+├── app/
+│   ├── src/main/java/
+│   │   ├── MainActivity.kt
+│   │   ├── MyInputMethodService.kt
+│   │   ├── JoystickView.kt
+│   │   ├── SettingsActivity.kt
+│   │   ├── SettingsScreen.kt
+│   │   └── PreferencesManager.kt
 │   └── build.gradle.kts
-├── shared/                       # Kotlin Multiplatform module
-│   ├── src/commonMain/kotlin/    # Cross-platform keyboard logic
-│   │   ├── KeyboardStateMachine.kt   # State machine, word buffer, suggestion orchestration
-│   │   ├── KeyboardLogic.kt          # Chord resolution, 4 layout maps
-│   │   ├── KeyboardContracts.kt      # Platform interfaces & enums (InputMode, LayoutType)
-│   │   ├── WordPredictionEngine.kt   # Trie, bigrams, autocorrect (~700 words)
-│   │   └── ColorPalettes.kt          # 7 accessibility color palettes (incl. custom)
-│   ├── src/androidMain/          # Android platform code
-│   └── src/iosMain/              # iOS platform code
-├── gradle/
-│   └── libs.versions.toml       # Dependency version catalog
-├── build.gradle.kts
-├── settings.gradle.kts
+├── shared/
+│   ├── src/commonMain/kotlin/
+│   │   ├── KeyboardStateMachine.kt
+│   │   ├── KeyboardLogic.kt
+│   │   ├── KeyboardContracts.kt
+│   │   ├── WordPredictionEngine.kt
+│   │   ├── ColorPalettes.kt
+│   │   ├── CustomLayout.kt
+│   │   └── CustomLayoutSerializer.kt
+│   └── build.gradle.kts
 └── README.md
 ```
 
-## Key Components
+## Important Components
 
-### Input Method Editor (IME)
-- **MyInputMethodService**: Main IME service — handles keyboard lifecycle, preview bar rendering, suggestion bar display, physical controller polling, theme application, and accelerating backspace.
-- **JoystickView**: Custom Canvas-based View for touch joystick input with visual knob and return-to-center animation.
-- **Preview Bar**: Animated capsule showing color-coded characters as chords form, with outlined text (`OutlinedTextView`) for improved readability across light and dark themes.
-- **Suggestion Bar**: 3-suggestion strip displaying word completions, spelling corrections, or next-word predictions. Appears at the same level as the preview capsule.
+### `MyInputMethodService`
 
-### Word Prediction & Autocorrect
-- **WordPredictionEngine** (shared): Trie-based dictionary with prefix completions, Levenshtein spelling corrections, and bigram next-word predictions.
-- Always-on suggestions — predictions shown immediately on keyboard open (defaults like "I", "The", "Hello").
-- Smart space insertion when accepting next-word suggestions.
+The Android IME service. It connects ERICK to Android text fields, forwards touch and controller input to the shared state machine, and renders the preview and suggestion UI.
 
-### Typing Practice Mini-Game
-- **TypingGameScreen**: Full Jetpack Compose screen with a curated quote library, invisible input capture, real-time WPM/accuracy/streak tracking, per-character correctness highlighting, shake animation on errors, and a stats bar.
-- Activated by typing "start" in the test field from `MainActivity`.
+### `JoystickView`
 
-### Physical Controller Support
-- Detects connected gamepads via `InputManager`
-- Polls analog stick positions to produce 8-directional inputs
-- Maps controller axes to the same `KeyboardStateMachine` chord logic
+Custom `View` that draws the radial touch dial with 8 color-coded sectors, 3 concentric rings displaying characters, animated return-to-center behavior, and left-handed mode support.
 
-### Settings & Preferences
-- **SettingsActivity/Screen**: Jetpack Compose UI for:
-  - Layout (Logical A–Z, Efficiency, Custom)
-  - Theme (System Default, Light, Dark) via segmented control
-  - Font (System, Verdana, Georgia, OpenDyslexic)
-  - Colorblind palette (7 options including custom)
-  - Custom color palette editor (HSV sliders, hex/RGB input)
-  - Input mode (Quick Type, Steady Type, One-Handed)
-  - Haptic feedback & typing sounds
-  - Left-handed mode
-  - Custom Layout Creator with chord editor and color indicators
-- **LayoutPreferences**: DataStore-based persistence for all above settings plus custom layout JSON.
+### Shared Kotlin Multiplatform module
 
-### Shared Module (KMP)
-The `shared` module contains platform-agnostic logic compiled for both Android (JVM) and iOS (native):
-- Chord state machine and word buffer management
-- 4 layout maps (Efficient, Accessible, Legacy, Custom)
-- Word prediction engine (trie + bigrams + autocorrect)
-- 7 colorblind-safe palettes (including user-created custom palettes)
-- Platform interfaces for settings, input connection, and controller events
+The `shared/` module contains platform-agnostic logic compiled for both Android (JVM) and iOS (XCFramework):
 
-## Building
+- `KeyboardStateMachine` - chord state tracking, word buffer, suggestion orchestration, accelerating backspace
+- `KeyboardLogic` - 8-way direction detection via `atan2`, chord-to-character resolution across 3 layouts
+- `WordPredictionEngine` - Trie-based dictionary (~700 words), bigram next-word predictions, Levenshtein autocorrect
+- `ColorPalettes` - 7 accessibility palettes including custom palette support
+- `KeyboardContracts` - interfaces, enums, and data classes shared across platforms
+- `CustomLayout` / `CustomLayoutSerializer` - user layout models, CRUD, validation, JSON serialization
+
+## Build Commands
 
 ```bash
-# Clean build
 ./gradlew clean
-
-# Build debug APK
 ./gradlew assembleDebug
-
-# Build release APK (requires signing config)
-./gradlew assembleRelease
-
-# Install on connected device
 ./gradlew installDebug
-
-# Run tests
 ./gradlew test
-
-# Run Android instrumentation tests
 ./gradlew connectedAndroidTest
 ```
 
 ## Testing the Keyboard
 
-1. Build and install the app
-2. Open the app and follow the onboarding:
-   - Enable ERICK in system settings
-   - Select ERICK as current keyboard
-3. Open any text input field (e.g., Messages, Notes)
-4. Use the touch joysticks (or a connected gamepad) to input text via chord combinations
-5. Tap suggestions in the suggestion bar to accept word completions or next-word predictions
+1. Install the app.
+2. Enable ERICK in Android keyboard settings.
+3. Open any text field.
+4. Switch to ERICK.
+5. Test both touch input and controller input if available.
 
-## Architecture Notes
+## Notes
 
-**State Management**: The keyboard uses a state machine pattern to track joystick movements, manage a word buffer, and orchestrate suggestion updates.
-
-**Multiplatform Strategy**: Core logic lives in `shared/src/commonMain` and is compiled to JVM bytecode for Android and native code for iOS.
-
-**UI Framework**: Modern Android UI built with Jetpack Compose; the keyboard overlay uses XML with Canvas-based custom views.
-
-**Persistence**: Settings use Jetpack DataStore (Preferences) for type-safe, async storage.
-
-**Word Prediction**: A trie-based dictionary with bigram next-word predictions and Levenshtein-based spelling corrections — all running locally with zero network calls.
+- ERICK is source available and fully offline.
+- **Build stack**: compileSdk 36, minSdk 24, targetSdk 36, Kotlin 2.0.21, AGP 8.13.2, Jetpack Compose (BOM 2024.09.00).
+- **Persistence**: Jetpack DataStore for type-safe async preference storage.
+- The Android implementation shares core typing behavior with iOS through the `shared` module.
+- For product-level context, read the root [README](../README.md).
 
 ## Troubleshooting
 
-**IME not appearing**: Make sure you've enabled ERICK in Settings → System → Languages & Input → On-screen keyboard
-
-**Build errors**: Ensure you're using the correct JDK version (17+) and have synced Gradle files
-
-**Controller not detected**: Verify the gamepad is connected and recognized by Android. ERICK polls `InputManager` for connected input devices.
-
-**Shared module errors**: The KMP shared module requires Kotlin Multiplatform plugin - ensure Android Studio has the latest Kotlin plugin installed
+- **Keyboard not appearing**: Verify ERICK is enabled in Settings → System → Languages & input → On-screen keyboard. Restart the device if needed.
+- **Controller not detected**: Ensure the controller is paired in Bluetooth settings and recognized by the system. Try reconnecting.
+- **Build errors with SharedKeyboard**: Run `./gradlew clean` then rebuild. Ensure JDK 17 is configured in Android Studio.

@@ -1,6 +1,6 @@
 # ERICK Advanced Keyboard Optimization Results
 
-**Algorithm**: Simulated Annealing — 200k iterations, asymmetric biomechanics, trigram cost  
+**Algorithm**: Simulated Annealing - 200k iterations, asymmetric biomechanics, trigram cost  
 **Corpus**: Wordfreq 25k (60% web) + Google Books 1-grams 10k (40% books) + Google Books 2-grams 5k  
 **Character n-grams**: 40 unigrams, 842 bigrams, 9,880 trigrams  
 
@@ -88,7 +88,7 @@
 
 ---
 
-## 6. Transition Heatmap — Top 10 Bigram Costs
+## 6. Transition Heatmap - Top 10 Bigram Costs
 
 | Bigram | Weighted Cost |
 |---|---|

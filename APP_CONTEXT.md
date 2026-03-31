@@ -6,28 +6,28 @@
 
 ## Executive Summary
 
-ERICK is a cross-platform chorded keyboard system that enables text input through dual joystick movements (touch or physical controller). The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations. Both platforms feature fully functional keyboard extensions with identical chord logic, word prediction, accessibility features, and controller support.
+ERICK is a cross-platform keyboard system for Android and iOS that replaces rows of tiny keys with two large directional controls. Users type by combining left and right movements into character chords using touch or a physical game controller. The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations, including layout handling, prediction, accessibility behavior, and controller support.
 
 ## Architecture Overview
 
 ### High-Level System Architecture
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                 Platform Layer (UI/OS)                   │
-│  ┌─────────────────────┐      ┌─────────────────────┐  │
-│  │   Android IME       │      │   iOS Extension     │  │
-│  │  - MyInputMethod    │      │  - KeyboardView     │  │
-│  │    Service          │      │    Controller       │  │
-│  │  - JoystickView     │      │  - JoystickView     │  │
-│  │  - XML Layout       │      │    (SwiftUI)        │  │
-│  │  - DataStore prefs  │      │  - App Group prefs  │  │
-│  └──────────┬──────────┘      └──────────┬──────────┘  │
-└─────────────┼─────────────────────────────┼─────────────┘
-              │                             │
-              └──────────┬──────────────────┘
+│                 Platform Layer (UI/OS)                  │
+│  ┌─────────────────────┐      ┌─────────────────────┐   │
+│  │   Android IME       │      │   iOS Extension     │   │
+│  │  - MyInputMethod    │      │  - KeyboardView     │   │
+│  │    Service          │      │    Controller       │   │
+│  │  - JoystickView     │      │  - JoystickView     │   │
+│  │  - XML Layout       │      │    (SwiftUI)        │   │
+│  │  - DataStore prefs  │      │  - App Group prefs  │   │
+│  └──────────┬──────────┘      └──────────┬──────────┘   │
+└─────────────┼────────────────────────────┼──────────────┘
+              │                            │
+              └──────────┬─────────────────┘
                          │
-┌────────────────────────▼─────────────────────────────────┐
-│          Shared Module (Kotlin Multiplatform)            │
+┌────────────────────────▼────────────────────────────────┐
+│          Shared Module (Kotlin Multiplatform)           │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  KeyboardStateMachine                           │    │
 │  │  - Chord input processing & state tracking      │    │
@@ -49,17 +49,17 @@ ERICK is a cross-platform chorded keyboard system that enables text input throug
 │  │  - Levenshtein edit-distance autocorrect        │    │
 │  │  - ~700 word dictionary with frequency tiers    │    │
 │  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  KeyboardContracts                              │    │
-│  │  - Interfaces and data classes                  │    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │  KeyboardContracts                               │   │
+│  │  - Interfaces and data classes                   │   │
 │  │  - Platform abstractions (KeyboardActionDelegate)│   │
-│  └─────────────────────────────────────────────────┘    │
+│  └──────────────────────────────────────────────────┘   │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  ColorPalettes                                  │    │
 │  │  - 7 colorblind-safe palettes + custom editor   │    │
 │  │  - Direction-to-color mapping                   │    │
 │  └─────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### High-Level System Architecture (Mermaid)
@@ -71,27 +71,27 @@ graph TB
             A1[MyInputMethodService]
             A2[JoystickView]
             A3[SettingsScreen / SettingsActivity]
-            A4[MainActivity — Onboarding]
-            A5[PreferencesManager — DataStore]
+            A4[MainActivity - Onboarding]
+            A5[PreferencesManager - DataStore]
         end
         subgraph iOS["iOS Keyboard Extension"]
             I1[KeyboardViewController]
-            I2[JoystickView — SwiftUI]
-            I3[SettingsView — Extension]
-            I4[ContentView — Host App]
+            I2[JoystickView - SwiftUI]
+            I3[SettingsView - Extension]
+            I4[ContentView - Host App]
             I5[App Group UserDefaults]
             I6[ControllerBridge]
         end
     end
 
-    subgraph Shared["Shared Module — Kotlin Multiplatform"]
+    subgraph Shared["Shared Module - Kotlin Multiplatform"]
         S1[KeyboardStateMachine]
         S2[KeyboardLogic]
         S3[WordPredictionEngine]
-        S4[KeyboardContracts — Interfaces & Enums]
-        S5[ColorPalettes — 7 Palettes + Custom]
+        S4[KeyboardContracts - Interfaces & Enums]
+        S5[ColorPalettes - 7 Palettes + Custom]
         S6[CustomLayout + CustomLayoutSerializer]
-        S7[KeyboardFactory — iOS Init Helper]
+        S7[KeyboardFactory - iOS Init Helper]
     end
 
     A1 -->|implements KeyboardActionDelegate| S4
@@ -115,7 +115,7 @@ graph TB
     S2 -->|palette colors| S5
 ```
 
-### Detailed Class Diagram — Shared Module
+### Detailed Class Diagram - Shared Module
 
 ```mermaid
 classDiagram
@@ -209,7 +209,7 @@ classDiagram
     KeyboardFactory --> KeyboardStateMachine : creates
 ```
 
-### Class Diagram — Android Platform Layer
+### Class Diagram - Android Platform Layer
 
 ```mermaid
 classDiagram
@@ -259,7 +259,7 @@ classDiagram
     SettingsActivity --> PreferencesManager : writes
 ```
 
-### Class Diagram — iOS Platform Layer
+### Class Diagram - iOS Platform Layer
 
 ```mermaid
 classDiagram
@@ -317,7 +317,7 @@ classDiagram
     SettingsView_Extension --> IOSCustomLayoutStorage : manages layouts
 ```
 
-### Sequence Diagram — Chord Input (Touch → Character)
+### Sequence Diagram - Chord Input (Touch → Character)
 
 ```mermaid
 sequenceDiagram
@@ -353,7 +353,7 @@ sequenceDiagram
     SM->>IMEService: delegate.onSuggestionsUpdated(["my", "me", "make"])
 ```
 
-### Sequence Diagram — Settings Change (UI → Persistence → Keyboard)
+### Sequence Diagram - Settings Change (UI → Persistence → Keyboard)
 
 ```mermaid
 sequenceDiagram
@@ -372,7 +372,7 @@ sequenceDiagram
     IME-->>User: Keyboard reflects new layout immediately
 ```
 
-### Sequence Diagram — Word Prediction & Suggestion Tap
+### Sequence Diagram - Word Prediction & Suggestion Tap
 
 ```mermaid
 sequenceDiagram
@@ -495,7 +495,7 @@ Located in `android/shared/src/commonMain/kotlin/CustomLayout.kt` and `CustomLay
 - **`CustomLayout`** (data class): Holds a named layout with separate normal/shifted maps for single-swipe and chord bindings
 - **`SingleSwipeBinding`** (sealed class): Represents either a character or an InputAction for a single-swipe direction
 - **`CustomLayoutManager`**: CRUD operations for custom layouts, backed by a `CustomLayoutStorage` interface
-- **`CustomLayoutStorage`** (interface): Platform-specific persistence — implemented by `AndroidCustomLayoutStorage` (DataStore) and `IOSCustomLayoutStorage` (App Group UserDefaults)
+- **`CustomLayoutStorage`** (interface): Platform-specific persistence - implemented by `AndroidCustomLayoutStorage` (DataStore) and `IOSCustomLayoutStorage` (App Group UserDefaults)
 - **`CustomLayoutSerializer`** (object): JSON serialization/deserialization of `CustomLayout` objects
 
 ### 3. Android Implementation
@@ -568,7 +568,7 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 
 **Technical Details**:
 - Built with Jetpack Compose (Material Design 3)
-- Accordion-style collapsible sections (Layout, Appearance, Accessibility, Privacy & Security) — only one section expanded at a time
+- Accordion-style collapsible sections (Layout, Appearance, Accessibility, Privacy & Security) - only one section expanded at a time
 - Compact radio buttons for font and theme selection
 - Animated chevron rotation on expand/collapse
 - Persists to DataStore
@@ -577,7 +577,7 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 **Purpose**: Type-safe, asynchronous persistence of user settings.
 
 **Stored Preferences**:
-- `selectedLayout: String` (efficient / accessible / legacy / custom)
+- `selectedLayout: String` (logical / efficiency / custom)
 - `theme: String` (light / dark / system)
 - `colorblindMode: Boolean`
 - `colorblindPalette: String` (protanopia / deuteranopia / tritanopia / achromatopsia / high-contrast / default)
@@ -595,7 +595,7 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 Located in `ios/ERICK/`
 
 #### KeyboardViewController
-**Purpose**: iOS Custom Keyboard Extension (`UIInputViewController`) — the core entry point for the ERICK keyboard on iOS.
+**Purpose**: iOS Custom Keyboard Extension (`UIInputViewController`) - the core entry point for the ERICK keyboard on iOS.
 
 **Responsibilities**:
 - Hosts SwiftUI keyboard UI via `UIHostingController`
@@ -633,10 +633,10 @@ Located in `ios/ERICK/`
 **Purpose**: Kotlin Multiplatform compiled framework consumed by Swift.
 
 **Provides**:
-- `KeyboardStateMachine` — same chord processing, word buffer, suggestion engine
-- `KeyboardLogic` — chord resolution and layout maps
-- `WordPredictionEngine` — trie, bigrams, autocorrect
-- `ColorPalettes` — accessibility color schemes
+- `KeyboardStateMachine` - same chord processing, word buffer, suggestion engine
+- `KeyboardLogic` - chord resolution and layout maps
+- `WordPredictionEngine` - trie, bigrams, autocorrect
+- `ColorPalettes` - accessibility color schemes
 
 **Integration**: Built via Gradle `assembleSharedKeyboardXCFramework` task, copied into `ios/ERICK/SharedKeyboard.xcframework/`.
 
@@ -679,10 +679,9 @@ A "chord" is a combination of two joystick directions (left stick + right stick)
 
 ### Layout Modes
 
-1. **Efficient Mode**: Optimized for typing speed — most common English letters on easiest chords
-2. **Accessible Mode**: Simplified layout for users with motor impairments
-3. **Legacy Mode**: Traditional layout similar to OrbiTouch keyboard
-4. **Custom Mode**: User-defined chord-to-character mapping via the Custom Layout Creator
+1. **Logical Mode**: Predictable A-Z ordering intended to make the system easier to learn
+2. **Efficiency Mode**: Frequency-optimized placement of common letters on easier chords
+3. **Custom Mode**: User-defined chord-to-character mapping via the Custom Layout Creator
 
 ### State Machine Logic
 
@@ -704,7 +703,7 @@ The state machine prevents accidental inputs and ensures proper chord completion
 
 ## Configuration and Preferences
 
-### DataStore Schema (Android — Preferences DataStore)
+### DataStore Schema (Android - Preferences DataStore)
 
 ```kotlin
 // Key definitions

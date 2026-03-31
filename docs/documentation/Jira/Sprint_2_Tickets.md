@@ -1,4 +1,4 @@
-# ERICK — Sprint 2 Tickets
+# ERICK - Sprint 2 Tickets
 
 **Sprint**: SCRUM Sprint 2  
 **Start Date**: March 2, 2026 (Monday)  
@@ -7,7 +7,7 @@
 
 ---
 
-## ERICK-40 — Design App Logo and Finalize Project Typography
+## ERICK-40 - Design App Logo and Finalize Project Typography
 
 | Field | Value |
 |---|---|
@@ -16,7 +16,7 @@
 | **Story Points** | 2 |
 | **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
-| **Labels** | — |
+| **Labels** | - |
 | **Dependencies** | None |
 
 ### Description
@@ -32,7 +32,7 @@ Create a logo for the ERICK keyboard app and select the typography (fonts) to be
 
 ---
 
-## ERICK-47 — Implement Android Chord Keyboard — Full Logical Layout
+## ERICK-47 - Implement Android Chord Keyboard - Full Logical Layout
 
 | Field | Value |
 |---|---|
@@ -41,7 +41,7 @@ Create a logo for the ERICK keyboard app and select the typography (fonts) to be
 | **Story Points** | 7 |
 | **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
-| **Labels** | — |
+| **Labels** | - |
 | **Related** | ERICK-48, ERICK-57 |
 
 ### Description
@@ -54,7 +54,7 @@ Integrate the Sprint 1 joystick library PoC with the existing 2-button IME proto
 - User swipes the **RIGHT dial** to select a color (color = position within group)
 - Chord fires on simultaneous release: left-direction + right-color → character injected
 
-**LEFT DIAL — LOGICAL LAYOUT (Normal mode):**
+**LEFT DIAL - LOGICAL LAYOUT (Normal mode):**
 ```
 N: a b c d e '
 NE: f g h i j /
@@ -66,7 +66,7 @@ W: 1 2 3 4 5
 NW: 6 7 8 9 0
 ```
 
-**LEFT DIAL — SHIFT/CAPS LOCK mode:**
+**LEFT DIAL - SHIFT/CAPS LOCK mode:**
 ```
 N: A B C D E "
 NE: F G H I J ?
@@ -78,13 +78,13 @@ W: ! @ # $ %
 NW: ^ & * ( )
 ```
 
-**RIGHT DIAL — COLOR → CHARACTER POSITION:**
+**RIGHT DIAL - COLOR → CHARACTER POSITION:**
 ```
 Red=1st, Orange=2nd, Yellow=3rd, Green=4th, Blue=5th, Black=6th/symbol
-(Indigo and Violet are unused for now — reserved for future use)
+(Indigo and Violet are unused for now - reserved for future use)
 ```
 
-**RIGHT DIAL ONLY — SINGLE SWIPE (utility):**
+**RIGHT DIAL ONLY - SINGLE SWIPE (utility):**
 ```
 N: Home (Shift → End)
 NE: Comma (Shift → <)
@@ -96,7 +96,7 @@ W: Backspace
 NW: Toggle Caps Lock
 ```
 
-**RIGHT DIAL ONLY — DOUBLE SWIPE (navigation):**
+**RIGHT DIAL ONLY - DOUBLE SWIPE (navigation):**
 ```
 N: Up arrow     NE: Page Up
 E: Right arrow  SE: Page Down
@@ -113,13 +113,13 @@ W: Left arrow   NW: Tab
 - [ ] Every character in the logical layout is typeable via chord and injects correctly system-wide
 - [ ] Shift auto-releases after 1 character; Caps Lock persists until toggled
 - [ ] All 8 single-swipe right-only utility functions work in any app
-- [ ] Optional — All 8 double-swipe right-only navigation functions work in any app
+- [ ] Optional - All 8 double-swipe right-only navigation functions work in any app
 - [ ] No ANR or crash during 4-minute continuous use
 - [ ] Tested on physical Android device (API 33+) and emulator
 
 ---
 
-## ERICK-48 — Android Settings Menu — Basic Shell with Layout Switcher
+## ERICK-48 - Android Settings Menu - Basic Shell with Layout Switcher
 
 | Field | Value |
 |---|---|
@@ -128,14 +128,14 @@ W: Left arrow   NW: Tab
 | **Story Points** | 2 |
 | **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-41 Android IME Core |
-| **Labels** | — |
+| **Labels** | - |
 | **Dependencies** | ERICK-47 |
 
 ### Description
 
 Build the settings screen for the Android IME, accessible from a settings icon on the keyboard surface.
 
-Sprint 2 scope: shell + layout switcher UI only. The Efficiency layout does not exist yet — wire the toggle so it's ready to activate in Sprint 3.
+Sprint 2 scope: shell + layout switcher UI only. The Efficiency layout does not exist yet - wire the toggle so it's ready to activate in Sprint 3.
 
 ### Acceptance Criteria
 
@@ -149,7 +149,7 @@ Sprint 2 scope: shell + layout switcher UI only. The Efficiency layout does not 
 
 ---
 
-## ERICK-49 — Implement iOS Chord Keyboard — Full Logical Layout
+## ERICK-49 - Implement iOS Chord Keyboard - Full Logical Layout
 
 | Field | Value |
 |---|---|
@@ -158,14 +158,14 @@ Sprint 2 scope: shell + layout switcher UI only. The Efficiency layout does not 
 | **Story Points** | 7 |
 | **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-44 iOS IME Core |
-| **Labels** | — |
+| **Labels** | - |
 | **Related** | ERICK-50 |
 
 ### Description
 
 Build the iOS Custom Keyboard Extension (Swift/SwiftUI) with the same full chord input system as the Android version. All character injection is done via `UITextDocumentProxy`.
 
-**LEFT DIAL — LOGICAL LAYOUT (Normal mode):**
+**LEFT DIAL - LOGICAL LAYOUT (Normal mode):**
 ```
 N: a b c d e '
 NE: f g h i j /
@@ -177,7 +177,7 @@ W: 1 2 3 4 5
 NW: 6 7 8 9 0
 ```
 
-**LEFT DIAL — SHIFT/CAPS LOCK mode:**
+**LEFT DIAL - SHIFT/CAPS LOCK mode:**
 ```
 N: A B C D E "
 NE: F G H I J ?
@@ -189,13 +189,13 @@ W: ! @ # $ %
 NW: ^ & * ( )
 ```
 
-**RIGHT DIAL — COLOR → CHARACTER POSITION:**
+**RIGHT DIAL - COLOR → CHARACTER POSITION:**
 ```
 Red=1st, Orange=2nd, Yellow=3rd, Green=4th, Blue=5th, Black=6th/symbol
-(Indigo and Violet are unused for now — reserved for future use)
+(Indigo and Violet are unused for now - reserved for future use)
 ```
 
-**RIGHT DIAL ONLY — SINGLE SWIPE (utility):**
+**RIGHT DIAL ONLY - SINGLE SWIPE (utility):**
 ```
 N: Home (Shift → End)
 NE: Comma (Shift → <)
@@ -207,7 +207,7 @@ W: Backspace
 NW: Toggle Caps Lock
 ```
 
-**RIGHT DIAL ONLY — DOUBLE SWIPE (navigation):**
+**RIGHT DIAL ONLY - DOUBLE SWIPE (navigation):**
 ```
 N: Up arrow     NE: Page Up
 E: Right arrow  SE: Page Down
@@ -225,13 +225,13 @@ W: Left arrow   NW: Tab
 - [ ] Every character in the logical layout injects correctly into any iOS app via `UITextDocumentProxy`
 - [ ] Shift auto-releases after 1 character; Caps Lock persists until toggled
 - [ ] All 8 single-swipe right-only utility functions work
-- [ ] Optional — All 8 double-swipe right-only navigation functions work
+- [ ] Optional - All 8 double-swipe right-only navigation functions work
 - [ ] Tested on physical iPhone and iOS Simulator (iOS 16+)
 - [ ] No crashes during 5-minute test
 
 ---
 
-## ERICK-66 — Restructure Project for Multi-Platform Support (Android & iOS)
+## ERICK-66 - Restructure Project for Multi-Platform Support (Android & iOS)
 
 | Field | Value |
 |---|---|
@@ -240,7 +240,7 @@ W: Left arrow   NW: Tab
 | **Story Points** | 3 |
 | **Assignee** | Vatsal Unadkat |
 | **Parent Epic** | ERICK-39 Project Infrastructure |
-| **Labels** | — |
+| **Labels** | - |
 | **Dependencies** | None |
 
 ### Description

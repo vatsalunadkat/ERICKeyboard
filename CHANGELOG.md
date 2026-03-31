@@ -10,22 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## What's New
 
 ### Major Features
-- **Three Input Modes** — Choose how chords are triggered via a new Input Mode settings section:
-  - **Quick Type** (default): Type at full speed — characters appear as soon as you release either dial.
-  - **Steady Type**: Take your time — characters appear only after both dials return to center.
-  - **One-Handed**: Type with one hand — lock a direction on the left dial, then swipe the right dial to type.
-- **Custom Color Palettes** — Create your own 8-color palette with a full color editor. Android uses HSV sliders with hex/RGB input; iOS uses the native ColorPicker with hex/RGB fields. Accessible via a "Create Your Own" option in the Colorblind Mode section.
-- **Haptic Feedback & Typing Sounds** — New Feedback settings section with toggleable haptic vibration (strong for utility keys, light for letters) and system typing sounds. Both default to off.
+- **Three Input Modes** - Choose how chords are triggered via a new Input Mode settings section:
+  - **Quick Type** (default): Type at full speed - characters appear as soon as you release either dial.
+  - **Steady Type**: Take your time - characters appear only after both dials return to center.
+  - **One-Handed**: Type with one hand - lock a direction on the left dial, then swipe the right dial to type.
+- **Custom Color Palettes** - Create your own 8-color palette with a full color editor. Android uses HSV sliders with hex/RGB input; iOS uses the native ColorPicker with hex/RGB fields. Accessible via a "Create Your Own" option in the Colorblind Mode section.
+- **Haptic Feedback & Typing Sounds** - New Feedback settings section with toggleable haptic vibration (strong for utility keys, light for letters) and system typing sounds. Both default to off.
 
 ### Improvements
-- **Pastel Palette Icon Fix** — Fixed utility icons on the right dial appearing invisible when using Pastel palette colors with low luminance (Lavender, Lilac, Slate). Icons now correctly use black instead of white on light-colored pastel backgrounds.
-- **Preview Text Capsule Fix** — Fixed text being cut off at 1 and 3 characters in the preview capsule.
-- **Shift/Caps Indicator Redesign** — Redesigned the shift indicator badge for better visibility.
-- **How to Type Emoji Update** — Changed the indicator icon/emoji for the How to Type overlay.
-- **Website Deployment Fix** — Updated deployment workflow for the documentation website.
+- **Pastel Palette Icon Fix** - Fixed utility icons on the right dial appearing invisible when using Pastel palette colors with low luminance (Lavender, Lilac, Slate). Icons now correctly use black instead of white on light-colored pastel backgrounds.
+- **Preview Text Capsule Fix** - Fixed text being cut off at 1 and 3 characters in the preview capsule.
+- **Shift/Caps Indicator Redesign** - Redesigned the shift indicator badge for better visibility.
+- **How to Type Emoji Update** - Changed the indicator icon/emoji for the How to Type overlay.
+- **Website Deployment Fix** - Updated deployment workflow for the documentation website.
 
 ### Breaking Changes
-None — existing user preferences remain compatible. New preferences (`input_mode`, `custom_palette_colors`, `haptic_feedback`, `typing_sounds`) default to backward-compatible values.
+None - existing user preferences remain compatible. New preferences (`input_mode`, `custom_palette_colors`, `haptic_feedback`, `typing_sounds`) default to backward-compatible values.
 
 ---
 
@@ -34,22 +34,22 @@ None — existing user preferences remain compatible. New preferences (`input_mo
 ## What's New
 
 ### Major Features
-- **Typing Practice Mini-Game** — In-app typing game on both Android (Jetpack Compose) and iOS (SwiftUI). Presents curated quotes for practice with real-time WPM, accuracy, and streak tracking. Features per-character correctness highlighting, shake animation on errors, invisible input capture, and a live stats bar. Activated by typing "start" in the test field.
-- **Website Redesign** — Complete rebuild of the documentation site using React 19, Vite 8, and Tailwind CSS v4. New SPA with Landing, Features, Evolution timeline, and Privacy pages. GitHub Pages deployment via dedicated workflow. Legacy v1 site preserved under `docs/v1/`.
-- **Architecture Diagrams** — Added `ERICK_architecture.drawio` and exported PNG documenting the full KMP shared module, platform layers, controller/touch input flows, and build artifacts.
+- **Typing Practice Mini-Game** - In-app typing game on both Android (Jetpack Compose) and iOS (SwiftUI). Presents curated quotes for practice with real-time WPM, accuracy, and streak tracking. Features per-character correctness highlighting, shake animation on errors, invisible input capture, and a live stats bar. Activated by typing "start" in the test field.
+- **Website Redesign** - Complete rebuild of the documentation site using React 19, Vite 8, and Tailwind CSS v4. New SPA with Landing, Features, Evolution timeline, and Privacy pages. GitHub Pages deployment via dedicated workflow. Legacy v1 site preserved under `docs/v1/`.
+- **Architecture Diagrams** - Added `ERICK_architecture.drawio` and exported PNG documenting the full KMP shared module, platform layers, controller/touch input flows, and build artifacts.
 
 ### Improvements
-- **Preview Text Readability** — Added outlined/stroked preview text on both platforms for better contrast across light and dark themes. Android uses a custom `OutlinedTextView` with configurable stroke color/width; iOS uses stacked offset `Text` views with `strokeOffsets` helper.
-- **Shift Indicator Relocation** — Moved the Android shift indicator into the preview row to prevent overlap with the capsule.
-- **UI Contrast Fixes** — Forced preview card content color to black on Android Compose screens for better legibility; iOS cards forced to light color scheme where needed.
-- **iOS Settings GitHub Link** — Added a GitHub repository link button in the iOS SettingsView.
-- **AD_ID Opt-Out** — Added `com.google.android.gms.permission.AD_ID` with `tools:node="remove"` in the Android manifest to explicitly opt out of advertising ID collection.
-- **Demo Media Refresh** — Replaced landscape GIFs with new portrait typing/controller demos, added v0.4.2 screenshots to the Evolution timeline, updated hero banner to `ERICK_feature_graphic_black.png`.
-- **GIF Cropping Fix** — Removed forced `aspect-[9/16]` and `object-cover` constraints on website demo media.
-- **Build Hygiene** — Added `build/` to root `.gitignore`, cleaned up stale build assets.
+- **Preview Text Readability** - Added outlined/stroked preview text on both platforms for better contrast across light and dark themes. Android uses a custom `OutlinedTextView` with configurable stroke color/width; iOS uses stacked offset `Text` views with `strokeOffsets` helper.
+- **Shift Indicator Relocation** - Moved the Android shift indicator into the preview row to prevent overlap with the capsule.
+- **UI Contrast Fixes** - Forced preview card content color to black on Android Compose screens for better legibility; iOS cards forced to light color scheme where needed.
+- **iOS Settings GitHub Link** - Added a GitHub repository link button in the iOS SettingsView.
+- **AD_ID Opt-Out** - Added `com.google.android.gms.permission.AD_ID` with `tools:node="remove"` in the Android manifest to explicitly opt out of advertising ID collection.
+- **Demo Media Refresh** - Replaced landscape GIFs with new portrait typing/controller demos, added v0.4.2 screenshots to the Evolution timeline, updated hero banner to `ERICK_feature_graphic_black.png`.
+- **GIF Cropping Fix** - Removed forced `aspect-[9/16]` and `object-cover` constraints on website demo media.
+- **Build Hygiene** - Added `build/` to root `.gitignore`, cleaned up stale build assets.
 
 ### Breaking Changes
-None — existing user preferences remain compatible.
+None - existing user preferences remain compatible.
 
 ---
 
@@ -78,23 +78,23 @@ TODO
 ## What's New
 
 ### Major Features
-- **Physical Gaming Controller Support** — Full DualShock 4, 8BitDo, and other Bluetooth game controller support on both Android and iOS. Left and right analog sticks map to the left and right joystick dials respectively. On iOS, a ControllerBridge in the host app shares controller state with the keyboard extension via App Group, since extensions run in a separate process.
-- **Word Prediction & Autocorrect** — Cross-platform word suggestion engine built into the shared Kotlin module. Displays up to 3 real-time suggestions above the keyboard. Tap to accept a suggestion, which replaces the current partial word. Includes next-word prediction after committing text.
-- **Accelerating Backspace** — Hold-to-delete-words support on both platforms. A single tap deletes one character; holding backspace accelerates to delete entire words, matching native keyboard behavior.
-- **Collapsible Settings Menu (Android)** — Replaced the long scrolling settings screen with an accordion-style layout using animated collapsible sections. Only one section expands at a time (Layout, Appearance, Accessibility, Privacy & Security). Font and theme options now use compact radio buttons instead of large pickers with preview text.
-- **Collapsible Settings Menu (iOS Keyboard Extension)** — Redesigned the in-keyboard settings overlay from a flat Form to a ScrollView with collapsible card sections, matching the Android accordion pattern. Includes a custom `CollapsibleSettingsSection` component with animated chevron rotation and compact radio rows.
+- **Physical Gaming Controller Support** - Full DualShock 4, 8BitDo, and other Bluetooth game controller support on both Android and iOS. Left and right analog sticks map to the left and right joystick dials respectively. On iOS, a ControllerBridge in the host app shares controller state with the keyboard extension via App Group, since extensions run in a separate process.
+- **Word Prediction & Autocorrect** - Cross-platform word suggestion engine built into the shared Kotlin module. Displays up to 3 real-time suggestions above the keyboard. Tap to accept a suggestion, which replaces the current partial word. Includes next-word prediction after committing text.
+- **Accelerating Backspace** - Hold-to-delete-words support on both platforms. A single tap deletes one character; holding backspace accelerates to delete entire words, matching native keyboard behavior.
+- **Collapsible Settings Menu (Android)** - Replaced the long scrolling settings screen with an accordion-style layout using animated collapsible sections. Only one section expands at a time (Layout, Appearance, Accessibility, Privacy & Security). Font and theme options now use compact radio buttons instead of large pickers with preview text.
+- **Collapsible Settings Menu (iOS Keyboard Extension)** - Redesigned the in-keyboard settings overlay from a flat Form to a ScrollView with collapsible card sections, matching the Android accordion pattern. Includes a custom `CollapsibleSettingsSection` component with animated chevron rotation and compact radio rows.
 
 ### Improvements
-- **Documentation & Website Overhaul** — Comprehensive updates to README.md, APP_CONTEXT.md, android/README.md, ios/README.md, and the GitHub Pages site (docs/index.html, docs/accessibility.html). All documentation now reflects the full feature set including controller support, word prediction, custom layouts, and accessibility options.
-- **Code Comment Localization** — Translated all 62 Simplified Chinese code comments to English across 6 source files: `MyInputMethodService.kt`, `KeyboardStateMachine.kt`, `KeyboardLogic.kt`, `KeyboardContracts.kt`, `ControllerBridge.swift`, and `KeyboardViewController.swift`. Improves readability and onboarding for all contributors.
-- **JIRA Sprint Documentation** — Added Sprint 3 ticket tracking documentation.
+- **Documentation & Website Overhaul** - Comprehensive updates to README.md, APP_CONTEXT.md, android/README.md, ios/README.md, and the GitHub Pages site (docs/index.html, docs/accessibility.html). All documentation now reflects the full feature set including controller support, word prediction, custom layouts, and accessibility options.
+- **Code Comment Localization** - Translated all 62 Simplified Chinese code comments to English across 6 source files: `MyInputMethodService.kt`, `KeyboardStateMachine.kt`, `KeyboardLogic.kt`, `KeyboardContracts.kt`, `ControllerBridge.swift`, and `KeyboardViewController.swift`. Improves readability and onboarding for all contributors.
+- **JIRA Sprint Documentation** - Added Sprint 3 ticket tracking documentation.
 
 ### Bug Fixes
 - Fixed Android UI rendering issues after controller input integration.
 - Fixed right-stick UI sync when using physical controllers on iOS.
 
 ### Breaking Changes
-None — existing user preferences remain compatible.
+None - existing user preferences remain compatible.
 
 ---
 
@@ -143,7 +143,7 @@ TODO
 - Fixed SettingsActivity layout option enabling/disabling logic.
 
 ### Breaking Changes
-None — existing user preferences remain compatible.
+None - existing user preferences remain compatible.
 
 ---
 

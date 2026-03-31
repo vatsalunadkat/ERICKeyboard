@@ -4,13 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Accessibility - ERICK Keyboard</title>
-  <meta name="description" content="ERICK is designed for everyone - colorblind support, left-handed mode, dyslexia-friendly fonts, motor accessibility, and more." />
+  <meta name="description" content="ERICK is designed to reduce typing effort with large directional controls, controller support, readable visuals, and flexible layouts." />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="images/erick-logo.png" type="image/png" />
 </head>
 <body>
-
-  <!-- ===== Navigation ===== -->
   <nav class="site-nav" aria-label="Main navigation">
     <div class="nav-inner">
       <a href="index.html" class="nav-logo">
@@ -20,6 +18,7 @@
       <div class="nav-right">
         <ul class="nav-links">
           <li><a href="accessibility.html" class="active">Accessibility</a></li>
+          <li><a href="who-benefits.html">Who Benefits</a></li>
           <li><a href="privacy-policy.html">Privacy</a></li>
           <li><a href="releases.html">Releases</a></li>
           <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub</a></li>
@@ -28,9 +27,6 @@
           <button class="a11y-btn" id="font-decrease" aria-label="Decrease font size" title="Decrease font size">A-</button>
           <button class="a11y-btn" id="font-increase" aria-label="Increase font size" title="Increase font size">A+</button>
           <button class="a11y-btn" id="dyslexia-toggle" aria-label="Toggle dyslexia-friendly font" title="Toggle dyslexia-friendly font">Dy</button>
-          <!-- DISABLED: dark theme toggle hidden for now (light theme default)
-          <button class="a11y-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
-          -->
         </div>
         <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -39,33 +35,26 @@
     </div>
   </nav>
 
-  <!-- ===== Hero ===== -->
   <section class="a11y-hero">
     <h1>Designed for Everyone</h1>
     <p>
-      Accessibility isn't an afterthought - it's built into ERICK's core. Every user deserves a comfortable,
-      efficient typing experience regardless of ability.
+      Accessibility is not an afterthought - it is built into ERICK's core. Every feature is designed
+      so that users of all abilities can type comfortably and efficiently.
     </p>
   </section>
 
-  <!-- ===== Features ===== -->
   <main class="a11y-section">
 
-    <!-- Colorblind Support -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon colorblind" aria-hidden="true">🎨</div>
+      <div class="a11y-feature-icon" aria-hidden="true">🎨</div>
       <div class="a11y-feature-content">
-        <h2>Colorblind Support &amp; Custom Palettes</h2>
+        <h2>Colorblind Support</h2>
         <p>
-          ERICK offers seven built-in color palettes plus a full custom palette editor, so the keyboard
-          is legible and comfortable for users with protanopia, deuteranopia, tritanopia, and other
-          color vision differences. Each palette assigns 8 distinct colors to the joystick's
-          8 directional segments (N, NE, E, SE, S, SW, W, NW), ensuring high contrast and
-          distinguishability. You can also create your own 8-color palette using the built-in editor
-          with HSV sliders (Android) or the native ColorPicker (iOS). Below are the built-in palettes:
+          ERICK uses color to distinguish the 8 directional segments on each dial. For users with color
+          vision deficiency, six carefully designed palettes ensure every direction remains visually
+          distinguishable. You can also create a fully custom palette.
         </p>
         <div class="palette-swatches">
-          <!-- Default Palette -->
           <div class="swatch-group">
             <div class="swatch-colors">
               <div class="swatch" style="background:#E60012" title="N - Red"></div>
@@ -79,7 +68,6 @@
             </div>
             <span>Default</span>
           </div>
-          <!-- Okabe-Ito Palette -->
           <div class="swatch-group">
             <div class="swatch-colors">
               <div class="swatch" style="background:#E69F00" title="N - Orange"></div>
@@ -93,7 +81,6 @@
             </div>
             <span>Okabe-Ito</span>
           </div>
-          <!-- Deuteranopia Palette -->
           <div class="swatch-group">
             <div class="swatch-colors">
               <div class="swatch" style="background:#0072B2" title="N - Blue"></div>
@@ -107,7 +94,6 @@
             </div>
             <span>Deuteranopia</span>
           </div>
-          <!-- Protanopia Palette -->
           <div class="swatch-group">
             <div class="swatch-colors">
               <div class="swatch" style="background:#0077BB" title="N - Blue"></div>
@@ -121,7 +107,6 @@
             </div>
             <span>Protanopia</span>
           </div>
-          <!-- Tritanopia Palette -->
           <div class="swatch-group">
             <div class="swatch-colors">
               <div class="swatch" style="background:#CC3311" title="N - Red"></div>
@@ -135,7 +120,6 @@
             </div>
             <span>Tritanopia</span>
           </div>
-          <!-- Pastel Palette -->
           <div class="swatch-group">
             <div class="swatch-colors">
               <div class="swatch" style="background:#F4A6B0" title="N - Rose"></div>
@@ -153,221 +137,105 @@
       </div>
     </div>
 
-    <!-- Left-Handed Mode -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon lefty" aria-hidden="true">🤚</div>
+      <div class="a11y-feature-icon" aria-hidden="true">🤚</div>
       <div class="a11y-feature-content">
         <h2>Left-Handed Mode</h2>
         <p>
-          Toggle left-handed mode to swap the two joystick dials entirely. Left-hand dominant users get a
-          mirrored layout where the primary selection dial sits on their strong side, reducing fatigue and
-          improving accuracy.
+          Toggle left-handed mode to swap the two dials entirely. Left-hand dominant users get a mirrored
+          layout where the primary selection dial sits on their strong side, reducing fatigue and improving accuracy.
         </p>
       </div>
     </div>
 
-    <!-- Dyslexia-Friendly Font -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon dyslexia" aria-hidden="true">📖</div>
+      <div class="a11y-feature-icon" aria-hidden="true">📖</div>
       <div class="a11y-feature-content">
-        <h2>Dyslexia-Friendly Font</h2>
+        <h2>Dyslexia-Friendly Fonts</h2>
         <p>
-          Enable the OpenDyslexic font option within ERICK's settings. This typeface uses weighted letter
-          bottoms and unique shapes to reduce the visual confusion common with standard fonts, making
-          labels and text previews easier to read.
+          Enable the OpenDyslexic font option in ERICK's settings. This typeface uses weighted letter
+          bottoms and unique shapes to reduce visual confusion, making labels and text previews easier to read.
         </p>
       </div>
     </div>
 
-    <!-- Motor Accessibility -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon motor" aria-hidden="true">🕹️</div>
+      <div class="a11y-feature-icon" aria-hidden="true">🕹️</div>
       <div class="a11y-feature-content">
         <h2>Motor Accessibility</h2>
         <p>
-          ERICK replaces dozens of small keys with two large joystick targets. Adjustable dead zones let
-          users fine-tune sensitivity, and full physical controller support means users who cannot interact
-          with touchscreens can still type comfortably using a gamepad's analog sticks.
+          ERICK replaces dozens of small keys with two large directional targets. Full physical controller
+          support means users who cannot interact with touchscreens can still type comfortably using a
+          gamepad's analog sticks.
         </p>
       </div>
     </div>
 
-    <!-- Customizable Layouts -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon custom" aria-hidden="true">⚙️</div>
+      <div class="a11y-feature-icon" aria-hidden="true">⚡</div>
       <div class="a11y-feature-content">
-        <h2>Customizable Layouts</h2>
+        <h2>Equal-Effort Input</h2>
         <p>
-          Create and save custom chord layouts tailored to your needs. Whether you prefer alphabetical order
-          for easy memorization, frequency-optimized placement for speed, or a completely personal arrangement,
-          ERICK adapts to you - not the other way around.
-        </p>
-      </div>
-    </div>
-
-    <!-- Chorded Efficiency -->
-    <div class="a11y-feature">
-      <div class="a11y-feature-icon chord" aria-hidden="true">⚡</div>
-      <div class="a11y-feature-content">
-        <h2>Chorded Efficiency</h2>
-        <p>
-          Every character requires exactly two movements - one on each dial. There's no reaching, no
+          Every character requires exactly two movements - one on each dial. There is no reaching, no
           stretching, and no hunting for keys. This consistent effort reduces repetitive strain and makes
           typing sustainable over longer sessions.
         </p>
       </div>
     </div>
 
-    <!-- Word Prediction -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon prediction" aria-hidden="true">💬</div>
+      <div class="a11y-feature-icon" aria-hidden="true">💬</div>
       <div class="a11y-feature-content">
-        <h2>Word Prediction &amp; Autocorrect</h2>
+        <h2>Word Prediction and Autocorrect</h2>
         <p>
-          Always-on word suggestions reduce the number of chords needed per sentence. As you type, ERICK
-          offers completions, spelling corrections, and next-word predictions - tap a suggestion to accept
-          it instantly. This means fewer movements for every message, which is especially valuable for users
+          Always-on word suggestions reduce the number of chords needed per sentence. ERICK offers
+          completions, spelling corrections, and next-word predictions - tap a suggestion to accept it
+          instantly. This means fewer movements for every message, which is especially valuable for users
           with motor impairments or fatigue. All predictions run fully offline with zero data collection.
         </p>
       </div>
     </div>
 
-    <!-- One-Handed Mode -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon motor" aria-hidden="true">🤲</div>
+      <div class="a11y-feature-icon" aria-hidden="true">🤲</div>
       <div class="a11y-feature-content">
         <h2>One-Handed Typing Mode</h2>
         <p>
-          Enable One-Handed mode to type with a single thumb. Lock a direction on the left dial,
-          then use only the right dial to select characters. This is ideal for users with limited
-          use of one hand, or anyone who needs to type while holding something in the other hand.
-          One-Handed mode is one of three input modes — Quick Type for speed, Steady Type for
-          deliberate input, and One-Handed for single-thumb accessibility.
+          Enable One-Handed mode to type with a single thumb. Lock a direction on the left dial, then
+          use only the right dial to select characters. This is one of three input modes - Quick Type for
+          speed, Steady Type for deliberate input, and One-Handed for single-thumb accessibility.
         </p>
       </div>
     </div>
 
-    <!-- Haptic Feedback -->
     <div class="a11y-feature">
-      <div class="a11y-feature-icon motor" aria-hidden="true">📳</div>
+      <div class="a11y-feature-icon" aria-hidden="true">📳</div>
       <div class="a11y-feature-content">
-        <h2>Haptic Feedback &amp; Typing Sounds</h2>
+        <h2>Haptic Feedback and Typing Sounds</h2>
         <p>
-          Enable haptic vibration and typing sounds for sensory confirmation of each keystroke.
-          Utility keys (backspace, enter, shift) produce a stronger haptic pulse, while letter
-          chords use a softer tap. Typing sounds use gentle system tones. Both features are
-          toggleable independently and default to off, respecting users who prefer a silent experience.
+          Enable haptic vibration and typing sounds for sensory confirmation of each keystroke. Utility
+          keys (backspace, enter, shift) produce a stronger pulse, while letter chords use a softer tap.
+          Both features are toggleable independently and default to off.
         </p>
       </div>
     </div>
 
-    <!-- ===== Who Benefits ===== -->
-    <section style="padding-top: 3rem;">
-      <h2 style="text-align:center; margin-bottom:0.5rem;">Who Benefits?</h2>
-      <p style="text-align:center; color:var(--text-secondary); margin-bottom:0.5rem; max-width:640px; margin-left:auto; margin-right:auto;">
-        ERICK is designed for a wide range of users. Below are hypothetical examples illustrating
-        how different people could benefit from the keyboard.
+    <section class="persona-section">
+      <h2>Research-informed design</h2>
+      <p>
+        ERICK is informed by research on chorded input, reduced finger travel, and alternative keyboard layouts.
+        The strongest evidence supports the value of low-movement, ergonomic text entry. More specific claims,
+        such as which layout is best for every user group, should be treated as promising design directions rather
+        than settled fact.
       </p>
-      <p class="hypothetical-note">
-        Note: These are illustrative scenarios, not real user testimonials.
-      </p>
-
-      <div class="personas">
-        <div class="persona-card">
-          <p class="persona-name">Motor Disability</p>
-          <p class="persona-role">User with limited finger dexterity</p>
-          <blockquote>
-            A person with limited hand mobility could use ERICK with a gaming controller's analog sticks,
-            avoiding the need to precisely tap dozens of small on-screen keys. The two large joystick targets
-            require only broad directional movements.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Color Vision Deficiency</p>
-          <p class="persona-role">User with deuteranopia (green-blind)</p>
-          <blockquote>
-            A person with deuteranopia could switch to the dedicated green-blind palette, where all 8 joystick
-            segments use colors specifically chosen to remain distinguishable without red-green discrimination.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Dyslexia</p>
-          <p class="persona-role">User who struggles with standard fonts</p>
-          <blockquote>
-            A person with dyslexia could enable the OpenDyslexic font option so that all keyboard labels
-            use weighted, asymmetric letterforms that reduce letter-swapping confusion during typing.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Left-Handed User</p>
-          <p class="persona-role">Left-hand dominant typist</p>
-          <blockquote>
-            A left-handed person could enable left-handed mode to mirror the dial layout, placing the
-            primary character-group selector under their dominant thumb for faster, more natural input.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Console / TV User</p>
-          <p class="persona-role">Typing on a TV or gaming console</p>
-          <blockquote>
-            A person using a smart TV or gaming console could connect a standard gamepad and type with
-            ERICK's dual-stick chord system - far faster and more comfortable than navigating an
-            on-screen grid keyboard with a D-pad.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Repetitive Strain Injury</p>
-          <p class="persona-role">User seeking ergonomic alternatives</p>
-          <blockquote>
-            A person experiencing RSI symptoms could benefit from ERICK's equal-effort character input,
-            where every letter requires the same two broad movements - eliminating the uneven finger
-            stretching that aggravates strain injuries on traditional keyboards.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Autism Spectrum</p>
-          <p class="persona-role">User who prefers logical, predictable layouts</p>
-          <blockquote>
-            A person on the autism spectrum could use ERICK's logical alphabetical layout (A-Z ordered),
-            where character positions follow a predictable pattern rather than the seemingly arbitrary
-            QWERTY arrangement, reducing cognitive load.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">One-Handed User</p>
-          <p class="persona-role">User with temporary or permanent single-hand use</p>
-          <blockquote>
-            A person with a broken arm or one-hand mobility could enable One-Handed mode, locking the
-            left dial direction and typing entirely with the right thumb. No need for complex
-            accessibility switches — just one toggle in settings.
-          </blockquote>
-        </div>
-
-        <div class="persona-card">
-          <p class="persona-name">Privacy-Conscious User</p>
-          <p class="persona-role">User who avoids data-collecting keyboards</p>
-          <blockquote>
-            A privacy-focused user could switch to ERICK knowing that no keystrokes, passwords, or personal data
-            are ever logged, transmitted, or shared - the app runs fully offline with zero network permissions
-            and is 100% open-source for verification.
-          </blockquote>
-        </div>
-      </div>
     </section>
   </main>
 
-  <!-- ===== Footer ===== -->
   <footer class="site-footer">
     <ul class="footer-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="accessibility.html">Accessibility</a></li>
+      <li><a href="who-benefits.html">Who Benefits</a></li>
       <li><a href="privacy-policy.html">Privacy Policy</a></li>
       <li><a href="releases.html">Releases</a></li>
       <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub</a></li>
@@ -379,7 +247,7 @@
         <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener" aria-label="LinkedIn profile">LinkedIn</a>
       </div>
     </div>
-    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Chorded Keyboard. All rights reserved.</p>
+    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Controller Keyboard. All rights reserved.</p>
   </footer>
 
   <script src="js/main.js"></script>

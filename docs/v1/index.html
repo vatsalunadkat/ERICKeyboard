@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ERICK - Ergonomic Radial Inclusive Chorded Keyboard</title>
-  <meta name="description" content="A cross-platform chorded keyboard for Android and iOS that uses dual joystick input with word prediction for fast, accessible text entry. Open-source, privacy-focused, and designed for everyone." />
+  <title>ERICK - Ergonomic Radial Inclusive Controller Keyboard</title>
+  <meta name="description" content="ERICK is an accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls for chorded input." />
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="ERICK - Ergonomic Radial Inclusive Chorded Keyboard" />
-  <meta property="og:description" content="A cross-platform chorded keyboard for Android and iOS with word prediction, dual joystick input, and full accessibility." />
+  <meta property="og:title" content="ERICK - Ergonomic Radial Inclusive Controller Keyboard" />
+  <meta property="og:description" content="A research-informed keyboard for Android and iOS that uses two large directional controls, supports controllers, and works fully offline." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="images/erick-logo.png" />
 
@@ -17,7 +16,6 @@
 </head>
 <body>
 
-  <!-- ===== Navigation ===== -->
   <nav class="site-nav" aria-label="Main navigation">
     <div class="nav-inner">
       <a href="index.html" class="nav-logo">
@@ -27,6 +25,7 @@
       <div class="nav-right">
         <ul class="nav-links">
           <li><a href="accessibility.html">Accessibility</a></li>
+          <li><a href="who-benefits.html">Who Benefits</a></li>
           <li><a href="privacy-policy.html">Privacy</a></li>
           <li><a href="releases.html">Releases</a></li>
           <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub</a></li>
@@ -35,9 +34,6 @@
           <button class="a11y-btn" id="font-decrease" aria-label="Decrease font size" title="Decrease font size">A-</button>
           <button class="a11y-btn" id="font-increase" aria-label="Increase font size" title="Increase font size">A+</button>
           <button class="a11y-btn" id="dyslexia-toggle" aria-label="Toggle dyslexia-friendly font" title="Toggle dyslexia-friendly font">Dy</button>
-          <!-- DISABLED: dark theme toggle hidden for now (light theme default)
-          <button class="a11y-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
-          -->
         </div>
         <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -46,123 +42,128 @@
     </div>
   </nav>
 
-  <!-- ===== Hero ===== -->
   <section class="hero">
     <img src="images/erick-logo.png" alt="ERICK logo" class="hero-logo" />
     <h1>ERICK</h1>
-    <p class="tagline">A radial chorded keyboard with word prediction - for everyone</p>
+    <p class="tagline">ERICK is an accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls for chorded input.</p>
     <div class="hero-buttons">
-      <a href="#" class="btn btn-primary" aria-label="Get it on Google Play (coming April 2026)">
-        ▶ Google Play - Coming April 2026
+      <a href="#" class="btn btn-primary" aria-label="Get it on Google Play (coming soon)">
+        Google Play - Coming Soon
       </a>
-      <a href="#" class="btn btn-secondary" aria-label="Download on the App Store (coming May 2026)">
-         App Store - Coming May 2026
+      <a href="#" class="btn btn-secondary" aria-label="Download on the App Store (coming soon)">
+        App Store - Coming Soon
       </a>
     </div>
   </section>
 
-  <!-- ===== What is ERICK? ===== -->
   <div class="section-alt">
     <section class="section section-centered" id="about">
       <h2>What is ERICK?</h2>
       <p class="section-subtitle">
-        ERICK is a chorded keyboard that replaces dozens of tiny keys with two intuitive joystick dials.
-        Swipe on both dials to combine directions into character "chords" - making every letter, number,
-        and symbol equally easy to type. Built-in word prediction and autocorrect help you type
-        even faster, while full accessibility options ensure everyone can use it comfortably.
+        ERICK is an accessibility-first keyboard for Android and iOS. Instead of asking the user to tap rows of tiny keys,
+        it uses two large directional controls. Move the left and right controls together and ERICK turns that pair of directions
+        into a letter, number, symbol, or command.
       </p>
       <div class="demo-grid">
         <div class="demo-item">
-          <img src="../documentation/demo%20files/v0.1.7_swipe_input.gif" alt="Swipe typing demonstration" loading="lazy" />
-          <p>Touch-based swipe input</p>
+          <img src="../documentation/demo%20files/v0.1.7_swipe_input.gif" alt="Touch typing demonstration" loading="lazy" />
+          <p>Touch-based directional typing</p>
         </div>
         <div class="demo-item">
           <img src="../documentation/demo%20files/v0.1.7_controller.gif" alt="Controller typing demonstration" loading="lazy" />
-          <p>Physical controller input</p>
+          <p>Controller-based typing</p>
         </div>
         <div class="demo-item">
-          <img src="../documentation/demo%20files/v0.1.7_no_hands%20type.gif" alt="Hands-free typing with controller" loading="lazy" />
-          <p>Hands-free typing</p>
+          <img src="../documentation/demo%20files/v0.1.7_no_hands%20type.gif" alt="Hands-free style typing demonstration" loading="lazy" />
+          <p>Alternative input without tiny keys</p>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- ===== How It Works (moved above Features) ===== -->
-  <section class="section section-centered" id="how-it-works">
-    <h2>How It Works</h2>
-    <p class="section-subtitle">Three simple movements, one character. That's it.</p>
+  <section class="section section-centered" id="who-it-is-for">
+    <h2>Who is it for?</h2>
+    <p class="section-subtitle">ERICK is built first for people who struggle with standard touch keyboards, but it can help many more users too.</p>
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <h3>Left Dial</h3>
-        <p>Swipe the left joystick in a direction to select a character group (e.g. A-E).</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">♿</div>
+        <h3>Physical disabilities</h3>
+        <p>Large touch targets and controller support can help users with limited dexterity, tremors, repetitive strain injuries, or difficulty reaching rows of small keys.</p>
       </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <h3>Right Dial</h3>
-        <p>Swipe the right joystick to select the specific character within that group.</p>
+      <div class="feature-card">
+        <div class="icon">🧠</div>
+        <h3>Mental disabilities</h3>
+        <p>A predictable A-Z layout, dyslexia-friendly fonts, and simplified input can reduce cognitive load for users who find standard keyboards overwhelming.</p>
       </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <h3>Output</h3>
-        <p>Both directions combine into a chord - the character appears instantly and word predictions update in real time.</p>
+      <div class="feature-card">
+        <div class="icon">👤</div>
+        <h3>Everyday users</h3>
+        <p>Fewer mistaps on small screens, controller-based typing for TVs and consoles, and fully offline privacy make ERICK useful for anyone.</p>
       </div>
     </div>
   </section>
 
-  <!-- ===== Key Features ===== -->
+  <div class="section-alt">
+    <section class="section section-centered" id="how-it-works">
+      <h2>How it works</h2>
+      <p class="section-subtitle">ERICK keeps the interaction simple: choose a group, choose a character, type.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Choose a group</h3>
+          <p>Swipe the left dial in a direction to select a character group (e.g., A–E, F–J).</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Choose a character</h3>
+          <p>Swipe the right dial to select the specific character within that group.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Type</h3>
+          <p>Both directions combine into a chord - the character appears instantly and word predictions update in real time.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div class="section-alt">
     <section class="section section-centered" id="features">
-      <h2>Key Features</h2>
-      <p class="section-subtitle">Built from the ground up for speed, accessibility, and privacy.</p>
+      <h2>Key features</h2>
+      <p class="section-subtitle">Built from the ground up for accessibility, speed, and privacy.</p>
 
       <div class="features-grid">
         <div class="feature-card">
           <div class="icon">🎯</div>
-          <h3>Dual-Joystick Input</h3>
+          <h3>Dual-Dial Chord Input</h3>
           <p>Two radial dials combine to form character chords. Every character requires equal effort - no more reaching for tiny keys.</p>
         </div>
         <div class="feature-card">
           <div class="icon">🎨</div>
           <h3>Multiple Layouts</h3>
-          <p>Choose from Logical (A-Z), Efficiency (frequency-optimized), or create your own custom layout.</p>
+          <p>Choose from Logical (A–Z), Efficiency (frequency-optimized), or create your own custom layout.</p>
         </div>
         <div class="feature-card">
-          <div class="icon">🌙</div>
-          <h3>Light &amp; Dark Mode</h3>
-          <p>Follow your system preference automatically, or set light/dark mode manually in settings.</p>
+          <div class="icon">💬</div>
+          <h3>Offline Word Prediction</h3>
+          <p>Always-on suggestions with autocorrect, next-word predictions, and smart space insertion - all offline, no data sent anywhere.</p>
         </div>
         <div class="feature-card">
           <div class="icon">🎮</div>
           <h3>Controller Support</h3>
-          <p>Plug in a physical gaming controller and use its analog sticks for text input - great for consoles and TVs.</p>
-        </div>
-        <div class="feature-card">
-          <div class="icon">💬</div>
-          <h3>Word Prediction</h3>
-          <p>Always-on suggestions with autocorrect, next-word predictions, and smart space insertion - all offline, no data sent anywhere.</p>
+          <p>Plug in a physical gaming controller and use its analog sticks for text input - great for consoles, TVs, and couch setups.</p>
         </div>
         <div class="feature-card">
           <div class="icon">♿</div>
           <h3>Accessibility First</h3>
-          <p>Colorblind palettes, left-handed mode, dyslexia-friendly fonts, and large touch targets for motor accessibility.</p>
+          <p>Colorblind palettes, left-handed mode, dyslexia-friendly fonts, one-handed typing, and large touch targets for motor accessibility.</p>
         </div>
         <div class="feature-card">
-          <div class="icon">🔒</div>
-          <h3>Privacy Focused</h3>
-          <p>Zero data collection, no internet permissions, fully offline. 100% open-source so you can verify every line.</p>
-        </div>
-        <div class="feature-card">
-          <div class="icon">🎯</div>
-          <h3>Typing Practice</h3>
-          <p>Built-in relaxing typing game with curated quotes to help you learn chord combinations at your own pace.</p>
-        </div>
-        <div class="feature-card">
-          <div class="icon">✏️</div>
-          <h3>Custom Layouts</h3>
-          <p>Design your own keyboard layout that fits the way you think and type. Save and switch anytime.</p>
+          <div class="icon">🌙</div>
+          <h3>Light and Dark Mode</h3>
+          <p>Follow your system preference automatically, or set light/dark mode manually in settings.</p>
         </div>
         <div class="feature-card">
           <div class="icon">⚡</div>
@@ -170,25 +171,25 @@
           <p>Quick Type for speed, Steady Type for precision, and One-Handed mode that locks a direction so you can type with a single thumb.</p>
         </div>
         <div class="feature-card">
-          <div class="icon">🎨</div>
-          <h3>Custom Color Palettes</h3>
-          <p>Create your own 8-color palette with a full color editor. Choose from pastel presets or pick exact colors with hex/RGB controls.</p>
+          <div class="icon">🎯</div>
+          <h3>Typing Practice</h3>
+          <p>Built-in typing game with curated quotes to help you learn chord combinations at your own pace.</p>
         </div>
         <div class="feature-card">
-          <div class="icon">📳</div>
-          <h3>Haptic Feedback &amp; Sounds</h3>
-          <p>Feel each keystroke with adjustable haptic vibration and soft typing sounds. Both are toggleable in settings.</p>
+          <div class="icon">🔒</div>
+          <h3>Privacy Focused</h3>
+          <p>Zero data collection, no internet permissions, fully offline. Source available so you can verify every line.</p>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- ===== Open Source ===== -->
   <section class="section">
     <div class="oss-banner">
-      <h2>100% Open Source</h2>
+      <h2>Research-informed and source available</h2>
       <p>
-        ERICK is built in the open with Kotlin Multiplatform. Inspect the code, suggest features, or contribute directly.
+        ERICK is inspired by research into chorded keyboards, ergonomic text entry, and accessible input systems.
+        The code is source available, and the project is built in the open.
       </p>
       <div class="oss-buttons">
         <a href="https://github.com/vatsalunadkat/ERICKeyboard" class="btn btn-primary" target="_blank" rel="noopener">
@@ -201,11 +202,11 @@
     </div>
   </section>
 
-  <!-- ===== Footer ===== -->
   <footer class="site-footer">
     <ul class="footer-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="accessibility.html">Accessibility</a></li>
+      <li><a href="who-benefits.html">Who Benefits</a></li>
       <li><a href="privacy-policy.html">Privacy Policy</a></li>
       <li><a href="releases.html">Releases</a></li>
       <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub</a></li>
@@ -217,7 +218,7 @@
         <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener" aria-label="LinkedIn profile">LinkedIn</a>
       </div>
     </div>
-    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Chorded Keyboard. All rights reserved.</p>
+    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Controller Keyboard. All rights reserved.</p>
   </footer>
 
   <script src="js/main.js"></script>

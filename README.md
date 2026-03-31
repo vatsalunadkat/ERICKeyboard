@@ -1,21 +1,22 @@
 <a name="readme-top"></a>
 
-<!-- PROJECT LOGO -->
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
   <p align="center"><strong>Version 0.7.4-beta</strong></p>
 
   <p align="center">
-    A cross-platform ergonomic chorded keyboard for Android &amp; iOS — type with two joystick dials using touch or a physical gaming controller, featuring word prediction, accessibility-first design, and fully offline privacy.
+    An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
     <br />
-    <a href="docs/documentation/APP_CONTEXT.md"><strong>📘 View Architecture & App Context »</strong></a>
+    Type with touch or a physical game controller, get offline word prediction, and keep every keystroke on your own device.
     <br />
     <br />
-    <a href="docs/documentation/User_Guide.md"><strong>📖 User Guide</strong></a>
+    <a href="docs/documentation/APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
     ·
-    <a href="docs/documentation/Research/README.md"><strong>🔬 Research</strong></a>
+    <a href="docs/documentation/User_Guide.md"><strong>User Guide</strong></a>
     ·
-    <a href="CHANGELOG.md"><strong>📋 Changelog</strong></a>
+    <a href="docs/documentation/Research/README.md"><strong>Research</strong></a>
+    ·
+    <a href="CHANGELOG.md"><strong>Changelog</strong></a>
     <br />
     <br />
     <a href="https://github.com/vatsalunadkat/ERICKeyboard/issues">Report Bug</a>
@@ -24,195 +25,99 @@
   </p>
 </div>
 
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-        <li><a href="#project-structure">Project Structure</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#future-scope">Future Scope</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#project-artifacts">Project Artifacts</a>
-      <ul>
-        <li><a href="#touch-typing-ios">Touch Typing (iOS)</a></li>
-        <li><a href="#controller-typing-android">Controller Typing (Android)</a></li>
-        <li><a href="#controller-typing-ios">Controller Typing (iOS)</a></li>
-        <li><a href="#screenshots">Screenshots</a></li>
-        <li><a href="#architecture-overview">Architecture Overview</a></li>
-      </ul>
-    </li>
-    <li><a href="docs/documentation/APP_CONTEXT.md">📘 Architecture & App Context (Detailed)</a></li>
-    <li><a href="docs/documentation/User_Guide.md">📖 User Guide</a></li>
-    <li><a href="docs/documentation/Research/README.md">🔬 Research Documentation</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-  </ol>
-</details>
-
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 <div align="center">
   <img src="docs/documentation/logo/ERICK_feature_graphic_black.png" alt="ERICK Feature Graphic" width="700" />
 </div>
 
-ERICK is a cross-platform chorded keyboard that replaces dozens of tiny keys with two intuitive joystick dials. Users swipe on both dials to combine directions into character "chords" — making every letter, number, and symbol equally easy to type. It works with on-screen touch joysticks or physical gaming controllers (DualShock 4, Xbox, 8BitDo, etc.).
+ERICK is a different kind of keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
 
-The keyboard is designed with accessibility at its core: large touch targets eliminate the need for fine motor skills, seven colorblind-safe palettes plus a custom color editor ensure readability for all forms of color vision, left-handed mode mirrors the layout, and dyslexia-friendly fonts are built in. Characters are arranged in a logical alphabetical order (A–Z), making it intuitive for users on the autism spectrum or anyone learning the system for the first time. An efficiency layout optimized by character frequency is also available for advanced typists.
+ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting low-visual-demand typing.
 
-ERICK includes smart word prediction and autocorrect — a suggestion bar shows up to three completions or next-word predictions at all times, powered by a Trie-based engine with bigram sentence prediction. A live preview bar shows available characters as you hold a dial, with animated highlighting and a capsule design. All logic is shared between Android and iOS via Kotlin Multiplatform (KMP), ensuring identical behavior on both platforms.
+The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes word prediction, autocorrect, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, and custom layouts.
 
-The keyboard is source available, runs fully offline with zero internet permissions, and collects no data whatsoever — every keystroke stays on your device.
+Everything runs fully offline. ERICK requests no internet permission, collects no typing data, and keeps every keystroke on the device.
 
-**The Curb Cut Effect — Designed for Accessibility, Better for Everyone:**
+## Why ERICK Matters
 
-ERICK is built accessibility-first, but its design benefits all users — a phenomenon known as the <a href="https://www.youtube.com/shorts/54VG3Q66Qtg?feature=share" target="_blank">curb cut effect</a>. Just as sidewalk curb cuts were designed for wheelchair users but are now used by everyone with strollers, luggage, or bicycles, ERICK's accessible features make typing easier and more versatile for mainstream users too:
+ERICK is built around the idea that accessibility should improve the product for everyone, not only for a small group of users.
 
-- **Large touch targets** — designed for users with limited dexterity, but also great for typing on the go, in cold weather with gloves, or on small screens where tiny keys cause constant typos
-- **Controller support** — essential for users who can't touch a screen, but equally useful for gaming setups, smart TVs, and couch browsing where a physical controller is the natural input device
-- **Eyes-free typing** — built for visually impaired users, but perfect for taking notes in class, typing while walking, or discreet messaging without looking at your phone
-- **Word prediction & autocorrect** — helps users with cognitive disabilities compose text faster, while also boosting typing speed for everyone
-- **Efficiency layout** — an alternative chord arrangement optimized by character frequency, placing common letters on the easiest swipes so power users can type faster with less effort
-- **Customizable layouts** — allows users with specific motor needs to rearrange chords, but also lets power users optimize for speed or personal preference
-- **Privacy by design** — zero data collection protects vulnerable users from surveillance, and gives privacy-conscious mainstream users a keyboard they can actually trust
+- Large touch targets can help people with limited dexterity, but they also reduce mistakes on small screens.
+- Controller support can help users who cannot rely on touch, but it also makes sense for couches, TVs, and gaming setups.
+- Predictive text can reduce effort for users with fatigue or motor limitations, while also speeding up everyday typing.
+- Offline privacy protects vulnerable users and gives privacy-conscious users a keyboard they can actually trust.
 
-**Key use cases:**
+## Key Use Cases
+
 - Accessible typing for people with motor disabilities, limited finger dexterity, or repetitive strain injuries
 - Controller-based typing on gaming consoles, smart TVs, and set-top boxes
-- Eyes-free typing (e.g., taking notes in class without looking at the screen)
-- While commuting, or multitasking
+- Low-visual-demand or eyes-free typing
+- Typing while commuting or multitasking
 - Privacy-preserving alternative to data-collecting commercial keyboards
 
 ### Built With
 
-* [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#) - Input Method Editor (IME) service
-* [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#) - Custom Keyboard Extension
-* [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#) - Primary language for Android & shared logic
-* [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#) - iOS platform implementation
-* [![Kotlin Multiplatform](https://img.shields.io/badge/KMP-7F52FF?logo=kotlin&logoColor=white)](#) - Shared keyboard logic across platforms
-* [![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?logo=swift&logoColor=white)](#) - iOS keyboard UI
-* [![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](#) - Android preferences management
-* Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) (Coming Soon) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#) (Coming Soon)
+[![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#) [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#) [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#) [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#) [![Kotlin Multiplatform](https://img.shields.io/badge/KMP-7F52FF?logo=kotlin&logoColor=white)](#) [![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?logo=swift&logoColor=white)](#) [![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](#)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) (Coming Soon) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#) (Coming Soon)
 
-<!-- PROJECT STRUCTURE -->
-### Project Structure
+## Features
 
-This is a multi-platform project supporting both Android and iOS with shared business logic:
+### Current Implementation
 
-```
-ERICK/
-├── android/              # Android implementation
-│   ├── app/             # Android app module (IME service, UI, activities)
-│   ├── shared/          # Kotlin Multiplatform shared module
-│   │   ├── commonMain/  # Shared keyboard logic
-│   │   │   ├── KeyboardStateMachine.kt  # State machine & word buffer
-│   │   │   ├── KeyboardLogic.kt         # Chord processing & layout math
-│   │   │   ├── KeyboardContracts.kt     # Interfaces, enums & contracts
-│   │   │   ├── WordPredictionEngine.kt  # Trie-based prediction & autocorrect
-│   │   │   ├── ColorPalettes.kt         # 7 colorblind-safe palettes (incl. custom)
-│   │   │   ├── CustomLayout.kt          # Custom layout data models & manager
-│   │   │   ├── CustomLayoutSerializer.kt# JSON serialization for layouts
-│   │   │   ├── SettingsRepository.kt    # Cross-platform settings contracts
-│   │   │   ├── Platform.kt             # Platform abstraction
-│   │   │   └── KeyboardFactory.kt       # Platform factory
-│   │   ├── androidMain/ # Android-specific implementations
-│   │   └── iosMain/     # iOS-specific bridge code
-│   ├── gradle/          # Gradle configuration
-│   └── README.md        # Android setup instructions
-├── ios/                 # iOS implementation
-│   ├── ERICK/           # Xcode project
-│   │   ├── ERICK/       # Main app target (onboarding, settings)
-│   │   ├── ErickKeyBoard/ # Keyboard extension target
-│   │   │   ├── KeyboardViewController.swift  # IME controller
-│   │   │   ├── JoystickView.swift            # SwiftUI radial dial
-│   │   │   ├── SettingsView.swift            # In-keyboard settings
-│   │   │   └── ControllerBridge.swift        # App Group controller bridge
-│   │   └── SharedKeyboard.xcframework/       # KMP shared module binary
-│   └── README.md        # iOS setup instructions
-├── docs/                # GitHub Pages website & documentation
-│   ├── documentation/   # Architecture docs, sprint tickets, research
-│   │   ├── APP_CONTEXT.md       # Full architecture & component docs
-│   │   ├── User_Guide.md       # End-user guide
-│   │   ├── Jira/               # Sprint tickets & retrospectives
-│   │   └── Research/           # Optimization research & papers
-│   ├── index.html       # Landing page
-│   ├── accessibility.html # Accessibility features page
-│   └── privacy-policy.html # Privacy policy
-├── documentation/       # Research papers, logo assets, demos
-├── README.md            # This file
-├── CHANGELOG.md         # Version history
-└── LICENSE              # Project license (ERICK Source Available License 1.0)
-```
+- [x] Dual-platform keyboard support on Android and iOS
+- [x] Chorded input with two radial dials
+- [x] Three input modes: Quick Type, Steady Type, and One-Handed
+- [x] Three layout modes: Logical, Efficiency, and Custom
+- [x] Custom layout creator
+- [x] Word prediction, autocorrect, and next-word suggestions
+- [x] Live preview bar
+- [x] Typing practice mini-game
+- [x] Physical controller support
+- [x] Seven colorblind-safe palettes plus a custom palette editor
+- [x] Haptic feedback and typing sounds
+- [x] Left-handed mode
+- [x] Light and dark theme support
+- [x] Font selection including OpenDyslexic
+- [x] Shift and Caps Lock indicators
+- [x] Accelerating backspace
+- [x] Guided onboarding on both platforms
+- [x] Source-available, offline-first privacy model
 
-**Architecture Highlights:**
-- **Shared Module (KMP)**: Core keyboard logic (state machine, chord processing, word prediction, color palettes, contracts) shared between Android & iOS
-- **Android IME**: Custom Input Method Editor service with XML layout and Canvas-based JoystickView
-- **iOS Keyboard Extension**: UIInputViewController with SwiftUI views (JoystickView, PreviewBar, SuggestionBar)
-- **Word Prediction**: Trie-based engine with bigram next-word prediction, autocorrect via Levenshtein edit distance
-- **Physical Controller Support**: DualShock 4, Xbox, 8BitDo controllers via Android InputManager / iOS GCController
-- **Settings & Preferences**: Android DataStore / iOS App Group UserDefaults
+### Planned Features
 
-**Getting Started:**
-- For Android development, see [android/README.md](android/README.md)
-- For iOS development, see [ios/README.md](ios/README.md)
-- For detailed architecture and component documentation, see [docs/documentation/APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
-
-### Features
-
-**Current Implementation (v0.7.4-beta):**
-- [x] **Dual-Platform Support**: Full keyboard on both Android (IME) and iOS (Keyboard Extension)
-- [x] **Chorded Input**: Two radial dials combine to form character chords (8 directions × 8 = 64 characters)
-- [x] **Three Input Modes**: Quick Type (fires on first release), Steady Type (fires when both dials return to center), One-Handed (lock left dial for one-handed typing)
-- [x] **Three Layout Modes**: Logical (A–Z alphabetical), Efficiency (frequency-optimized), Custom (user-defined)
-- [x] **Custom Layout Creator**: Design, save, and switch between personalized chord layouts with color-coded UI
-- [x] **Word Prediction & Autocorrect**: Trie-based engine with ~700-word dictionary, bigram next-word prediction, and spelling corrections
-- [x] **Suggestion Bar**: Always-visible bar showing up to 3 word completions or next-word predictions; tapping inserts with smart spacing
-- [x] **Live Preview Bar**: Animated capsule preview showing available characters when holding a dial direction, with outlined/stroked text for readability across themes
-- [x] **Typing Practice Mini-Game**: In-app typing game with curated quotes, WPM/accuracy/streak tracking, per-character correctness highlighting, and shake animation on errors
-- [x] **Physical Controller Support**: DualShock 4, Xbox, 8BitDo and other Bluetooth/USB gamepads via analog sticks
-- [x] **Colorblind Mode**: 7 palettes — Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, and Custom (create your own)
-- [x] **Custom Color Palettes**: Full color editor with HSV sliders (Android) or native ColorPicker (iOS), plus hex/RGB input
-- [x] **Haptic Feedback & Typing Sounds**: Toggleable vibration (strong for utility, light for letters) and system click sounds
-- [x] **Left-Handed Mode**: Mirrors dial layout so the primary selector is under the dominant hand
-- [x] **Light & Dark Mode**: Follows system preference or manual override; full theme support across UI
-- [x] **Font Selection**: System, Verdana, Georgia, and OpenDyslexic (dyslexia-friendly) fonts
-- [x] **Shift & Caps Lock**: Visual indicators (⇧ Shift badge, ⇧⇧ CAPS red badge) on both platforms
-- [x] **Accelerating Backspace**: Hold backspace to delete characters, then whole words with increasing speed
-- [x] **Collapsible Settings Menu**: Accordion-style settings with animated expandable sections on both Android (Jetpack Compose) and iOS (SwiftUI); only one section open at a time
-- [x] **Kotlin Multiplatform Shared Module**: Identical keyboard logic on Android and iOS
-- [x] **Guided Onboarding**: Step-by-step IME setup flow on both platforms
-- [x] **Documentation Website**: Static HTML/CSS/JS site with landing, features, accessibility, releases, and privacy pages hosted on GitHub Pages
-- [x] **Privacy Focused**: Zero data collection, no internet permissions, fully offline, source available
-
-### Future Scope
-
-**Planned Features:**
-- [ ] Multi-language support (Spanish, French, German, Mandarin, and more)
-- [ ] Complex mode with trigger/button combinations for faster typing on controllers
-- [ ] Typing speed analytics and improvement tracking
-- [ ] Cloud sync for settings and custom layouts across devices
+- [ ] Multi-language support
+- [ ] More advanced controller typing modes
+- [ ] Typing analytics and improvement tracking
+- [ ] Cloud sync for settings and custom layouts
 - [ ] Tablet-optimized layout
 
-See the [open issues](https://github.com/vatsalunadkat/ERICKeyboard/issues) for a full list of proposed features (and known issues).
+## Project Structure
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+```text
+ERICK/
+├── android/                     Android implementation
+│   ├── app/                     Android app module
+│   ├── shared/                  Kotlin Multiplatform shared module
+│   └── README.md                Android setup guide
+├── ios/                         iOS implementation
+│   ├── ERICK/                   Xcode project
+│   └── README.md                iOS setup guide
+├── docs/                        Website and documentation
+│   ├── documentation/
+│   │   ├── APP_CONTEXT.md
+│   │   ├── User_Guide.md
+│   │   ├── Jira/
+│   │   └── Research/
+│   ├── index.html
+│   ├── accessibility.html
+│   └── privacy-policy.html
+├── APP_CONTEXT.md               Root architecture copy
+├── CHANGELOG.md
+├── PROJECT_PROMPT.md
+└── README.md
+```
 
-
-
-<!-- OTHER ARTIFACTS -->
 ## Project Artifacts
 
 ### Touch Typing (iOS)
@@ -233,77 +138,37 @@ See the [open issues](https://github.com/vatsalunadkat/ERICKeyboard/issues) for 
   <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_colorblind_mode_instagram.jpg" height="400" />
 </p>
 
-### Architecture Overview
+## Documentation
 
-ERICK uses **Kotlin Multiplatform (KMP)** to share all core keyboard logic between Android and iOS. The shared module contains the state machine, chord processing, word prediction engine, color palettes, layout definitions, and settings contracts — platform layers only implement the UI and OS-specific integration.
-
-```
-┌───────────────────────────────────────────────────────┐
-│                   Platform Layer                      │
-│  ┌────────────────────┐    ┌────────────────────────┐ │
-│  │   Android (IME)    │    │   iOS (Keyboard Ext.)  │ │
-│  │  JoystickView      │    │  KeyboardViewController│ │
-│  │  SettingsScreen    │    │  JoystickView (SwiftUI)│ │
-│  │  PreferencesManager│    │  ControllerBridge      │ │
-│  └────────┬───────────┘    └────────┬───────────────┘ │
-│           │      Shared Module      │                 │
-│           └──────────┬──────────────┘                 │
-│  ┌───────────────────┴──────────────────────────────┐ │
-│  │  KeyboardStateMachine · KeyboardLogic            │ │
-│  │  WordPredictionEngine · KeyboardContracts        │ │
-│  │  ColorPalettes · CustomLayout · SettingsRepo     │ │
-│  └──────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────┘
-```
-
-For detailed architecture diagrams (Mermaid class diagrams, sequence diagrams, data flow), see [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md).
-
----
+| Document | Description |
+| --- | --- |
+| [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md) | Architecture, class diagrams, sequence diagrams, and component docs |
+| [User Guide](docs/documentation/User_Guide.md) | End-user guide for typing, settings, accessibility, and troubleshooting |
+| [Research](docs/documentation/Research/README.md) | Research notes, layout optimization, and academic references |
+| [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
+| [Sprint Archives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospectives |
 
 ## Contributing
 
 1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/your-feature`.
+2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Make your changes and ensure they build on both platforms.
 4. Commit with a descriptive message.
-5. Open a Pull Request against `main`.
+5. Open a pull request against `main`.
 
 Please read the platform-specific setup guides before contributing:
+
 - [Android setup](android/README.md)
 - [iOS setup](ios/README.md)
 
----
-
-## Documentation
-
-| Document | Description |
-|---|---|
-| [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md) | Architecture, class diagrams, sequence diagrams, component docs |
-| [User Guide](docs/documentation/User_Guide.md) | End-user guide: chord mechanics, settings, accessibility, troubleshooting |
-| [Research](docs/documentation/Research/README.md) | Layout optimization research, 43 academic papers, optimizer scripts |
-| [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
-| [Sprint Retrospectives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospective documents |
-
 ## License
 
-[![License: Source Available](https://img.shields.io/badge/License-Source%20Available-blue.svg)](./LICENSE)
+This project is **source available**, not open source. It is free for personal, educational, and accessibility use. Commercial use and modified redistribution require written permission. See [LICENSE](LICENSE) for full terms.
 
-This project is **source available**, not open source. It is free for personal, educational, and accessibility use. Commercial use and modified redistribution require written permission. See [LICENSE](./LICENSE) for full terms.
-
----
-
-<!-- CONTACT -->
 ## Contact
 
-Vatsal Paresh Unadkat <br />
-LinkedIn: [https://www.linkedin.com/in/vatsalunadkat/](https://www.linkedin.com/in/vatsalunadkat/) <br />
-Project Link: [https://github.com/vatsalunadkat/ERICKeyboard](https://github.com/vatsalunadkat/ERICKeyboard) <br />
-
-
+Vatsal Paresh Unadkat  
+LinkedIn: [https://www.linkedin.com/in/vatsalunadkat/](https://www.linkedin.com/in/vatsalunadkat/)  
+Project Link: [https://github.com/vatsalunadkat/ERICKeyboard](https://github.com/vatsalunadkat/ERICKeyboard)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-<!-- MARKDOWN LINKS -->
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/

@@ -1,4 +1,4 @@
-# ERICK — Sprint 3 Tickets
+# ERICK - Sprint 3 Tickets
 
 **Sprint**: SCRUM Sprint 3  
 **Start Date**: March 9, 2026 (Monday)  
@@ -7,7 +7,7 @@
 
 ---
 
-## ERICK-59 — Merge iOS Branch & Polish Keyboard Extension
+## ERICK-59 - Merge iOS Branch & Polish Keyboard Extension
 
 | Field | Value |
 |---|---|
@@ -25,19 +25,19 @@ The iOS Xcode project, keyboard extension, and SharedKeyboard framework integrat
 
 **What already exists on the `Implement_iOS_chord_keyboard` branch:**
 - Xcode project at `ios/ERICK/` with app target (`ERICK`) and keyboard extension target (`ErickKeyBoard`)
-- `SharedKeyboard.framework` integrated — `import SharedKeyboard` works
-- `KeyboardViewController.swift` — full IME integration with `KeyboardStateMachine`, `KeyboardActionDelegate`, touch dispatch, text commit via `textDocumentProxy`
-- `JoystickView.swift` — SwiftUI joystick with drag gesture, thumb clamping, spring return-to-center, preview text display
-- `KeyboardContainerView` — horizontal layout of left + right joysticks with touch callback plumbing
+- `SharedKeyboard.framework` integrated - `import SharedKeyboard` works
+- `KeyboardViewController.swift` - full IME integration with `KeyboardStateMachine`, `KeyboardActionDelegate`, touch dispatch, text commit via `textDocumentProxy`
+- `JoystickView.swift` - SwiftUI joystick with drag gesture, thumb clamping, spring return-to-center, preview text display
+- `KeyboardContainerView` - horizontal layout of left + right joysticks with touch callback plumbing
 - `Info.plist` configured for `com.apple.keyboard-service` extension
-- Basic `ContentView.swift` and `ERICKApp.swift` (placeholder only — "Hello, world!")
+- Basic `ContentView.swift` and `ERICKApp.swift` (placeholder only - "Hello, world!")
 
 **What is missing and needs to be added in this ticket:**
-1. "Next Keyboard" (globe) button — **Apple requires this** for all third-party keyboards
+1. "Next Keyboard" (globe) button - **Apple requires this** for all third-party keyboards
 2. Settings button (gear icon) on the keyboard surface
 3. Set up an **App Group** (e.g., `group.com.vatoo.erick`) on both the app and extension targets so preferences can be shared
 4. Update `Info.plist` to set `IsASCIICapable` to `true` (currently `false`)
-5. Clean up `.gitignore` — the branch currently commits `xcuserstate` files which should be ignored
+5. Clean up `.gitignore` - the branch currently commits `xcuserstate` files which should be ignored
 6. Merge the branch into `main`
 
 ### How to Get Started
@@ -47,7 +47,7 @@ The iOS Xcode project, keyboard extension, and SharedKeyboard framework integrat
    git checkout main
    git merge origin/Implement_iOS_chord_keyboard
    ```
-   Resolve any conflicts (the branch diverged from main — documentation and android files may conflict).
+   Resolve any conflicts (the branch diverged from main - documentation and android files may conflict).
 
 2. **Add the "Next Keyboard" button** in `KeyboardViewController.swift`:
    - Apple requires a button that calls `advanceToNextInputMode()` to let users switch keyboards
@@ -88,7 +88,7 @@ The iOS Xcode project, keyboard extension, and SharedKeyboard framework integrat
 
 ---
 
-## ERICK-68 — iOS Keyboard Extension — Bug Fixes & Input Action Completeness
+## ERICK-68 - iOS Keyboard Extension - Bug Fixes & Input Action Completeness
 
 | Field | Value |
 |---|---|
@@ -102,7 +102,7 @@ The iOS Xcode project, keyboard extension, and SharedKeyboard framework integrat
 
 ### Description
 
-The iOS keyboard extension was implemented in Sprint 2 on the `Implement_iOS_chord_keyboard` branch. The core chord system works — two SwiftUI joysticks, `KeyboardStateMachine` integration via `SharedKeyboard` framework, and text injection via `textDocumentProxy`. This ticket covers testing, fixing any bugs found, and completing the `sendInputAction()` handler for all actions.
+The iOS keyboard extension was implemented in Sprint 2 on the `Implement_iOS_chord_keyboard` branch. The core chord system works - two SwiftUI joysticks, `KeyboardStateMachine` integration via `SharedKeyboard` framework, and text injection via `textDocumentProxy`. This ticket covers testing, fixing any bugs found, and completing the `sendInputAction()` handler for all actions.
 
 **What already works:**
 - `KeyboardViewController` with `KeyboardActionDelegate` implementation
@@ -112,14 +112,14 @@ The iOS keyboard extension was implemented in Sprint 2 on the `Implement_iOS_cho
 - Actions handled: `.space`, `.enter`, `.backspace`, `.deleteForward`, `.tab`, `.dpadLeft`, `.dpadRight`
 
 **What needs attention:**
-1. Incomplete `sendInputAction()` — several actions fall through to `default: break`:
-   - `.moveHome` — should move cursor to beginning of document (`adjustTextPosition` to start)
-   - `.moveEnd` — should move cursor to end of document
-   - `.dpadUp` / `.dpadDown` — limited on iOS but should have best-effort implementation
-   - `.pageUp` / `.pageDown` — same limitation, document for future reference
+1. Incomplete `sendInputAction()` - several actions fall through to `default: break`:
+   - `.moveHome` - should move cursor to beginning of document (`adjustTextPosition` to start)
+   - `.moveEnd` - should move cursor to end of document
+   - `.dpadUp` / `.dpadDown` - limited on iOS but should have best-effort implementation
+   - `.pageUp` / `.pageDown` - same limitation, document for future reference
 2. Test all single-swipe actions thoroughly on a physical device
 3. Test that Shift auto-releases after 1 character and Caps Lock persists
-4. Verify `.deleteForward` behavior — current implementation uses `deleteBackward()` which is the same as backspace, not forward delete. Correct approach: `adjustTextPosition(byCharacterOffset: 1)` then `deleteBackward()`
+4. Verify `.deleteForward` behavior - current implementation uses `deleteBackward()` which is the same as backspace, not forward delete. Correct approach: `adjustTextPosition(byCharacterOffset: 1)` then `deleteBackward()`
 5. Run a 5-minute continuous use stability test
 
 ### How to Get Started
@@ -147,26 +147,26 @@ The iOS keyboard extension was implemented in Sprint 2 on the `Implement_iOS_cho
        case .dpadRight:
            self.textDocumentProxy.adjustTextPosition(byCharacterOffset: 1)
        case .moveHome:
-           // Move to beginning — move left by a large amount
+           // Move to beginning - move left by a large amount
            if let before = self.textDocumentProxy.documentContextBeforeInput {
                self.textDocumentProxy.adjustTextPosition(byCharacterOffset: -before.count)
            }
        case .moveEnd:
-           // Move to end — move right by a large amount
+           // Move to end - move right by a large amount
            if let after = self.textDocumentProxy.documentContextAfterInput {
                self.textDocumentProxy.adjustTextPosition(byCharacterOffset: after.count)
            }
        case .toggleShift, .toggleCaps:
-           // Handled internally by state machine — no iOS action needed
+           // Handled internally by state machine - no iOS action needed
            break
        default:
-           // .dpadUp, .dpadDown, .pageUp, .pageDown — limited iOS support
+           // .dpadUp, .dpadDown, .pageUp, .pageDown - limited iOS support
            break
        }
    }
    ```
 
-3. **Test matrix** — verify each of these works in Notes app and Safari:
+3. **Test matrix** - verify each of these works in Notes app and Safari:
    - All 26 lowercase letters via chord
    - All 26 uppercase letters via Shift + chord
    - All numbers (0-9) and symbols
@@ -187,7 +187,7 @@ The iOS keyboard extension was implemented in Sprint 2 on the `Implement_iOS_cho
 
 ---
 
-## ERICK-69 — iOS Main App — Onboarding & Keyboard Setup Flow
+## ERICK-69 - iOS Main App - Onboarding & Keyboard Setup Flow
 
 | Field | Value |
 |---|---|
@@ -205,7 +205,7 @@ Build the main app screen for the iOS ERICK app that guides users through enabli
 
 On iOS, users must enable third-party keyboards manually via Settings → General → Keyboard → Keyboards → Add New Keyboard. The app should guide them through this process.
 
-**Note:** A `ContentView.swift` file already exists on the `Implement_iOS_chord_keyboard` branch but it only contains a placeholder "Hello, world!" — you need to replace its contents entirely.
+**Note:** A `ContentView.swift` file already exists on the `Implement_iOS_chord_keyboard` branch but it only contains a placeholder "Hello, world!" - you need to replace its contents entirely.
 
 ### How to Get Started
 
@@ -215,21 +215,21 @@ On iOS, users must enable third-party keyboards manually via Settings → Genera
 
    **Header**: ERICK logo + app name + tagline "A radial chorded keyboard for everyone"
 
-   **Step 1 Card — Enable ERICK Keyboard**:
+   **Step 1 Card - Enable ERICK Keyboard**:
    - Instruction: "Go to Settings → General → Keyboard → Keyboards → Add New Keyboard → ERICKeyboard"
    - Button: "Open Settings" → opens `UIApplication.openSettingsURL`
    - Status indicator: green checkmark if enabled, red X if not
-   - To detect if keyboard is enabled, check if the bundle ID appears in the list of enabled keyboards (there is no perfect API for this on iOS — use a best-effort approach or simply use a manual "I've done this" toggle)
+   - To detect if keyboard is enabled, check if the bundle ID appears in the list of enabled keyboards (there is no perfect API for this on iOS - use a best-effort approach or simply use a manual "I've done this" toggle)
 
-   **Step 2 Card — Switch to ERICK**:
+   **Step 2 Card - Switch to ERICK**:
    - Instruction: "When typing, tap the globe 🌐 icon on the keyboard to switch to ERICK"
-   - This cannot be automated on iOS — just show instructions
+   - This cannot be automated on iOS - just show instructions
 
    **Privacy & Security Card**:
    - Same content as Android:
      - "We never collect or store your typed text"
      - "No passwords or personal data are saved"
-     - "No data is transmitted — ever"
+     - "No data is transmitted - ever"
      - "Settings are stored locally on your device only"
      - "No internet permissions requested"
      - "100% open-source: inspect every line of code"
@@ -259,7 +259,7 @@ On iOS, users must enable third-party keyboards manually via Settings → Genera
 
 ---
 
-## ERICK-70 — iOS Settings Screen with Layout Switcher & Preferences
+## ERICK-70 - iOS Settings Screen with Layout Switcher & Preferences
 
 | Field | Value |
 |---|---|
@@ -275,7 +275,7 @@ On iOS, users must enable third-party keyboards manually via Settings → Genera
 
 Build the iOS Settings screen mirroring the Android `SettingsScreen.kt`. Use SwiftUI with `UserDefaults` (or `@AppStorage`) for preference persistence. Settings must be identical to the Android version.
 
-**Note:** The iOS project already exists at `ios/ERICK/`. You will add new Swift files to the `ios/ERICK/ERICK/` folder (the main app target). The App Group should already be set up from ERICK-67 — use `UserDefaults(suiteName: "group.com.vatoo.erick")` for persistence.
+**Note:** The iOS project already exists at `ios/ERICK/`. You will add new Swift files to the `ios/ERICK/ERICK/` folder (the main app target). The App Group should already be set up from ERICK-67 - use `UserDefaults(suiteName: "group.com.vatoo.erick")` for persistence.
 
 ### How to Get Started
 
@@ -285,20 +285,20 @@ Build the iOS Settings screen mirroring the Android `SettingsScreen.kt`. Use Swi
 
    **Layout Section** ("Keyboard Layout"):
    - Radio button group (Picker with `.radioGroup` style or custom Toggle list):
-     - "Logical (A–Z)" — selected by default
-     - "Efficiency (Coming in Sprint 3)" — visible but disabled, with a gray label "Coming soon"
+     - "Logical (A–Z)" - selected by default
+     - "Efficiency (Coming in Sprint 3)" - visible but disabled, with a gray label "Coming soon"
    - Store selection in `@AppStorage("keyboard_layout")` with default "LOGICAL"
 
    **Appearance Section** ("Appearance"):
-   - Toggle: "Dark Theme" — `@AppStorage("dark_theme")` default false
+   - Toggle: "Dark Theme" - `@AppStorage("dark_theme")` default false
 
    **Accessibility Section** ("Accessibility"):
-   - Toggle: "Colorblind Mode" — `@AppStorage("colorblind_mode")` default false
-   - Toggle: "Left-Handed Mode" — `@AppStorage("left_handed_mode")` default false
+   - Toggle: "Colorblind Mode" - `@AppStorage("colorblind_mode")` default false
+   - Toggle: "Left-Handed Mode" - `@AppStorage("left_handed_mode")` default false
 
    **Privacy & Security Card**: Same privacy statements as the main screen
 
-3. **Use `@AppStorage`** for persistence — this uses `UserDefaults` under the hood and is the simplest approach in SwiftUI.
+3. **Use `@AppStorage`** for persistence - this uses `UserDefaults` under the hood and is the simplest approach in SwiftUI.
 
 4. **Important**: For the keyboard extension to read these preferences, you need to use an **App Group**. Set up an App Group (e.g., `group.com.vatoo.erick`) on both the app target and the keyboard extension target. Use `UserDefaults(suiteName: "group.com.vatoo.erick")` instead of standard `UserDefaults.standard` so both the app and extension can share settings.
 
@@ -318,7 +318,7 @@ Build the iOS Settings screen mirroring the Android `SettingsScreen.kt`. Use Swi
 
 ---
 
-## ERICK-71 — iOS App Logo, Branding & Asset Integration
+## ERICK-71 - iOS App Logo, Branding & Asset Integration
 
 | Field | Value |
 |---|---|
@@ -374,7 +374,7 @@ Add the ERICK logo and branding assets to the iOS app, matching the Android app'
 
 ---
 
-## ERICK-72 — Remove Double Swipe Right Dial Binds from Shared Logic
+## ERICK-72 - Remove Double Swipe Right Dial Binds from Shared Logic
 
 | Field | Value |
 |---|---|
@@ -404,7 +404,7 @@ Remove all double-swipe functionality from the shared keyboard logic. The double
    - Keep the single-swipe map intact (Home, Comma, Space, Period, Enter, Shift, Backspace, Caps Lock)
 
 3. **Open `android/shared/src/commonMain/kotlin/KeyboardContracts.kt`**:
-   - Remove any `InputAction` enum values that were exclusively used by double-swipe if applicable (but keep DPAD_UP/DOWN/LEFT/RIGHT, PAGE_UP/DOWN, TAB, DELETE_FORWARD as they may be needed for other features like controller support later — document that they are retained for future use)
+   - Remove any `InputAction` enum values that were exclusively used by double-swipe if applicable (but keep DPAD_UP/DOWN/LEFT/RIGHT, PAGE_UP/DOWN, TAB, DELETE_FORWARD as they may be needed for other features like controller support later - document that they are retained for future use)
 
 4. **Open `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt`**:
    - Remove any Android-specific double-swipe handling code
@@ -427,7 +427,7 @@ Remove all double-swipe functionality from the shared keyboard logic. The double
 
 ---
 
-## ERICK-57 — Implement Efficiency Layout in Shared Module
+## ERICK-57 - Implement Efficiency Layout in Shared Module
 
 | Field | Value |
 |---|---|
@@ -441,7 +441,7 @@ Remove all double-swipe functionality from the shared keyboard logic. The double
 
 ### Description
 
-Add the "Efficiency" layout to the shared Kotlin Multiplatform module. This layout optimizes character placement based on English letter frequency — the most common letters are placed on the easiest-to-reach chord positions (cardinal directions + Red/Orange colors).
+Add the "Efficiency" layout to the shared Kotlin Multiplatform module. This layout optimizes character placement based on English letter frequency - the most common letters are placed on the easiest-to-reach chord positions (cardinal directions + Red/Orange colors).
 
 The Efficiency layout replaces letter placement only. Numbers, symbols, and single-swipe utility functions remain identical to the Logical layout.
 
@@ -449,7 +449,7 @@ The Efficiency layout replaces letter placement only. Numbers, symbols, and sing
 
 **Letter Frequency Ranking** (English): e, t, a, o, i, n, s, h, r, d, l, c, u, m, w, f, g, y, p, b, v, k, j, x, q, z
 
-**LEFT DIAL — EFFICIENCY LAYOUT (Normal mode)**:
+**LEFT DIAL - EFFICIENCY LAYOUT (Normal mode)**:
 
 | Direction | Red(1) | Orange(2) | Yellow(3) | Green(4) | Blue(5) | Black(6) |
 |---|---|---|---|---|---|---|
@@ -462,7 +462,7 @@ The Efficiency layout replaces letter placement only. Numbers, symbols, and sing
 | W | 1 | 2 | 3 | 4 | 5 | |
 | NW | 6 | 7 | 8 | 9 | 0 | |
 
-**LEFT DIAL — SHIFT/CAPS LOCK mode**:
+**LEFT DIAL - SHIFT/CAPS LOCK mode**:
 
 | Direction | Red(1) | Orange(2) | Yellow(3) | Green(4) | Blue(5) | Black(6) |
 |---|---|---|---|---|---|---|
@@ -514,7 +514,7 @@ The Efficiency layout replaces letter placement only. Numbers, symbols, and sing
 
 ---
 
-## ERICK-58 — Left-Handed Mode — Swap Dials in Shared Logic
+## ERICK-58 - Left-Handed Mode - Swap Dials in Shared Logic
 
 | Field | Value |
 |---|---|
@@ -569,7 +569,7 @@ A toggle for this already exists in the Android settings UI (`PreferencesManager
 
 ---
 
-## ERICK-75 — Colorblind Color Palettes — Shared Module
+## ERICK-75 - Colorblind Color Palettes - Shared Module
 
 | Field | Value |
 |---|---|
@@ -585,11 +585,11 @@ A toggle for this already exists in the Android settings UI (`PreferencesManager
 
 Define the colorblind-accessible color palettes in the shared Kotlin Multiplatform module. The right dial uses 8 colors to represent character positions. We need 5 palette options:
 
-1. **Default** — Standard colors (current: Red, Orange, Yellow, Green, Blue, Indigo, Violet, Black)
-2. **Okabe-Ito** — Universal colorblind-safe palette (supports all types of color vision deficiency)
-3. **Deuteranopia** — Optimized for green-blind users
-4. **Protanopia** — Optimized for red-blind users
-5. **Tritanopia** — Optimized for blue-blind users
+1. **Default** - Standard colors (current: Red, Orange, Yellow, Green, Blue, Indigo, Violet, Black)
+2. **Okabe-Ito** - Universal colorblind-safe palette (supports all types of color vision deficiency)
+3. **Deuteranopia** - Optimized for green-blind users
+4. **Protanopia** - Optimized for red-blind users
+5. **Tritanopia** - Optimized for blue-blind users
 
 ### Color Palette Definitions
 
@@ -703,7 +703,7 @@ Define the colorblind-accessible color palettes in the shared Kotlin Multiplatfo
 
 ---
 
-## ERICK-76 — Colorblind Mode Settings UI — Android
+## ERICK-76 - Colorblind Mode Settings UI - Android
 
 | Field | Value |
 |---|---|
@@ -725,14 +725,14 @@ Update the Android Settings screen to replace the simple "Colorblind Mode" toggl
 
 2. **Replace the simple "Colorblind Mode" toggle** with a two-part UI:
 
-   **Part 1 — Colorblind Mode Toggle**:
+   **Part 1 - Colorblind Mode Toggle**:
    - Keep the existing toggle switch: "Enable Colorblind Mode"
    - When OFF, hide the palette selection section
    - When ON, show the palette selection section
 
-   **Part 2 — Palette Selection** (visible only when toggle is ON):
+   **Part 2 - Palette Selection** (visible only when toggle is ON):
    - Radio button list with 4 options:
-     1. **"Okabe-Ito (Universal)"** — recommended for all types
+     1. **"Okabe-Ito (Universal)"** - recommended for all types
      2. **"Deuteranopia (Green-blind)"**
      3. **"Protanopia (Red-blind)"**
      4. **"Tritanopia (Blue-blind)"**
@@ -796,7 +796,7 @@ Update the Android Settings screen to replace the simple "Colorblind Mode" toggl
 
 ---
 
-## ERICK-77 — Colorblind Mode Settings UI — iOS
+## ERICK-77 - Colorblind Mode Settings UI - iOS
 
 | Field | Value |
 |---|---|
@@ -818,8 +818,8 @@ Build the colorblind palette selection UI for the iOS Settings screen, matching 
 
 2. **Replace the simple "Colorblind Mode" toggle** with the same two-part UI as Android:
 
-   **Part 1 — Toggle**: Keep "Enable Colorblind Mode" toggle
-   **Part 2 — Palette Picker** (shown when toggle is ON):
+   **Part 1 - Toggle**: Keep "Enable Colorblind Mode" toggle
+   **Part 2 - Palette Picker** (shown when toggle is ON):
 
    ```swift
    struct ColorPaletteOption: View {
@@ -882,7 +882,7 @@ Build the colorblind palette selection UI for the iOS Settings screen, matching 
 
 ---
 
-## ERICK-78 — Android Keyboard UI — Radial Dials with Letters, Colors & Live Preview
+## ERICK-78 - Android Keyboard UI - Radial Dials with Letters, Colors & Live Preview
 
 | Field | Value |
 |---|---|
@@ -958,7 +958,7 @@ This replaces the current plain gray circle joystick with an informative, visual
 
 ---
 
-## ERICK-79 — iOS Keyboard UI — Radial Dials with Letters, Colors & Live Preview
+## ERICK-79 - iOS Keyboard UI - Radial Dials with Letters, Colors & Live Preview
 
 | Field | Value |
 |---|---|
@@ -996,7 +996,7 @@ Implement the same radial dial UI with letters, colors, and live preview on the 
    - When both dials active → highlight specific character
    - Use the shared `KeyboardLogic` to resolve which characters to display
 
-4. **Use Core Graphics for rendering** — keyboard extensions have limited UIKit access. Avoid heavy frameworks. The drawing code should be in `draw(_ rect:)` using `CGContext`:
+4. **Use Core Graphics for rendering** - keyboard extensions have limited UIKit access. Avoid heavy frameworks. The drawing code should be in `draw(_ rect:)` using `CGContext`:
    ```swift
    override func draw(_ rect: CGRect) {
        guard let context = UIGraphicsGetCurrentContext() else { return }
@@ -1035,7 +1035,7 @@ Implement the same radial dial UI with letters, colors, and live preview on the 
 
 ---
 
-## ERICK-74 — Custom Keybind Data Model & Persistence — Shared Module
+## ERICK-74 - Custom Keybind Data Model & Persistence - Shared Module
 
 | Field | Value |
 |---|---|
@@ -1125,7 +1125,7 @@ Implement the data model and serialization for user-created custom keyboard layo
 
 ---
 
-## ERICK-81 — Custom Keybind Editor UI — Android
+## ERICK-81 - Custom Keybind Editor UI - Android
 
 | Field | Value |
 |---|---|
@@ -1192,7 +1192,7 @@ Build the Android UI for creating, editing, and managing custom keyboard layouts
 
 ---
 
-## ERICK-82 — Custom Keybind Editor UI — iOS
+## ERICK-82 - Custom Keybind Editor UI - iOS
 
 | Field | Value |
 |---|---|
@@ -1265,7 +1265,7 @@ Build the iOS SwiftUI equivalent of the Android custom layout editor (ERICK-81).
 
 ---
 
-## ERICK-61 — Physical Gaming Controller Input — Shared Module
+## ERICK-61 - Physical Gaming Controller Input - Shared Module
 
 | Field | Value |
 |---|---|
@@ -1289,7 +1289,7 @@ Add shared module support for physical gaming controller input. The two analog j
 1. **Open `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt`**:
    - Add a new method `handleControllerInput(leftX: Float, leftY: Float, rightX: Float, rightY: Float)`:
      - Normalize the input values (they come as -1.0 to 1.0 from both platforms)
-     - Apply a configurable dead zone (default 0.25) — ignore values within the dead zone
+     - Apply a configurable dead zone (default 0.25) - ignore values within the dead zone
      - Convert to the same coordinate system used by `handleTouch()`
      - Call `handleTouch()` internally with the converted values
    - Add `handleControllerButton(button: ControllerButton)` for future button support
@@ -1331,7 +1331,7 @@ Add shared module support for physical gaming controller input. The two analog j
 
 ---
 
-## ERICK-84 — Physical Gaming Controller Support — Android
+## ERICK-84 - Physical Gaming Controller Support - Android
 
 | Field | Value |
 |---|---|
@@ -1412,7 +1412,7 @@ Add physical gaming controller support to the Android IME. When a compatible con
 
 ---
 
-## ERICK-85 — Physical Gaming Controller Support — iOS
+## ERICK-85 - Physical Gaming Controller Support - iOS
 
 | Field | Value |
 |---|---|
@@ -1430,7 +1430,7 @@ Add physical gaming controller support to the iOS keyboard extension. Use Apple'
 
 ### How to Get Started
 
-1. **Important limitation**: iOS Keyboard Extensions have restricted framework access. The `GameController` framework may need to be accessed from the main app rather than the extension directly. Test if `import GameController` works in the extension — if not, the main app needs to relay controller input to the extension via App Group shared state or notifications.
+1. **Important limitation**: iOS Keyboard Extensions have restricted framework access. The `GameController` framework may need to be accessed from the main app rather than the extension directly. Test if `import GameController` works in the extension - if not, the main app needs to relay controller input to the extension via App Group shared state or notifications.
 
 2. **Controller detection** in the main app (or extension if allowed):
    ```swift
@@ -1475,7 +1475,7 @@ Add physical gaming controller support to the iOS keyboard extension. Use Apple'
 5. **If extension access is blocked**: Use IPC via App Group:
    - Main app writes controller state to shared `UserDefaults` or shared file
    - Extension polls for changes (use a timer or file change notification)
-   - This is a fallback approach — try direct extension access first
+   - This is a fallback approach - try direct extension access first
 
 ### Acceptance Criteria
 
@@ -1490,7 +1490,7 @@ Add physical gaming controller support to the iOS keyboard extension. Use Apple'
 
 ---
 
-## ERICK-62 — Controller Detection & Status on App Homepage — Both Platforms
+## ERICK-62 - Controller Detection & Status on App Homepage - Both Platforms
 
 | Field | Value |
 |---|---|
@@ -1593,26 +1593,26 @@ Add a "Controller Status" card to the main app homepage (onboarding screen) on b
 
 | Ticket | Title | Assignee | Priority | SP | Dependencies |
 |---|---|---|---|---|---|
-| ERICK-67 | Merge iOS Branch & Polish Keyboard Extension | Dev 1 | Highest | 2 | — |
-| ERICK-68 | iOS Keyboard — Bug Fixes & Input Completeness | Dev 1 | High | 2 | ERICK-67 |
-| ERICK-69 | iOS Main App — Onboarding & Setup | Dev 3 | High | 3 | ERICK-67 |
+| ERICK-67 | Merge iOS Branch & Polish Keyboard Extension | Dev 1 | Highest | 2 | - |
+| ERICK-68 | iOS Keyboard - Bug Fixes & Input Completeness | Dev 1 | High | 2 | ERICK-67 |
+| ERICK-69 | iOS Main App - Onboarding & Setup | Dev 3 | High | 3 | ERICK-67 |
 | ERICK-70 | iOS Settings Screen & Preferences | Dev 3 | High | 3 | ERICK-67 |
 | ERICK-71 | iOS Logo, Branding & Assets | Dev 3 | Low | 1 | ERICK-67 |
-| ERICK-72 | Remove Double Swipe from Shared Logic | Dev 2 | High | 2 | — |
-| ERICK-73 | Efficiency Layout in Shared Module | Dev 2 | High | 3 | — |
-| ERICK-74 | Left-Handed Mode — Swap Dials Logic | Dev 2 | Medium | 3 | — |
-| ERICK-75 | Colorblind Color Palettes — Shared Module | Dev 2 | Medium | 3 | — |
-| ERICK-76 | Colorblind Settings UI — Android | Dev 1 | Medium | 3 | ERICK-75 |
-| ERICK-77 | Colorblind Settings UI — iOS | Dev 3 | Medium | 3 | ERICK-67, ERICK-75 |
+| ERICK-72 | Remove Double Swipe from Shared Logic | Dev 2 | High | 2 | - |
+| ERICK-73 | Efficiency Layout in Shared Module | Dev 2 | High | 3 | - |
+| ERICK-74 | Left-Handed Mode - Swap Dials Logic | Dev 2 | Medium | 3 | - |
+| ERICK-75 | Colorblind Color Palettes - Shared Module | Dev 2 | Medium | 3 | - |
+| ERICK-76 | Colorblind Settings UI - Android | Dev 1 | Medium | 3 | ERICK-75 |
+| ERICK-77 | Colorblind Settings UI - iOS | Dev 3 | Medium | 3 | ERICK-67, ERICK-75 |
 | ERICK-78 | Android Radial Dial UI + Live Preview | Dev 1 | High | 5 | ERICK-75 |
 | ERICK-79 | iOS Radial Dial UI + Live Preview | Dev 1 | High | 5 | ERICK-67, ERICK-75 |
-| ERICK-80 | Custom Keybind Data Model — Shared Module | Dev 2 | Medium | 5 | ERICK-73 |
-| ERICK-81 | Custom Keybind Editor UI — Android | Dev 1 | Medium | 5 | ERICK-80 |
-| ERICK-82 | Custom Keybind Editor UI — iOS | Dev 1 | Medium | 5 | ERICK-67, ERICK-80 |
-| ERICK-83 | Controller Input — Shared Module | Dev 2 | Medium | 3 | — |
-| ERICK-84 | Controller Support — Android | Dev 1 | Medium | 5 | ERICK-83 |
-| ERICK-85 | Controller Support — iOS | Dev 1 | Medium | 5 | ERICK-67, ERICK-83 |
-| ERICK-86 | Controller Status on Homepage — Both | Dev 3 | Medium | 2 | ERICK-84, ERICK-85 |
+| ERICK-80 | Custom Keybind Data Model - Shared Module | Dev 2 | Medium | 5 | ERICK-73 |
+| ERICK-81 | Custom Keybind Editor UI - Android | Dev 1 | Medium | 5 | ERICK-80 |
+| ERICK-82 | Custom Keybind Editor UI - iOS | Dev 1 | Medium | 5 | ERICK-67, ERICK-80 |
+| ERICK-83 | Controller Input - Shared Module | Dev 2 | Medium | 3 | - |
+| ERICK-84 | Controller Support - Android | Dev 1 | Medium | 5 | ERICK-83 |
+| ERICK-85 | Controller Support - iOS | Dev 1 | Medium | 5 | ERICK-67, ERICK-83 |
+| ERICK-86 | Controller Status on Homepage - Both | Dev 3 | Medium | 2 | ERICK-84, ERICK-85 |
 
 ### Story Point Totals
 
@@ -1631,19 +1631,19 @@ With the iOS project setup and keyboard already done from Sprint 2, Dev 1 has si
 
 | Ticket | Assignee | SP |
 |---|---|---|
-| ERICK-67 — Merge iOS & Polish | Dev 1 | 2 |
-| ERICK-68 — iOS Keyboard Bug Fixes | Dev 1 | 2 |
-| ERICK-78 — Android Radial Dial UI | Dev 1 | 5 |
-| ERICK-76 — Colorblind Settings Android | Dev 1 | 3 |
-| ERICK-79 — iOS Radial Dial UI | Dev 1 | 5 |
-| ERICK-72 — Remove Double Swipe | Dev 2 | 2 |
-| ERICK-73 — Efficiency Layout | Dev 2 | 3 |
-| ERICK-75 — Colorblind Palettes | Dev 2 | 3 |
-| ERICK-74 — Left-Handed Mode | Dev 2 | 3 |
-| ERICK-69 — iOS Onboarding | Dev 3 | 3 |
-| ERICK-70 — iOS Settings | Dev 3 | 3 |
-| ERICK-71 — iOS Branding | Dev 3 | 1 |
-| ERICK-77 — iOS Colorblind Settings UI | Dev 3 | 3 |
+| ERICK-67 - Merge iOS & Polish | Dev 1 | 2 |
+| ERICK-68 - iOS Keyboard Bug Fixes | Dev 1 | 2 |
+| ERICK-78 - Android Radial Dial UI | Dev 1 | 5 |
+| ERICK-76 - Colorblind Settings Android | Dev 1 | 3 |
+| ERICK-79 - iOS Radial Dial UI | Dev 1 | 5 |
+| ERICK-72 - Remove Double Swipe | Dev 2 | 2 |
+| ERICK-73 - Efficiency Layout | Dev 2 | 3 |
+| ERICK-75 - Colorblind Palettes | Dev 2 | 3 |
+| ERICK-74 - Left-Handed Mode | Dev 2 | 3 |
+| ERICK-69 - iOS Onboarding | Dev 3 | 3 |
+| ERICK-70 - iOS Settings | Dev 3 | 3 |
+| ERICK-71 - iOS Branding | Dev 3 | 1 |
+| ERICK-77 - iOS Colorblind Settings UI | Dev 3 | 3 |
 
 **Sprint 3 Total**: ~38 SP (Dev 1: 17, Dev 2: 11, Dev 3: 10)
 
@@ -1654,21 +1654,21 @@ With the iOS project setup and keyboard already done from Sprint 2, Dev 1 has si
 ### Suggested Execution Order
 
 **Dev 1 (Platform Layer)**:
-1. ERICK-67 (Merge iOS branch & polish) — Day 1
-2. ERICK-68 (iOS keyboard bug fixes) — Day 1
-3. ERICK-78 (Android radial dial UI) — Day 2-3
-4. ERICK-76 (Android colorblind settings UI) — Day 3-4
-5. ERICK-79 (iOS radial dial UI) — Day 4-5
+1. ERICK-67 (Merge iOS branch & polish) - Day 1
+2. ERICK-68 (iOS keyboard bug fixes) - Day 1
+3. ERICK-78 (Android radial dial UI) - Day 2-3
+4. ERICK-76 (Android colorblind settings UI) - Day 3-4
+5. ERICK-79 (iOS radial dial UI) - Day 4-5
 
 **Dev 2 (Shared Module)**:
-1. ERICK-72 (Remove double swipe) — Day 1
-2. ERICK-73 (Efficiency layout) — Day 1-2
-3. ERICK-75 (Colorblind palettes) — Day 2-3
-4. ERICK-74 (Left-handed mode) — Day 3-4
-5. ERICK-83 (Controller shared logic) — Day 4-5 (stretch goal)
+1. ERICK-72 (Remove double swipe) - Day 1
+2. ERICK-73 (Efficiency layout) - Day 1-2
+3. ERICK-75 (Colorblind palettes) - Day 2-3
+4. ERICK-74 (Left-handed mode) - Day 3-4
+5. ERICK-83 (Controller shared logic) - Day 4-5 (stretch goal)
 
 **Dev 3 (Flexible)**:
-1. ERICK-71 (iOS branding/assets) — Day 1
-2. ERICK-69 (iOS onboarding) — Day 2-3
-3. ERICK-70 (iOS settings) — Day 3-4
-4. ERICK-77 (iOS colorblind settings UI) — Day 4-5
+1. ERICK-71 (iOS branding/assets) - Day 1
+2. ERICK-69 (iOS onboarding) - Day 2-3
+3. ERICK-70 (iOS settings) - Day 3-4
+4. ERICK-77 (iOS colorblind settings UI) - Day 4-5
