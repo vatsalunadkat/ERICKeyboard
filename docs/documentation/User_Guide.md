@@ -1,76 +1,80 @@
-﻿# ERICK — User Guide
+# ERICK User Guide
 
 **Version**: 0.7.4-beta  
-**Last Updated**: 2026  
+**Last Updated**: 2026
 
 ---
 
-## Table of Contents
+## What Is ERICK?
 
-1. [Getting Started](#1-getting-started)
-2. [Basic Typing — Chord Mechanics](#2-basic-typing--chord-mechanics)
-3. [Utility Functions](#3-utility-functions)
-4. [Layout Options](#4-layout-options)
-5. [Word Prediction & Autocorrect](#5-word-prediction--autocorrect)
-6. [Custom Layout Creator](#6-custom-layout-creator)
-7. [Settings](#7-settings)
-8. [Input Modes](#8-input-modes)
-9. [Accessibility Features](#9-accessibility-features)
-10. [Physical Controller Support](#10-physical-controller-support)
-11. [Troubleshooting](#11-troubleshooting)
+ERICK stands for **Ergonomic Radial Inclusive Controller Keyboard**.
+
+It is a keyboard for Android and iOS that replaces rows of tiny keys with **two large directional controls** (dials). To type a letter, you move the left and right dials in two directions. That pair of directions creates a character **chord**.
+
+ERICK is designed to make typing:
+
+- easier to learn
+- more comfortable on small screens
+- more accessible for users who struggle with precise tapping
+- possible with a physical game controller as well as touch
+
+## Who Is ERICK For?
+
+ERICK is mainly aimed at:
+
+- people with motor limitations or reduced dexterity
+- people who find normal touch keyboards tiring or frustrating
+- users who want controller-based typing
+- users who care about offline privacy
+
+It can also help everyday users who want larger touch targets, controller support, or a different way to type on phones, TVs, and other screen-based devices.
 
 ---
 
-## 1. Getting Started
+## Getting Started
 
-### What is ERICK?
+### Android
 
-ERICK (**E**rgonomic **R**adial **I**nclusive **C**horded **K**eyboard) is a novel soft keyboard for Android and iOS that replaces the traditional QWERTY layout with a two-joystick radial interface. Users enter characters by combining directional swipes on two on-screen dials — a technique called **chording**.
-
-ERICK is designed for:
-- **Ergonomic comfort** — thumbs stay near the center of the screen
-- **Accessibility** — colorblind palettes, left-handed mode, dyslexia-friendly fonts
-- **Customization** — create your own chord-to-character layouts
-
-### Installing the Keyboard
-
-#### Android
 1. Install the ERICK app from the APK or build from source.
 2. Open **Settings → System → Languages & input → On-screen keyboard**.
 3. Enable **ERICK Keyboard**.
 4. Open any text field and switch to ERICK via the keyboard-switcher notification.
 
-#### iOS
+### iOS
+
 1. Install the ERICK app on your device.
 2. Open **Settings → General → Keyboard → Keyboards → Add New Keyboard**.
 3. Select **ErickKeyBoard**.
 4. Tap on ErickKeyBoard and enable **Allow Full Access** (required for settings persistence and controller support).
 5. Switch to ERICK when typing in any app.
 
-### First Look
+## What You See on Screen
 
-When ERICK appears, you will see:
-- **Two circular dials** (joysticks) side by side — left and right
-- A **preview bar** above the dials showing available characters
-- A **suggestion bar** displaying word predictions
+When ERICK opens, you will see:
+
+- **Two circular dials** (joysticks) side by side - left and right
+- A **preview bar** above the dials showing available characters for the current direction, with the targeted character highlighted and enlarged in real time
+- A **suggestion bar** displaying up to 3 word predictions
 
 ---
 
-## 2. Basic Typing — Chord Mechanics
+## How Typing Works
 
-### How Chords Work
+### Character Chords
 
-A **chord** is a two-step directional input using both joysticks:
+Typing is based on a simple pattern:
 
-1. **Swipe one joystick** in one of 8 directions (N, NE, E, SE, S, SW, W, NW). This selects a **character group**.
-2. **Swipe the other joystick** in a direction. This selects a **specific character** within the group.
-3. **Release both joysticks** — the character is committed to the text field.
+1. **Swipe one dial** in one of 8 directions (N, NE, E, SE, S, SW, W, NW) to choose a character group.
+2. **Swipe the other dial** in a direction to choose a specific character inside that group.
+3. **Release both dials** - the character is typed.
 
-The 8 directions are spaced at 45° increments around each dial.
+This means every letter uses the same two-movement interaction instead of asking you to reach for different-sized keys in different places.
 
 ### Character Groups (Logical / A–Z Layout)
 
-| Left Direction | Characters (indexed by Right Direction) |
+In the default Logical layout, characters are arranged alphabetically:
+
+| Left Direction | Characters (selected by Right Direction: N, NE, E, SE, S, SW, W, NW) |
 |---|---|
 | **N** | a, b, c, d, e |
 | **NE** | f, g, h, i, j |
@@ -81,16 +85,9 @@ The 8 directions are spaced at 45° increments around each dial.
 | **W** | 1, 2, 3, 4, 5 |
 | **NW** | 6, 7, 8, 9, 0 |
 
-The right joystick direction determines which character within the group is selected:
-- N = 1st, NE = 2nd, E = 3rd, SE = 4th, S = 5th, SW = 6th, W = 7th, NW = 8th
+**Example:** To type the letter **"e"**, swipe the left dial **N** and the right dial **S** (5th position in the N group).
 
-**Example:** To type the letter **"e"**, swipe the left joystick **N** and the right joystick **S** (5th position in the N group).
-
-### Preview Bar
-
-As you hold a joystick direction, a **preview bar** appears showing the characters available for that group. The currently targeted character is highlighted and enlarged, giving real-time visual feedback before you commit.
-
-### Shift & Caps Lock States
+### Shift and Caps Lock
 
 | Mode | Letters | Numbers/Symbols | How to Activate |
 |---|---|---|---|
@@ -101,15 +98,13 @@ As you hold a joystick direction, a **preview bar** appears showing the characte
 - **Shift** auto-resets after one chord (type one uppercase letter, then returns to normal).
 - **Caps Lock** persists until toggled off with another NW single-swipe.
 
----
+### Single-Direction Actions (Utility Functions)
 
-## 3. Utility Functions
-
-Utility functions are triggered by **single-swipe** actions — swiping only one joystick while the other remains at center.
+Some actions use only one dial while the other stays at center:
 
 | Direction | Function | Shifted Variant |
 |---|---|---|
-| **N** | Move cursor to line start (Home) | Move Home |
+| **N** | Move cursor to line start | Move Home |
 | **NE** | Type `,` (comma) | Type `<` |
 | **E** | SPACE | SPACE |
 | **SE** | Type `.` (period) | Type `>` |
@@ -129,196 +124,127 @@ Holding the backspace direction (W) provides progressively faster deletion:
 | 1,500 – 3,000 ms | Delete 1 word every 200 ms |
 | 3,000 ms + | Delete 1 word every 100 ms |
 
-Release the joystick at any point to stop deleting.
-
-### Additional Navigation
-
-Some navigation functions are available through extended or controller-specific inputs:
-
-- **Move End** — Jump to end of line/input
-- **Cursor Left / Right** — Move cursor by one character
-- **Cursor Up / Down** — Move cursor by one line
-- **Page Up / Page Down** — Large cursor jumps
-- **Delete Word** — Delete the entire previous word
+Release the dial at any point to stop deleting.
 
 ---
 
-## 4. Layout Options
+## Layout Options
 
-ERICK ships with two built-in layouts and supports unlimited custom layouts.
+ERICK ships with two built-in layouts and supports custom layouts.
 
-### Logical Layout (A–Z)
+### Logical (A–Z)
 
-The default layout arranges letters alphabetically. This is recommended for **new users** learning the chord system, since the character positions are predictable.
+The default layout. Characters are arranged in a predictable A–Z order so the system is easier to learn and remember. Recommended for new users.
 
-### Efficiency Layout
+### Efficiency
 
-An optimized layout that places the most frequently used English letters (e, t, a, o, i, n, s, h, r, d…) on the easiest chord combinations. Recommended for **experienced users** who want faster typing speed.
+A layout designed around character frequency so common English letters (e, t, a, o, i, n, s, h, r, d…) are placed on the easiest chord combinations. Intended for users who want more speed after they become comfortable with ERICK.
 
-### Custom Layouts
+### Custom
 
-You can create your own chord-to-character mappings. See [Section 6: Custom Layout Creator](#6-custom-layout-creator).
+Your own saved layout. You can create and switch between custom layouts in settings.
 
 ### Switching Layouts
 
-1. Open the ERICK app (or keyboard settings).
-2. Navigate to **Layout** section.
+1. Open the ERICK app or keyboard settings.
+2. Navigate to the **Layout** section.
 3. Select **Logical**, **Efficiency**, or any saved custom layout.
 4. The keyboard updates immediately.
 
 ---
 
-## 5. Word Prediction & Autocorrect
+## Input Modes
 
-ERICK includes a built-in word prediction and autocorrect engine that works across both platforms.
+ERICK includes three input modes. You can switch between them in **Settings → Input Mode**.
 
-### How Predictions Appear
+### Quick Type (Default)
 
-A **suggestion bar** displays up to 3 word suggestions above the dials. Suggestions update in real-time as you type each character.
+The fastest mode. A character is typed as soon as **either dial is released** after forming a chord. Recommended for most users.
 
-### Types of Suggestions
+### Steady Type
 
-1. **Prefix completions** — Words that start with what you have typed so far (e.g., typing "hel" suggests "hello", "help", "helpful").
-2. **Spelling corrections** — If no exact prefix match is found, the engine suggests words within 2 edit-distance of your input (catches common typos).
-3. **Next-word predictions** — After completing a word (pressing space), the engine suggests likely next words based on common word pairs (e.g., after "I" → "am", "have", "was").
+A more deliberate mode. Both dials must **return to center** before the chord fires. This gives you time to verify your selection before committing, reducing accidental inputs. Useful for:
 
-### Using Suggestions
+- users who are still learning the chord system
+- situations where accuracy matters more than speed
 
-- **Tap a suggestion** to insert it. The partial word you typed is replaced with the full suggestion.
-- **After tapping a suggestion**, the engine automatically shows next-word predictions.
-- **Default suggestions** (when starting fresh with no context): "I", "The", "Hello".
+### One-Handed
 
-### Dictionary
+Designed for single-hand typing:
 
-The prediction engine includes approximately 700 words across frequency tiers:
-- Ultra-common words (the, be, to, of, and, etc.)
-- Common everyday words
-- Extended vocabulary
+1. Swipe the left dial to a direction - it **locks** in that direction when you release.
+2. Swipe the right dial - the chord is formed using the locked left direction plus the right direction.
+3. Characters are typed each time you release the right dial.
+4. To change the locked direction, swipe the left dial again.
 
-Plus ~70 common word-pair transitions for next-word predictions.
+This allows typing with a single thumb by locking the left direction and repeatedly swiping the right dial.
 
 ---
 
-## 6. Custom Layout Creator
+## Word Prediction and Autocorrect
+
+ERICK includes a built-in prediction engine that runs entirely offline.
+
+### How Predictions Appear
+
+A **suggestion bar** displays up to 3 word suggestions above the dials. Suggestions update in real time as you type each character.
+
+### Types of Suggestions
+
+1. **Prefix completions** - Words that start with what you have typed so far (e.g., typing "hel" → "hello", "help", "helpful").
+2. **Spelling corrections** - If no exact prefix match is found, the engine suggests words within 2 edit-distance of your input (catches common typos).
+3. **Next-word predictions** - After completing a word (pressing space), the engine suggests likely next words based on common word pairs (e.g., after "I" → "am", "have", "was").
+
+### Using Suggestions
+
+- **Tap a suggestion** to insert it. The partial word is replaced with the full suggestion.
+- **Default suggestions** (when starting fresh): "I", "The", "Hello".
+- All predictions run fully offline with zero data collection.
+
+---
+
+## Custom Layout Creator
 
 ### Creating a New Layout
 
 1. Open the ERICK app → **Settings** → **Manage Custom Layouts**.
 2. Choose one of:
-   - **Create Blank** — Starts with the Logical layout as a template.
-   - **Duplicate from Built-In** — Clone either Logical or Efficiency as a starting point.
+   - **Create Blank** - starts with the Logical layout as a template.
+   - **Duplicate from Built-In** - clone either Logical or Efficiency as a starting point.
 3. **Name your layout** (1–30 characters).
 
 ### Editing a Layout
 
 The editor presents a visual 8-direction grid for each left-dial direction:
+
 - Click any cell to assign or change a character.
 - Edit both **normal** and **shifted** character mappings.
-- The color preview shows assigned characters in their direction colors.
-
-### Validation
-
-The editor enforces these rules:
-- Layout name is required (1–30 characters).
-- All 8 directions must have character mappings for both normal and shifted modes.
 - Each direction must have exactly 8 character entries.
 - No duplicate characters within the normal or shifted map.
 
-### Saving & Persistence
+### Saving and Sharing
 
-Custom layouts are saved locally:
-- **Android**: DataStore (persists across app restarts)
-- **iOS**: App Group UserDefaults (shared between the main app and keyboard extension)
-
-### Export & Import
-
-Custom layouts use a JSON format and can be shared via text copy-paste. To share a layout:
-1. Export generates a JSON string representing the full layout.
-2. Share the JSON text with another user.
-3. The recipient imports the JSON to add the layout to their device.
+Custom layouts are saved locally on the device (Android DataStore / iOS App Group UserDefaults). Layouts can be exported as JSON and shared via text copy-paste.
 
 ---
 
-## 7. Settings
+## Settings
 
-Settings are organized into collapsible accordion sections. Only one section is expanded at a time.
+Settings are organized into collapsible sections. Only one section is expanded at a time.
 
-### Layout Section
-- **Logical (A–Z)** — Alphabetically ordered character groups
-- **Efficiency** — Frequency-optimized character placement
-- **Custom Layouts** — User-created layouts (if any exist)
-- **Manage Custom Layouts** — Open the layout creation/editing interface
+### Layout
 
-### Appearance Section
+- Logical (A–Z), Efficiency, or any saved custom layout
+- Manage Custom Layouts - open the layout editor
 
-**Theme:**
-- System Default (follows device light/dark mode)
-- Light Mode
-- Dark Mode
+### Appearance
 
-**Font:**
-- System Default
-- OpenDyslexic (dyslexia-friendly typeface)
-- Verdana
-- Georgia
-- Atkinson Hyperlegible (iOS only)
+- **Theme**: System Default, Light Mode, Dark Mode
+- **Font**: System Default, OpenDyslexic, Verdana, Georgia, Atkinson Hyperlegible (iOS only)
 
-### Accessibility Section
-- **Colorblind Mode** — Toggle on to reveal color palette options
-- **Color Palette Selection** (when colorblind mode is on):
-  - Okabe-Ito (Universal) — recommended for all types
-  - Deuteranopia (Green-blind)
-  - Protanopia (Red-blind)
-  - Tritanopia (Blue-blind)
-  - Pastel (Soft)
-  - Create Your Own — opens a full color editor to design a custom 8-color palette
-- **Left-Handed Mode** — Mirrors joystick positions
+### Accessibility
 
-### Feedback Section
-- **Haptic Feedback** — Toggle vibration feedback. Strong vibration for utility keys (backspace, space, enter), lighter vibration for letter input.
-- **Typing Sounds** — Toggle system click sounds when typing.
-
-### Input Mode Section
-- **Quick Type** (default) — Type at full speed. Characters appear as soon as you release either dial.
-- **Steady Type** — Take your time. Characters appear only after both dials return to center.
-- **One-Handed** — Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.
-
-### Privacy & Security Section
-- Privacy-related settings (data handling preferences)
-
----
-
-## 8. Input Modes
-
-ERICK offers three input modes that change how chords are triggered. You can switch between them in **Settings → Input Mode**.
-
-### Quick Type (Default)
-
-The standard typing experience. When you swipe both dials to form a chord, the character is typed as soon as **either dial is released**. This is the fastest mode and recommended for most users.
-
-### Steady Type
-
-A more deliberate typing mode. Both dials must **return to center** before the chord fires. This gives you time to verify your selection before committing, reducing accidental inputs. Useful for:
-- Users who are still learning the chord layout
-- Situations where accuracy matters more than speed
-
-### One-Handed
-
-Designed for **one-handed typing**. In this mode:
-1. Swipe the left dial to a direction — it **locks** in that direction when you release
-2. Now swipe the right dial — the chord is formed using the locked left direction plus the right direction
-3. Characters are typed each time you release the right dial
-4. To change the locked direction, swipe the left dial again
-
-This allows you to type with a single finger/thumb by locking the left direction and repeatedly swiping the right dial.
-
----
-
-## 9. Accessibility Features
-
-### Colorblind Mode
-
-ERICK uses color to distinguish the 8 radial directions. For users with color vision deficiency, 6 specialized palettes remap these colors to ensure every direction is visually distinguishable. You can also create a fully custom palette.
+- **Colorblind Mode** - toggle on to reveal color palette options:
 
 | Palette | Best For |
 |---|---|
@@ -326,84 +252,92 @@ ERICK uses color to distinguish the 8 radial directions. For users with color vi
 | **Deuteranopia** | Green-blind users |
 | **Protanopia** | Red-blind users |
 | **Tritanopia** | Blue-blind users |
-| **Pastel** | Users who prefer softer, low-contrast colors |
-| **Custom** | Create your own 8-color palette with the built-in color editor |
+| **Pastel** | Users who prefer softer colors |
+| **Custom** | Create your own 8-color palette |
 
-Text on colored backgrounds automatically switches between black and white for maximum readability.
+- **Left-Handed Mode** - mirrors the joystick positions
 
-### Left-Handed Mode
+### Feedback
 
-Enabling left-handed mode **mirrors** the joystick layout:
-- The left physical joystick becomes the "action" dial (shift, backspace, space, etc.)
-- The right physical joystick becomes the "letter" dial (chord character output)
-- Direction mappings rotate accordingly
+- **Haptic Feedback** - vibration on key input (stronger for utility keys, lighter for letters)
+- **Typing Sounds** - system click sounds when typing
 
-This ensures a comfortable experience for left-handed users without relearning the layout.
+### Input Mode
 
-### Dyslexia-Friendly Fonts
+- Quick Type, Steady Type, or One-Handed (see [Input Modes](#input-modes))
 
-- **OpenDyslexic** — A typeface with weighted bottoms on letters to reduce visual confusion. Available on both platforms.
-- **Atkinson Hyperlegible** — Designed for maximum letter differentiation (iOS only).
+### Privacy and Security
 
-### Visual Indicators
-
-- **Shift indicator** (⇧ Shift) — Appears on-screen when shift mode is active.
-- **Caps Lock indicator** (⇧⇧ CAPS) — Displayed with a red background when caps lock is engaged.
-- **Preview bar** — Color-coded character previews update in real-time as you swipe.
-- **Suggestion bar** — Always visible when both dials are idle.
+- Privacy-related settings (data handling preferences)
 
 ---
 
-## 10. Physical Controller Support
+## Accessibility Features
 
-ERICK supports physical game controllers (DualShock 4, Xbox controllers, etc.) as an alternative to touchscreen joysticks.
+ERICK includes:
+
+- **Large touch targets** - two dials instead of dozens of tiny keys
+- **Left-handed mode** - mirrors the joystick layout so the character dial sits under the dominant thumb
+- **Colorblind-safe palettes** - 6 palettes designed for different types of color vision, plus a custom palette editor
+- **Dyslexia-friendly fonts** - OpenDyslexic (both platforms), Atkinson Hyperlegible (iOS)
+- **Controller support** - physical game controller input for users who cannot use touchscreens
+- **One-handed typing mode** - lock one dial and type entirely with the other
+- **Haptic feedback** - optional vibration for sensory confirmation of each input
+- **Visual indicators** - on-screen shift (⇧) and caps lock (⇧⇧) indicators, color-coded preview bar
+
+These are not extra add-ons. They are part of the main design of the keyboard.
+
+---
+
+## Physical Controller Support
+
+ERICK supports physical game controllers (DualShock 4, Xbox, 8BitDo, and others) as an alternative to touchscreen input.
 
 ### Setup
 
-#### Android
-1. Pair your controller via Bluetooth or connect via USB.
-2. Open any text field and switch to ERICK.
-3. The left and right analog sticks map directly to the left and right on-screen joysticks.
-4. Controller and touch input can be used simultaneously.
-
-#### iOS
-1. Pair your controller via Bluetooth in **Settings → Bluetooth**.
-2. Open the ERICK host app — it will detect the controller automatically.
-3. The host app bridges controller input to the keyboard extension via a shared App Group.
-4. If the keyboard extension detects a directly connected controller, it uses that instead of the bridge.
+- **Android**: Pair your controller via Bluetooth or USB. The left and right analog sticks map directly to the on-screen dials. Controller and touch input can be used simultaneously.
+- **iOS**: Pair your controller via Bluetooth. Open the ERICK host app - it will detect the controller and bridge input to the keyboard extension via the shared App Group.
 
 ### How It Works
 
-- **Left analog stick** → Left joystick direction
-- **Right analog stick** → Right joystick direction
-- Dead zone of 0.25 prevents accidental input from stick drift.
-- Input is polled at 60 FPS for responsive chord detection.
-- Stale controller data (>200 ms old) is automatically discarded.
-
-### Mixed Input
-
-You can switch freely between touch and controller input. If both are active simultaneously, touch takes priority.
+- **Left analog stick** → left dial direction
+- **Right analog stick** → right dial direction
+- A dead zone of 0.25 prevents accidental input from stick drift.
+- You can switch freely between touch and controller input.
 
 ---
 
-## 11. Troubleshooting
+## Privacy
 
-### Keyboard does not appear
+ERICK is designed to work fully offline.
+
+- No internet permission
+- No cloud typing service
+- No analytics or tracking SDKs
+- No keystroke collection
+
+Your typed text stays on your device.
+
+---
+
+## Troubleshooting
+
+### The keyboard does not appear
 
 - **Android**: Verify ERICK is enabled in **Settings → System → Languages & input → On-screen keyboard**. Restart the device if it still does not appear.
 - **iOS**: Ensure the keyboard is added in **Settings → General → Keyboard → Keyboards** and that **Allow Full Access** is enabled.
 
-### Characters are wrong or unexpected
+### The wrong characters appear
 
 - Check which layout is active (Logical, Efficiency, or a custom layout) in Settings → Layout.
-- If you recently switched to a custom layout, verify its character mappings are correct.
+- If you are using a custom layout, confirm that its character mappings are correct.
 
-### Word predictions not appearing
+### Suggestions are missing
 
-- Ensure you are typing letters (predictions do not activate for symbols or numbers).
-- Predictions appear in the suggestion bar above the dials when both joysticks are at rest.
+- Suggestions appear while typing letters. They do not activate for symbols or numbers.
+- Predictions show in the suggestion bar when both dials are at rest.
 
-### Controller not detected
+### Controller input is not working
 
 - **Android**: Ensure the controller is paired in Bluetooth settings and recognized by the system. Try reconnecting.
 - **iOS**: The controller must be connected to the **host app** (not just the keyboard extension). Open the ERICK app and verify the controller shows as connected. The bridge transfers input to the keyboard extension automatically.
@@ -412,9 +346,10 @@ You can switch freely between touch and controller input. If both are active sim
 
 - Accelerating backspace kicks in after holding for 300 ms. For single-character deletion, perform a quick swipe-and-release in the W direction.
 
-### Left-handed mode feels reversed
+### One-Handed mode feels unusual
 
-- Left-handed mode intentionally swaps the joystick roles. The physical **left** joystick handles actions (space, backspace, shift) and the physical **right** joystick handles letter chords. If this is not what you want, disable left-handed mode in Settings → Accessibility.
+- One-Handed mode intentionally changes how chords are entered. The left dial locks a direction on release, then the right dial completes each chord.
+- If this is not what you want, switch back to Quick Type or Steady Type in Settings → Input Mode.
 
 ### Settings not persisting on iOS
 
@@ -422,4 +357,8 @@ You can switch freely between touch and controller input. If both are active sim
 
 ---
 
-*For bug reports or feature requests, please open an issue on the [GitHub repository](https://github.com/vatsalunadkat/ERICKeyboard).*
+## Final Note
+
+ERICK is meant to be learned over time. Most users will feel more comfortable after a short practice period, especially when starting with the Logical layout and then moving to faster layouts later if they want to.
+
+For bugs or feature requests, open an issue on the [GitHub repository](https://github.com/vatsalunadkat/ERICKeyboard).

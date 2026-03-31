@@ -1,4 +1,4 @@
-# ERICK — Sprint 1 Retrospective
+# ERICK - Sprint 1 Retrospective
 
 **Sprint**: SCRUM Sprint 1  
 **Dates**: February 23–27, 2026 (Monday–Friday)
@@ -21,27 +21,27 @@
 
 ## 👍 What Went Well
 
-1. **Reasonable task allocation** — Every team member was able to participate in and contribute to the project across the three-day sprint.
+1. **Reasonable task allocation** - Every team member was able to participate in and contribute to the project across the three-day sprint.
 
-2. **Project progress on track** — Daily stand-ups were held on time. Problems encountered during the sprint were identified and resolved collectively.
+2. **Project progress on track** - Daily stand-ups were held on time. Problems encountered during the sprint were identified and resolved collectively.
 
-3. **Strong results in both research and development** — The UI Group explored tools such as Figma, Penpot, and HTML, completing prototype development and size templates. The Game Group's research on UI, menus, and gameplay mechanics laid a solid foundation for subsequent sprints.
+3. **Strong results in both research and development** - The UI Group explored tools such as Figma, Penpot, and HTML, completing prototype development and size templates. The Game Group's research on UI, menus, and gameplay mechanics laid a solid foundation for subsequent sprints.
 
-4. **Positive team collaboration atmosphere** — All members were enthusiastic and willing to exchange ideas, offer suggestions, and affirm each other's work. The team was able to discuss and adjust task direction in a timely manner, successfully getting through the initial running-in period of the agile project.
+4. **Positive team collaboration atmosphere** - All members were enthusiastic and willing to exchange ideas, offer suggestions, and affirm each other's work. The team was able to discuss and adjust task direction in a timely manner, successfully getting through the initial running-in period of the agile project.
 
 ---
 
 ## 👎 What Didn't Go Well
 
-1. **Insufficient alignment on product vision** — In the early stages, communication and understanding of the product vision, core requirements, and core values were insufficient. The team did not form a fully unified perception, leading to deviations in the content and direction of product research.
+1. **Insufficient alignment on product vision** - In the early stages, communication and understanding of the product vision, core requirements, and core values were insufficient. The team did not form a fully unified perception, leading to deviations in the content and direction of product research.
 
-2. **Unstandardized Jira user stories** — Some user stories were missing or the to-do items were not clearly defined. Stories were not described in a consistent, standardized manner.
+2. **Unstandardized Jira user stories** - Some user stories were missing or the to-do items were not clearly defined. Stories were not described in a consistent, standardized manner.
 
-3. **Acceptance criteria modified mid-sprint** — Although unintentional, changes to acceptance criteria during the sprint caused confusion among team members, making some doubt whether their completed work met the requirements.
+3. **Acceptance criteria modified mid-sprint** - Although unintentional, changes to acceptance criteria during the sprint caused confusion among team members, making some doubt whether their completed work met the requirements.
 
-4. **Scattered communication** — Communication relied heavily on the WhatsApp group chat, leading to scattered information. Team members were not proficient with Jira collaboration features (such as @mentioning members in descriptions or comments).
+4. **Scattered communication** - Communication relied heavily on the WhatsApp group chat, leading to scattered information. Team members were not proficient with Jira collaboration features (such as @mentioning members in descriptions or comments).
 
-5. **Uneven task distribution** — Some members took on too much work while others were unclear about their task content for most of the sprint, only clarifying their work direction toward the end.
+5. **Uneven task distribution** - Some members took on too much work while others were unclear about their task content for most of the sprint, only clarifying their work direction toward the end.
 
 ---
 

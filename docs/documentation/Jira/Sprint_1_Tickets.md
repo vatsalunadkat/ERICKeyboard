@@ -1,4 +1,4 @@
-# ERICK — Sprint 1 Tickets
+# ERICK - Sprint 1 Tickets
 
 **Sprint**: SCRUM Sprint 1  
 **Start Date**: February 23, 2026 (Monday)  
@@ -9,7 +9,7 @@
 
 ---
 
-## SCRUM-19 — Research: Keyboard and Joystick Libraries on Android
+## SCRUM-19 - Research: Keyboard and Joystick Libraries on Android
 
 | Field | Value |
 |---|---|
@@ -37,7 +37,7 @@ An evaluated list of candidate libraries with a working proof-of-concept or note
 
 ---
 
-## ERICK-20 — UI Design: App Wireframes and Screen Mockups
+## ERICK-20 - UI Design: App Wireframes and Screen Mockups
 
 | Field | Value |
 |---|---|
@@ -65,7 +65,7 @@ Figma (or equivalent) design files covering the keyboard screen and at least one
 
 ---
 
-## ERICK-21 — Documentation: Architecture Diagrams and File Structure
+## ERICK-21 - Documentation: Architecture Diagrams and File Structure
 
 | Field | Value |
 |---|---|
@@ -92,7 +92,7 @@ Architecture diagram and file structure documentation committed to the repositor
 
 ---
 
-## SCRUM-22 — Jetpack Compose / XML: Keyboard Screen Implementation
+## SCRUM-22 - Jetpack Compose / XML: Keyboard Screen Implementation
 
 | Field | Value |
 |---|---|
@@ -105,7 +105,7 @@ Architecture diagram and file structure documentation committed to the repositor
 
 ### Description
 
-From the Figma designs (SCRUM-20), create the keyboard screen in Android Studio using XML layouts or Jetpack Compose. One team member focuses on the keyboard layout. The design must be dynamic — display properly on all common screen sizes.
+From the Figma designs (SCRUM-20), create the keyboard screen in Android Studio using XML layouts or Jetpack Compose. One team member focuses on the keyboard layout. The design must be dynamic - display properly on all common screen sizes.
 
 ### Deliverable
 
@@ -120,7 +120,7 @@ A working keyboard screen that displays the 2-joystick ERICK keyboard layout in 
 
 ---
 
-## ERICK-23 — System Integration: InputMethodService Implementation
+## ERICK-23 - System Integration: InputMethodService Implementation
 
 | Field | Value |
 |---|---|
@@ -148,7 +148,7 @@ A working Android keyboard service that the system can activate and that can inj
 
 ---
 
-## ERICK-25 — System Integration: AndroidManifest Keyboard Configuration
+## ERICK-25 - System Integration: AndroidManifest Keyboard Configuration
 
 | Field | Value |
 |---|---|
@@ -175,7 +175,7 @@ A correctly configured `AndroidManifest.xml` with the full IME service declarati
 
 ---
 
-## SCRUM-34 — Research: iOS Keyboard Integration via Xcode & Swift
+## SCRUM-34 - Research: iOS Keyboard Integration via Xcode & Swift
 
 | Field | Value |
 |---|---|
@@ -203,7 +203,7 @@ Research notes and/or a proof-of-concept Xcode project demonstrating how a custo
 
 ---
 
-## SCRUM-35 — Showcases: Keyboard Usage Demonstration
+## SCRUM-35 - Showcases: Keyboard Usage Demonstration
 
 | Field | Value |
 |---|---|
