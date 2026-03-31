@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
+import com.vatoo.erick.shared.DialSectionMode
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.InputMode
 import com.vatoo.erick.shared.KeyboardActionDelegate
@@ -185,9 +186,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
             if (entries.size == 8) {
                 ColorPalettes.setCustomPalette(entries)
-                if (::leftJoystick.isInitialized) leftJoystick.invalidate()
-                if (::rightJoystick.isInitialized) rightJoystick.invalidate()
             }
+            if (entries.size >= 6) {
+                ColorPalettes.setCustomPalette6(entries.take(6))
+            }
+            if (::leftJoystick.isInitialized) leftJoystick.invalidate()
+            if (::rightJoystick.isInitialized) rightJoystick.invalidate()
         }.launchIn(serviceScope)
 
         // Monitor theme mode changes
@@ -205,6 +209,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // Monitor haptic + sound preferences
         preferencesManager.hapticFeedback.onEach { hapticEnabled = it }.launchIn(serviceScope)
         preferencesManager.typingSounds.onEach { soundsEnabled = it }.launchIn(serviceScope)
+
+        // Monitor 6-section dial mode preference
+        preferencesManager.sixSectionDial.onEach { enabled ->
+            val mode = if (enabled) DialSectionMode.SIX_SECTION else DialSectionMode.EIGHT_SECTION
+            stateMachine.setDialSectionMode(mode)
+            if (::leftJoystick.isInitialized) {
+                leftJoystick.sixSectionMode = enabled
+                leftJoystick.invalidate()
+            }
+            if (::rightJoystick.isInitialized) {
+                rightJoystick.sixSectionMode = enabled
+                rightJoystick.invalidate()
+            }
+        }.launchIn(serviceScope)
 
         // Monitor input mode preference
         preferencesManager.inputMode.onEach { mode ->
@@ -614,7 +632,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             InputAction.PAGE_UP -> KeyEvent.KEYCODE_PAGE_UP
             InputAction.PAGE_DOWN -> KeyEvent.KEYCODE_PAGE_DOWN
             InputAction.TAB -> KeyEvent.KEYCODE_TAB
-            InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS -> -1
+            InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS, InputAction.TOGGLE_SYMBOLS -> -1
             else -> -1
         }
 
@@ -746,6 +764,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
                 shiftIndicator.contentDescription = "Caps Lock active"
+            }
+            com.vatoo.erick.shared.KeyboardMode.SYMBOLS -> {
+                shiftIndicator.text = "#"
+                shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
+                shiftIndicator.background = null
+                shiftIndicator.visibility = View.VISIBLE
+                shiftIndicator.contentDescription = "Symbols mode active"
+            }
+            com.vatoo.erick.shared.KeyboardMode.SYMBOLS_SHIFTED -> {
+                shiftIndicator.text = "#↑"
+                shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
+                shiftIndicator.background = null
+                shiftIndicator.visibility = View.VISIBLE
+                shiftIndicator.contentDescription = "Symbols shifted mode active"
             }
             else -> {
                 shiftIndicator.visibility = View.GONE

@@ -55,6 +55,9 @@ class KeyboardStateMachine(
     var activeCustomLayout: CustomLayout? = null
     private var isChordExecuted = false
 
+    // Symbols mode: remembers the mode before entering symbols
+    private var preSymbolsMode = KeyboardMode.NORMAL
+
     // Input mode
     var inputMode = InputMode.INSTANT
         private set
@@ -120,6 +123,19 @@ class KeyboardStateMachine(
         leftHandedMode = enabled
     }
 
+    fun setDialSectionMode(mode: DialSectionMode) {
+        processor.dialSectionMode = mode
+        // If switching from 6-section to 8-section while in symbols mode, exit symbols
+        if (mode == DialSectionMode.EIGHT_SECTION &&
+            (currentMode == KeyboardMode.SYMBOLS || currentMode == KeyboardMode.SYMBOLS_SHIFTED)) {
+            currentMode = KeyboardMode.NORMAL
+        }
+    }
+
+    fun getDialSectionMode(): DialSectionMode = processor.dialSectionMode
+
+    fun isSymbolsMode(): Boolean = currentMode == KeyboardMode.SYMBOLS || currentMode == KeyboardMode.SYMBOLS_SHIFTED
+
     fun setInputMode(mode: InputMode) {
         inputMode = mode
         lockedLeftDir = Direction.NONE
@@ -148,6 +164,10 @@ class KeyboardStateMachine(
 
     fun getCharactersAtPosition(rightDir: Direction): List<Pair<Direction, String>> {
         return processor.getCharactersAtPosition(rightDir, currentMode, currentLayoutType, activeCustomLayout)
+    }
+
+    fun getDirections(): List<Direction> {
+        return processor.getDirections()
     }
 
     private fun normalizeControllerStick(x: Float, y: Float): ControllerStickInput {
@@ -337,8 +357,11 @@ class KeyboardStateMachine(
             onTextCommitted(text)
         }
 
-        if (currentMode == KeyboardMode.SHIFTED) {
-            currentMode = KeyboardMode.NORMAL
+        // After typing in shifted mode, revert to base mode
+        when (currentMode) {
+            KeyboardMode.SHIFTED -> currentMode = KeyboardMode.NORMAL
+            KeyboardMode.SYMBOLS_SHIFTED -> currentMode = KeyboardMode.SYMBOLS
+            else -> { /* stay in current mode */ }
         }
     }
 
@@ -357,8 +380,29 @@ class KeyboardStateMachine(
             }
             is InputAction -> {
                 when (result) {
-                    InputAction.TOGGLE_SHIFT -> currentMode = if (currentMode == KeyboardMode.NORMAL) KeyboardMode.SHIFTED else KeyboardMode.NORMAL
+                    InputAction.TOGGLE_SHIFT -> {
+                        when (currentMode) {
+                            KeyboardMode.NORMAL -> currentMode = KeyboardMode.SHIFTED
+                            KeyboardMode.SHIFTED -> currentMode = KeyboardMode.NORMAL
+                            KeyboardMode.CAPS_LOCKED -> currentMode = KeyboardMode.NORMAL
+                            KeyboardMode.SYMBOLS -> currentMode = KeyboardMode.SYMBOLS_SHIFTED
+                            KeyboardMode.SYMBOLS_SHIFTED -> currentMode = KeyboardMode.SYMBOLS
+                        }
+                    }
                     InputAction.TOGGLE_CAPS -> currentMode = if (currentMode == KeyboardMode.CAPS_LOCKED) KeyboardMode.NORMAL else KeyboardMode.CAPS_LOCKED
+                    InputAction.TOGGLE_SYMBOLS -> {
+                        when (currentMode) {
+                            KeyboardMode.SYMBOLS, KeyboardMode.SYMBOLS_SHIFTED -> {
+                                // Return to the mode we were in before entering symbols
+                                currentMode = preSymbolsMode
+                            }
+                            else -> {
+                                // Enter symbols mode; remember current mode
+                                preSymbolsMode = currentMode
+                                currentMode = KeyboardMode.SYMBOLS
+                            }
+                        }
+                    }
                     InputAction.BACKSPACE -> {
                         delegate.sendInputAction(result)
                         onBackspace()

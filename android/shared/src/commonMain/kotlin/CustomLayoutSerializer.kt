@@ -40,6 +40,7 @@ object CustomLayoutSerializer {
         sb.append("{")
         sb.append("\"id\":${escapeJson(layout.id)},")
         sb.append("\"name\":${escapeJson(layout.name)},")
+        sb.append("\"sectionCount\":${layout.sectionCount},")
         sb.append("\"normalChordMap\":${serializeChordMap(layout.normalChordMap)},")
         sb.append("\"shiftedChordMap\":${serializeChordMap(layout.shiftedChordMap)},")
         sb.append("\"singleSwipeNormalMap\":${serializeSwipeMap(layout.singleSwipeNormalMap)},")
@@ -52,11 +53,12 @@ object CustomLayoutSerializer {
         val fields = parseObject(json)
         val id = unescapeJson(fields["id"] ?: return null)
         val name = unescapeJson(fields["name"] ?: return null)
+        val sectionCount = fields["sectionCount"]?.trim()?.toIntOrNull() ?: 8
         val normalChord = parseChordMap(fields["normalChordMap"] ?: return null)
         val shiftedChord = parseChordMap(fields["shiftedChordMap"] ?: return null)
         val singleNormal = parseSwipeMap(fields["singleSwipeNormalMap"] ?: "{}")
         val singleShifted = parseSwipeMap(fields["singleSwipeShiftedMap"] ?: "{}")
-        return CustomLayout(id, name, normalChord, shiftedChord, singleNormal, singleShifted)
+        return CustomLayout(id, name, normalChord, shiftedChord, singleNormal, singleShifted, sectionCount)
     }
 
     // --- Chord map: {"N":["a","b",...], "NE":[...], ...} ---

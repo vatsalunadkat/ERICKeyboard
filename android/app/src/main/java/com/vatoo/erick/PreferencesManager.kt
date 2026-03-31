@@ -28,6 +28,7 @@ class PreferencesManager(private val context: Context) {
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback")
         private val TYPING_SOUNDS_KEY = booleanPreferencesKey("typing_sounds")
         private val INPUT_MODE_KEY = stringPreferencesKey("input_mode")
+        private val SIX_SECTION_DIAL_KEY = booleanPreferencesKey("six_section_dial")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
@@ -116,6 +117,11 @@ class PreferencesManager(private val context: Context) {
             preferences[INPUT_MODE_KEY] ?: INPUT_MODE_INSTANT
         }
 
+    val sixSectionDial: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[SIX_SECTION_DIAL_KEY] ?: false
+        }
+
     suspend fun setLayoutType(layoutType: String) {
         context.dataStore.edit { preferences ->
             preferences[LAYOUT_TYPE_KEY] = layoutType
@@ -185,6 +191,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setInputMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[INPUT_MODE_KEY] = mode
+        }
+    }
+
+    suspend fun setSixSectionDial(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[SIX_SECTION_DIAL_KEY] = enabled
         }
     }
 

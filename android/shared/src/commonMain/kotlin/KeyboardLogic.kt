@@ -5,14 +5,25 @@ import kotlin.math.PI
 
 class KeyboardLogic {
 
+    // Current dial section mode (set by the state machine based on user preference)
+    var dialSectionMode: DialSectionMode = DialSectionMode.EIGHT_SECTION
+
     // --- Part 1: Pure math — convert coordinates to direction ---
     fun getDirectionFromXY(x: Float, y: Float): Direction {
         val radians = atan2(y.toDouble(), x.toDouble())
-        var degrees = (radians * 180.0 / PI) // Replaced Math.toDegrees with pure Kotlin Math
+        var degrees = (radians * 180.0 / PI)
         if (degrees < 0) {
             degrees += 360.0
         }
 
+        return if (dialSectionMode == DialSectionMode.SIX_SECTION) {
+            getDirection6Section(degrees)
+        } else {
+            getDirection8Section(degrees)
+        }
+    }
+
+    private fun getDirection8Section(degrees: Double): Direction {
         return when {
             degrees >= 337.5 || degrees < 22.5 -> Direction.E
             degrees >= 22.5 && degrees < 67.5 -> Direction.SE
@@ -22,6 +33,20 @@ class KeyboardLogic {
             degrees >= 202.5 && degrees < 247.5 -> Direction.NW
             degrees >= 247.5 && degrees < 292.5 -> Direction.N
             degrees >= 292.5 && degrees < 337.5 -> Direction.NE
+            else -> Direction.NONE
+        }
+    }
+
+    // 6-section: 6 directions × 60° each
+    // N (270°), NE (330°), SE (30°), S (90°), SW (150°), NW (210°)
+    private fun getDirection6Section(degrees: Double): Direction {
+        return when {
+            degrees >= 0.0 && degrees < 60.0 -> Direction.SE    // 30° ± 30°
+            degrees >= 60.0 && degrees < 120.0 -> Direction.S   // 90° ± 30°
+            degrees >= 120.0 && degrees < 180.0 -> Direction.SW // 150° ± 30°
+            degrees >= 180.0 && degrees < 240.0 -> Direction.NW // 210° ± 30°
+            degrees >= 240.0 && degrees < 300.0 -> Direction.N  // 270° ± 30°
+            degrees >= 300.0 && degrees < 360.0 -> Direction.NE // 330° ± 30°
             else -> Direction.NONE
         }
     }
@@ -76,7 +101,90 @@ class KeyboardLogic {
         Direction.NW to listOf("H", "W", "!", "*", "(", "", ")", "C")
     )
 
+    // ========== 6-SECTION LOGICAL LAYOUT (6x6 = 36 slots) ==========
+    // Left direction = row, Right direction: N=0, NE=1, SE=2, S=3, SW=4, NW=5
+    private val normalMap6 = mapOf(
+        Direction.N  to listOf("a", "b", "c", "d", "e", "f"),
+        Direction.NE to listOf("g", "h", "i", "j", "k", "l"),
+        Direction.SE to listOf("m", "n", "o", "p", "q", "r"),
+        Direction.S  to listOf("s", "t", "u", "v", "w", "x"),
+        Direction.SW to listOf("y", "z", "1", "2", "3", "4"),
+        Direction.NW to listOf("5", "6", "7", "8", "9", "0")
+    )
+
+    private val shiftedMap6 = mapOf(
+        Direction.N  to listOf("A", "B", "C", "D", "E", "F"),
+        Direction.NE to listOf("G", "H", "I", "J", "K", "L"),
+        Direction.SE to listOf("M", "N", "O", "P", "Q", "R"),
+        Direction.S  to listOf("S", "T", "U", "V", "W", "X"),
+        Direction.SW to listOf("Y", "Z", "!", "@", "#", "$"),
+        Direction.NW to listOf("%", "^", "&", "*", "(", ")")
+    )
+
+    // ========== 6-SECTION EFFICIENCY LAYOUT (placeholder — needs optimizer re-run) ==========
+    // Diagonal slots (same direction both dials) get highest-frequency letters: e, t, a, o, i, n
+    private val efficiencyNormalMap6 = mapOf(
+        Direction.N  to listOf("e", "s", "g", "7", "k", "4"),
+        Direction.NE to listOf("r", "t", "n", "p", "d", "w"),
+        Direction.SE to listOf("l", "h", "a", "y", "m", "f"),
+        Direction.S  to listOf("c", "u", "b", "o", "q", "x"),
+        Direction.SW to listOf("v", "j", "z", "5", "i", "1"),
+        Direction.NW to listOf("2", "3", "6", "8", "9", "0")
+    )
+
+    private val efficiencyShiftedMap6 = mapOf(
+        Direction.N  to listOf("E", "S", "G", "&", "K", "$"),
+        Direction.NE to listOf("R", "T", "N", "P", "D", "W"),
+        Direction.SE to listOf("L", "H", "A", "Y", "M", "F"),
+        Direction.S  to listOf("C", "U", "B", "O", "Q", "X"),
+        Direction.SW to listOf("V", "J", "Z", "%", "I", "!"),
+        Direction.NW to listOf("@", "#", "^", "*", "(", ")")
+    )
+
+    // ========== 6-SECTION SYMBOLS MODE ==========
+    private val symbolsNormalMap6 = mapOf(
+        Direction.N  to listOf("!", "@", "#", "$", "%", "^"),
+        Direction.NE to listOf("&", "*", "(", ")", "-", "="),
+        Direction.SE to listOf("[", "]", "{", "}", "\\", "|"),
+        Direction.S  to listOf(";", ":", "'", "\"", ",", "."),
+        Direction.SW to listOf("/", "?", "<", ">", "`", "~"),
+        Direction.NW to listOf("+", "_", "", "", "", "")
+    )
+
+    private val symbolsShiftedMap6 = mapOf(
+        Direction.N  to listOf("\u00A3", "\u20AC", "\u00A5", "\u00A2", "\u2030", "\u00B0"),
+        Direction.NE to listOf("\u00D7", "\u00F7", "\u00AB", "\u00BB", "\u2013", "\u2014"),
+        Direction.SE to listOf("\u2018", "\u2019", "\u201C", "\u201D", "\u2026", "\u00B7"),
+        Direction.S  to listOf("\u00BF", "\u00A1", "\u00B1", "\u2260", "\u2264", "\u2265"),
+        Direction.SW to listOf("\u221A", "\u221E", "\u03C0", "\u2211", "\u0394", "\u00B5"),
+        Direction.NW to listOf("\u2190", "\u2192", "\u2191", "\u2193", "", "")
+    )
+
+    // Direction lists for each mode
+    companion object {
+        val directions8 = listOf(
+            Direction.N, Direction.NE, Direction.E, Direction.SE,
+            Direction.S, Direction.SW, Direction.W, Direction.NW
+        )
+        val directions6 = listOf(
+            Direction.N, Direction.NE, Direction.SE,
+            Direction.S, Direction.SW, Direction.NW
+        )
+    }
+
+    fun getDirections(): List<Direction> {
+        return if (dialSectionMode == DialSectionMode.SIX_SECTION) directions6 else directions8
+    }
+
     private fun getRightIndex(rightDir: Direction): Int {
+        return if (dialSectionMode == DialSectionMode.SIX_SECTION) {
+            getRightIndex6(rightDir)
+        } else {
+            getRightIndex8(rightDir)
+        }
+    }
+
+    private fun getRightIndex8(rightDir: Direction): Int {
         return when (rightDir) {
             Direction.N -> 0; Direction.NE -> 1; Direction.E -> 2
             Direction.SE -> 3; Direction.S -> 4; Direction.SW -> 5
@@ -85,26 +193,43 @@ class KeyboardLogic {
         }
     }
 
+    private fun getRightIndex6(rightDir: Direction): Int {
+        return when (rightDir) {
+            Direction.N -> 0; Direction.NE -> 1; Direction.SE -> 2
+            Direction.S -> 3; Direction.SW -> 4; Direction.NW -> 5
+            else -> -1
+        }
+    }
+
     fun getChordResult(leftDir: Direction, rightDir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL, customLayout: CustomLayout? = null): String {
         if (leftDir == Direction.NONE || rightDir == Direction.NONE) return ""
         val index = getRightIndex(rightDir)
         if (index == -1) return ""
-        val currentMap = when {
-            layout == LayoutType.CUSTOM && customLayout != null -> {
-                if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
-                else customLayout.shiftedChordMap
-            }
-            layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
-            layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
-            mode == KeyboardMode.NORMAL -> normalMap
-            else -> shiftedMap
-        }
+        val currentMap = resolveChordMap(mode, layout, customLayout)
         val charList = currentMap[leftDir] ?: return ""
         return charList.getOrNull(index) ?: ""
     }
 
-    fun getCharactersForDirection(dir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL, customLayout: CustomLayout? = null): List<String> {
-        val currentMap = when {
+    private fun resolveChordMap(mode: KeyboardMode, layout: LayoutType, customLayout: CustomLayout?): Map<Direction, List<String>> {
+        // Symbols mode (6-section only)
+        if (mode == KeyboardMode.SYMBOLS) return symbolsNormalMap6
+        if (mode == KeyboardMode.SYMBOLS_SHIFTED) return symbolsShiftedMap6
+
+        if (dialSectionMode == DialSectionMode.SIX_SECTION) {
+            return when {
+                layout == LayoutType.CUSTOM && customLayout != null -> {
+                    if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
+                    else customLayout.shiftedChordMap
+                }
+                layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap6
+                layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap6
+                mode == KeyboardMode.NORMAL -> normalMap6
+                else -> shiftedMap6
+            }
+        }
+
+        // 8-section (original)
+        return when {
             layout == LayoutType.CUSTOM && customLayout != null -> {
                 if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
                 else customLayout.shiftedChordMap
@@ -114,6 +239,10 @@ class KeyboardLogic {
             mode == KeyboardMode.NORMAL -> normalMap
             else -> shiftedMap
         }
+    }
+
+    fun getCharactersForDirection(dir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL, customLayout: CustomLayout? = null): List<String> {
+        val currentMap = resolveChordMap(mode, layout, customLayout)
         return currentMap[dir] ?: emptyList()
     }
 
@@ -126,17 +255,8 @@ class KeyboardLogic {
     fun getCharactersAtPosition(rightDir: Direction, mode: KeyboardMode, layout: LayoutType = LayoutType.LOGICAL, customLayout: CustomLayout? = null): List<Pair<Direction, String>> {
         val index = getRightIndex(rightDir)
         if (index == -1) return emptyList()
-        val currentMap = when {
-            layout == LayoutType.CUSTOM && customLayout != null -> {
-                if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
-                else customLayout.shiftedChordMap
-            }
-            layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
-            layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
-            mode == KeyboardMode.NORMAL -> normalMap
-            else -> shiftedMap
-        }
-        val allLeftDirs = listOf(Direction.N, Direction.NE, Direction.E, Direction.SE, Direction.S, Direction.SW, Direction.W, Direction.NW)
+        val currentMap = resolveChordMap(mode, layout, customLayout)
+        val allLeftDirs = getDirections()
         return allLeftDirs.mapNotNull { leftDir ->
             val chars = currentMap[leftDir] ?: return@mapNotNull null
             val ch = chars.getOrNull(index) ?: ""
@@ -156,6 +276,11 @@ class KeyboardLogic {
                 is SingleSwipeBinding.Action -> binding.action
             }
         }
+
+        if (dialSectionMode == DialSectionMode.SIX_SECTION) {
+            return getSingleSwipeResult6(dir, mode)
+        }
+
         val isShifted = mode != KeyboardMode.NORMAL
         return when (dir) {
             Direction.N  -> if (isShifted) InputAction.MOVE_END else InputAction.MOVE_HOME
@@ -166,6 +291,26 @@ class KeyboardLogic {
             Direction.SW -> InputAction.TOGGLE_SHIFT
             Direction.W  -> InputAction.BACKSPACE
             Direction.NW -> InputAction.TOGGLE_CAPS
+            else -> null
+        }
+    }
+
+    // 6-section single-swipe actions:
+    // N = Shift (long-press/double-tap for Caps Lock)
+    // NE = Period
+    // SE = Spacebar
+    // S = Enter
+    // SW = Backspace
+    // NW = Symbols toggle (handled by state machine, returns TOGGLE_SYMBOLS sentinel)
+    private fun getSingleSwipeResult6(dir: Direction, mode: KeyboardMode): Any? {
+        val isShifted = mode != KeyboardMode.NORMAL && mode != KeyboardMode.SYMBOLS && mode != KeyboardMode.SYMBOLS_SHIFTED
+        return when (dir) {
+            Direction.N  -> InputAction.TOGGLE_SHIFT
+            Direction.NE -> if (isShifted) ">" else "."
+            Direction.SE -> InputAction.SPACE
+            Direction.S  -> InputAction.ENTER
+            Direction.SW -> InputAction.BACKSPACE
+            Direction.NW -> InputAction.TOGGLE_SYMBOLS
             else -> null
         }
     }
