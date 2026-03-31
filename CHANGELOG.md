@@ -5,25 +5,6 @@ All notable changes to the ERICK (Ergonomic Radial Inclusive Controller Keyboard
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.7.5-beta] - Apr 1, 2026
-
-## What's New
-
-### Major Features
-- **6-Section Dial Mode** - Optional alternative dial layout that uses 6 larger segments (60° each) instead of the default 8 segments (45° each). Larger touch targets improve accuracy for users with reduced fine motor control. Off by default; toggle in Settings → Dial Mode.
-- **Symbols Layer** - When 6-section mode is enabled, single-swipe NW on the right dial toggles a dedicated Symbols mode with punctuation (+shifted: currency, math, and arrow characters). Shift+Symbols provides a second layer of symbols.
-- **6-Color Palette Variants** - All colorblind palettes (Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel) have 6-color variants. Custom palettes use the first 6 colors.
-
-### Technical
-- **Shared KMP Module** - New `DialSectionMode` enum, `SYMBOLS`/`SYMBOLS_SHIFTED` keyboard modes, `TOGGLE_SYMBOLS` input action, 6-section chord maps (normal, shifted, efficiency placeholder, symbols, symbols-shifted), 6-section direction detection (60° sectors), and updated state machine with symbols mode toggle logic.
-- **6-Section Chord Layout** - 36-slot layout (6 left directions × 6 right directions) with 2-ring left dial (outer + inner, 3 blocks each) and 6-segment right dial.
-- Full cross-platform implementation on Android (Canvas) and iOS (SwiftUI) with matching behavior.
-
-### Breaking Changes
-None — 6-section mode is off by default. All existing 8-section features work identically.
-
----
-
 ## [v0.7.4-beta] - Mar 31, 2026
 
 ## What's New
