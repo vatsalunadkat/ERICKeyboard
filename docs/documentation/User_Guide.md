@@ -64,7 +64,7 @@ When ERICK opens, you will see:
 
 Typing is based on a simple pattern:
 
-1. **Swipe one dial** in one of 8 directions (N, NE, E, SE, S, SW, W, NW) to choose a character group.
+1. **Swipe one dial** in one of 8 directions (N, NE, E, SE, S, SW, W, NW) to choose a character group. In 6-section mode, 6 directions are used (N, NE, SE, S, SW, NW).
 2. **Swipe the other dial** in a direction to choose a specific character inside that group.
 3. **Release both dials** - the character is typed.
 
@@ -150,6 +150,48 @@ Your own saved layout. You can create and switch between custom layouts in setti
 2. Navigate to the **Layout** section.
 3. Select **Logical**, **Efficiency**, or any saved custom layout.
 4. The keyboard updates immediately.
+
+---
+
+## Dial Mode
+
+ERICK supports two dial geometries. You can switch between them in **Settings → Dial Mode**.
+
+### 8-Section (Default)
+
+The standard mode with **8 directions** (N, NE, E, SE, S, SW, W, NW), each spanning **45°**. This provides 64 chord positions (8×8). All original features use this mode.
+
+### 6-Section
+
+An optional mode with **6 directions** (N, NE, SE, S, SW, NW — no E or W), each spanning **60°**. The wider segments can be easier to target, especially for users with reduced dexterity.
+
+**Key differences in 6-section mode:**
+
+| Feature | 8-Section | 6-Section |
+|---|---|---|
+| Directions | 8 (45° each) | 6 (60° each) |
+| Chord positions | 64 | 36 |
+| Normal mode characters | 26 letters + 10 digits + symbols | 26 letters + 10 digits |
+| Symbols mode | Not available | NW single-swipe toggles Symbols |
+| Left dial rings | 3 inner rings | 2 inner rings |
+| Shift toggle | SW single-swipe | N single-swipe |
+| Backspace | W single-swipe | SW single-swipe |
+| Space | E single-swipe | SE single-swipe |
+| Period | SE single-swipe | NE single-swipe |
+| Caps Lock | NW single-swipe | Not available (use Symbols instead) |
+
+**6-Section Single-Direction Actions:**
+
+| Direction | Function |
+|---|---|
+| **N** | Toggle SHIFT |
+| **NE** | Type `.` (period) |
+| **SE** | SPACE |
+| **S** | ENTER |
+| **SW** | BACKSPACE |
+| **NW** | Toggle SYMBOLS mode |
+
+**Symbols Mode** (6-section only): When enabled, the dials show punctuation, brackets, math operators, and other special characters instead of letters. Swipe NW again to return to normal typing. Shift works within Symbols mode to access Unicode currency, math, and arrow characters.
 
 ---
 
