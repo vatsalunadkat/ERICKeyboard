@@ -23,6 +23,7 @@ struct SettingsView: View {
     @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
     @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
+    @AppStorage("six_section_dial", store: SettingsView.appGroupDefaults) private var sixSectionDial: Bool = false
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
     var onClose: (() -> Void)? = nil
@@ -90,6 +91,9 @@ struct SettingsView: View {
             onSettingsChanged?()
         }
         .onChange(of: inputMode) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: sixSectionDial) { _ in
             onSettingsChanged?()
         }
     }
@@ -282,6 +286,22 @@ struct SettingsView: View {
 
                         Toggle("Typing Sounds", isOn: $typingSounds)
                             .padding(.horizontal, 12).padding(.vertical, 4)
+                    }
+                }
+
+                // Dial Mode Section
+                CollapsibleSettingsSection(
+                    title: "Dial Mode",
+                    isExpanded: expandedSection == "dial_mode",
+                    onToggle: { expandedSection = expandedSection == "dial_mode" ? nil : "dial_mode" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+                        Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
                     }
                 }
 
@@ -540,6 +560,70 @@ struct ColorPaletteDefinitions {
         case "pastel": return pastel
         case "custom": return customPalette()
         default: return defaultPalette
+        }
+    }
+
+    // 6-color palette variants for 6-section dial mode
+    static let defaultPalette6: [ColorPaletteEntry] = [
+        .init(name: "Red", hex: "#E60012"),
+        .init(name: "Orange", hex: "#F39800"),
+        .init(name: "Green", hex: "#009944"),
+        .init(name: "Blue", hex: "#0068B7"),
+        .init(name: "Indigo", hex: "#1D2088"),
+        .init(name: "Violet", hex: "#920783")
+    ]
+    static let okabeIto6: [ColorPaletteEntry] = [
+        .init(name: "Orange", hex: "#E69F00"),
+        .init(name: "Sky Blue", hex: "#56B4E9"),
+        .init(name: "Bluish Green", hex: "#009E73"),
+        .init(name: "Blue", hex: "#0072B2"),
+        .init(name: "Vermillion", hex: "#D55E00"),
+        .init(name: "Reddish Purple", hex: "#CC79A7")
+    ]
+    static let deuteranopia6: [ColorPaletteEntry] = [
+        .init(name: "Blue", hex: "#0072B2"),
+        .init(name: "Orange", hex: "#E69F00"),
+        .init(name: "Yellow", hex: "#F0E442"),
+        .init(name: "Dark Red", hex: "#CC3311"),
+        .init(name: "Teal", hex: "#009988"),
+        .init(name: "Pink", hex: "#EE7733")
+    ]
+    static let protanopia6: [ColorPaletteEntry] = [
+        .init(name: "Blue", hex: "#0077BB"),
+        .init(name: "Cyan", hex: "#33BBEE"),
+        .init(name: "Yellow", hex: "#EE7733"),
+        .init(name: "Orange", hex: "#CC3311"),
+        .init(name: "Magenta", hex: "#EE3377"),
+        .init(name: "Grey", hex: "#BBBBBB")
+    ]
+    static let tritanopia6: [ColorPaletteEntry] = [
+        .init(name: "Red", hex: "#CC3311"),
+        .init(name: "Blue", hex: "#0077BB"),
+        .init(name: "Cyan", hex: "#33BBEE"),
+        .init(name: "Magenta", hex: "#EE3377"),
+        .init(name: "Teal", hex: "#009988"),
+        .init(name: "Yellow", hex: "#EECC66")
+    ]
+    static let pastel6: [ColorPaletteEntry] = [
+        .init(name: "Rose", hex: "#F4A6B0"),
+        .init(name: "Peach", hex: "#F6C9A0"),
+        .init(name: "Mint", hex: "#A8DFC0"),
+        .init(name: "Sky", hex: "#A0C4E8"),
+        .init(name: "Lavender", hex: "#C4A8D8"),
+        .init(name: "Lilac", hex: "#D8A8C8")
+    ]
+
+    static func palette6(for key: String) -> [ColorPaletteEntry] {
+        switch key {
+        case "okabe_ito": return okabeIto6
+        case "deuteranopia": return deuteranopia6
+        case "protanopia": return protanopia6
+        case "tritanopia": return tritanopia6
+        case "pastel": return pastel6
+        case "custom":
+            let full = customPalette()
+            return Array(full.prefix(6))
+        default: return defaultPalette6
         }
     }
 
