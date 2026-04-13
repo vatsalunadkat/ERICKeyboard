@@ -6,7 +6,7 @@
 | **Priority** | High |
 | **Story Points** | 22 |
 | **Assignee** | Vatsal Unadkat |
-| **Sprint** | Backlog |
+| **Sprint** | Sprint 5 (Completed) |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | feature, core, android, ios, shared, accessibility |
 | **Dependencies** | None |
@@ -212,17 +212,17 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 
 ### 9. Shared Module (`KeyboardLogic.kt`) Changes Checklist
 
-- [ ] Update `getDirectionFromXY()` to return one of 6 directions
-- [ ] Update `normalMap` to 6 directions x 6 characters
-- [ ] Update `shiftedMap` to 6 directions x 6 characters
-- [ ] Update `efficiencyNormalMap` to 6 directions x 6 characters
-- [ ] Update `efficiencyShiftedMap` to 6 directions x 6 characters
-- [ ] Update `getRightIndex()` to return 0-5
-- [ ] Update `getSingleSwipeResult()` to handle 6 directions
-- [ ] Update `getCharactersForDirection()` return list size
-- [ ] Update `getCharactersAtPosition()` direction list
-- [ ] Add symbols mode chord maps (normal + shifted symbols grids)
-- [ ] Add NW single-swipe toggle logic for symbols mode
+- [x] Update `getDirectionFromXY()` to return one of 6 directions
+- [x] Update `normalMap` to 6 directions x 6 characters
+- [x] Update `shiftedMap` to 6 directions x 6 characters
+- [x] Update `efficiencyNormalMap` to 6 directions x 6 characters
+- [x] Update `efficiencyShiftedMap` to 6 directions x 6 characters
+- [x] Update `getRightIndex()` to return 0-5
+- [x] Update `getSingleSwipeResult()` to handle 6 directions
+- [x] Update `getCharactersForDirection()` return list size
+- [x] Update `getCharactersAtPosition()` direction list
+- [x] Add symbols mode chord maps (normal + shifted symbols grids)
+- [x] Add NW single-swipe toggle logic for symbols mode
 
 ### 10. State Machine Changes
 
@@ -287,34 +287,34 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 
 ## Acceptance Criteria
 
-- [ ] 6-section dial mode is **off by default** in settings on both Android and iOS
-- [ ] When 6-section mode is disabled, the keyboard uses the existing 8-section dial with no changes
-- [ ] When 6-section mode is enabled, direction detection uses 6 x 60-degree segments
-- [ ] Logical layout maps 26 letters + 10 digits across a 6x6 chord grid (normal mode)
-- [ ] Shifted mode maps 26 uppercase letters + 10 common symbols
-- [ ] Efficiency layout re-optimized for the 6x6 grid and placed in `KeyboardLogic.kt`
-- [ ] Single-swipe right-dial actions: N = Shift (long-press/double-tap for Caps Lock), NE = Period, SE = Spacebar, S = Enter, SW = Backspace, NW = Symbols toggle
-- [ ] NW single-swipe toggles the entire keyboard into symbols mode; swiping NW again reverts to normal
-- [ ] Symbols mode provides access to all remaining symbols (brackets, slashes, quotes, math operators, etc.) via a 6x6 symbols grid
-- [ ] Symbols mode has a clear visual indicator showing it is active
-- [ ] All single-swipe actions (Shift, Period, Spacebar, Enter, Backspace) work normally in symbols mode
-- [ ] Android `JoystickView` draws 6 segments per dial with 60-degree arcs
-- [ ] iOS `JoystickView` draws 6 segments per dial with 60-degree arcs
-- [ ] Left dial shows character labels correctly in the wider segments (outer + inner ring layout)
-- [ ] All 7 color palettes updated to 6 colors each; colorblind-safe palettes reviewed for 6-color distinguishability
-- [ ] Custom palette editor shows 6 color slots instead of 8
-- [ ] Existing custom layouts are handled gracefully (migration notice or reset)
-- [ ] Custom layout creator works with 6 directions x 6 characters
-- [ ] **Left-hand mode** works correctly with 6-section dial (mirrored layout)
-- [ ] All **3 input methods** (Instant, Confirm, Assisted) work correctly with 6-section dial
-- [ ] Word prediction and autocorrect continue to work (no changes needed)
-- [ ] Haptic feedback and typing sounds continue to work for all input types
-- [ ] Controller support works with 6-direction mapping on analog sticks
-- [ ] Typing practice mini-game works with updated chord positions
-- [ ] Onboarding screens updated to show 6-section dial visuals (when mode is active)
-- [ ] User Guide updated with new chord tables and symbols mode documentation
-- [ ] All existing unit tests updated and passing
-- [ ] No regressions in any existing 8-section keyboard functionality
+- [x] 6-section dial mode is **off by default** in settings on both Android and iOS
+- [x] When 6-section mode is disabled, the keyboard uses the existing 8-section dial with no changes
+- [x] When 6-section mode is enabled, direction detection uses 6 x 60-degree segments
+- [x] Logical layout maps 26 letters + 10 digits across a 6x6 chord grid (normal mode)
+- [x] Shifted mode maps 26 uppercase letters + 10 common symbols
+- [x] Efficiency layout re-optimized for the 6x6 grid and placed in `KeyboardLogic.kt`
+- [x] Single-swipe right-dial actions: N = Shift (long-press/double-tap for Caps Lock), NE = Period, SE = Spacebar, S = Enter, SW = Backspace, NW = Symbols toggle
+- [x] NW single-swipe toggles the entire keyboard into symbols mode; swiping NW again reverts to normal
+- [x] Symbols mode provides access to all remaining symbols (brackets, slashes, quotes, math operators, etc.) via a 6x6 symbols grid
+- [x] Symbols mode has a clear visual indicator showing it is active
+- [x] All single-swipe actions (Shift, Period, Spacebar, Enter, Backspace) work normally in symbols mode
+- [x] Android `JoystickView` draws 6 segments per dial with 60-degree arcs
+- [x] iOS `JoystickView` draws 6 segments per dial with 60-degree arcs
+- [x] Left dial shows character labels correctly in the wider segments (outer + inner ring layout)
+- [x] All 7 color palettes updated to 6 colors each; colorblind-safe palettes reviewed for 6-color distinguishability
+- [x] Custom palette editor shows 6 color slots instead of 8
+- [x] Existing custom layouts are handled gracefully (migration notice or reset)
+- [x] Custom layout creator works with 6 directions x 6 characters
+- [x] **Left-hand mode** works correctly with 6-section dial (mirrored layout)
+- [x] All **3 input methods** (Instant, Confirm, Assisted) work correctly with 6-section dial
+- [x] Word prediction and autocorrect continue to work (no changes needed)
+- [x] Haptic feedback and typing sounds continue to work for all input types
+- [x] Controller support works with 6-direction mapping on analog sticks
+- [x] Typing practice mini-game works with updated chord positions
+- [x] Onboarding screens updated to show 6-section dial visuals (when mode is active)
+- [x] User Guide updated with new chord tables and symbols mode documentation
+- [x] All existing unit tests updated and passing
+- [x] No regressions in any existing 8-section keyboard functionality
 
 ---
 

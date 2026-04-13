@@ -2,9 +2,9 @@
 
 ## 1. What Is ERICK?
 
-**ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** - a combination of a left-stick direction and a right-stick direction (8 directions each, yielding 64 chord slots). Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
+**ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** - a combination of a left-stick direction and a right-stick direction. In the default 8-section mode, 8 directions each yield 64 chord slots. An optional 6-section mode uses 6 directions (60-degree segments) for 36 chord slots with larger, easier-to-target segments. Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
 
-**Current version**: 0.7.4-beta  
+**Current version**: 1.0  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
 **License**: ERICK Source Available License 1.0  
 **Privacy stance**: 100% offline, zero data collection, no internet permissions, COPPA/GDPR/CCPA compliant.
@@ -119,7 +119,8 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 
 | Feature | Details |
 |---------|---------|
-| **Dual-joystick chorded input** | 64 chord combinations for letters, single-swipe for actions |
+| **Dual-joystick chorded input** | 64 chord combinations (8-section) or 36 (6-section) for letters, single-swipe for actions |
+| **Optional 6-section dial mode** | 6 directions at 60-degree intervals, larger targets, dedicated symbols layer via NW toggle |
 | **Physical controller support** | DualShock 4, Xbox, 8BitDo, etc. via Bluetooth. Left/right analog sticks map to left/right dials |
 | **Word prediction** | Trie + bigrams, 3 suggestion strip, tap to accept |
 | **Autocorrect** | Levenshtein edit-distance matching |
@@ -210,6 +211,7 @@ ERICKeyboard/
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| **v1.0** | Apr 13, 2026 | 6-Section Dial Mode (optional 60-degree segments, 36-slot chord grid, symbols mode, 6-color palettes), haptic/sound tuning, settings UX fixes |
 | **v0.7.4-beta** | 2026 | Three input modes (Quick Type/Steady Type/One-Handed), custom color palettes, haptic feedback & typing sounds |
 | **v0.5.1-alpha** | Mar 28, 2026 | Typing practice mini-game, outlined preview text, website redesign, source available license |
 | **v0.4.2-alpha** | Mar 21, 2026 | Word prediction, controller support, collapsible settings, accelerating backspace |
@@ -221,7 +223,7 @@ ERICKeyboard/
 
 | Version | Features |
 |---------|----------|
-| **v1.0.0** | Multi-language support, 6 section dials mode |
+| **v1.1** | Multi-language support |
 
 ---
 
