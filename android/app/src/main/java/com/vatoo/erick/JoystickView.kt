@@ -530,7 +530,8 @@ class JoystickView @JvmOverloads constructor(
                         startAngle = startAngle + j * 20f,
                         sweepAngle = 20f,
                         alphaVal = alphaVal,
-                        bgHex = bgHex
+                        bgHex = bgHex,
+                        radialBias = 0.58f
                     )
                 }
             }
@@ -744,9 +745,10 @@ class JoystickView @JvmOverloads constructor(
         startAngle: Float,
         sweepAngle: Float,
         alphaVal: Int,
-        bgHex: String = "#000000"
+        bgHex: String = "#000000",
+        radialBias: Float = 0.5f
     ) {
-        val centerRadius = (ringInnerRadius + ringOuterRadius) / 2f
+        val centerRadius = ringInnerRadius + (ringOuterRadius - ringInnerRadius) * radialBias
         val centerAngle = startAngle + sweepAngle / 2f
         val angleRad = Math.toRadians(centerAngle.toDouble())
         val charX = centerX + cos(angleRad).toFloat() * centerRadius

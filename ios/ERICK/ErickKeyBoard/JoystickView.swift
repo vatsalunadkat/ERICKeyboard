@@ -311,7 +311,8 @@ private struct LeftWheelBackground: View {
                                 size: size,
                                 baseFontSize: size * 0.068,
                                 angleGap: cellGap + 0.5,
-                                opacity: dimmed ? 0.55 : 1
+                                opacity: dimmed ? 0.55 : 1,
+                                radialBias: 0.58
                             )
                         }
 
@@ -433,14 +434,15 @@ private struct LeftWheelBackground: View {
         size: CGFloat,
         baseFontSize: CGFloat,
         angleGap: Double,
-        opacity: Double
+        opacity: Double,
+        radialBias: CGFloat = 0.5
     ) -> some View {
         ForEach(Array(items.enumerated()), id: \.offset) { index, item in
             let span = (endAngle - startAngle) / Double(items.count)
             let cellStart = startAngle + (Double(index) * span) + angleGap
             let cellEnd = startAngle + (Double(index + 1) * span) - angleGap
             let angle = (cellStart + cellEnd) / 2
-            let radiusRatio = (innerRatio + outerRatio) / 2
+            let radiusRatio = innerRatio + (outerRatio - innerRatio) * radialBias
             let labelPoint = point(in: size, radiusRatio: radiusRatio, angleDegrees: angle)
             let metrics = sectorLabelMetrics(
                 size: size,
