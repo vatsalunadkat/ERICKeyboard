@@ -764,7 +764,9 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
         // Apply 6-section dial mode
         let sixSection = Self.appGroupDefaults.bool(forKey: "six_section_dial")
-        stateMachine.setDialSectionMode(mode: sixSection ? .sixSection : .eightSection)
+        let dialMode: DialSectionMode = sixSection ? .sixSection : .eightSection
+        stateMachine.setDialSectionMode(mode: dialMode)
+        keyboardLogic.dialSectionMode = dialMode
         viewModel.sixSectionMode = sixSection
 
         // Apply theme mode
@@ -874,13 +876,13 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private func applyRightOnlyVisualAction(for direction: WheelDirection) {
         if viewModel.sixSectionMode {
             switch direction {
-            case .n:
+            case .ne:
                 if mirroredMode == .symbols || mirroredMode == .symbolsShifted {
                     mirroredMode = mirroredMode == .symbols ? .symbolsShifted : .symbols
                 } else {
                     mirroredMode = mirroredMode == .normal ? .shifted : .normal
                 }
-            case .nw:
+            case .n:
                 if mirroredMode == .symbols || mirroredMode == .symbolsShifted {
                     mirroredMode = .normal
                 } else {
@@ -913,21 +915,21 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         }
 
         if viewModel.sixSectionMode {
-            // 6-section mode: 60° segments, matching KMP getDirection6Section
-            // SE: 0-60 (center 30°), S: 60-120 (center 90°), SW: 120-180 (center 150°)
-            // NW: 180-240 (center 210°), N: 240-300 (center 270°), NE: 300-360 (center 330°)
+            // 6-section mode: 60° segments, rotated -30° so horizontal = Space/Backspace
+            // SE: 330-30 (center 0°, right), S: 30-90, SW: 90-150
+            // NW: 150-210 (center 180°, left), N: 210-270, NE: 270-330
             switch degrees {
-            case ..<60:
+            case 330..., ..<30:
                 return .se
-            case 60..<120:
+            case 30..<90:
                 return .s
-            case 120..<180:
+            case 90..<150:
                 return .sw
-            case 180..<240:
+            case 150..<210:
                 return .nw
-            case 240..<300:
+            case 210..<270:
                 return .n
-            case 300...:
+            case 270..<330:
                 return .ne
             default:
                 return .none

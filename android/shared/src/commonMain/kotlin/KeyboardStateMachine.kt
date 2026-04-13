@@ -438,9 +438,10 @@ class KeyboardStateMachine(
 
     private fun checkBackspaceHold() {
         // Only start hold-repeat when: right dial is in backspace direction,
-        // left dial is idle (not a chord), and no chord has been executed
+        // left dial is idle (not a chord, not locked), and no chord has been executed
         val rightDir = rightActiveDir
-        if (leftActiveDir == Direction.NONE && rightDir != Direction.NONE
+        if (leftActiveDir == Direction.NONE && lockedLeftDir == Direction.NONE
+            && rightDir != Direction.NONE
             && !isChordExecuted && isBackspaceDirection(rightDir)
         ) {
             // Already running? Don't restart

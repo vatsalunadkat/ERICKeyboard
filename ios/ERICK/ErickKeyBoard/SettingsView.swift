@@ -98,11 +98,27 @@ struct SettingsView: View {
         }
     }
 
-    @State private var expandedSection: String? = "layout"
+    @State private var expandedSection: String? = nil
 
     private var mainSettingsForm: some View {
         ScrollView {
             VStack(spacing: 8) {
+                // Dial Mode Section
+                CollapsibleSettingsSection(
+                    title: "Dial Mode",
+                    isExpanded: expandedSection == "dial_mode",
+                    onToggle: { expandedSection = expandedSection == "dial_mode" ? nil : "dial_mode" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+                        Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                    }
+                }
+
                 // Layout Section
                 CollapsibleSettingsSection(
                     title: "Keyboard Layout",
@@ -286,22 +302,6 @@ struct SettingsView: View {
 
                         Toggle("Typing Sounds", isOn: $typingSounds)
                             .padding(.horizontal, 12).padding(.vertical, 4)
-                    }
-                }
-
-                // Dial Mode Section
-                CollapsibleSettingsSection(
-                    title: "Dial Mode",
-                    isExpanded: expandedSection == "dial_mode",
-                    onToggle: { expandedSection = expandedSection == "dial_mode" ? nil : "dial_mode" }
-                ) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
-                            .padding(.horizontal, 12).padding(.vertical, 4)
-                        Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 12)
                     }
                 }
 

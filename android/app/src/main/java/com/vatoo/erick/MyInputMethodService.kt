@@ -266,6 +266,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             rightJoystick.customCharsShifted = cl.shiftedChordMap
         }
 
+        // Apply current 6-section dial mode to the newly created joystick views
+        val isSixSection = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
+        leftJoystick.sixSectionMode = isSixSection
+        rightJoystick.sixSectionMode = isSixSection
+
         // Apply current color palette to the newly created joystick views
         val currentPalette = stateMachine.currentPaletteType
         leftJoystick.colorPaletteType = currentPalette
@@ -492,11 +497,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val letterDir = if (isLH) rightJoystick.activeDirection else leftJoystick.activeDirection
         val colorDir  = if (isLH) leftJoystick.activeDirection  else rightJoystick.activeDirection
 
-        // 8 possible right directions in clockwise order
-        val allRightDirs = listOf(
-            Direction.N, Direction.NE, Direction.E, Direction.SE,
-            Direction.S, Direction.SW, Direction.W, Direction.NW
-        )
+        // Right directions matching the current dial mode (6 or 8 sections)
+        val allRightDirs = stateMachine.getDirections()
+        val isSix = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
 
         // Determine preview data: left-dial hold, right-dial hold, or nothing
         data class PreviewChar(val text: String, val colorHex: String, val dirForColor: Direction)
@@ -510,7 +513,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 val charStr = chars[i]
                 if (charStr.isBlank()) continue
                 val dirForChar = allRightDirs.getOrNull(i) ?: Direction.NONE
-                val colorHex = ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
+                val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(dirForChar, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
                 previewChars.add(PreviewChar(charStr, colorHex, dirForChar))
                 if (dirForChar == colorDir && colorDir != Direction.NONE) {
                     highlightIndex = previewChars.size - 1
@@ -519,7 +522,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         } else if (colorDir != Direction.NONE) {
             // Right-dial-only hold: show character at this color position across all left-dial groups
             val positionChars = stateMachine.getCharactersAtPosition(colorDir)
-            val colorHex = ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
+            val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(colorDir, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
             for ((_, ch) in positionChars) {
                 previewChars.add(PreviewChar(ch, colorHex, colorDir))
             }

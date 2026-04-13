@@ -35,15 +35,15 @@ enum WheelDirection: CaseIterable {
         }
     }
 
-    /// Center angle for 6-section mode (60° sectors, no E or W)
+    /// Center angle for 6-section mode (60° sectors, rotated -30° so horizontal = Space/Backspace)
     var centerAngleDegrees6: Double {
         switch self {
-        case .n: return -90
-        case .ne: return -30
-        case .se: return 30
-        case .s: return 90
-        case .sw: return 150
-        case .nw: return 210
+        case .ne: return -60
+        case .se: return 0
+        case .s: return 60
+        case .sw: return 120
+        case .nw: return 180
+        case .n: return 240
         case .e, .w, .none: return 0
         }
     }
@@ -262,10 +262,10 @@ private struct LeftWheelBackground: View {
                     .fill(Color.white)
 
                 if sixSectionMode {
-                    // 6-Section Mode: 2 concentric rings
-                    let outerInnerRatio: CGFloat = hideBlackRingGaps ? 0.54 : 0.57
+                    // 6-Section Mode: 2 concentric rings (60% inner / 40% outer)
+                    let outerInnerRatio: CGFloat = hideBlackRingGaps ? 0.645 : 0.655
                     let innerInnerRatio: CGFloat = 0.16
-                    let innerOuterRatio: CGFloat = hideBlackRingGaps ? 0.535 : 0.56
+                    let innerOuterRatio: CGFloat = hideBlackRingGaps ? 0.64 : 0.65
 
                     ForEach(wheelSections, id: \.direction) { section in
                         let center = section.direction.centerAngleDegrees6
@@ -310,7 +310,7 @@ private struct LeftWheelBackground: View {
                                 outerRatio: innerOuterRatio,
                                 size: size,
                                 baseFontSize: size * 0.068,
-                                angleGap: cellGap,
+                                angleGap: cellGap + 0.5,
                                 opacity: dimmed ? 0.55 : 1
                             )
                         }
@@ -325,6 +325,12 @@ private struct LeftWheelBackground: View {
                             .stroke(Color.white.opacity(0.85), lineWidth: size * 0.018)
                         }
                     }
+
+                    // Visible black border ring between inner and outer layers
+                    let ringBorderRatio: CGFloat = (outerInnerRatio + innerOuterRatio) / 2
+                    Circle()
+                        .stroke(Color.black, lineWidth: size * 0.008)
+                        .frame(width: size * ringBorderRatio, height: size * ringBorderRatio)
                 } else {
                     // 8-Section Mode: 3 concentric rings
                     let outerInnerRatio: CGFloat = hideBlackRingGaps ? 0.67 : 0.70
@@ -649,12 +655,12 @@ private struct RightWheelBackground: View {
         let isSymbols = mode == .symbols || mode == .symbolsShifted
 
         switch direction {
-        case .n: return RightWheelAction(title: isCaps ? "Caps Off" : "Shift", systemImage: "shift.fill")
-        case .ne: return RightWheelAction(title: (isShifted || isCaps) ? ">" : ".", systemImage: nil)
+        case .ne: return RightWheelAction(title: isCaps ? "Caps Off" : "Shift", systemImage: "shift.fill")
         case .se: return RightWheelAction(title: "Space", systemImage: nil)
-        case .s: return RightWheelAction(title: (isShifted || isCaps) ? "New Line" : "Enter", systemImage: "return")
-        case .sw: return RightWheelAction(title: "Backspace", systemImage: "delete.left")
-        case .nw: return RightWheelAction(title: isSymbols ? "ABC" : "#+=", systemImage: nil)
+        case .s: return RightWheelAction(title: (isShifted || isCaps) ? ">" : ".", systemImage: nil)
+        case .sw: return RightWheelAction(title: (isShifted || isCaps) ? "New Line" : "Enter", systemImage: "return")
+        case .nw: return RightWheelAction(title: "Backspace", systemImage: "delete.left")
+        case .n: return RightWheelAction(title: isSymbols ? "ABC" : "#+=", systemImage: nil)
         default: return RightWheelAction(title: "", systemImage: nil)
         }
     }

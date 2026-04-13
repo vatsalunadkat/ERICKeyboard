@@ -184,7 +184,7 @@ private fun MainSettingsContent(
         }
     ) { paddingValues ->
         // Track which section is expanded (null = all collapsed)
-        var expandedSection by remember { mutableStateOf<String?>("layout") }
+        var expandedSection by remember { mutableStateOf<String?>(null) }
 
         Column(
             modifier = Modifier
@@ -204,6 +204,28 @@ private fun MainSettingsContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Switch Keyboard")
+            }
+
+            // Dial Mode Section
+            CollapsibleSection(
+                title = "Dial Mode",
+                expanded = expandedSection == "dial_mode",
+                onToggle = { expandedSection = if (expandedSection == "dial_mode") null else "dial_mode" }
+            ) {
+                SettingToggle(
+                    title = "6-Section Dial Mode",
+                    checked = sixSectionDial,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch { preferencesManager.setSixSectionDial(checked) }
+                    }
+                )
+                Text(
+                    text = "Use 6 larger segments instead of 8. Larger targets improve accuracy but change the chord layout. Symbols are accessed via NW single-swipe.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                )
             }
 
             // Layout Section
@@ -505,28 +527,6 @@ private fun MainSettingsContent(
                     onCheckedChange = { checked ->
                         scope.launch { preferencesManager.setTypingSounds(checked) }
                     }
-                )
-            }
-
-            // Dial Mode Section
-            CollapsibleSection(
-                title = "Dial Mode",
-                expanded = expandedSection == "dial_mode",
-                onToggle = { expandedSection = if (expandedSection == "dial_mode") null else "dial_mode" }
-            ) {
-                SettingToggle(
-                    title = "6-Section Dial Mode",
-                    checked = sixSectionDial,
-                    enabled = true,
-                    onCheckedChange = { checked ->
-                        scope.launch { preferencesManager.setSixSectionDial(checked) }
-                    }
-                )
-                Text(
-                    text = "Use 6 larger segments instead of 8. Larger targets improve accuracy but change the chord layout. Symbols are accessed via NW single-swipe.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 )
             }
 

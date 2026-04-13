@@ -293,7 +293,7 @@ class JoystickView @JvmOverloads constructor(
         Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW, Direction.N
     )
 
-    // 6-section color reference directions
+    // 6-section color reference directions (matches chord map index order)
     private val rightDirs6 = listOf(
         Direction.N, Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW
     )
@@ -335,7 +335,7 @@ class JoystickView @JvmOverloads constructor(
 
             val sectionCount = if (sixSectionMode) 6 else 8
             val sweepAngle = if (sixSectionMode) 60f else 45f
-            val startOffset = if (sixSectionMode) -60f else -22.5f
+            val startOffset = if (sixSectionMode) -90f else -22.5f
             val dirList = if (sixSectionMode) directions6Drawing else directions
 
             for (i in 0 until sectionCount) {
@@ -381,8 +381,7 @@ class JoystickView @JvmOverloads constructor(
         } else if (sixSectionMode) {
             // Left Dial: 6-Section Mode — 2 Concentric Layers with 3 blocks each per section
             val innerHoleRadius = thumbRadius * 0.9f
-            val layerThickness = (baseRadius - innerHoleRadius) / 2f
-            val r1 = innerHoleRadius + layerThickness
+            val r1 = innerHoleRadius + (baseRadius - innerHoleRadius) * 0.60f
 
             val rectFOuter = RectF(centerX - baseRadius, centerY - baseRadius, centerX + baseRadius, centerY + baseRadius)
             val rectFInner = RectF(centerX - r1, centerY - r1, centerX + r1, centerY + r1)
@@ -393,7 +392,7 @@ class JoystickView @JvmOverloads constructor(
             // 1. Draw Outer Layer (3 blocks × 20° per section)
             for (i in 0 until 6) {
                 val dir = directions6Drawing[i]
-                val startAngle = -60f + i * 60f
+                val startAngle = -90f + i * 60f
                 val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
 
                 for (j in 0 until 3) {
@@ -408,7 +407,7 @@ class JoystickView @JvmOverloads constructor(
             // 2. Draw Inner Layer (3 blocks × 20° per section)
             for (i in 0 until 6) {
                 val dir = directions6Drawing[i]
-                val startAngle = -60f + i * 60f
+                val startAngle = -90f + i * 60f
                 val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
 
                 for (j in 0 until 3) {
@@ -423,12 +422,13 @@ class JoystickView @JvmOverloads constructor(
             // 3. Draw Center Hole
             canvas.drawCircle(centerX, centerY, innerHoleRadius, basePaint)
 
-            // 4. Draw Separator Circle (between layers)
+            // 4. Draw Separator Circle (between inner and outer layers)
+            segmentLinePaint.alpha = 255
             canvas.drawCircle(centerX, centerY, r1, segmentLinePaint)
 
             // 5. Draw Separator Lines
             for (i in 0 until 6) {
-                val startAngle = -60f + i * 60f
+                val startAngle = -90f + i * 60f
                 val dir = directions6Drawing[i]
 
                 // Radial separators (every 20° within section, plus boundary)
@@ -454,12 +454,24 @@ class JoystickView @JvmOverloads constructor(
                         canvas.drawLine(sx, sy, ex, ey, segmentLinePaint)
                     }
                 }
+
+                // Inner ring block separators (from innerHoleRadius to r1)
+                for (j in 1..2) {
+                    val angleRad = Math.toRadians((startAngle + j * 20f).toDouble())
+                    val sx = centerX + cos(angleRad).toFloat() * innerHoleRadius
+                    val sy = centerY + sin(angleRad).toFloat() * innerHoleRadius
+                    val ex = centerX + cos(angleRad).toFloat() * r1
+                    val ey = centerY + sin(angleRad).toFloat() * r1
+                    val lineAlpha = if (activeDirection != Direction.NONE && dir != activeDirection) 60 else 255
+                    segmentLinePaint.alpha = lineAlpha
+                    canvas.drawLine(sx, sy, ex, ey, segmentLinePaint)
+                }
             }
 
             // 6. Draw outer border & inner hole boundary per section
             val rectFInnerHole = RectF(centerX - innerHoleRadius, centerY - innerHoleRadius, centerX + innerHoleRadius, centerY + innerHoleRadius)
             for (i in 0 until 6) {
-                val startAngle = -60f + i * 60f
+                val startAngle = -90f + i * 60f
                 val dir = directions6Drawing[i]
                 val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
                 val lineAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
@@ -484,7 +496,7 @@ class JoystickView @JvmOverloads constructor(
             }
             for (i in 0 until 6) {
                 val dir = directions6Drawing[i]
-                val startAngle = -60f + i * 60f
+                val startAngle = -90f + i * 60f
                 val chars = currentCharsMap[dir] ?: emptyList()
                 val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
                 val alphaVal = if (activeDirection != Direction.NONE && !isActive) 60 else 255
@@ -891,11 +903,11 @@ class JoystickView @JvmOverloads constructor(
 
             activeDirection = if (sixSectionMode) {
                 when {
-                    degrees < 60.0 -> Direction.SE
-                    degrees < 120.0 -> Direction.S
-                    degrees < 180.0 -> Direction.SW
-                    degrees < 240.0 -> Direction.NW
-                    degrees < 300.0 -> Direction.N
+                    degrees < 30.0 || degrees >= 330.0 -> Direction.SE
+                    degrees < 90.0 -> Direction.S
+                    degrees < 150.0 -> Direction.SW
+                    degrees < 210.0 -> Direction.NW
+                    degrees < 270.0 -> Direction.N
                     else -> Direction.NE
                 }
             } else {
@@ -971,12 +983,12 @@ class JoystickView @JvmOverloads constructor(
         val isSymbols = keyboardMode == KeyboardMode.SYMBOLS || keyboardMode == KeyboardMode.SYMBOLS_SHIFTED
 
         return when (dir) {
-            Direction.N -> "shift" to (if (isCaps) "Caps Off" else "Shift")
-            Direction.NE -> "" to (if (isShifted || isCaps) ">" else ".")
+            Direction.NE -> "shift" to (if (isCaps) "Caps Off" else "Shift")
             Direction.SE -> "space" to "Space"
-            Direction.S -> "enter" to (if (isShifted || isCaps) "New Line" else "Enter")
-            Direction.SW -> "backspace" to "Backspace"
-            Direction.NW -> "" to (if (isSymbols) "ABC" else "#+=")
+            Direction.S  -> "" to (if (isShifted || isCaps) ">" else ".")
+            Direction.SW -> "enter" to (if (isShifted || isCaps) "New Line" else "Enter")
+            Direction.NW -> "backspace" to "Backspace"
+            Direction.N  -> "" to (if (isSymbols) "ABC" else "#+=")
             else -> "" to ""
         }
     }

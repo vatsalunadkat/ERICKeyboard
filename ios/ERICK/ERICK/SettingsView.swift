@@ -36,6 +36,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
+                // Dial Mode Section
+                Section(header: Text("Dial Mode")) {
+                    Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
+                    Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
                 // Layout Section
                 Section(header: Text("Keyboard Layout")) {
                     Picker("Layout Type", selection: $layoutType) {
@@ -154,14 +162,6 @@ struct SettingsView: View {
                     }
 
                     Toggle("Left-Handed Mode", isOn: $leftHandedMode)
-                }
-
-                // Dial Mode Section
-                Section(header: Text("Dial Mode")) {
-                    Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
-                    Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
 
                 // Input Mode Section
