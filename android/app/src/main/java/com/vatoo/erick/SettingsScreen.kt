@@ -65,6 +65,7 @@ fun SettingsScreen(
     val hapticFeedback by preferencesManager.hapticFeedback.collectAsState(initial = false)
     val typingSounds by preferencesManager.typingSounds.collectAsState(initial = false)
     val inputMode by preferencesManager.inputMode.collectAsState(initial = PreferencesManager.INPUT_MODE_INSTANT)
+    val sixSectionDial by preferencesManager.sixSectionDial.collectAsState(initial = false)
 
     val scope = rememberCoroutineScope()
 
@@ -91,6 +92,7 @@ fun SettingsScreen(
             hapticFeedback = hapticFeedback,
             typingSounds = typingSounds,
             inputMode = inputMode,
+            sixSectionDial = sixSectionDial,
             customLayoutId = customLayoutId,
             customLayouts = customLayouts,
             scope = scope,
@@ -152,6 +154,7 @@ private fun MainSettingsContent(
     hapticFeedback: Boolean,
     typingSounds: Boolean,
     inputMode: String,
+    sixSectionDial: Boolean,
     customLayoutId: String,
     customLayouts: List<CustomLayout>,
     scope: kotlinx.coroutines.CoroutineScope,
@@ -181,7 +184,7 @@ private fun MainSettingsContent(
         }
     ) { paddingValues ->
         // Track which section is expanded (null = all collapsed)
-        var expandedSection by remember { mutableStateOf<String?>("layout") }
+        var expandedSection by remember { mutableStateOf<String?>(null) }
 
         Column(
             modifier = Modifier
@@ -201,6 +204,28 @@ private fun MainSettingsContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Switch Keyboard")
+            }
+
+            // Dial Mode Section
+            CollapsibleSection(
+                title = "Dial Mode",
+                expanded = expandedSection == "dial_mode",
+                onToggle = { expandedSection = if (expandedSection == "dial_mode") null else "dial_mode" }
+            ) {
+                SettingToggle(
+                    title = "6-Section Dial Mode",
+                    checked = sixSectionDial,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch { preferencesManager.setSixSectionDial(checked) }
+                    }
+                )
+                Text(
+                    text = "Use 6 larger segments instead of 8. Larger targets improve accuracy but change the chord layout. Symbols are accessed via NW single-swipe.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                )
             }
 
             // Layout Section

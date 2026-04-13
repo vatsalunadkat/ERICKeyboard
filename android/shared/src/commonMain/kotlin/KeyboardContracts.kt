@@ -7,7 +7,13 @@ enum class Direction {
 
 // 2. Mode definitions
 enum class KeyboardMode {
-    NORMAL, SHIFTED, CAPS_LOCKED
+    NORMAL, SHIFTED, CAPS_LOCKED, SYMBOLS, SYMBOLS_SHIFTED
+}
+
+// 2.1 Dial section count
+enum class DialSectionMode {
+    EIGHT_SECTION,  // Default: 8 directions × 45° each
+    SIX_SECTION     // Optional: 6 directions × 60° each
 }
 
 // 2.5 Layout type definitions
@@ -39,7 +45,7 @@ data class ControllerState(
 // 3. Cross-platform input action set (replaces Android's KeyEvent)
 enum class InputAction {
     SPACE, ENTER, BACKSPACE, DELETE_FORWARD, DELETE_WORD,
-    TOGGLE_SHIFT, TOGGLE_CAPS,
+    TOGGLE_SHIFT, TOGGLE_CAPS, TOGGLE_SYMBOLS,
     MOVE_HOME, MOVE_END,
     DPAD_UP, DPAD_DOWN, DPAD_LEFT, DPAD_RIGHT,
     PAGE_UP, PAGE_DOWN, TAB

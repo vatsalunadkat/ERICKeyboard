@@ -19,6 +19,7 @@ enum WheelDirection: CaseIterable {
     case nw
 
     static let orderedDirections: [WheelDirection] = [.n, .ne, .e, .se, .s, .sw, .w, .nw]
+    static let orderedDirections6: [WheelDirection] = [.n, .ne, .se, .s, .sw, .nw]
 
     var centerAngleDegrees: Double {
         switch self {
@@ -33,15 +34,30 @@ enum WheelDirection: CaseIterable {
         case .none: return 0
         }
     }
+
+    /// Center angle for 6-section mode (60° sectors, rotated -30° so horizontal = Space/Backspace)
+    var centerAngleDegrees6: Double {
+        switch self {
+        case .ne: return -60
+        case .se: return 0
+        case .s: return 60
+        case .sw: return 120
+        case .nw: return 180
+        case .n: return 240
+        case .e, .w, .none: return 0
+        }
+    }
 }
 
 enum WheelMode {
     case normal
     case shifted
     case capsLocked
+    case symbols
+    case symbolsShifted
 
     var usesShiftedSymbols: Bool {
-        self != .normal
+        self == .shifted || self == .capsLocked || self == .symbolsShifted
     }
 }
 
@@ -55,12 +71,16 @@ private struct LeftWheelSection {
 private enum LeftWheelSharedMapping {
     private static let keyboardLogic = KeyboardLogic()
 
-    static func sections(for mode: WheelMode, efficiency: Bool) -> [LeftWheelSection] {
+    static func sections(for mode: WheelMode, efficiency: Bool, sixSection: Bool = false) -> [LeftWheelSection] {
         let layoutType: LayoutType = efficiency ? .efficiency : .logical
         let keyboardMode = sharedMode(for: mode)
+        keyboardLogic.dialSectionMode = sixSection ? .sixSection : .eightSection
 
-        return WheelDirection.orderedDirections.map { leftDirection in
-            let values = WheelDirection.orderedDirections.map { rightDirection in
+        let dirs: [WheelDirection] = sixSection ? WheelDirection.orderedDirections6 : WheelDirection.orderedDirections
+        let rightDirs: [WheelDirection] = sixSection ? WheelDirection.orderedDirections6 : WheelDirection.orderedDirections
+
+        return dirs.map { leftDirection in
+            let values = rightDirs.map { rightDirection in
                 keyboardLogic.getChordResult(
                     leftDir: sharedDirection(for: leftDirection),
                     rightDir: sharedDirection(for: rightDirection),
@@ -69,12 +89,21 @@ private enum LeftWheelSharedMapping {
                 )
             }
 
-            return LeftWheelSection(
-                direction: leftDirection,
-                outer: Array(values[0...2]),
-                middle: Array(values[3...5]),
-                inner: Array(values[6...7])
-            )
+            if sixSection {
+                return LeftWheelSection(
+                    direction: leftDirection,
+                    outer: Array(values[0...2]),
+                    middle: [],
+                    inner: Array(values[3...5])
+                )
+            } else {
+                return LeftWheelSection(
+                    direction: leftDirection,
+                    outer: Array(values[0...2]),
+                    middle: Array(values[3...5]),
+                    inner: Array(values[6...7])
+                )
+            }
         }
     }
 
@@ -97,7 +126,10 @@ private enum LeftWheelSharedMapping {
         case .normal: return .normal
         case .shifted: return .shifted
         case .capsLocked: return .capsLocked
+        case .symbols: return .symbols
+        case .symbolsShifted: return .symbolsShifted
         }
+    }
     }
 }
 
@@ -111,6 +143,7 @@ struct JoystickView: View {
     var activeDirection: WheelDirection
     var keyboardMode: WheelMode
     var isEfficiency: Bool = false
+    var sixSectionMode: Bool = false
     var colorPaletteKey: String = "default"
     var fontPreference: String = "system"
     var customNormalSections: [[String]]? = nil
@@ -134,9 +167,9 @@ struct JoystickView: View {
 
             ZStack {
                 if isRightSide {
-                    RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, colorPaletteKey: colorPaletteKey, fontPreference: fontPreference)
+                    RightWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, sixSectionMode: sixSectionMode, colorPaletteKey: colorPaletteKey, fontPreference: fontPreference)
                 } else {
-                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency, colorPaletteKey: colorPaletteKey, fontPreference: fontPreference, customNormalSections: customNormalSections, customShiftedSections: customShiftedSections)
+                    LeftWheelBackground(activeDirection: activeDirection, keyboardMode: keyboardMode, isEfficiency: isEfficiency, sixSectionMode: sixSectionMode, colorPaletteKey: colorPaletteKey, fontPreference: fontPreference, customNormalSections: customNormalSections, customShiftedSections: customShiftedSections)
                 }
 
                 ZStack {
@@ -188,12 +221,17 @@ private struct LeftWheelBackground: View {
     let activeDirection: WheelDirection
     let keyboardMode: WheelMode
     var isEfficiency: Bool = false
+    var sixSectionMode: Bool = false
     var colorPaletteKey: String = "default"
     var fontPreference: String = "system"
     var customNormalSections: [[String]]? = nil
     var customShiftedSections: [[String]]? = nil
 
     private var outerColors: [String] {
+        if sixSectionMode {
+            let p6 = ColorPaletteDefinitions.palette6(for: colorPaletteKey)
+            return [p6[0].hex, p6[1].hex, p6[2].hex]
+        }
         let p = ColorPaletteDefinitions.palette(for: colorPaletteKey)
         return [p[0].hex, p[1].hex, p[2].hex]
     }
@@ -202,6 +240,10 @@ private struct LeftWheelBackground: View {
         return [p[3].hex, p[4].hex, p[5].hex]
     }
     private var innerColors: [String] {
+        if sixSectionMode {
+            let p6 = ColorPaletteDefinitions.palette6(for: colorPaletteKey)
+            return [p6[3].hex, p6[4].hex, p6[5].hex]
+        }
         let p = ColorPaletteDefinitions.palette(for: colorPaletteKey)
         return [p[6].hex, p[7].hex]
     }
@@ -213,83 +255,159 @@ private struct LeftWheelBackground: View {
             let hideBlackRingGaps = activeDirection != .none
             let sectorGap: Double = 1.2
             let cellGap: Double = 0.75
-            let outerInnerRatio: CGFloat = hideBlackRingGaps ? 0.67 : 0.70
-            let middleInnerRatio: CGFloat = hideBlackRingGaps ? 0.45 : 0.48
-            let middleOuterRatio: CGFloat = hideBlackRingGaps ? 0.665 : 0.69
-            let innerInnerRatio: CGFloat = 0.16
-            let innerOuterRatio: CGFloat = hideBlackRingGaps ? 0.445 : 0.47
+            let halfAngle: Double = sixSectionMode ? 30.0 : 22.5
 
             ZStack {
                 Circle()
                     .fill(Color.white)
 
-                ForEach(wheelSections, id: \.direction) { section in
-                    let sectorStart = section.direction.centerAngleDegrees - 22.5 + sectorGap
-                    let sectorEnd = section.direction.centerAngleDegrees + 22.5 - sectorGap
-                    let isSelected = activeDirection == section.direction
-                    let dimmed = activeDirection != .none && !isSelected
+                if sixSectionMode {
+                    // 6-Section Mode: 2 concentric rings (60% inner / 40% outer)
+                    let outerInnerRatio: CGFloat = hideBlackRingGaps ? 0.645 : 0.655
+                    let innerInnerRatio: CGFloat = 0.16
+                    let innerOuterRatio: CGFloat = hideBlackRingGaps ? 0.64 : 0.65
 
-                    SectorSlice(
-                        startAngle: sectorStart,
-                        endAngle: sectorEnd,
-                        innerRadiusRatio: 0.12,
-                        outerRadiusRatio: 0.985
-                    )
-                    .fill(Color.black.opacity(isSelected ? 0.96 : 0.92))
-                    .opacity(dimmed ? 0.55 : 1)
+                    ForEach(wheelSections, id: \.direction) { section in
+                        let center = section.direction.centerAngleDegrees6
+                        let sectorStart = center - halfAngle + sectorGap
+                        let sectorEnd = center + halfAngle - sectorGap
+                        let isSelected = activeDirection == section.direction
+                        let dimmed = activeDirection != .none && !isSelected
 
-                    sectorRow(
-                        items: section.outer,
-                        colors: outerColors.map(Color.init(hex:)),
-                        colorHexes: outerColors,
-                        startAngle: sectorStart,
-                        endAngle: sectorEnd,
-                        innerRatio: outerInnerRatio,
-                        outerRatio: 0.975,
-                        size: size,
-                        baseFontSize: size * 0.085,
-                        angleGap: cellGap,
-                        opacity: dimmed ? 0.55 : 1
-                    )
-
-                    sectorRow(
-                        items: section.middle,
-                        colors: middleColors.map(Color.init(hex:)),
-                        colorHexes: middleColors,
-                        startAngle: sectorStart,
-                        endAngle: sectorEnd,
-                        innerRatio: middleInnerRatio,
-                        outerRatio: middleOuterRatio,
-                        size: size,
-                        baseFontSize: size * 0.068,
-                        angleGap: cellGap,
-                        opacity: dimmed ? 0.55 : 1
-                    )
-
-                    if !section.inner.isEmpty {
-                        sectorRow(
-                            items: section.inner,
-                            colors: innerColors.map(Color.init(hex:)),
-                            colorHexes: innerColors,
+                        SectorSlice(
                             startAngle: sectorStart,
                             endAngle: sectorEnd,
-                            innerRatio: innerInnerRatio,
-                            outerRatio: innerOuterRatio,
-                            size: size,
-                            baseFontSize: size * 0.053,
-                            angleGap: cellGap,
-                            opacity: dimmed ? 0.55 : 1
-                        )
-                    }
-
-                    if isSelected {
-                        SectorSlice(
-                            startAngle: section.direction.centerAngleDegrees - 22.5,
-                            endAngle: section.direction.centerAngleDegrees + 22.5,
                             innerRadiusRatio: 0.12,
                             outerRadiusRatio: 0.985
                         )
-                        .stroke(Color.white.opacity(0.85), lineWidth: size * 0.018)
+                        .fill(Color.black.opacity(isSelected ? 0.96 : 0.92))
+                        .opacity(dimmed ? 0.55 : 1)
+
+                        // Outer ring (3 blocks)
+                        sectorRow(
+                            items: section.outer,
+                            colors: outerColors.map(Color.init(hex:)),
+                            colorHexes: outerColors,
+                            startAngle: sectorStart,
+                            endAngle: sectorEnd,
+                            innerRatio: outerInnerRatio,
+                            outerRatio: 0.975,
+                            size: size,
+                            baseFontSize: size * 0.085,
+                            angleGap: cellGap,
+                            opacity: dimmed ? 0.55 : 1
+                        )
+
+                        // Inner ring (3 blocks)
+                        if !section.inner.isEmpty {
+                            sectorRow(
+                                items: section.inner,
+                                colors: innerColors.map(Color.init(hex:)),
+                                colorHexes: innerColors,
+                                startAngle: sectorStart,
+                                endAngle: sectorEnd,
+                                innerRatio: innerInnerRatio,
+                                outerRatio: innerOuterRatio,
+                                size: size,
+                                baseFontSize: size * 0.068,
+                                angleGap: cellGap + 0.5,
+                                opacity: dimmed ? 0.55 : 1,
+                                radialBias: 0.58
+                            )
+                        }
+
+                        if isSelected {
+                            SectorSlice(
+                                startAngle: center - halfAngle,
+                                endAngle: center + halfAngle,
+                                innerRadiusRatio: 0.12,
+                                outerRadiusRatio: 0.985
+                            )
+                            .stroke(Color.white.opacity(0.85), lineWidth: size * 0.018)
+                        }
+                    }
+
+                    // Visible black border ring between inner and outer layers
+                    let ringBorderRatio: CGFloat = (outerInnerRatio + innerOuterRatio) / 2
+                    Circle()
+                        .stroke(Color.black, lineWidth: size * 0.008)
+                        .frame(width: size * ringBorderRatio, height: size * ringBorderRatio)
+                } else {
+                    // 8-Section Mode: 3 concentric rings
+                    let outerInnerRatio: CGFloat = hideBlackRingGaps ? 0.67 : 0.70
+                    let middleInnerRatio: CGFloat = hideBlackRingGaps ? 0.45 : 0.48
+                    let middleOuterRatio: CGFloat = hideBlackRingGaps ? 0.665 : 0.69
+                    let innerInnerRatio: CGFloat = 0.16
+                    let innerOuterRatio: CGFloat = hideBlackRingGaps ? 0.445 : 0.47
+
+                    ForEach(wheelSections, id: \.direction) { section in
+                        let sectorStart = section.direction.centerAngleDegrees - halfAngle + sectorGap
+                        let sectorEnd = section.direction.centerAngleDegrees + halfAngle - sectorGap
+                        let isSelected = activeDirection == section.direction
+                        let dimmed = activeDirection != .none && !isSelected
+
+                        SectorSlice(
+                            startAngle: sectorStart,
+                            endAngle: sectorEnd,
+                            innerRadiusRatio: 0.12,
+                            outerRadiusRatio: 0.985
+                        )
+                        .fill(Color.black.opacity(isSelected ? 0.96 : 0.92))
+                        .opacity(dimmed ? 0.55 : 1)
+
+                        sectorRow(
+                            items: section.outer,
+                            colors: outerColors.map(Color.init(hex:)),
+                            colorHexes: outerColors,
+                            startAngle: sectorStart,
+                            endAngle: sectorEnd,
+                            innerRatio: outerInnerRatio,
+                            outerRatio: 0.975,
+                            size: size,
+                            baseFontSize: size * 0.085,
+                            angleGap: cellGap,
+                            opacity: dimmed ? 0.55 : 1
+                        )
+
+                        sectorRow(
+                            items: section.middle,
+                            colors: middleColors.map(Color.init(hex:)),
+                            colorHexes: middleColors,
+                            startAngle: sectorStart,
+                            endAngle: sectorEnd,
+                            innerRatio: middleInnerRatio,
+                            outerRatio: middleOuterRatio,
+                            size: size,
+                            baseFontSize: size * 0.068,
+                            angleGap: cellGap,
+                            opacity: dimmed ? 0.55 : 1
+                        )
+
+                        if !section.inner.isEmpty {
+                            sectorRow(
+                                items: section.inner,
+                                colors: innerColors.map(Color.init(hex:)),
+                                colorHexes: innerColors,
+                                startAngle: sectorStart,
+                                endAngle: sectorEnd,
+                                innerRatio: innerInnerRatio,
+                                outerRatio: innerOuterRatio,
+                                size: size,
+                                baseFontSize: size * 0.053,
+                                angleGap: cellGap,
+                                opacity: dimmed ? 0.55 : 1
+                            )
+                        }
+
+                        if isSelected {
+                            SectorSlice(
+                                startAngle: section.direction.centerAngleDegrees - halfAngle,
+                                endAngle: section.direction.centerAngleDegrees + halfAngle,
+                                innerRadiusRatio: 0.12,
+                                outerRadiusRatio: 0.985
+                            )
+                            .stroke(Color.white.opacity(0.85), lineWidth: size * 0.018)
+                        }
                     }
                 }
 
@@ -316,14 +434,15 @@ private struct LeftWheelBackground: View {
         size: CGFloat,
         baseFontSize: CGFloat,
         angleGap: Double,
-        opacity: Double
+        opacity: Double,
+        radialBias: CGFloat = 0.5
     ) -> some View {
         ForEach(Array(items.enumerated()), id: \.offset) { index, item in
             let span = (endAngle - startAngle) / Double(items.count)
             let cellStart = startAngle + (Double(index) * span) + angleGap
             let cellEnd = startAngle + (Double(index + 1) * span) - angleGap
             let angle = (cellStart + cellEnd) / 2
-            let radiusRatio = (innerRatio + outerRatio) / 2
+            let radiusRatio = innerRatio + (outerRatio - innerRatio) * radialBias
             let labelPoint = point(in: size, radiusRatio: radiusRatio, angleDegrees: angle)
             let metrics = sectorLabelMetrics(
                 size: size,
@@ -366,7 +485,7 @@ private struct LeftWheelBackground: View {
 
     private func resolvedWheelSections() -> [LeftWheelSection] {
         let customData = keyboardMode.usesShiftedSymbols ? customShiftedSections : customNormalSections
-        if let custom = customData {
+        if !sixSectionMode, let custom = customData {
             let dirOrder: [WheelDirection] = [.n, .ne, .e, .se, .s, .sw, .w, .nw]
             return dirOrder.enumerated().map { (i, dir) in
                 let chars = i < custom.count ? custom[i] : []
@@ -391,7 +510,7 @@ private struct LeftWheelBackground: View {
     }
 
     private func leftWheelSections(for mode: WheelMode, efficiency: Bool = false) -> [LeftWheelSection] {
-        LeftWheelSharedMapping.sections(for: mode, efficiency: efficiency)
+        LeftWheelSharedMapping.sections(for: mode, efficiency: efficiency, sixSection: sixSectionMode)
     }
 }
 
@@ -431,18 +550,23 @@ private func sectorLabelMetrics(
 private struct RightWheelBackground: View {
     let activeDirection: WheelDirection
     let keyboardMode: WheelMode
+    var sixSectionMode: Bool = false
     var colorPaletteKey: String = "default"
     var fontPreference: String = "system"
 
     private var palette: [ColorPaletteEntry] {
-        ColorPaletteDefinitions.palette(for: colorPaletteKey)
+        sixSectionMode
+            ? ColorPaletteDefinitions.palette6(for: colorPaletteKey)
+            : ColorPaletteDefinitions.palette(for: colorPaletteKey)
     }
 
-    private static let directionOrder: [WheelDirection] = [.n, .ne, .e, .se, .s, .sw, .w, .nw]
+    private var directionOrder: [WheelDirection] {
+        sixSectionMode ? WheelDirection.orderedDirections6 : WheelDirection.orderedDirections
+    }
 
     private var sectorColors: [WheelDirection: Color] {
         var map: [WheelDirection: Color] = [:]
-        for (i, dir) in Self.directionOrder.enumerated() {
+        for (i, dir) in directionOrder.enumerated() {
             if i < palette.count {
                 map[dir] = Color(hex: palette[i].hex)
             }
@@ -452,7 +576,7 @@ private struct RightWheelBackground: View {
 
     private var sectorHexes: [WheelDirection: String] {
         var map: [WheelDirection: String] = [:]
-        for (i, dir) in Self.directionOrder.enumerated() {
+        for (i, dir) in directionOrder.enumerated() {
             if i < palette.count {
                 map[dir] = palette[i].hex
             }
@@ -464,20 +588,23 @@ private struct RightWheelBackground: View {
         GeometryReader { geometry in
             let size = min(geometry.size.width, geometry.size.height)
             let sectorGap: Double = 1.4
+            let halfAngle: Double = sixSectionMode ? 30.0 : 22.5
+            let dirs = sixSectionMode ? WheelDirection.orderedDirections6 : WheelDirection.orderedDirections
 
             ZStack {
                 Circle()
                     .fill(Color.white)
 
-                ForEach(WheelDirection.orderedDirections, id: \.self) { direction in
-                    let action = action(for: direction, mode: keyboardMode)
+                ForEach(dirs, id: \.self) { direction in
+                    let action = sixSectionMode ? action6(for: direction, mode: keyboardMode) : action(for: direction, mode: keyboardMode)
                     let selected = activeDirection == direction
                     let dimmed = activeDirection != .none && !selected
-                    let labelPoint = point(in: size, radiusRatio: 0.67, angleDegrees: direction.centerAngleDegrees)
+                    let center = sixSectionMode ? direction.centerAngleDegrees6 : direction.centerAngleDegrees
+                    let labelPoint = point(in: size, radiusRatio: 0.67, angleDegrees: center)
 
                     SectorSlice(
-                        startAngle: direction.centerAngleDegrees - 22.5 + sectorGap,
-                        endAngle: direction.centerAngleDegrees + 22.5 - sectorGap,
+                        startAngle: center - halfAngle + sectorGap,
+                        endAngle: center + halfAngle - sectorGap,
                         innerRadiusRatio: 0.14,
                         outerRadiusRatio: 0.985
                     )
@@ -486,7 +613,7 @@ private struct RightWheelBackground: View {
                     .opacity(dimmed ? 0.55 : 1)
 
                     let contrastColor = ColorPaletteDefinitions.contrastTextColor(hex: sectorHexes[direction] ?? "#000000", paletteKey: colorPaletteKey)
-                    RightActionLabel(action: action, size: size * 0.17, textColor: contrastColor)
+                    RightActionLabel(action: action, size: size * (sixSectionMode ? 0.20 : 0.17), textColor: contrastColor)
                         .position(labelPoint)
                         .opacity(dimmed ? 0.55 : 1)
                 }
@@ -521,6 +648,22 @@ private struct RightWheelBackground: View {
         case (.nw, false): return RightWheelAction(title: "Caps", systemImage: "capslock.fill")
         case (.nw, true): return RightWheelAction(title: "Caps Off", systemImage: "capslock.fill")
         case (.none, _): return RightWheelAction(title: "", systemImage: nil)
+        }
+    }
+
+    private func action6(for direction: WheelDirection, mode: WheelMode) -> RightWheelAction {
+        let isShifted = mode == .shifted || mode == .symbolsShifted
+        let isCaps = mode == .capsLocked
+        let isSymbols = mode == .symbols || mode == .symbolsShifted
+
+        switch direction {
+        case .ne: return RightWheelAction(title: isCaps ? "Caps Off" : "Shift", systemImage: "shift.fill")
+        case .se: return RightWheelAction(title: "Space", systemImage: nil)
+        case .s: return RightWheelAction(title: (isShifted || isCaps) ? ">" : ".", systemImage: nil)
+        case .sw: return RightWheelAction(title: (isShifted || isCaps) ? "New Line" : "Enter", systemImage: "return")
+        case .nw: return RightWheelAction(title: "Backspace", systemImage: "delete.left")
+        case .n: return RightWheelAction(title: isSymbols ? "ABC" : "#+=", systemImage: nil)
+        default: return RightWheelAction(title: "", systemImage: nil)
         }
     }
 }

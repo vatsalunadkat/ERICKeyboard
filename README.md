@@ -2,7 +2,7 @@
 
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 0.7.4-beta</strong></p>
+  <p align="center"><strong>Version 1.0</strong></p>
 
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
@@ -30,7 +30,7 @@
   <img src="docs/documentation/logo/ERICK_feature_graphic_black.png" alt="ERICK Feature Graphic" width="700" />
 </div>
 
-ERICK is a different kind of keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
+ERICK is an accessibility-first keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
 
 ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting low-visual-demand typing.
 
@@ -67,6 +67,7 @@ Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-41414
 
 - [x] Dual-platform keyboard support on Android and iOS
 - [x] Chorded input with two radial dials
+- [x] Optional 6-section dial mode with larger 60-degree segments and dedicated symbols layer
 - [x] Three input modes: Quick Type, Steady Type, and One-Handed
 - [x] Three layout modes: Logical, Efficiency, and Custom
 - [x] Custom layout creator

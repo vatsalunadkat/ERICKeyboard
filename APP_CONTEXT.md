@@ -1,7 +1,7 @@
 # ERICK - Application Context & Architecture
 
-**Version**: 0.7.4-beta  
-**Last Updated**: March 28, 2026  
+**Version**: 1.0  
+**Last Updated**: April 13, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 
 ## Executive Summary
@@ -38,9 +38,10 @@ ERICK is a cross-platform keyboard system for Android and iOS that replaces rows
 │  └─────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  KeyboardLogic                                  │    │
-│  │  - Direction mapping (8-way radial)             │    │
+│  │  - Direction mapping (8-way and 6-way radial)   │    │
 │  │  - Character resolution (Logical/Efficiency)    │    │
 │  │  - Custom layout support                        │    │
+│  │  - Symbols mode chord maps (6-section)          │    │
 │  └─────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  WordPredictionEngine                           │    │
@@ -460,9 +461,10 @@ Located in `android/shared/src/commonMain/kotlin/`
 
 **Key Interfaces**:
 - `KeyboardActionDelegate`: Platform callback for key events (`commitText`, `sendInputAction`, `onModeChanged`, `onSuggestionsUpdated`, `getCurrentWordPrefix`)
-- `Direction`: 8-way directional enum (N, NE, E, SE, S, SW, W, NW, NONE)
-- `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED)
-- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, etc.)
+- `Direction`: 8-way directional enum (N, NE, E, SE, S, SW, W, NW, NONE); 6-section mode uses N, NE, SE, S, SW, NW (no E, W)
+- `DialSectionMode`: Dial geometry mode (EIGHT_SECTION / SIX_SECTION)
+- `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED, SYMBOLS, SYMBOLS_SHIFTED)
+- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, TOGGLE_SYMBOLS, etc.)
 - `LayoutType`: Layout selection (LOGICAL, EFFICIENCY, CUSTOM)
 - `InputMode`: Input mode selection (INSTANT / Quick Type, CONFIRM / Steady Type, ASSISTED / One-Handed)
 

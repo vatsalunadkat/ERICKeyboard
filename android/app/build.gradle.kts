@@ -14,8 +14,8 @@ android {
         applicationId = "com.vatoo.erick"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.7.4"
+        versionCode = 5
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

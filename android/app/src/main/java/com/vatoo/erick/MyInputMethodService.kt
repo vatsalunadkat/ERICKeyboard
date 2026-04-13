@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
 import com.vatoo.erick.shared.CustomLayoutManager
+import com.vatoo.erick.shared.DialSectionMode
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.InputMode
 import com.vatoo.erick.shared.KeyboardActionDelegate
@@ -185,9 +186,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
             if (entries.size == 8) {
                 ColorPalettes.setCustomPalette(entries)
-                if (::leftJoystick.isInitialized) leftJoystick.invalidate()
-                if (::rightJoystick.isInitialized) rightJoystick.invalidate()
             }
+            if (entries.size >= 6) {
+                ColorPalettes.setCustomPalette6(entries.take(6))
+            }
+            if (::leftJoystick.isInitialized) leftJoystick.invalidate()
+            if (::rightJoystick.isInitialized) rightJoystick.invalidate()
         }.launchIn(serviceScope)
 
         // Monitor theme mode changes
@@ -205,6 +209,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // Monitor haptic + sound preferences
         preferencesManager.hapticFeedback.onEach { hapticEnabled = it }.launchIn(serviceScope)
         preferencesManager.typingSounds.onEach { soundsEnabled = it }.launchIn(serviceScope)
+
+        // Monitor 6-section dial mode preference
+        preferencesManager.sixSectionDial.onEach { enabled ->
+            val mode = if (enabled) DialSectionMode.SIX_SECTION else DialSectionMode.EIGHT_SECTION
+            stateMachine.setDialSectionMode(mode)
+            if (::leftJoystick.isInitialized) {
+                leftJoystick.sixSectionMode = enabled
+                leftJoystick.invalidate()
+            }
+            if (::rightJoystick.isInitialized) {
+                rightJoystick.sixSectionMode = enabled
+                rightJoystick.invalidate()
+            }
+        }.launchIn(serviceScope)
 
         // Monitor input mode preference
         preferencesManager.inputMode.onEach { mode ->
@@ -247,6 +265,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             rightJoystick.customCharsNormal = cl.normalChordMap
             rightJoystick.customCharsShifted = cl.shiftedChordMap
         }
+
+        // Apply current 6-section dial mode to the newly created joystick views
+        val isSixSection = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
+        leftJoystick.sixSectionMode = isSixSection
+        rightJoystick.sixSectionMode = isSixSection
 
         // Apply current color palette to the newly created joystick views
         val currentPalette = stateMachine.currentPaletteType
@@ -474,11 +497,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val letterDir = if (isLH) rightJoystick.activeDirection else leftJoystick.activeDirection
         val colorDir  = if (isLH) leftJoystick.activeDirection  else rightJoystick.activeDirection
 
-        // 8 possible right directions in clockwise order
-        val allRightDirs = listOf(
-            Direction.N, Direction.NE, Direction.E, Direction.SE,
-            Direction.S, Direction.SW, Direction.W, Direction.NW
-        )
+        // Right directions matching the current dial mode (6 or 8 sections)
+        val allRightDirs = stateMachine.getDirections()
+        val isSix = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
 
         // Determine preview data: left-dial hold, right-dial hold, or nothing
         data class PreviewChar(val text: String, val colorHex: String, val dirForColor: Direction)
@@ -492,7 +513,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 val charStr = chars[i]
                 if (charStr.isBlank()) continue
                 val dirForChar = allRightDirs.getOrNull(i) ?: Direction.NONE
-                val colorHex = ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
+                val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(dirForChar, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
                 previewChars.add(PreviewChar(charStr, colorHex, dirForChar))
                 if (dirForChar == colorDir && colorDir != Direction.NONE) {
                     highlightIndex = previewChars.size - 1
@@ -501,7 +522,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         } else if (colorDir != Direction.NONE) {
             // Right-dial-only hold: show character at this color position across all left-dial groups
             val positionChars = stateMachine.getCharactersAtPosition(colorDir)
-            val colorHex = ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
+            val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(colorDir, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
             for ((_, ch) in positionChars) {
                 previewChars.add(PreviewChar(ch, colorHex, colorDir))
             }
@@ -614,7 +635,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             InputAction.PAGE_UP -> KeyEvent.KEYCODE_PAGE_UP
             InputAction.PAGE_DOWN -> KeyEvent.KEYCODE_PAGE_DOWN
             InputAction.TAB -> KeyEvent.KEYCODE_TAB
-            InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS -> -1
+            InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS, InputAction.TOGGLE_SYMBOLS -> -1
             else -> -1
         }
 
@@ -629,18 +650,18 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private fun performHaptic(strong: Boolean) {
         if (!hapticEnabled) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val amplitude = if (strong) 128 else 40
-            val duration = if (strong) 25L else 10L
+            val amplitude = if (strong) 128 else 80
+            val duration = if (strong) 25L else 18L
             vibrator.vibrate(VibrationEffect.createOneShot(duration, amplitude))
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(if (strong) 25L else 10L)
+            vibrator.vibrate(if (strong) 25L else 18L)
         }
     }
 
     private fun playClickSound(soft: Boolean) {
         if (!soundsEnabled) return
-        val volume = if (soft) 0.1f else 0.4f
+        val volume = if (soft) 0.2f else 0.25f
         audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, volume)
     }
 
@@ -746,6 +767,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
                 shiftIndicator.contentDescription = "Caps Lock active"
+            }
+            com.vatoo.erick.shared.KeyboardMode.SYMBOLS -> {
+                shiftIndicator.text = "#"
+                shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
+                shiftIndicator.background = null
+                shiftIndicator.visibility = View.VISIBLE
+                shiftIndicator.contentDescription = "Symbols mode active"
+            }
+            com.vatoo.erick.shared.KeyboardMode.SYMBOLS_SHIFTED -> {
+                shiftIndicator.text = "#↑"
+                shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
+                shiftIndicator.background = null
+                shiftIndicator.visibility = View.VISIBLE
+                shiftIndicator.contentDescription = "Symbols shifted mode active"
             }
             else -> {
                 shiftIndicator.visibility = View.GONE

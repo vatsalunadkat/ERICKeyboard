@@ -23,6 +23,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var isEfficiency: Bool = false
     @Published var colorPaletteKey: String = "default"
     @Published var isLeftHanded: Bool = false
+    @Published var sixSectionMode: Bool = false
     @Published var isDarkMode: Bool = false
     @Published var fontPreference: String = "system"
     @Published var customNormalSections: [[String]]? = nil  // 8 directions × 8 chars each
@@ -86,6 +87,7 @@ struct KeyboardContainerView: View {
                         activeDirection: viewModel.leftDirection != .none ? viewModel.leftDirection : viewModel.lockedLeftDirection,
                         keyboardMode: viewModel.keyboardMode,
                         isEfficiency: viewModel.isEfficiency,
+                        sixSectionMode: viewModel.sixSectionMode,
                         colorPaletteKey: viewModel.colorPaletteKey,
                         fontPreference: viewModel.fontPreference,
                         customNormalSections: viewModel.customNormalSections,
@@ -102,6 +104,7 @@ struct KeyboardContainerView: View {
                         activeDirection: viewModel.rightDirection,
                         keyboardMode: viewModel.keyboardMode,
                         isEfficiency: viewModel.isEfficiency,
+                        sixSectionMode: viewModel.sixSectionMode,
                         colorPaletteKey: viewModel.colorPaletteKey,
                         fontPreference: viewModel.fontPreference,
                         customNormalSections: viewModel.customNormalSections,
@@ -136,6 +139,16 @@ struct KeyboardContainerView: View {
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color(hex: "#D32F2F"))
                             .accessibilityLabel("Caps Lock active")
+                    } else if viewModel.keyboardMode == .symbols {
+                        Text("#")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color(hex: "#FF9800"))
+                            .accessibilityLabel("Symbols mode active")
+                    } else if viewModel.keyboardMode == .symbolsShifted {
+                        Text("#↑")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color(hex: "#FF9800"))
+                            .accessibilityLabel("Symbols shifted mode active")
                     }
                 }
                 .frame(width: 36, alignment: .center)
@@ -622,8 +635,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func playClickSound(soft: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "typing_sounds") else { return }
-        // 1519 = Peek (very soft), 1104 = standard keyboard click
-        AudioServicesPlaySystemSound(soft ? 1519 : 1104)
+        // 1104 = standard keyboard click for both letter and utility keys
+        AudioServicesPlaySystemSound(1104)
     }
 
     func onSuggestionsUpdated(suggestions: [String]) {
@@ -749,6 +762,13 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         stateMachine.setLeftHandedMode(enabled: leftHanded)
         viewModel.isLeftHanded = leftHanded
 
+        // Apply 6-section dial mode
+        let sixSection = Self.appGroupDefaults.bool(forKey: "six_section_dial")
+        let dialMode: DialSectionMode = sixSection ? .sixSection : .eightSection
+        stateMachine.setDialSectionMode(mode: dialMode)
+        keyboardLogic.dialSectionMode = dialMode
+        viewModel.sixSectionMode = sixSection
+
         // Apply theme mode
         let themeMode = Self.appGroupDefaults.string(forKey: "theme_mode") ?? "system"
         switch themeMode {
@@ -825,6 +845,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
                 mirroredChordExecuted = true
                 if mirroredMode == .shifted {
                     mirroredMode = .normal
+                } else if mirroredMode == .symbolsShifted {
+                    mirroredMode = .symbols
                 }
             }
             mirroredLeftDirection = .none
@@ -833,6 +855,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
                 mirroredChordExecuted = true
                 if mirroredMode == .shifted {
                     mirroredMode = .normal
+                } else if mirroredMode == .symbolsShifted {
+                    mirroredMode = .symbols
                 }
                 // In Quick Type (instant), allow subsequent right swipes while left held
                 if currentInputMode == "instant" {
@@ -850,13 +874,32 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func applyRightOnlyVisualAction(for direction: WheelDirection) {
-        switch direction {
-        case .sw:
-            mirroredMode = mirroredMode == .normal ? .shifted : .normal
-        case .nw:
-            mirroredMode = mirroredMode == .capsLocked ? .normal : .capsLocked
-        default:
-            break
+        if viewModel.sixSectionMode {
+            switch direction {
+            case .ne:
+                if mirroredMode == .symbols || mirroredMode == .symbolsShifted {
+                    mirroredMode = mirroredMode == .symbols ? .symbolsShifted : .symbols
+                } else {
+                    mirroredMode = mirroredMode == .normal ? .shifted : .normal
+                }
+            case .n:
+                if mirroredMode == .symbols || mirroredMode == .symbolsShifted {
+                    mirroredMode = .normal
+                } else {
+                    mirroredMode = .symbols
+                }
+            default:
+                break
+            }
+        } else {
+            switch direction {
+            case .sw:
+                mirroredMode = mirroredMode == .normal ? .shifted : .normal
+            case .nw:
+                mirroredMode = mirroredMode == .capsLocked ? .normal : .capsLocked
+            default:
+                break
+            }
         }
     }
 
@@ -869,6 +912,28 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         var degrees = atan2(Double(y), Double(x)) * 180 / .pi
         if degrees < 0 {
             degrees += 360
+        }
+
+        if viewModel.sixSectionMode {
+            // 6-section mode: 60° segments, rotated -30° so horizontal = Space/Backspace
+            // SE: 330-30 (center 0°, right), S: 30-90, SW: 90-150
+            // NW: 150-210 (center 180°, left), N: 210-270, NE: 270-330
+            switch degrees {
+            case 330..., ..<30:
+                return .se
+            case 30..<90:
+                return .s
+            case 90..<150:
+                return .sw
+            case 150..<210:
+                return .nw
+            case 210..<270:
+                return .n
+            case 270..<330:
+                return .ne
+            default:
+                return .none
+            }
         }
 
         switch degrees {
@@ -915,7 +980,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func previewItems(for direction: WheelDirection, mode: WheelMode) -> [KeyboardPreviewItem]? {
-        let palette = ColorPaletteDefinitions.palette(for: currentColorPaletteKey)
+        let isSix = viewModel.sixSectionMode
+        let palette = isSix ? ColorPaletteDefinitions.palette6(for: currentColorPaletteKey) : ColorPaletteDefinitions.palette(for: currentColorPaletteKey)
         guard direction != .none else { return nil }
 
         let leftDir = sharedDirection(for: direction)
@@ -929,7 +995,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             layoutType = .logical
         }
 
-        let items = WheelDirection.orderedDirections.enumerated().compactMap { index, rightDirection -> KeyboardPreviewItem? in
+        let directions = isSix ? WheelDirection.orderedDirections6 : WheelDirection.orderedDirections
+        let items = directions.enumerated().compactMap { index, rightDirection -> KeyboardPreviewItem? in
             let text = keyboardLogic.getChordResult(
                 leftDir: leftDir,
                 rightDir: sharedDirection(for: rightDirection),
@@ -954,8 +1021,9 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private func rightDialPreviewItems(for direction: WheelDirection, mode: WheelMode) -> [KeyboardPreviewItem] {
         guard direction != .none else { return [] }
 
-        let palette = ColorPaletteDefinitions.palette(for: currentColorPaletteKey)
-        let dirIndex = wheelDirectionIndex(direction)
+        let isSix = viewModel.sixSectionMode
+        let palette = isSix ? ColorPaletteDefinitions.palette6(for: currentColorPaletteKey) : ColorPaletteDefinitions.palette(for: currentColorPaletteKey)
+        let dirIndex = isSix ? wheelDirectionIndex6(direction) : wheelDirectionIndex(direction)
         guard dirIndex >= 0 && dirIndex < palette.count else { return [] }
         let color = Color(hex: palette[dirIndex].hex)
 
@@ -970,7 +1038,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             layoutType = .logical
         }
 
-        let allLeftDirs: [WheelDirection] = [.n, .ne, .e, .se, .s, .sw, .w, .nw]
+        let allLeftDirs: [WheelDirection] = isSix ? [.n, .ne, .se, .s, .sw, .nw] : [.n, .ne, .e, .se, .s, .sw, .w, .nw]
         var result: [KeyboardPreviewItem] = []
         var itemId = 0
 
@@ -1010,6 +1078,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         }
     }
 
+    private func wheelDirectionIndex6(_ dir: WheelDirection) -> Int {
+        switch dir {
+        case .n: return 0; case .ne: return 1; case .se: return 2
+        case .s: return 3; case .sw: return 4; case .nw: return 5
+        default: return -1
+        }
+    }
+
     private func sharedDirection(for direction: WheelDirection) -> Direction {
         switch direction {
         case .none: return .none
@@ -1029,6 +1105,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case .normal: return .normal
         case .shifted: return .shifted
         case .capsLocked: return .capsLocked
+        case .symbols: return .symbols
+        case .symbolsShifted: return .symbolsShifted
         }
     }
 
@@ -1037,6 +1115,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case .normal: return .normal
         case .shifted: return .shifted
         case .capsLocked: return .capsLocked
+        case .symbols: return .symbols
+        case .symbolsShifted: return .symbolsShifted
         default: return .normal
         }
     }

@@ -3,8 +3,10 @@ package com.vatoo.erick.shared
 /**
  * A user-created custom layout defining all chord mappings and single-swipe actions.
  *
- * Chord maps: Map<Direction, List<String>> where each direction has up to 8 characters,
- * indexed by the right-dial direction order: N=0, NE=1, E=2, SE=3, S=4, SW=5, W=6, NW=7.
+ * Chord maps: Map<Direction, List<String>> where each direction has characters
+ * indexed by the right-dial direction order.
+ * For 8-section: N=0, NE=1, E=2, SE=3, S=4, SW=5, W=6, NW=7 (8 chars per direction)
+ * For 6-section: N=0, NE=1, SE=2, S=3, SW=4, NW=5 (6 chars per direction)
  *
  * Single-swipe map: Map<Direction, SingleSwipeBinding> where each entry is either
  * a character string or an InputAction.
@@ -15,7 +17,8 @@ data class CustomLayout(
     val normalChordMap: Map<Direction, List<String>>,
     val shiftedChordMap: Map<Direction, List<String>>,
     val singleSwipeNormalMap: Map<Direction, SingleSwipeBinding>,
-    val singleSwipeShiftedMap: Map<Direction, SingleSwipeBinding>
+    val singleSwipeShiftedMap: Map<Direction, SingleSwipeBinding>,
+    val sectionCount: Int = 8  // 8 or 6
 )
 
 /**
@@ -99,12 +102,15 @@ class CustomLayoutManager(private val storage: CustomLayoutStorage) {
     /**
      * Clone a built-in layout (Logical or Efficiency) into a new CustomLayout.
      */
-    fun duplicateFromBuiltIn(sourceLayout: LayoutType, customName: String): CustomLayout {
+    fun duplicateFromBuiltIn(sourceLayout: LayoutType, customName: String, sectionCount: Int = 8): CustomLayout {
         val logic = KeyboardLogic()
-        val directions = listOf(
-            Direction.N, Direction.NE, Direction.E, Direction.SE,
-            Direction.S, Direction.SW, Direction.W, Direction.NW
-        )
+        val directions = if (sectionCount == 6) {
+            logic.dialSectionMode = DialSectionMode.SIX_SECTION
+            KeyboardLogic.directions6
+        } else {
+            logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+            KeyboardLogic.directions8
+        }
 
         val normalChord = mutableMapOf<Direction, List<String>>()
         val shiftedChord = mutableMapOf<Direction, List<String>>()
@@ -142,15 +148,16 @@ class CustomLayoutManager(private val storage: CustomLayoutStorage) {
             normalChordMap = normalChord,
             shiftedChordMap = shiftedChord,
             singleSwipeNormalMap = singleNormal,
-            singleSwipeShiftedMap = singleShifted
+            singleSwipeShiftedMap = singleShifted,
+            sectionCount = sectionCount
         )
     }
 
     /**
      * Create a new custom layout pre-populated with the Logical (A–Z) layout.
      */
-    fun createBlank(name: String): CustomLayout {
-        return duplicateFromBuiltIn(LayoutType.LOGICAL, name)
+    fun createBlank(name: String, sectionCount: Int = 8): CustomLayout {
+        return duplicateFromBuiltIn(LayoutType.LOGICAL, name, sectionCount)
     }
 
     companion object {
@@ -167,10 +174,8 @@ class CustomLayoutManager(private val storage: CustomLayoutStorage) {
          */
         fun validateLayout(layout: CustomLayout): List<String> {
             val errors = mutableListOf<String>()
-            val directions = listOf(
-                Direction.N, Direction.NE, Direction.E, Direction.SE,
-                Direction.S, Direction.SW, Direction.W, Direction.NW
-            )
+            val sc = layout.sectionCount
+            val directions = if (sc == 6) KeyboardLogic.directions6 else KeyboardLogic.directions8
 
             if (layout.name.isBlank()) {
                 errors.add("Layout name cannot be empty")
@@ -179,7 +184,7 @@ class CustomLayoutManager(private val storage: CustomLayoutStorage) {
                 errors.add("Layout name must be 30 characters or fewer")
             }
 
-            // Check chord maps have all 8 directions
+            // Check chord maps have all required directions
             for (dir in directions) {
                 if (dir !in layout.normalChordMap) {
                     errors.add("Normal chord map missing direction: $dir")
@@ -189,15 +194,15 @@ class CustomLayoutManager(private val storage: CustomLayoutStorage) {
                 }
             }
 
-            // Check each direction has exactly 8 entries
+            // Check each direction has exactly the right number of entries
             for (dir in directions) {
                 val normalList = layout.normalChordMap[dir]
-                if (normalList != null && normalList.size != 8) {
-                    errors.add("Normal chord map for $dir must have exactly 8 entries (has ${normalList.size})")
+                if (normalList != null && normalList.size != sc) {
+                    errors.add("Normal chord map for $dir must have exactly $sc entries (has ${normalList.size})")
                 }
                 val shiftedList = layout.shiftedChordMap[dir]
-                if (shiftedList != null && shiftedList.size != 8) {
-                    errors.add("Shifted chord map for $dir must have exactly 8 entries (has ${shiftedList.size})")
+                if (shiftedList != null && shiftedList.size != sc) {
+                    errors.add("Shifted chord map for $dir must have exactly $sc entries (has ${shiftedList.size})")
                 }
             }
 
