@@ -147,7 +147,7 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 
 ```
 ERICKeyboard/
-├── APP_CONTEXT.md              # Detailed architecture doc (Mermaid diagrams, class hierarchies)
+├── APP_CONTEXT.md              # Canonical architecture doc (Mermaid diagrams, class hierarchies)
 ├── CHANGELOG.md                # Version history
 ├── README.md                   # Project overview
 ├── PROJECT_PROMPT.md           # This file - AI context prompt
@@ -184,7 +184,7 @@ ERICKeyboard/
 │   ├── css/style.css           # Pastel color palette, responsive design
 │   ├── js/main.js              # Theme toggle, font controls, scroll animations
 │   └── documentation/
-│       ├── APP_CONTEXT.md      # Copy of architecture doc
+│       ├── APP_CONTEXT.md      # Mirrored architecture copy for docs navigation
 │       ├── User_Guide.md       # End-user guide
 │       ├── Jira/               # Sprint tickets, retrospectives
 │       ├── Research/           # Layout optimization research, academic references

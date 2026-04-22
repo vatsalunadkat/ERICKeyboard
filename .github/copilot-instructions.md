@@ -48,5 +48,5 @@ Both 8-section and 6-section modes coexist. Controlled by `DialSectionMode` enum
 - Shared behavior is authoritative in `android/shared/src/commonMain/kotlin/`.
 - The 6-section utility wheel is rotated `-30°`: `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols toggle.
 - Avoid manual edits to generated artifacts unless the task is explicitly about them: `android/**/build/`, `android/app/release/baselineProfiles/*.dm`, and `ios/ERICK/SharedKeyboard.xcframework/`.
-- `APP_CONTEXT.md` and `docs/documentation/APP_CONTEXT.md` are mirrored docs. Keep them aligned intentionally when architecture changes.
+- The repo-root `APP_CONTEXT.md` is canonical. `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation; update the root file first and sync the docs copy intentionally.
 - If you change gesture mappings or dial geometry, update `KeyboardLogicTest.kt` and the relevant docs in the same pass.

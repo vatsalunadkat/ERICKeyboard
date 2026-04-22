@@ -8,7 +8,7 @@ Use this file as the shortest safe entry point for AI-assisted work in this repo
 
 1. `AGENTS.md`
 2. `.github/copilot-instructions.md`
-3. `PROJECT_PROMPT.md` or `APP_CONTEXT.md` only if you need deeper architecture details
+3. `PROJECT_PROMPT.md` or the repo-root `APP_CONTEXT.md` only if you need deeper architecture details
 4. The active ticket in `docs/documentation/Jira/`
 
 ## Authoritative Code Paths
@@ -42,7 +42,7 @@ Use this file as the shortest safe entry point for AI-assisted work in this repo
 
 ## Documentation Drift Risks
 
-- `APP_CONTEXT.md` and `docs/documentation/APP_CONTEXT.md` are mirrored architecture docs. If behavior or architecture changes, update them intentionally.
+- The repo-root `APP_CONTEXT.md` is canonical. `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation; update the root file first and sync the docs copy intentionally.
 - `PROJECT_PROMPT.md`, `docs/documentation/User_Guide.md`, and ticket docs can drift from the shipped behavior. If you change gestures or mappings, update the relevant docs in the same pass.
 
 ## Generated Or Derived Artifacts

@@ -10,7 +10,7 @@
     Type with touch or a physical game controller, get offline word prediction, and keep every keystroke on your own device.
     <br />
     <br />
-    <a href="docs/documentation/APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
+    <a href="APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
     ·
     <a href="docs/documentation/User_Guide.md"><strong>User Guide</strong></a>
     ·
@@ -108,14 +108,14 @@ ERICK/
 │   └── README.md                iOS setup guide
 ├── docs/                        Website and documentation
 │   ├── documentation/
-│   │   ├── APP_CONTEXT.md
+│   │   ├── APP_CONTEXT.md      Mirrored architecture copy for docs navigation
 │   │   ├── User_Guide.md
 │   │   ├── Jira/
 │   │   └── Research/
 │   ├── index.html
 │   ├── accessibility.html
 │   └── privacy-policy.html
-├── APP_CONTEXT.md               Root architecture copy
+├── APP_CONTEXT.md               Canonical architecture doc
 ├── CHANGELOG.md
 ├── PROJECT_PROMPT.md
 └── README.md
@@ -146,7 +146,7 @@ ERICK/
 | Document | Description |
 | --- | --- |
 | [AGENTS.md](AGENTS.md) | Short AI-first workflow, validation commands, and hotspot guide |
-| [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md) | Architecture, class diagrams, sequence diagrams, and component docs |
+| [APP_CONTEXT.md](APP_CONTEXT.md) | Canonical architecture, class diagrams, sequence diagrams, and component docs |
 | [User Guide](docs/documentation/User_Guide.md) | End-user guide for typing, settings, accessibility, and troubleshooting |
 | [Research](docs/documentation/Research/README.md) | Research notes, layout optimization, and academic references |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |

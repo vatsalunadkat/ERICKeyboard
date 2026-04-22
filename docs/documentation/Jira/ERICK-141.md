@@ -40,6 +40,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Corrected the shared 6-section test expectations in `KeyboardLogicTest.kt`.
 - Corrected the main end-user and AI-facing 6-section mapping docs.
 - Removed the unused Android-local `KeyboardLogic.kt` shadow after cross-checking that Android app files import `com.vatoo.erick.shared.Direction` and runtime behavior flows through the shared module.
+- Canonicalized `APP_CONTEXT.md`: the repo-root file is now the source of truth and `docs/documentation/APP_CONTEXT.md` is explicitly marked as a mirrored copy.
 - Split Android settings into a small navigation wrapper plus extracted screen files, with `MainSettingsContent.kt` holding the main settings UI.
 - Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.

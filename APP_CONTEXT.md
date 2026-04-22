@@ -1,5 +1,7 @@
 # ERICK - Application Context & Architecture
 
+Canonical source note: the repo-root `APP_CONTEXT.md` is authoritative, and `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation. Update the root file first and sync the docs copy intentionally.
+
 **Version**: 1.0  
 **Last Updated**: April 13, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
