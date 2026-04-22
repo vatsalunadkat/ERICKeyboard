@@ -387,105 +387,23 @@ class JoystickView @JvmOverloads constructor(
             val innerHoleRadius = thumbRadius * 0.9f
             val r1 = innerHoleRadius + (baseRadius - innerHoleRadius) * 0.60f
 
-            val rectFOuter = RectF(centerX - baseRadius, centerY - baseRadius, centerX + baseRadius, centerY + baseRadius)
-            val rectFInner = RectF(centerX - r1, centerY - r1, centerX + r1, centerY + r1)
-
-            // Draw Base Background
-            canvas.drawCircle(centerX, centerY, baseRadius, basePaint)
-
-            // 1. Draw Outer Layer (3 blocks × 20° per section)
-            for (i in 0 until 6) {
-                val dir = directions6Drawing[i]
-                val startAngle = -90f + i * 60f
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-
-                for (j in 0 until 3) {
-                    val blockStart = startAngle + j * 20f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex6(rightDirs6[j], colorPaletteType))
-                    activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
-                    activeSegmentPaint.alpha = 255
-                    canvas.drawArc(rectFOuter, blockStart, 20f, true, activeSegmentPaint)
-                }
-            }
-
-            // 2. Draw Inner Layer (3 blocks × 20° per section)
-            for (i in 0 until 6) {
-                val dir = directions6Drawing[i]
-                val startAngle = -90f + i * 60f
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-
-                for (j in 0 until 3) {
-                    val blockStart = startAngle + j * 20f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex6(rightDirs6[3 + j], colorPaletteType))
-                    activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
-                    activeSegmentPaint.alpha = 255
-                    canvas.drawArc(rectFInner, blockStart, 20f, true, activeSegmentPaint)
-                }
-            }
-
-            // 3. Draw Center Hole
-            canvas.drawCircle(centerX, centerY, innerHoleRadius, basePaint)
-
-            // 4. Draw Separator Circle (between inner and outer layers)
-            segmentLinePaint.alpha = 255
-            canvas.drawCircle(centerX, centerY, r1, segmentLinePaint)
-
-            // 5. Draw Separator Lines
-            for (i in 0 until 6) {
-                val startAngle = -90f + i * 60f
-                val dir = directions6Drawing[i]
-
-                // Radial separators (every 20° within section, plus boundary)
-                for (j in 0..3) {
-                    val angleRad = Math.toRadians((startAngle + j * 20f).toDouble())
-                    val rStart = if (j == 0 || j == 3) innerHoleRadius else r1
-                    val ex = centerX + cos(angleRad).toFloat() * baseRadius
-                    val ey = centerY + sin(angleRad).toFloat() * baseRadius
-                    val sx = centerX + cos(angleRad).toFloat() * rStart
-                    val sy = centerY + sin(angleRad).toFloat() * rStart
-
-                    if (j == 0 || j == 3) {
-                        val prevIdx = if (i == 0) 5 else i - 1
-                        val nextIdx = if (i == 5) 0 else i + 1
-                        val adjacentDir = if (j == 0) directions6Drawing[prevIdx] else directions6Drawing[nextIdx]
-                        val isLineActive = (dir == activeDirection || adjacentDir == activeDirection)
-                        val lineAlpha = if (activeDirection != Direction.NONE && !isLineActive) 60 else 255
-                        mainDirectionLinePaint.alpha = lineAlpha
-                        canvas.drawLine(sx, sy, ex, ey, mainDirectionLinePaint)
-                    } else {
-                        val lineAlpha = if (activeDirection != Direction.NONE && dir != activeDirection) 60 else 255
-                        segmentLinePaint.alpha = lineAlpha
-                        canvas.drawLine(sx, sy, ex, ey, segmentLinePaint)
-                    }
-                }
-
-                // Inner ring block separators (from innerHoleRadius to r1)
-                for (j in 1..2) {
-                    val angleRad = Math.toRadians((startAngle + j * 20f).toDouble())
-                    val sx = centerX + cos(angleRad).toFloat() * innerHoleRadius
-                    val sy = centerY + sin(angleRad).toFloat() * innerHoleRadius
-                    val ex = centerX + cos(angleRad).toFloat() * r1
-                    val ey = centerY + sin(angleRad).toFloat() * r1
-                    val lineAlpha = if (activeDirection != Direction.NONE && dir != activeDirection) 60 else 255
-                    segmentLinePaint.alpha = lineAlpha
-                    canvas.drawLine(sx, sy, ex, ey, segmentLinePaint)
-                }
-            }
-
-            // 6. Draw outer border & inner hole boundary per section
-            val rectFInnerHole = RectF(centerX - innerHoleRadius, centerY - innerHoleRadius, centerX + innerHoleRadius, centerY + innerHoleRadius)
-            for (i in 0 until 6) {
-                val startAngle = -90f + i * 60f
-                val dir = directions6Drawing[i]
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-                val lineAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-
-                borderPaint.alpha = lineAlpha
-                canvas.drawArc(rectFOuter, startAngle, 60f, false, borderPaint)
-
-                mainDirectionLinePaint.alpha = lineAlpha
-                canvas.drawArc(rectFInnerHole, startAngle, 60f, false, mainDirectionLinePaint)
-            }
+            drawSixSectionLeftDial(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                innerHoleRadius = innerHoleRadius,
+                splitRadius = r1,
+                baseRadius = baseRadius,
+                directions = directions6Drawing,
+                paletteDirections = rightDirs6,
+                activeDirection = activeDirection,
+                colorPaletteType = colorPaletteType,
+                basePaint = basePaint,
+                activeSegmentPaint = activeSegmentPaint,
+                segmentLinePaint = segmentLinePaint,
+                mainDirectionLinePaint = mainDirectionLinePaint,
+                borderPaint = borderPaint
+            )
 
             // 7. Draw Characters
             val currentCharsMap = when {
@@ -518,129 +436,25 @@ class JoystickView @JvmOverloads constructor(
             val layerThickness = (baseRadius - innerHoleRadius) / 3f
             val r1 = innerHoleRadius + layerThickness
             val r2 = innerHoleRadius + layerThickness * 2f
-            
-            val rectFOuter = RectF(centerX - baseRadius, centerY - baseRadius, centerX + baseRadius, centerY + baseRadius)
-            val rectFMiddle = RectF(centerX - r2, centerY - r2, centerX + r2, centerY + r2)
-            val rectFInner = RectF(centerX - r1, centerY - r1, centerX + r1, centerY + r1)
 
-            // Draw Base Background
-            canvas.drawCircle(centerX, centerY, baseRadius, basePaint)
-
-            // Overlapping Pie Slices Drawing Method
-            // 1. Draw Outer Layer
-            for (i in 0 until 8) {
-                val dir = directions[i]
-                val startAngle = -22.5f + i * 45f
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-
-                for(j in 0 until 3) {
-                    val blockStart = startAngle + j * 15f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[j], colorPaletteType))
-                    activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
-                    activeSegmentPaint.alpha = 255
-                    canvas.drawArc(rectFOuter, blockStart, 15f, true, activeSegmentPaint)
-                }
-            }
-
-            // 2. Draw Middle Layer
-            for (i in 0 until 8) {
-                val dir = directions[i]
-                val startAngle = -22.5f + i * 45f
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-
-                for(j in 0 until 3) {
-                    val blockStart = startAngle + j * 15f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[3 + j], colorPaletteType))
-                    activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
-                    activeSegmentPaint.alpha = 255
-                    canvas.drawArc(rectFMiddle, blockStart, 15f, true, activeSegmentPaint)
-                }
-            }
-
-            // 3. Draw Inner Layer
-            for (i in 0 until 8) {
-                val dir = directions[i]
-                val startAngle = -22.5f + i * 45f
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-
-                for(j in 0 until 2) {
-                    val blockStart = startAngle + j * 22.5f
-                    val parsedColor = Color.parseColor(ColorPalettes.getColorForDirectionHex(rightDirs[6 + j], colorPaletteType))
-                    activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
-                    activeSegmentPaint.alpha = 255
-                    canvas.drawArc(rectFInner, blockStart, 22.5f, true, activeSegmentPaint)
-                }
-            }
-
-            // 4. Draw Center Hole to cut out the inner pie tips
-            canvas.drawCircle(centerX, centerY, innerHoleRadius, basePaint)
-
-            // 5. Draw Separator Circles (Seams between layers)
-            canvas.drawCircle(centerX, centerY, r2, segmentLinePaint)
-            canvas.drawCircle(centerX, centerY, r1, segmentLinePaint)
-
-            // 6. Draw Separator Lines (Seams within layers)
-            for (i in 0 until 8) {
-                val startAngle = -22.5f + i * 45f
-                val dir = directions[i]
-                
-                // For white separation lines, determine alpha based on adjacent blocks
-                // The j=0 line is right before this block. The j=3 line is right after.
-                
-                // Outer/Middle Layer radial separators (every 15 degrees)
-                for (j in 0..3) {
-                    val angleRad = Math.toRadians((startAngle + j * 15f).toDouble())
-                    val rStart = if (j == 0 || j == 3) innerHoleRadius else r1
-                    val ex = centerX + cos(angleRad).toFloat() * baseRadius
-                    val ey = centerY + sin(angleRad).toFloat() * baseRadius
-                    val sx = centerX + cos(angleRad).toFloat() * rStart
-                    val sy = centerY + sin(angleRad).toFloat() * rStart
-                    
-                    // If it is the boundary between the 8 main sets, use the white mainDirectionLinePaint
-                    if (j == 0 || j == 3) {
-                        // Calculate if EITHER side of this line is active
-                        // j=0 is boundary with previous slice. j=3 is boundary with next slice.
-                        val prevIdx = if (i == 0) 7 else i - 1
-                        val nextIdx = if (i == 7) 0 else i + 1
-                        val adjacentDir = if (j == 0) directions[prevIdx] else directions[nextIdx]
-                        
-                        val isLineActive = (dir == activeDirection || adjacentDir == activeDirection)
-                        val lineAlpha = if (activeDirection != Direction.NONE && !isLineActive) 60 else 255
-                        
-                        mainDirectionLinePaint.alpha = lineAlpha
-                        canvas.drawLine(sx, sy, ex, ey, mainDirectionLinePaint)
-                    } else {
-                        val lineAlpha = if (activeDirection != Direction.NONE && dir != activeDirection) 60 else 255
-                        segmentLinePaint.alpha = lineAlpha
-                        canvas.drawLine(sx, sy, ex, ey, segmentLinePaint) // Black line inside the set
-                    }
-                }
-                
-                // Inner Layer radial separator (at 22.5 degrees)
-                val angleRad2 = Math.toRadians((startAngle + 22.5f).toDouble())
-                val sx2 = centerX + cos(angleRad2).toFloat() * innerHoleRadius
-                val sy2 = centerY + sin(angleRad2).toFloat() * innerHoleRadius
-                val ex2 = centerX + cos(angleRad2).toFloat() * r1
-                val ey2 = centerY + sin(angleRad2).toFloat() * r1
-                val lineAlpha2 = if (activeDirection != Direction.NONE && dir != activeDirection) 60 else 255
-                segmentLinePaint.alpha = lineAlpha2
-                canvas.drawLine(sx2, sy2, ex2, ey2, segmentLinePaint)
-            }
-            
-            // 7. Draw outer white border & inner base limit per slice for selective alpha
-            val rectFInnerHole = RectF(centerX - innerHoleRadius, centerY - innerHoleRadius, centerX + innerHoleRadius, centerY + innerHoleRadius)
-            for (i in 0 until 8) {
-                val startAngle = -22.5f + i * 45f
-                val dir = directions[i]
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-                val lineAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-
-                borderPaint.alpha = lineAlpha
-                canvas.drawArc(rectFOuter, startAngle, 45f, false, borderPaint)
-
-                mainDirectionLinePaint.alpha = lineAlpha
-                canvas.drawArc(rectFInnerHole, startAngle, 45f, false, mainDirectionLinePaint)
-            }
+            drawEightSectionLeftDial(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                innerHoleRadius = innerHoleRadius,
+                innerRingOuterRadius = r1,
+                middleRingOuterRadius = r2,
+                baseRadius = baseRadius,
+                directions = directions,
+                paletteDirections = rightDirs,
+                activeDirection = activeDirection,
+                colorPaletteType = colorPaletteType,
+                basePaint = basePaint,
+                activeSegmentPaint = activeSegmentPaint,
+                segmentLinePaint = segmentLinePaint,
+                mainDirectionLinePaint = mainDirectionLinePaint,
+                borderPaint = borderPaint
+            )
 
             // 8. Draw Characters
             val currentCharsMap = when {

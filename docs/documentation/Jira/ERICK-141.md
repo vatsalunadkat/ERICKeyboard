@@ -46,7 +46,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Started the iOS extension settings split by extracting palette and custom-layout views out of `ios/ERICK/ErickKeyBoard/SettingsView.swift`.
 - Split the iOS extension controller-adjacent SwiftUI layers by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift` out of `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift`.
 - Updated the public docs and live website to point Android installs to Google Play and mark the iOS App Store release as coming soon.
-- Started the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`.
+- Continued the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`, left-dial character placement into `JoystickCharacterRenderer.kt`, and left-dial section/ring drawing into `JoystickSectionRenderer.kt`.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
@@ -147,7 +147,7 @@ Extract pure drawing helpers into:
 |---|---|
 | `JoystickDrawingUtils.kt` | Text fitting, icon drawing, color darkening, label splitting |
 
-Status: In progress on `ERICK-141`; `JoystickView.kt` is down to 853 lines with `JoystickDrawingUtils.kt` extracted. Remaining work is to separate the 8-section and 6-section drawing flow from the `View` state/interaction shell without changing runtime behavior.
+Status: In progress on `ERICK-141`; `JoystickView.kt` is down to 591 lines with `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, and `JoystickSectionRenderer.kt` extracted. Remaining work, if needed, is to separate the right-dial drawing loop and other orchestration code from the `View` state/interaction shell without changing runtime behavior.
 
 ### Guardrail
 

@@ -17,15 +17,16 @@
 
 Reduce the remaining edit risk in `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` by splitting rendering-heavy helpers and geometry code out of the `View` shell.
 
-Status: In progress on `ERICK-141`. `JoystickDrawingUtils.kt` and `JoystickCharacterRenderer.kt` have now been extracted, which reduced `JoystickView.kt` from 1012 lines to 752 lines while keeping `assembleDebug` green. Remaining work is to peel off the 8-section and 6-section section geometry and arc drawing flow into narrower units.
+Status: In progress on `ERICK-141`. `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, and `JoystickSectionRenderer.kt` have now been extracted, which reduced `JoystickView.kt` from 1012 lines to 591 lines while keeping `assembleDebug` green. The highest-risk left-dial rendering paths are now out of the `View`; remaining work is mainly the right-dial rendering loop and any final orchestration cleanup that still feels too broad.
 
 ---
 
 ## Evidence
 
-- `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` started at 1012 lines and is now 752 lines after helper and character-renderer extraction.
+- `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` started at 1012 lines and is now 591 lines after helper, character-renderer, and section-renderer extraction.
 - `android/app/src/main/java/com/vatoo/erick/JoystickCharacterRenderer.kt` now owns the left-dial character placement and text fitting flow for both 8-section and 6-section modes.
-- The file still holds view state, direction detection, palette lookup, 8-section rendering, and 6-section rendering in one class.
+- `android/app/src/main/java/com/vatoo/erick/JoystickSectionRenderer.kt` now owns the left-dial section fills, separator lines, and border geometry for both 8-section and 6-section modes.
+- The file still holds view state, direction detection, right-dial rendering, and mode-specific map selection in one class.
 - `ERICK-141` identifies `JoystickView.kt` as one of the last Android edit surfaces that is still risky for low-context AI edits.
 
 ---
@@ -44,6 +45,7 @@ Status: In progress on `ERICK-141`. `JoystickDrawingUtils.kt` and `JoystickChara
 1. `JoystickDrawingUtils.kt` for text sizing, icons, and color helpers
 2. `JoystickCharacterRenderer.kt` for 8-section and 6-section character placement
 3. `JoystickSectionRenderer.kt` for section/ring arc drawing and separator geometry
+4. Optional follow-on: `JoystickRightDialRenderer.kt` for the right-dial segment, icon, and label loop if `JoystickView.kt` still feels too broad
 
 ---
 
