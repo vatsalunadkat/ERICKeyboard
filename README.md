@@ -61,7 +61,12 @@ ERICK is built around the idea that accessibility should improve the product for
 
 [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#) [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#) [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#) [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#) [![Kotlin Multiplatform](https://img.shields.io/badge/KMP-7F52FF?logo=kotlin&logoColor=white)](#) [![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?logo=swift&logoColor=white)](#) [![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](#)
 
-Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) (Coming Soon) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#) (Coming Soon)
+Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.vatoo.erick). The iOS App Store release is coming soon.
+
+## Availability
+
+- Android: Install ERICK from [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
+- iOS: App Store release coming soon. Source builds remain available from the Xcode project under `ios/`.
 
 ## Features
 

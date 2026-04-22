@@ -37,7 +37,7 @@ Use this file as the shortest safe entry point for AI-assisted work in this repo
 
 - `android/app/src/main/java/com/vatoo/erick/SettingsScreen.kt` is very large and contains multiple screens.
 - `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` contains both controller logic and visual state management.
-- `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` mixes rendering, geometry, and interaction logic.
+- `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` still mixes rendering, geometry, and interaction logic, even after helper extraction into `JoystickDrawingUtils.kt`.
 
 ## Documentation Drift Risks
 

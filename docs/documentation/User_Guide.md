@@ -1,7 +1,7 @@
 # ERICK User Guide
 
 **Version**: 1.0  
-**Last Updated**: April 13, 2026
+**Last Updated**: April 22, 2026
 
 ---
 
@@ -29,20 +29,22 @@ ERICK is mainly aimed at:
 
 It can also help everyday users who want larger touch targets, controller support, or a different way to type on phones, TVs, and other screen-based devices.
 
+**Availability:** Android is available now on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick). The iOS App Store release is coming soon.
+
 ---
 
 ## Getting Started
 
 ### Android
 
-1. Install the ERICK app from the APK or build from source.
+1. Install ERICK from [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick). If you are testing a local build, you can still build from source.
 2. Open **Settings → System → Languages & input → On-screen keyboard**.
 3. Enable **ERICK Keyboard**.
 4. Open any text field and switch to ERICK via the keyboard-switcher notification.
 
 ### iOS
 
-1. Install the ERICK app on your device.
+1. The iOS App Store release is coming soon. If you are testing ERICK today, install the app on your device from a local Xcode build or other development distribution.
 2. Open **Settings → General → Keyboard → Keyboards → Add New Keyboard**.
 3. Select **ErickKeyBoard**.
 4. Tap on ErickKeyBoard and enable **Allow Full Access** (required for settings persistence and controller support).

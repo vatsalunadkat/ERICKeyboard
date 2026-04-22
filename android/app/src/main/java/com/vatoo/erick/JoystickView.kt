@@ -357,7 +357,11 @@ class JoystickView @JvmOverloads constructor(
                 canvas.drawArc(rectF, startAngle, sweepAngle, true, rightSegmentLinePaint)
                 
                 // Draw Icon and Label
-                val (iconName, label) = if (sixSectionMode) getInfoForDirection6(dir) else getInfoForDirection(dir)
+                val (iconName, label) = if (sixSectionMode) {
+                    getInfoForDirection6(dir, keyboardMode)
+                } else {
+                    getInfoForDirection(dir, keyboardMode)
+                }
                 val paintAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
                 val contentColor = Color.parseColor(ColorPalettes.contrastTextColor(colorHex, colorPaletteType))
                 
@@ -801,6 +805,7 @@ class JoystickView @JvmOverloads constructor(
                 minOf(baseRadius * 0.22f, availableHeight)
             } else {
                 fittedTextSize(
+                    basePaint = labelTextPaint,
                     lines = lines,
                     maxWidth = availableWidth,
                     maxHeight = availableHeight,
@@ -818,7 +823,17 @@ class JoystickView @JvmOverloads constructor(
 
         if (hasIcon) {
             val iconCenterY = currentCenterY + iconSize / 2f
-            drawProgrammaticIcon(canvas, iconName, centerX, iconCenterY, iconSize, alpha, textColor)
+            drawProgrammaticIcon(
+                canvas = canvas,
+                type = iconName,
+                x = centerX,
+                y = iconCenterY,
+                size = iconSize,
+                alpha = alpha,
+                color = textColor,
+                strokePaint = iconStrokePaint,
+                fillPaint = iconFillPaint
+            )
             currentCenterY += iconSize + spacing
         }
 
@@ -827,58 +842,6 @@ class JoystickView @JvmOverloads constructor(
             val baseline = lineCenterY - (textPaint.descent() + textPaint.ascent()) / 2f
             canvas.drawText(line, centerX, baseline, textPaint)
         }
-    }
-
-    private fun fittedTextSize(
-        lines: List<String>,
-        maxWidth: Float,
-        maxHeight: Float,
-        preferredSizes: List<Float>
-    ): Float {
-        val measuringPaint = Paint(labelTextPaint)
-
-        for (size in preferredSizes) {
-            measuringPaint.textSize = size
-            val widestLine = lines.maxOfOrNull { measuringPaint.measureText(it) } ?: 0f
-            val totalHeight = measuringPaint.fontSpacing * 0.9f * lines.size.coerceAtLeast(1)
-            if (widestLine <= maxWidth && totalHeight <= maxHeight) {
-                return size
-            }
-        }
-
-        return preferredSizes.last()
-    }
-
-    private fun getRightDialLabelLines(label: String): List<String> {
-        return when (label) {
-            "Backspace" -> listOf("Back", "space")
-            "New Line" -> listOf("New", "Line")
-            "Caps Off" -> listOf("Caps", "Off")
-            else -> label.split(" ").filter { it.isNotBlank() }.ifEmpty {
-                if (label.isNotBlank()) listOf(label) else emptyList()
-            }
-        }
-    }
-
-    private fun fittedSingleLineTextSize(
-        text: String,
-        basePaint: Paint,
-        maxWidth: Float,
-        maxHeight: Float,
-        preferredSizes: List<Float>
-    ): Float {
-        val measuringPaint = Paint(basePaint)
-
-        for (size in preferredSizes) {
-            measuringPaint.textSize = size
-            val textWidth = measuringPaint.measureText(text)
-            val textHeight = measuringPaint.fontSpacing
-            if (textWidth <= maxWidth && textHeight <= maxHeight) {
-                return size
-            }
-        }
-
-        return preferredSizes.last()
     }
 
     fun updateThumb(dx: Float, dy: Float) {
@@ -961,132 +924,6 @@ class JoystickView @JvmOverloads constructor(
             dy = clampedY * magnitudeScale
         )
     }
-    private fun getInfoForDirection(dir: Direction): Pair<String, String> {
-        val isShifted = keyboardMode == KeyboardMode.SHIFTED
-        val isCaps = keyboardMode == KeyboardMode.CAPS_LOCKED
-        val isToggled = isShifted || isCaps
-        
-        return when (dir) {
-            Direction.N -> if (isToggled) "end" to "End" else "home" to "Home"
-            Direction.NE -> "" to (if (isToggled) "<" else ",")
-            Direction.E -> "space" to "Space"
-            Direction.SE -> "" to (if (isToggled) ">" else ".")
-            Direction.S -> "enter" to (if (isToggled) "New Line" else "Enter")
-            Direction.SW -> "shift" to "Shift"
-            Direction.W -> "backspace" to "Backspace"
-            Direction.NW -> "capslock" to (if (isCaps) "Caps Off" else "Caps")
-            else -> "" to ""
-        }
-    }
-
-    private fun getInfoForDirection6(dir: Direction): Pair<String, String> {
-        val isShifted = keyboardMode == KeyboardMode.SHIFTED || keyboardMode == KeyboardMode.SYMBOLS_SHIFTED
-        val isCaps = keyboardMode == KeyboardMode.CAPS_LOCKED
-        val isSymbols = keyboardMode == KeyboardMode.SYMBOLS || keyboardMode == KeyboardMode.SYMBOLS_SHIFTED
-
-        return when (dir) {
-            Direction.NE -> "shift" to (if (isCaps) "Caps Off" else "Shift")
-            Direction.SE -> "space" to "Space"
-            Direction.S  -> "" to (if (isShifted || isCaps) ">" else ".")
-            Direction.SW -> "enter" to (if (isShifted || isCaps) "New Line" else "Enter")
-            Direction.NW -> "backspace" to "Backspace"
-            Direction.N  -> "" to (if (isSymbols) "ABC" else "#+=")
-            else -> "" to ""
-        }
-    }
-
-    private fun drawProgrammaticIcon(canvas: Canvas, type: String, x: Float, y: Float, size: Float, alpha: Int, color: Int = Color.WHITE) {
-        iconStrokePaint.color = color
-        iconStrokePaint.alpha = alpha
-        iconFillPaint.color = color
-        iconFillPaint.alpha = alpha
-        iconStrokePaint.strokeWidth = maxOf(3f, size * 0.16f)
-        val h = size / 2f
-        
-        when (type) {
-            "home" -> {
-                // arrow.up.to.line
-                canvas.drawLine(x - h, y - h, x + h, y - h, iconStrokePaint) // Top bar
-                val path = android.graphics.Path().apply {
-                    moveTo(x, y - h + 5f)
-                    lineTo(x - h, y + h)
-                    lineTo(x + h, y + h)
-                    close()
-                }
-                canvas.drawPath(path, iconFillPaint)
-            }
-            "end" -> {
-                // arrow.down.to.line
-                canvas.drawLine(x - h, y + h, x + h, y + h, iconStrokePaint) // Bottom bar
-                val path = android.graphics.Path().apply {
-                    moveTo(x, y + h - 5f)
-                    lineTo(x - h, y - h)
-                    lineTo(x + h, y - h)
-                    close()
-                }
-                canvas.drawPath(path, iconFillPaint)
-            }
-            "space" -> {
-                // Horizontal bracket
-                canvas.drawLine(x - h, y + h/2f, x + h, y + h/2f, iconStrokePaint)
-                canvas.drawLine(x - h, y, x - h, y + h/2f, iconStrokePaint)
-                canvas.drawLine(x + h, y, x + h, y + h/2f, iconStrokePaint)
-            }
-            "enter" -> {
-                // return (L-shape arrow)
-                canvas.drawLine(x + h, y - h, x + h, y + h, iconStrokePaint)
-                canvas.drawLine(x + h, y + h, x - h, y + h, iconStrokePaint)
-                // arrow head
-                canvas.drawLine(x - h, y + h, x - h + 6f, y + h - 6f, iconStrokePaint)
-                canvas.drawLine(x - h, y + h, x - h + 6f, y + h + 6f, iconStrokePaint)
-            }
-            "shift" -> {
-                // shift.fill
-                val path = android.graphics.Path().apply {
-                    moveTo(x, y - h)
-                    lineTo(x - h, y + h/3f)
-                    lineTo(x - h/2f, y + h/3f)
-                    lineTo(x - h/2f, y + h)
-                    lineTo(x + h/2f, y + h)
-                    lineTo(x + h/2f, y + h/3f)
-                    lineTo(x + h, y + h/3f)
-                    close()
-                }
-                canvas.drawPath(path, iconFillPaint)
-            }
-            "backspace" -> {
-                // delete.left
-                val path = android.graphics.Path().apply {
-                    moveTo(x - h * 0.82f, y)
-                    lineTo(x - h * 0.22f, y - h * 0.72f)
-                    lineTo(x + h * 0.80f, y - h * 0.72f)
-                    lineTo(x + h * 0.80f, y + h * 0.72f)
-                    lineTo(x - h * 0.22f, y + h * 0.72f)
-                    close()
-                }
-                canvas.drawPath(path, iconStrokePaint)
-                // The X
-                canvas.drawLine(x - h * 0.02f, y - h * 0.26f, x + h * 0.42f, y + h * 0.26f, iconStrokePaint)
-                canvas.drawLine(x + h * 0.42f, y - h * 0.26f, x - h * 0.02f, y + h * 0.26f, iconStrokePaint)
-            }
-            "capslock" -> {
-                // capslock.fill
-                val path = android.graphics.Path().apply {
-                    moveTo(x, y - h + 5f)
-                    lineTo(x - h, y + h/3f)
-                    lineTo(x - h/2f, y + h/3f)
-                    lineTo(x - h/2f, y + h/2f)
-                    lineTo(x + h/2f, y + h/2f)
-                    lineTo(x + h/2f, y + h/3f)
-                    lineTo(x + h, y + h/3f)
-                    close()
-                }
-                canvas.drawPath(path, iconFillPaint)
-                canvas.drawLine(x - h, y + h, x + h, y + h, iconStrokePaint) // Bottom bar
-            }
-        }
-    }
-
     fun resetThumb() {
         thumbX = centerX
         thumbY = centerY
@@ -1099,13 +936,5 @@ class JoystickView @JvmOverloads constructor(
             previewText = text
             invalidate()
         }
-    }
-
-    private fun darkenColor(color: Int, factor: Float): Int {
-        val a = Color.alpha(color)
-        val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
-        val g = (Color.green(color) * factor).toInt().coerceIn(0, 255)
-        val b = (Color.blue(color) * factor).toInt().coerceIn(0, 255)
-        return Color.argb(a, r, g, b)
     }
 }

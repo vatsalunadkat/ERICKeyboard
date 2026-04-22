@@ -11,6 +11,7 @@ Start with `AGENTS.md` for the shortest repo-specific workflow, validation comma
 **Current version**: 1.0  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
 **License**: ERICK Source Available License 1.0  
+**Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.  
 **Privacy stance**: 100% offline, zero data collection, no internet permissions, COPPA/GDPR/CCPA compliant.
 
 ---

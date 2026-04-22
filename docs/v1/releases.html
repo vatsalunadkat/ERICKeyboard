@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Releases - ERICK Keyboard</title>
-  <meta name="description" content="Version history and release timeline for ERICK, from early prototype to cross-platform keyboard." />
+  <meta name="description" content="Version history and release timeline for ERICK, including the current Google Play release and upcoming iOS App Store launch." />
 
   <meta property="og:title" content="Releases - ERICK Keyboard" />
-  <meta property="og:description" content="Version history and release timeline for ERICK." />
+  <meta property="og:description" content="Version history and release timeline for ERICK, including the current Google Play release." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="images/erick-logo.png" />
 
@@ -200,11 +200,19 @@
   <div class="releases-hero">
     <h1>From prototype to platform</h1>
     <p>ERICK began as a research-driven idea and grew into a cross-platform keyboard focused on accessibility, controller input, and lower-effort typing.</p>
+    <div class="hero-buttons">
+      <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="btn btn-primary" aria-label="Get ERICK on Google Play" target="_blank" rel="noopener">
+        Get it on Google Play
+      </a>
+      <a href="#ios-coming-soon" class="btn btn-secondary" aria-label="iOS App Store release coming soon">
+        App Store - Coming Soon
+      </a>
+    </div>
   </div>
 
   <!-- ===== Stats ===== -->
   <div class="stats-grid">
-    <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Releases</div></div>
+    <div class="stat-card"><div class="stat-value">7</div><div class="stat-label">Releases</div></div>
     <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Platforms</div></div>
     <div class="stat-card"><div class="stat-value">7+</div><div class="stat-label">Color Palettes</div></div>
     <div class="stat-card"><div class="stat-value">0</div><div class="stat-label">Data Collected</div></div>
@@ -213,8 +221,31 @@
   <!-- ===== Timeline ===== -->
   <div class="timeline">
 
-    <!-- v0.7.4-beta -->
+    <!-- v1.0 -->
     <div class="release-card latest">
+      <div class="release-header">
+        <span class="release-version">v1.0</span>
+        <span class="release-date">April 2026</span>
+      </div>
+      <div class="release-title">Google Play Launch &amp; 6-Section Dial Mode</div>
+      <div class="milestones">
+        <span class="milestone-tag">Google Play</span>
+        <span class="milestone-tag">6-Section Dial</span>
+        <span class="milestone-tag">Symbols Mode</span>
+        <span class="milestone-tag">Accessibility</span>
+      </div>
+      <ul class="release-features">
+        <li>Android production release is now live on Google Play</li>
+        <li>6-section dial mode adds a 36-slot chord grid with larger 60-degree segments</li>
+        <li>Rotated 6-section utility wheel maps NE to Shift, SE to Space, S to Period, SW to Enter, NW to Backspace, and N to Symbols</li>
+        <li>Symbols mode and 6-color palette variants ship on both Android and iOS builds</li>
+        <li>Fresh-install sync and haptic/sound tuning improved the release experience</li>
+        <li>iOS App Store release is next; source and development builds remain available today</li>
+      </ul>
+    </div>
+
+    <!-- v0.7.4-beta -->
+    <div class="release-card">
       <div class="release-header">
         <span class="release-version">v0.7.4-beta</span>
         <span class="release-date">March 2026</span>
@@ -381,7 +412,7 @@
     <h2>What's coming next</h2>
     <div class="roadmap-grid">
       <div class="roadmap-card">
-        <span class="roadmap-version">v0.8.0</span>
+        <span class="roadmap-version">v1.1.0</span>
         <h3>Planned Next</h3>
         <ul>
           <li>Multi-language support with extended dictionaries</li>
@@ -390,12 +421,12 @@
         </ul>
       </div>
       <div class="roadmap-card">
-        <span class="roadmap-version">v1.0.0</span>
-        <h3>Production Release</h3>
+        <span class="roadmap-version" id="ios-coming-soon">iOS</span>
+        <h3>App Store Release</h3>
         <ul>
-          <li>Production-ready stability</li>
-          <li>Broader device testing and onboarding polish</li>
-          <li>App Store and Play Store releases</li>
+          <li>App Store listing and review-ready metadata</li>
+          <li>Final packaging and onboarding polish for public iOS distribution</li>
+          <li>Parity validation across current iPhone and iPad hardware</li>
         </ul>
       </div>
     </div>
@@ -411,6 +442,11 @@
       <li><a href="releases.html">Releases</a></li>
       <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
+    <div class="footer-availability">
+      <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" target="_blank" rel="noopener">Available now on Google Play</a>
+      <span class="separator" aria-hidden="true">&middot;</span>
+      <span>iOS App Store coming soon</span>
+    </div>
     <div class="footer-dev">
       <p>Developed by <strong>Vatsal Unadkat</strong></p>
       <div class="footer-social">

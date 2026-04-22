@@ -3,8 +3,9 @@
 Canonical source note: the repo-root `APP_CONTEXT.md` is authoritative, and `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation. Update the root file first and sync the docs copy intentionally.
 
 **Version**: 1.0  
-**Last Updated**: April 13, 2026  
+**Last Updated**: April 22, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
+**Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.
 
 ## Executive Summary
 

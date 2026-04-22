@@ -45,6 +45,8 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
 - Started the iOS extension settings split by extracting palette and custom-layout views out of `ios/ERICK/ErickKeyBoard/SettingsView.swift`.
 - Split the iOS extension controller-adjacent SwiftUI layers by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift` out of `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift`.
+- Updated the public docs and live website to point Android installs to Google Play and mark the iOS App Store release as coming soon.
+- Started the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
@@ -144,6 +146,8 @@ Extract pure drawing helpers into:
 | New File | Contents |
 |---|---|
 | `JoystickDrawingUtils.kt` | Text fitting, icon drawing, color darkening, label splitting |
+
+Status: In progress on `ERICK-141`; `JoystickView.kt` is down to 853 lines with `JoystickDrawingUtils.kt` extracted. Remaining work is to separate the 8-section and 6-section drawing flow from the `View` state/interaction shell without changing runtime behavior.
 
 ### Guardrail
 

@@ -283,6 +283,12 @@ img {
     flex-wrap: wrap;
 }
 
+.availability-note {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -538,6 +544,20 @@ img {
     margin-bottom: 1.25rem;
     flex-wrap: wrap;
     list-style: none;
+}
+
+.footer-availability {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    color: var(--footer-text);
+}
+
+.footer-availability .separator {
+    opacity: 0.6;
 }
 
 .footer-dev {
@@ -858,6 +878,15 @@ img {
     .hero-buttons {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .footer-availability {
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .footer-availability .separator {
+        display: none;
     }
 
     .a11y-controls {

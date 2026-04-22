@@ -6,6 +6,8 @@ This folder contains the Android implementation of ERICK, the Ergonomic Radial I
 
 ERICK Android is a custom Input Method Editor (IME) built around two large directional controls instead of rows of tiny keys. Users type by combining left and right directional swipes into character chords. The Android app supports touch input, physical game controllers, word prediction, accessibility features, and custom layouts while sharing its core typing logic with iOS through Kotlin Multiplatform.
 
+The current production Android build is available on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
+
 In practical terms, this build is for:
 
 - users who need a more accessible typing option
@@ -93,8 +95,8 @@ The `shared/` module contains platform-agnostic logic compiled for both Android 
 ```bash
 ./gradlew clean
 ./gradlew assembleDebug
+./gradlew :shared:testAndroidHostTest
 ./gradlew installDebug
-./gradlew test
 ./gradlew connectedAndroidTest
 ```
 
