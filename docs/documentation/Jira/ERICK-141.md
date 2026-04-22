@@ -39,6 +39,9 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Updated `.github/copilot-instructions.md`, `README.md`, and `PROJECT_PROMPT.md` to point agents to the new quick-start path.
 - Corrected the shared 6-section test expectations in `KeyboardLogicTest.kt`.
 - Corrected the main end-user and AI-facing 6-section mapping docs.
+- Split Android settings into a small navigation wrapper plus extracted screen files, with `MainSettingsContent.kt` holding the main settings UI.
+- Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
+- Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
 
@@ -91,6 +94,19 @@ Split into:
 | `CustomPaletteEditorScreen.kt` | Custom palette editor screen |
 | `CustomLayoutListScreen.kt` | Custom layout list screen |
 | `CustomLayoutEditorScreen.kt` | Custom layout editor, swipe binding row, binding editor |
+
+Status: Completed on `ERICK-141` with `MainSettingsContent.kt`, `CustomPaletteEditorScreen.kt`, `CustomLayoutListScreen.kt`, and `CustomLayoutEditorScreen.kt` extracted.
+
+#### Android `MainActivity.kt` (685 lines before split)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `MainActivity.kt` | Activity lifecycle, theme wiring, and keyboard-enabled status checks |
+| `MainScreenContent.kt` | Home screen content, setup cards, and controller status UI |
+
+Status: Completed on `ERICK-141`; the unused `InstructionStep` helpers were removed instead of being carried forward.
 
 #### iOS `ErickKeyBoard/SettingsView.swift` (1156 lines)
 
@@ -156,7 +172,7 @@ Make it easier for agents to prove they changed the right thing.
 |---|---|---|
 | Evaluate `android/app/src/main/java/com/vatoo/erick/KeyboardLogic.kt` for deletion | Android app | It appears stale and unreferenced, which is dangerous for AI search-based edits |
 | Decide how to handle tracked baseline profile `.dm` files | Android release artifacts | They create noisy diffs and merge friction |
-| Review whether `MainActivity.kt` or host-app `SettingsView.swift` need later splitting | Android/iOS | They are large but more cohesive than the phase 2 targets |
+| Review whether host-app `SettingsView.swift` needs later splitting | iOS | The host app still has large UI surfaces outside the extension targets |
 | Add an explicit “generated artifact” section to contributor docs | Repo-wide | Helps agents and humans avoid editing derived files |
 
 ---
