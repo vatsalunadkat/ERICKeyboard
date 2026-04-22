@@ -5,6 +5,37 @@ All notable changes to the ERICK (Ergonomic Radial Inclusive Controller Keyboard
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0] - April 13, 2026
+
+## What's New
+
+### Major Feature: 6-Section Dial Mode
+- **Optional 6-Section Dial** - New dial geometry with 6 directions (N, NE, SE, S, SW, NW) at 60-degree intervals instead of 8 at 45 degrees. Larger segments improve targeting accuracy, especially for users with motor limitations. Enabled via a toggle in Settings (off by default).
+- **36-Slot Chord Grid** - 6x6 chord layout maps 26 letters + 10 digits in normal mode. Shifted mode provides uppercase letters and common symbols.
+- **Symbols Mode** - Dedicated symbols layer toggled by swiping NW on the right dial. Provides punctuation, brackets, math operators, and special characters across a 6x6 grid. Shift works within symbols mode for additional Unicode currency, math, and arrow characters.
+- **6-Section Efficiency Layout** - Frequency-optimized chord layout re-generated for the 6x6 grid using the Parallel Tempering optimizer. Most common letters (e, t, a, o, i, n) placed on same-direction (diagonal) chords.
+- **Remapped Utility Actions** - 6-section single-swipe actions: N = Shift, NE = Period, SE = Space, S = Enter, SW = Backspace, NW = Symbols toggle.
+- **6-Color Palettes** - All 7 color palettes (Default, Okabe-Ito, Deuteranopia, Protanopia, Tritanopia, Pastel, Custom) updated with 6-color variants. Custom palette editor adapts to show 6 or 8 color slots.
+- **Preview Bar Support** - Live preview bar fully functional in 6-section mode with correct direction-to-color mapping on both platforms.
+- **Inner Ring Text Positioning** - Inner ring character labels shifted slightly outward (58% radial bias) for better readability within the circular geometry.
+- **Ring Border** - Solid black ring border separating inner and outer character rings on both platforms.
+
+### Improvements
+- **Settings Dropdown Default** - Settings sections now start collapsed on both Android and iOS instead of opening with the Layout section expanded.
+- **Fresh Install Sync** - Fixed 6-section dial mode not applying on Android when enabled at fresh install (before keyboard views were created).
+- **Haptic & Sound Tuning** - Adjusted haptic feedback intensity and key click sound behavior.
+
+### Platform Parity
+All 6-section dial features implemented identically on Android and iOS:
+- Android: Canvas-based 6-segment rendering in JoystickView, DataStore persistence, IME preview bar
+- iOS: SwiftUI SectorSlice-based 6-segment rendering in JoystickView, App Group persistence, KeyboardViewController preview
+- Shared KMP: KeyboardLogic 6-way direction detection, all chord maps, KeyboardStateMachine symbols mode, ColorPalettes 6-color variants, CustomLayout 6x6 support
+
+### Breaking Changes
+None - existing 8-section mode is unchanged and remains the default. User preferences are fully compatible.
+
+---
+
 ## [v0.7.4-beta] - Mar 31, 2026
 
 ## What's New

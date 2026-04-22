@@ -2,7 +2,7 @@
 
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 0.7.4-beta</strong></p>
+  <p align="center"><strong>Version 1.0</strong></p>
 
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
@@ -67,6 +67,7 @@ Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-41414
 
 - [x] Dual-platform keyboard support on Android and iOS
 - [x] Chorded input with two radial dials
+- [x] Optional 6-section dial mode with larger 60-degree segments and dedicated symbols layer
 - [x] Three input modes: Quick Type, Steady Type, and One-Handed
 - [x] Three layout modes: Logical, Efficiency, and Custom
 - [x] Custom layout creator

@@ -37,16 +37,16 @@ class KeyboardLogic {
         }
     }
 
-    // 6-section: 6 directions × 60° each
-    // N (270°), NE (330°), SE (30°), S (90°), SW (150°), NW (210°)
+    // 6-section: 6 directions × 60° each (rotated -30° so horizontal = Space/Backspace)
+    // NE (300°), SE (0°), S (60°), SW (120°), NW (180°), N (240°)
     private fun getDirection6Section(degrees: Double): Direction {
         return when {
-            degrees >= 0.0 && degrees < 60.0 -> Direction.SE    // 30° ± 30°
-            degrees >= 60.0 && degrees < 120.0 -> Direction.S   // 90° ± 30°
-            degrees >= 120.0 && degrees < 180.0 -> Direction.SW // 150° ± 30°
-            degrees >= 180.0 && degrees < 240.0 -> Direction.NW // 210° ± 30°
-            degrees >= 240.0 && degrees < 300.0 -> Direction.N  // 270° ± 30°
-            degrees >= 300.0 && degrees < 360.0 -> Direction.NE // 330° ± 30°
+            degrees >= 330.0 || degrees < 30.0 -> Direction.SE   // 0° ± 30° (right = Space)
+            degrees >= 30.0 && degrees < 90.0 -> Direction.S     // 60° ± 30°
+            degrees >= 90.0 && degrees < 150.0 -> Direction.SW   // 120° ± 30°
+            degrees >= 150.0 && degrees < 210.0 -> Direction.NW  // 180° ± 30° (left = Backspace)
+            degrees >= 210.0 && degrees < 270.0 -> Direction.N   // 240° ± 30°
+            degrees >= 270.0 && degrees < 330.0 -> Direction.NE  // 300° ± 30°
             else -> Direction.NONE
         }
     }
@@ -295,22 +295,22 @@ class KeyboardLogic {
         }
     }
 
-    // 6-section single-swipe actions:
-    // N = Shift (long-press/double-tap for Caps Lock)
-    // NE = Period
-    // SE = Spacebar
-    // S = Enter
-    // SW = Backspace
-    // NW = Symbols toggle (handled by state machine, returns TOGGLE_SYMBOLS sentinel)
+    // 6-section single-swipe actions (rotated to match 8-section horizontal feel):
+    // NE (upper-right) = Shift
+    // SE (right)       = Spacebar
+    // S  (lower-right) = Period
+    // SW (lower-left)  = Enter
+    // NW (left)        = Backspace
+    // N  (upper-left)  = Symbols toggle
     private fun getSingleSwipeResult6(dir: Direction, mode: KeyboardMode): Any? {
         val isShifted = mode != KeyboardMode.NORMAL && mode != KeyboardMode.SYMBOLS && mode != KeyboardMode.SYMBOLS_SHIFTED
         return when (dir) {
-            Direction.N  -> InputAction.TOGGLE_SHIFT
-            Direction.NE -> if (isShifted) ">" else "."
+            Direction.NE -> InputAction.TOGGLE_SHIFT
             Direction.SE -> InputAction.SPACE
-            Direction.S  -> InputAction.ENTER
-            Direction.SW -> InputAction.BACKSPACE
-            Direction.NW -> InputAction.TOGGLE_SYMBOLS
+            Direction.S  -> if (isShifted) ">" else "."
+            Direction.SW -> InputAction.ENTER
+            Direction.NW -> InputAction.BACKSPACE
+            Direction.N  -> InputAction.TOGGLE_SYMBOLS
             else -> null
         }
     }

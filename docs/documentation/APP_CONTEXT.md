@@ -1,7 +1,7 @@
 # ERICK - Application Context & Architecture
 
-**Version**: 0.7.4-beta  
-**Last Updated**: March 31, 2026  
+**Version**: 1.0  
+**Last Updated**: April 13, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 
 ## Executive Summary
@@ -22,44 +22,45 @@ ERICK is a cross-platform keyboard system for Android and iOS that replaces rows
 │  │  - XML Layout       │      │    (SwiftUI)        │   │
 │  │  - DataStore prefs  │      │  - App Group prefs  │   │
 │  └──────────┬──────────┘      └──────────┬──────────┘   │
-└─────────────┼────────────────────────────┼─────────────┘
+└─────────────┼────────────────────────────┼──────────────┘
               │                            │
               └──────────┬─────────────────┘
                          │
-┌────────────────────────▼─────────────────────────────────┐
-│          Shared Module (Kotlin Multiplatform)            │
-│  ┌─────────────────────────────────────────────────┐     │
-│  │  KeyboardStateMachine                           │     │
-│  │  - Chord input processing & state tracking      │     │
-│  │  - Word buffer management                       │     │
-│  │  - Suggestion orchestration                     │     │
-│  │  - Accelerating backspace logic                 │     │
-│  │  - Controller input normalization               │     │
-│  └─────────────────────────────────────────────────┘     │
-│  ┌─────────────────────────────────────────────────┐     │
-│  │  KeyboardLogic                                  │     │
-│  │  - Direction mapping (8-way radial)             │     │
-│  │  - Character resolution (Logical/Efficiency)    │     │
-│  │  - Custom layout support                        │     │
-│  └─────────────────────────────────────────────────┘     │
-│  ┌─────────────────────────────────────────────────┐     │
-│  │  WordPredictionEngine                           │     │
-│  │  - Trie-based word completions                  │     │
-│  │  - Bigram next-word predictions                 │     │
-│  │  - Levenshtein edit-distance autocorrect        │     │
-│  │  - ~700 word dictionary with frequency tiers    │     │
-│  └─────────────────────────────────────────────────┘     │
-│  ┌─────────────────────────────────────────────────┐     │
-│  │  KeyboardContracts                              │     │
-│  │  - Interfaces and data classes                  │     │
-│  │  - Platform abstractions (KeyboardActionDelegate)│    │
-│  └─────────────────────────────────────────────────┘     │
-│  ┌─────────────────────────────────────────────────┐     │
-│  │  ColorPalettes                                  │     │
-│  │  - 7 colorblind-safe palettes + custom editor   │     │
-│  │  - Direction-to-color mapping                   │     │
-│  └─────────────────────────────────────────────────┘     │
-└──────────────────────────────────────────────────────────┘
+┌────────────────────────▼────────────────────────────────┐
+│          Shared Module (Kotlin Multiplatform)           │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  KeyboardStateMachine                           │    │
+│  │  - Chord input processing & state tracking      │    │
+│  │  - Word buffer management                       │    │
+│  │  - Suggestion orchestration                     │    │
+│  │  - Accelerating backspace logic                 │    │
+│  │  - Controller input normalization               │    │
+│  └─────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  KeyboardLogic                                  │    │
+│  │  - Direction mapping (8-way and 6-way radial)   │    │
+│  │  - Character resolution (Logical/Efficiency)    │    │
+│  │  - Custom layout support                        │    │
+│  │  - Symbols mode chord maps (6-section)          │    │
+│  └─────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  WordPredictionEngine                           │    │
+│  │  - Trie-based word completions                  │    │
+│  │  - Bigram next-word predictions                 │    │
+│  │  - Levenshtein edit-distance autocorrect        │    │
+│  │  - ~700 word dictionary with frequency tiers    │    │
+│  └─────────────────────────────────────────────────┘    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │  KeyboardContracts                               │   │
+│  │  - Interfaces and data classes                   │   │
+│  │  - Platform abstractions (KeyboardActionDelegate)│   │
+│  └──────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  ColorPalettes                                  │    │
+│  │  - 7 colorblind-safe palettes + custom editor   │    │
+│  │  - Direction-to-color mapping                   │    │
+│  └─────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### High-Level System Architecture (Mermaid)
@@ -460,9 +461,10 @@ Located in `android/shared/src/commonMain/kotlin/`
 
 **Key Interfaces**:
 - `KeyboardActionDelegate`: Platform callback for key events (`commitText`, `sendInputAction`, `onModeChanged`, `onSuggestionsUpdated`, `getCurrentWordPrefix`)
-- `Direction`: 8-way directional enum (N, NE, E, SE, S, SW, W, NW, NONE)
-- `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED)
-- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, etc.)
+- `Direction`: 8-way directional enum (N, NE, E, SE, S, SW, W, NW, NONE); 6-section mode uses N, NE, SE, S, SW, NW (no E, W)
+- `DialSectionMode`: Dial geometry mode (EIGHT_SECTION / SIX_SECTION)
+- `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED, SYMBOLS, SYMBOLS_SHIFTED)
+- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, TOGGLE_SYMBOLS, etc.)
 - `LayoutType`: Layout selection (LOGICAL, EFFICIENCY, CUSTOM)
 - `InputMode`: Input mode selection (INSTANT / Quick Type, CONFIRM / Steady Type, ASSISTED / One-Handed)
 
@@ -766,15 +768,21 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 
 - **v0.7.4-beta** (Current):
   - Three input modes: Quick Type, Steady Type, One-Handed
-  - Custom color palettes with full color editor
-  - Haptic feedback & typing sounds
-  - Pastel palette icon fix, preview capsule fix, shift indicator redesign
+  - Custom color palettes with full color editor (HSV/hex/RGB)
+  - Haptic feedback & typing sounds (toggleable)
+  - Pastel palette icon fix (black icons on low-luminance colors)
+  - Preview capsule text cutoff fix
+  - Shift/caps indicator redesign
 
 - **v0.5.1-alpha**:
-  - Typing practice mini-game (Android + iOS)
-  - Outlined/stroked preview text
-  - Website redesign (React + Vite + Tailwind)
-  - Architecture diagrams
+  - Typing practice mini-game (Android Compose + iOS SwiftUI)
+  - Outlined/stroked preview text for readability across light/dark themes
+  - Website redesign (React + Vite + Tailwind SPA)
+  - Architecture diagrams (drawio + PNG)
+  - AD_ID opt-out in Android manifest
+  - iOS Settings GitHub link
+  - Shift indicator relocation to prevent capsule overlap
+  - Switched to ERICK Source Available License 1.0
 
 - **v0.4.2-alpha**:
   - Collapsible accordion-style settings menu (Android + iOS)
@@ -891,6 +899,5 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 
 ---
 
-**Document Maintained By**: Vatsal Unadkat
+**Document Maintained By**: Vatsal Unadkat 
 **For Questions**: See [GitHub Issues](https://github.com/vatsalunadkat/ERICKeyboard/issues)
-

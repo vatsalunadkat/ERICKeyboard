@@ -1,7 +1,7 @@
 # ERICK User Guide
 
-**Version**: 0.7.4-beta  
-**Last Updated**: 2026
+**Version**: 1.0  
+**Last Updated**: April 13, 2026
 
 ---
 
