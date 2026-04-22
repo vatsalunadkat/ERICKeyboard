@@ -54,7 +54,7 @@ Use this file as the shortest safe entry point for AI-assisted work in this repo
 
 ## Validation Commands
 
-- Android shared tests: `cd android && .\gradlew.bat :shared:test`
+- Android shared tests: `cd android && .\gradlew.bat :shared:testAndroidHostTest`
 - Android app build: `cd android && .\gradlew.bat assembleDebug`
 - Rebuild the iOS shared framework: `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
 - iOS app and extension: build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`

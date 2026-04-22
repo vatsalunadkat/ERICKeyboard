@@ -1,11 +1,22 @@
 package com.vatoo.erick.shared
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class KeyboardLogicTest {
 
     private val logic = KeyboardLogic()
+    private val testDelegate = object : KeyboardActionDelegate {
+        override fun commitText(text: String) = Unit
+        override fun sendInputAction(action: InputAction) = Unit
+        override fun onModeChanged(mode: KeyboardMode) = Unit
+        override fun onSuggestionsUpdated(suggestions: List<String>) = Unit
+        override fun getCurrentWordPrefix(): String = ""
+    }
+    private val testScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Test
     fun shiftedNwYellowReturnsLiteralAsterisk() {
@@ -97,7 +108,7 @@ class KeyboardLogicTest {
     @Test
     fun sixSection_getDirectionsReturns6() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        val stateMachine = KeyboardStateMachine()
+        val stateMachine = KeyboardStateMachine(testDelegate, testScope)
         stateMachine.setDialSectionMode(DialSectionMode.SIX_SECTION)
         assertEquals(6, stateMachine.getDirections().size)
         stateMachine.setDialSectionMode(DialSectionMode.EIGHT_SECTION)

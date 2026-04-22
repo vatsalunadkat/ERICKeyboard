@@ -141,7 +141,7 @@ Make it easier for agents to prove they changed the right thing.
 
 ### Minimum Validation Matrix
 
-- Android shared tests: `cd android && .\gradlew.bat :shared:test`
+- Android shared tests: `cd android && .\gradlew.bat :shared:testAndroidHostTest`
 - Android debug build: `cd android && .\gradlew.bat assembleDebug`
 - Rebuild iOS shared framework: `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
 - iOS build: build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`
