@@ -498,47 +498,20 @@ class JoystickView @JvmOverloads constructor(
                 keyboardMode == KeyboardMode.NORMAL -> leftCharsNormal6
                 else -> leftCharsShifted6
             }
-            for (i in 0 until 6) {
-                val dir = directions6Drawing[i]
-                val startAngle = -90f + i * 60f
-                val chars = currentCharsMap[dir] ?: emptyList()
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-                val alphaVal = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-
-                // Outer Text (3 blocks × 20°)
-                for (j in 0 until 3) {
-                    val c = chars.getOrNull(j) ?: continue
-                    if (c.isBlank()) continue
-                    val bgHex = ColorPalettes.getColorForDirectionHex6(rightDirs6[j], colorPaletteType)
-                    drawCharText(
-                        canvas = canvas,
-                        charStr = c,
-                        ringInnerRadius = r1,
-                        ringOuterRadius = baseRadius,
-                        startAngle = startAngle + j * 20f,
-                        sweepAngle = 20f,
-                        alphaVal = alphaVal,
-                        bgHex = bgHex
-                    )
-                }
-                // Inner Text (3 blocks × 20°)
-                for (j in 0 until 3) {
-                    val c = chars.getOrNull(3 + j) ?: continue
-                    if (c.isBlank()) continue
-                    val bgHex = ColorPalettes.getColorForDirectionHex6(rightDirs6[3 + j], colorPaletteType)
-                    drawCharText(
-                        canvas = canvas,
-                        charStr = c,
-                        ringInnerRadius = innerHoleRadius,
-                        ringOuterRadius = r1,
-                        startAngle = startAngle + j * 20f,
-                        sweepAngle = 20f,
-                        alphaVal = alphaVal,
-                        bgHex = bgHex,
-                        radialBias = 0.58f
-                    )
-                }
-            }
+            drawSixSectionCharacters(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                innerHoleRadius = innerHoleRadius,
+                splitRadius = r1,
+                baseRadius = baseRadius,
+                directions = directions6Drawing,
+                paletteDirections = rightDirs6,
+                currentCharsMap = currentCharsMap,
+                activeDirection = activeDirection,
+                colorPaletteType = colorPaletteType,
+                charTextPaint = charTextPaint
+            )
         } else {
             // Left Dial: 3 Concentric Layers with discrete blocks
             val innerHoleRadius = thumbRadius * 0.9f  // Expand the inner layers by making hole smaller to hug the thumb tightly
@@ -678,105 +651,26 @@ class JoystickView @JvmOverloads constructor(
                 keyboardMode == KeyboardMode.NORMAL -> leftCharsNormal
                 else -> leftCharsShifted
             }
-            for (i in 0 until 8) {
-                val dir = directions[i]
-                val startAngle = -22.5f + i * 45f
-                val chars = currentCharsMap[dir] ?: emptyList()
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-                val alphaVal = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-                
-                // Outer Text
-                for(j in 0 until 3) {
-                    val c = chars.getOrNull(j) ?: continue
-                    if (c.isBlank()) continue
-                    val bgHex = ColorPalettes.getColorForDirectionHex(rightDirs[j], colorPaletteType)
-                    drawCharText(
-                        canvas = canvas,
-                        charStr = c,
-                        ringInnerRadius = r2,
-                        ringOuterRadius = baseRadius,
-                        startAngle = startAngle + j * 15f,
-                        sweepAngle = 15f,
-                        alphaVal = alphaVal,
-                        bgHex = bgHex
-                    )
-                }
-                // Middle Text
-                for(j in 0 until 3) {
-                    val c = chars.getOrNull(3 + j) ?: continue
-                    if (c.isBlank()) continue
-                    val bgHex = ColorPalettes.getColorForDirectionHex(rightDirs[3 + j], colorPaletteType)
-                    drawCharText(
-                        canvas = canvas,
-                        charStr = c,
-                        ringInnerRadius = r1,
-                        ringOuterRadius = r2,
-                        startAngle = startAngle + j * 15f,
-                        sweepAngle = 15f,
-                        alphaVal = alphaVal,
-                        bgHex = bgHex
-                    )
-                }
-                // Inner Text
-                for(j in 0 until 2) {
-                    val c = chars.getOrNull(6 + j) ?: continue
-                    if (c.isBlank()) continue
-                    val bgHex = ColorPalettes.getColorForDirectionHex(rightDirs[6 + j], colorPaletteType)
-                    drawCharText(
-                        canvas = canvas,
-                        charStr = c,
-                        ringInnerRadius = innerHoleRadius,
-                        ringOuterRadius = r1,
-                        startAngle = startAngle + j * 22.5f,
-                        sweepAngle = 22.5f,
-                        alphaVal = alphaVal,
-                        bgHex = bgHex
-                    )
-                }
-            }
+            drawEightSectionCharacters(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                innerHoleRadius = innerHoleRadius,
+                innerRingOuterRadius = r1,
+                middleRingOuterRadius = r2,
+                baseRadius = baseRadius,
+                directions = directions,
+                paletteDirections = rightDirs,
+                currentCharsMap = currentCharsMap,
+                activeDirection = activeDirection,
+                colorPaletteType = colorPaletteType,
+                charTextPaint = charTextPaint
+            )
         }
 
         // Draw thumb
         canvas.drawCircle(thumbX, thumbY, thumbRadius, thumbPaint)
         canvas.drawCircle(thumbX, thumbY, thumbRadius * 0.6f, thumbInnerPaint)
-    }
-
-    private fun drawCharText(
-        canvas: Canvas,
-        charStr: String,
-        ringInnerRadius: Float,
-        ringOuterRadius: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-        alphaVal: Int,
-        bgHex: String = "#000000",
-        radialBias: Float = 0.5f
-    ) {
-        val centerRadius = ringInnerRadius + (ringOuterRadius - ringInnerRadius) * radialBias
-        val centerAngle = startAngle + sweepAngle / 2f
-        val angleRad = Math.toRadians(centerAngle.toDouble())
-        val charX = centerX + cos(angleRad).toFloat() * centerRadius
-        val charY = centerY + sin(angleRad).toFloat() * centerRadius
-
-        val arcWidth = centerRadius * Math.toRadians(sweepAngle.toDouble()).toFloat()
-        val ringHeight = ringOuterRadius - ringInnerRadius
-        val fittedSize = fittedSingleLineTextSize(
-            text = charStr,
-            basePaint = charTextPaint,
-            maxWidth = arcWidth * 0.72f,
-            maxHeight = ringHeight * 0.54f,
-            preferredSizes = listOf(34f, 32f, 30f, 28f, 26f, 24f, 22f, 20f, 18f)
-        )
-
-        val textColor = Color.parseColor(ColorPalettes.contrastTextColor(bgHex, colorPaletteType))
-        val textPaint = Paint(charTextPaint).apply {
-            color = textColor
-            alpha = alphaVal
-            textSize = fittedSize
-        }
-
-        val baseline = charY - (textPaint.descent() + textPaint.ascent()) / 2f
-        canvas.drawText(charStr, charX, baseline, textPaint)
     }
 
     private fun drawRightDialContent(
