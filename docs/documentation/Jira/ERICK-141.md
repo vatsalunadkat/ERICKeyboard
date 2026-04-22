@@ -43,6 +43,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Canonicalized `APP_CONTEXT.md`: the repo-root file is now the source of truth and `docs/documentation/APP_CONTEXT.md` is explicitly marked as a mirrored copy.
 - Split Android settings into a small navigation wrapper plus extracted screen files, with `MainSettingsContent.kt` holding the main settings UI.
 - Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
+- Started the iOS extension settings split by extracting palette and custom-layout views out of `ios/ERICK/ErickKeyBoard/SettingsView.swift`.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
@@ -120,6 +121,8 @@ Split into:
 | `ColorPaletteComponents.swift` | Palette definitions and palette UI components |
 | `CustomPaletteEditorView.swift` | Custom palette editor |
 | `CustomLayoutViews.swift` | Custom layout list and editor views |
+
+Status: In progress on `ERICK-141`; `SettingsView.swift` is down to 443 lines with `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift` extracted. The remaining work is the `KeyboardViewController.swift` split and macOS-side iOS build validation.
 
 #### iOS `KeyboardViewController.swift` (1045 lines)
 

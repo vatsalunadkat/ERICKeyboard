@@ -36,7 +36,6 @@ Use this file as the shortest safe entry point for AI-assisted work in this repo
 ## High-Risk Files
 
 - `android/app/src/main/java/com/vatoo/erick/SettingsScreen.kt` is very large and contains multiple screens.
-- `ios/ERICK/ErickKeyBoard/SettingsView.swift` is very large and mixes settings, palette UI, and custom layout UI.
 - `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` contains both controller logic and visual state management.
 - `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` mixes rendering, geometry, and interaction logic.
 

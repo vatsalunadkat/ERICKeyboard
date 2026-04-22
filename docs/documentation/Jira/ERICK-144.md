@@ -17,11 +17,13 @@
 
 Reduce the iOS extension edit surface by splitting the two largest extension files into focused view and controller units.
 
+Status: In progress on `ERICK-141`. `SettingsView.swift` has already been reduced from 1156 lines to 443 by extracting `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift`. Remaining work: split `KeyboardViewController.swift` and validate the extension build on macOS.
+
 ---
 
 ## Evidence
 
-- `ios/ERICK/ErickKeyBoard/SettingsView.swift` is 1156 lines.
+- `ios/ERICK/ErickKeyBoard/SettingsView.swift` started at 1156 lines and is now 443 lines after the first extraction phase.
 - `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` is 1045 lines.
 - ERICK-141 already flags both files as high-risk for lower-context AI edits.
 
