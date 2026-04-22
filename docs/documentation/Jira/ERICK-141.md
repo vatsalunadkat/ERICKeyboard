@@ -1,164 +1,180 @@
-# ERICK-141 - Split Large Files for Maintainability
+# ERICK-141 - AI-First Repository Hardening
 
 | Field | Value |
 |---|---|
-| **Type** | Tech Debt / Refactor |
-| **Priority** | Medium |
-| **Story Points** | 5 |
+| **Type** | Tech Debt / Developer Experience |
+| **Priority** | High |
+| **Story Points** | 8 |
 | **Assignee** | Vatsal Unadkat |
 | **Sprint** | Backlog |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
-| **Labels** | refactor, android, ios, maintainability |
-| **Dependencies** | None (should be done on a clean branch) |
+| **Labels** | ai-first, docs, maintainability, android, ios, shared |
+| **Dependencies** | Merge `main` first and preserve the shipped rotated 6-section behavior |
 
 ---
 
-## Description
+## Objective
 
-Split the largest source files into smaller, single-responsibility files. This improves accuracy when AI-assisted coding (fewer ambiguous edit targets, ability to read entire file context in one pass) and standard maintainability.
-
-**Files over ~600 lines that mix multiple independent concerns are candidates. Files that are large but cohesive (single class, single responsibility) should NOT be split.**
+Make the repository safer for AI models and coding agents with mixed reasoning quality. Optimize for correctness, small edit surfaces, clear source-of-truth files, and explicit validation paths. Favor accuracy over speed.
 
 ---
 
-## Motivation
+## Audit Summary
 
-| Problem | Impact |
+| Finding | Evidence | Risk for AI Agents |
+|---|---|---|
+| AI-facing docs drifted from shipped 6-section behavior | `PROJECT_PROMPT.md`, `User_Guide.md`, and ticket docs described the earlier unrotated mapping | Agents implement or test the wrong gestures |
+| Large multi-concern UI files are hard to edit locally | `SettingsScreen.kt` 1595 lines, `SettingsView.swift` 1156, `KeyboardViewController.swift` 1045, `JoystickView.kt` 1012 | Lower-context agents make broad or ambiguous edits |
+| Shared tests were thin and had stale 6-section expectations | `KeyboardLogicTest.kt` still asserted `N = Shift` and `NW = Symbols` before this branch update | Behavior regressions can pass casual review |
+| A stale Android-local `KeyboardLogic.kt` still exists | The file appears unreferenced and does not match current shared behavior | Agents can patch the wrong logic surface |
+| Architecture context is duplicated | `APP_CONTEXT.md` exists at repo root and under `docs/documentation/` | Documentation drift and double-update failures |
+| Generated artifacts create noisy diffs | `android/app/release/baselineProfiles/*.dm` showed up as local changes during the merge | Agents may waste time or accidentally stage generated files |
+
+---
+
+## Completed In This Branch
+
+- Merged `origin/main` into `ERICK-141` and resolved the 6-section conflicts in favor of the shipped rotated geometry.
+- Added `AGENTS.md` as a short, AI-first repo entrypoint.
+- Updated `.github/copilot-instructions.md`, `README.md`, and `PROJECT_PROMPT.md` to point agents to the new quick-start path.
+- Corrected the shared 6-section test expectations in `KeyboardLogicTest.kt`.
+- Corrected the main end-user and AI-facing 6-section mapping docs.
+
+---
+
+## Phase 0: Immediate Hardening
+
+- [x] Add a short canonical AI guide (`AGENTS.md`)
+- [x] Encode the shipped rotated 6-section mapping in the main AI-facing docs
+- [x] Correct stale shared test expectations
+- [x] Expand Copilot instructions with high-risk files and generated-artifact rules
+- [x] Replace the narrow file-splitting ticket with a broader AI-first plan
+
+---
+
+## Phase 1: Canonical Context Cleanup
+
+### Goal
+
+Reduce the number of places an agent has to read before it can identify the correct edit surface.
+
+### Tasks
+
+1. Choose one authoritative architecture document.
+2. Make the duplicate `docs/documentation/APP_CONTEXT.md` explicitly mirrored or generated from the root copy.
+3. Keep `AGENTS.md` short and operational; keep `PROJECT_PROMPT.md` and `APP_CONTEXT.md` deeper and more descriptive.
+4. Add a lightweight docs-sync checklist whenever behavior, layout mappings, or architecture changes.
+
+### Deliverables
+
+- A clearly documented source of truth for architecture
+- A mirrored-doc update rule or generation step
+- Fewer contradictory descriptions of the same feature
+
+---
+
+## Phase 2: Reduce Edit Surface Area
+
+### Goal
+
+Split only the files whose size and mixed responsibilities create the highest risk for incorrect AI edits.
+
+### Priority Targets
+
+#### Android `SettingsScreen.kt` (1595 lines)
+
+Split into:
+
+| New File | Contents |
 |---|---|
-| `SettingsScreen.kt` has 4 independent screens (1574 lines) | Editing one screen requires skipping past 1000+ irrelevant lines |
-| `SettingsView.swift` (extension) has 4 independent views (1141 lines) | Same issue on iOS side |
-| `KeyboardViewController.swift` has ViewModel + Controller (1043 lines) | Two classes in one file, different responsibilities |
-| `JoystickView.kt` has drawing + input + data logic (999 lines) | Drawing helpers are independent of touch handling |
+| `SettingsScreen.kt` | Main settings screen and shared row components |
+| `CustomPaletteEditorScreen.kt` | Custom palette editor screen |
+| `CustomLayoutListScreen.kt` | Custom layout list screen |
+| `CustomLayoutEditorScreen.kt` | Custom layout editor, swipe binding row, binding editor |
+
+#### iOS `ErickKeyBoard/SettingsView.swift` (1156 lines)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `SettingsView.swift` | Main settings view and section helpers |
+| `ColorPaletteComponents.swift` | Palette definitions and palette UI components |
+| `CustomPaletteEditorView.swift` | Custom palette editor |
+| `CustomLayoutViews.swift` | Custom layout list and editor views |
+
+#### iOS `KeyboardViewController.swift` (1045 lines)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `KeyboardViewModel.swift` | ObservableObject visual state holder |
+| `KeyboardViewController.swift` | UIInputViewController and delegate integration |
+
+#### Android `JoystickView.kt` (1012 lines)
+
+Extract pure drawing helpers into:
+
+| New File | Contents |
+|---|---|
+| `JoystickDrawingUtils.kt` | Text fitting, icon drawing, color darkening, label splitting |
+
+### Guardrail
+
+These refactors must remain behavior-preserving. No feature work should be mixed into the split.
 
 ---
 
-## Detailed Plan
+## Phase 3: Validation Hardening
 
-### Task 1: Split Android `SettingsScreen.kt` (1574 lines → 4 files)
+### Goal
 
-**Current structure in `android/app/src/main/java/com/vatoo/erick/SettingsScreen.kt`:**
-- Lines 1-860: `SettingsScreen()` composable + helper components (`LayoutRadioOption`, `SettingToggle`, `PaletteRadioOption`, `CustomPaletteRadioOption`)
-- Lines 861-1121: `CustomPaletteEditorScreen()` composable (standalone screen)
-- Lines 1122-1340: `CustomLayoutListScreen()` composable (standalone screen)
-- Lines 1341-end: `CustomLayoutEditorScreen()` + `SwipeBindingRow()` + `SwipeBindingEditorScreen()`
+Make it easier for agents to prove they changed the right thing.
 
-**Split into:**
+### Tasks
 
-| New File | Contents | ~Lines |
+1. Expand shared tests around 6-section direction detection and single-swipe actions.
+2. Add focused tests for `KeyboardStateMachine` symbols toggling and mode transitions.
+3. Document the preferred validation commands in one place.
+4. Record smoke-test paths for settings, typing, controller input, and the typing game.
+
+### Minimum Validation Matrix
+
+- Android shared tests: `cd android && .\gradlew.bat :shared:test`
+- Android debug build: `cd android && .\gradlew.bat assembleDebug`
+- Rebuild iOS shared framework: `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
+- iOS build: build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`
+
+---
+
+## Phase 4: Cleanup Backlog
+
+### Items To Investigate
+
+| Item | Scope | Why It Matters |
 |---|---|---|
-| `SettingsScreen.kt` | Main settings screen + `SettingToggle`, `LayoutRadioOption`, `PaletteRadioOption`, `CustomPaletteRadioOption` | ~860 |
-| `CustomPaletteEditorScreen.kt` | `CustomPaletteEditorScreen()` | ~260 |
-| `CustomLayoutListScreen.kt` | `CustomLayoutListScreen()` | ~220 |
-| `CustomLayoutEditorScreen.kt` | `CustomLayoutEditorScreen()` + `SwipeBindingRow` + `SwipeBindingEditorScreen` | ~240 |
-
-**Steps:**
-1. Create 3 new files with the extracted composables
-2. Move relevant imports to each new file (all in same package `com.vatoo.erick`, no import changes needed for callers)
-3. Verify `MainActivity.kt` navigation calls still resolve (they reference function names, not file names)
-4. Build and verify no compile errors
+| Evaluate `android/app/src/main/java/com/vatoo/erick/KeyboardLogic.kt` for deletion | Android app | It appears stale and unreferenced, which is dangerous for AI search-based edits |
+| Decide how to handle tracked baseline profile `.dm` files | Android release artifacts | They create noisy diffs and merge friction |
+| Review whether `MainActivity.kt` or host-app `SettingsView.swift` need later splitting | Android/iOS | They are large but more cohesive than the phase 2 targets |
+| Add an explicit “generated artifact” section to contributor docs | Repo-wide | Helps agents and humans avoid editing derived files |
 
 ---
 
-### Task 2: Split iOS `ErickKeyBoard/SettingsView.swift` (1141 lines → 4 files)
+## Findings To Preserve For Future Agents
 
-**Current structure in `ios/ERICK/ErickKeyBoard/SettingsView.swift`:**
-- Lines 1-467: `SettingsView` struct + collapsible section helper + preview
-- Lines 468-742: `ColorPaletteDefinitions`, `ColorPaletteEntry`, palette UI components
-- Lines 743-912: `CustomPaletteEditorView` struct + `Color` extension
-- Lines 913-1046: `CustomLayoutListView` struct
-- Lines 1047-1141: `CustomLayoutEditorView` struct
-
-**Split into:**
-
-| New File | Contents | ~Lines |
-|---|---|---|
-| `SettingsView.swift` | Main settings view + collapsible section helper | ~467 |
-| `ColorPaletteComponents.swift` | `ColorPaletteDefinitions`, `ColorPaletteEntry`, palette option views, `Color` extension | ~445 |
-| `CustomPaletteEditorView.swift` | `CustomPaletteEditorView` | ~170 |
-| `CustomLayoutViews.swift` | `CustomLayoutListView` + `CustomLayoutEditorView` | ~230 |
-
-**Steps:**
-1. Create 3 new Swift files in the `ErickKeyBoard` target
-2. Ensure they are added to the Xcode project's target membership (keyboard extension, not main app)
-3. All types are internal by default in Swift — same module, no access issues
-4. Build and verify
-
----
-
-### Task 3: Split iOS `KeyboardViewController.swift` (1043 lines → 2 files)
-
-**Current structure:**
-- Lines 1-15: Imports
-- Lines 16-310: `KeyboardViewModel` class (~295 lines) — `ObservableObject` managing all visual state
-- Lines 311-1043: `KeyboardViewController` class (~732 lines) — `UIInputViewController` + `KeyboardActionDelegate`
-
-**Split into:**
-
-| New File | Contents | ~Lines |
-|---|---|---|
-| `KeyboardViewModel.swift` | `KeyboardViewModel` class | ~310 |
-| `KeyboardViewController.swift` | `KeyboardViewController` class | ~740 |
-
-**Steps:**
-1. Create `KeyboardViewModel.swift` with the class and its imports
-2. Remove the class from `KeyboardViewController.swift`
-3. Both are in the same module — no access changes needed
-4. Build and verify
-
----
-
-### Task 4: Extract Android `JoystickView.kt` Drawing Helpers (999 lines → 2 files)
-
-**Current structure in `android/app/src/main/java/com/vatoo/erick/JoystickView.kt`:**
-- Lines 1-100: Class declaration, properties, initialization
-- Lines 101-305: Public API (setLockedDirection, etc.) and utility properties
-- Lines 306-850: `onDraw()`, `drawCharText()`, `drawRightDialContent()`, `fittedTextSize()`, `getRightDialLabelLines()`, `drawProgrammaticIcon()` — all drawing
-- Lines 850-999: `updateThumb()`, `updateThumbFromController()`, `getInfoForDirection()`, `resetThumb()`, `setPreviewText()`, `darkenColor()`
-
-The drawing methods are private and numerous. Rather than a file split (which would require making them internal or using extension functions), extract the icon-drawing logic and text-fitting utilities into a companion/utility:
-
-| New File | Contents | ~Lines |
-|---|---|---|
-| `JoystickDrawingUtils.kt` | `drawProgrammaticIcon()`, `fittedTextSize()`, `fittedSingleLineTextSize()`, `darkenColor()`, `getRightDialLabelLines()` as top-level or object functions | ~200 |
-| `JoystickView.kt` | Everything else | ~800 |
-
-**Steps:**
-1. Extract pure utility functions (no `this` reference to View state) into `JoystickDrawingUtils.kt`
-2. Pass required parameters explicitly (Canvas, Paint, etc.)
-3. Keep `onDraw()` and `drawCharText()` in JoystickView (they reference class state heavily)
-4. Build and verify
-
----
-
-### Task 5: Verify & Test
-
-- [ ] Android: Full Gradle build (`./gradlew assembleDebug`)
-- [ ] iOS: Xcode build for both app and keyboard extension targets
-- [ ] Manual smoke test: Open settings, navigate to custom palette editor, custom layout editor
-- [ ] Manual smoke test: Type using keyboard on both platforms
-- [ ] Verify no regressions in 6-section dial mode
-- [ ] Update all docs and md files
-- [ ] update copilot-instructions.md
-
----
-
-## Files NOT Being Split (and why)
-
-| File | Lines | Reason |
-|---|---|---|
-| `MyInputMethodService.kt` | 728 | Single class, single responsibility (Android IME lifecycle) |
-| `KeyboardStateMachine.kt` | 530 | Single class, core state machine — splitting would hurt cohesion |
-| `JoystickView.swift` (iOS) | 670 | Manageable size, SwiftUI views are naturally composable |
-| `SettingsView.swift` (app) | 606 | Borderline; simpler than the extension version |
-| `MainActivity.kt` | 685 | Single Activity with navigation — standard Android pattern |
-| `WordPredictionEngine.kt` | 443 | Single class, cohesive algorithm |
+- The shipped 6-section utility mapping is `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols.
+- Shared logic is the canonical source for behavior changes.
+- A stale Android-local `KeyboardLogic.kt` exists and should not be treated as authoritative.
+- Large-file refactors should be isolated from behavior changes.
+- Documentation updates must travel with mapping changes.
 
 ---
 
 ## Acceptance Criteria
 
-1. No file in the project exceeds ~850 lines (with exceptions for cohesive single-class files)
-2. Each new file has a single clear responsibility
-3. No functional changes — pure structural refactor
-4. Both platforms build and pass smoke tests
-5. Navigation between settings screens still works correctly
+1. A new AI agent can start from `AGENTS.md` and identify the correct code path within a few reads.
+2. The main AI-facing docs describe the shipped 6-section mapping correctly.
+3. `ERICK-141` contains a concrete, phased plan for context cleanup, large-file splitting, validation, and cleanup debt.
+4. High-risk stale sources and generated-artifact traps are documented explicitly.
+5. Shared test coverage reflects the shipped rotated 6-section behavior.

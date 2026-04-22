@@ -87,7 +87,7 @@ In the default Logical layout, characters are arranged alphabetically:
 
 **Example:** To type the letter **"e"**, swipe the left dial **N** and the right dial **S** (5th position in the N group).
 
-### Shift and Caps Lock
+### Shift and Caps Lock (8-Section Default)
 
 | Mode | Letters | Numbers/Symbols | How to Activate |
 |---|---|---|---|
@@ -97,8 +97,9 @@ In the default Logical layout, characters are arranged alphabetically:
 
 - **Shift** auto-resets after one chord (type one uppercase letter, then returns to normal).
 - **Caps Lock** persists until toggled off with another NW single-swipe.
+- In 6-section mode, Caps Lock is not on the single-swipe wheel; see the Dial Mode section below.
 
-### Single-Direction Actions (Utility Functions)
+### Single-Direction Actions in 8-Section Mode
 
 Some actions use only one dial while the other stays at center:
 
@@ -115,7 +116,7 @@ Some actions use only one dial while the other stays at center:
 
 ### Accelerating Backspace
 
-Holding the backspace direction (W) provides progressively faster deletion:
+Holding the backspace direction (W in 8-section, NW in 6-section) provides progressively faster deletion:
 
 | Hold Duration | Behavior |
 |---|---|
@@ -172,26 +173,27 @@ An optional mode with **6 directions** (N, NE, SE, S, SW, NW — no E or W), eac
 | Directions | 8 (45° each) | 6 (60° each) |
 | Chord positions | 64 | 36 |
 | Normal mode characters | 26 letters + 10 digits + symbols | 26 letters + 10 digits |
-| Symbols mode | Not available | NW single-swipe toggles Symbols |
+| Symbols mode | Not available | N single-swipe toggles Symbols |
 | Left dial rings | 3 inner rings | 2 inner rings |
-| Shift toggle | SW single-swipe | N single-swipe |
-| Backspace | W single-swipe | SW single-swipe |
+| Shift toggle | SW single-swipe | NE single-swipe |
+| Enter | S single-swipe | SW single-swipe |
+| Backspace | W single-swipe | NW single-swipe |
 | Space | E single-swipe | SE single-swipe |
-| Period | SE single-swipe | NE single-swipe |
+| Period | SE single-swipe | S single-swipe |
 | Caps Lock | NW single-swipe | Not available (use Symbols instead) |
 
 **6-Section Single-Direction Actions:**
 
 | Direction | Function |
 |---|---|
-| **N** | Toggle SHIFT |
-| **NE** | Type `.` (period) |
+| **N** | Toggle SYMBOLS mode |
+| **NE** | Toggle SHIFT |
 | **SE** | SPACE |
-| **S** | ENTER |
-| **SW** | BACKSPACE |
-| **NW** | Toggle SYMBOLS mode |
+| **S** | Type `.` (period) |
+| **SW** | ENTER |
+| **NW** | BACKSPACE |
 
-**Symbols Mode** (6-section only): When enabled, the dials show punctuation, brackets, math operators, and other special characters instead of letters. Swipe NW again to return to normal typing. Shift works within Symbols mode to access Unicode currency, math, and arrow characters.
+**Symbols Mode** (6-section only): When enabled, the dials show punctuation, brackets, math operators, and other special characters instead of letters. Swipe N again to return to normal typing. Shift works within Symbols mode to access Unicode currency, math, and arrow characters.
 
 ---
 

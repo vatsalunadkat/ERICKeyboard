@@ -66,31 +66,30 @@ class KeyboardLogicTest {
     }
 
     @Test
-    fun sixSection_directionDetection60Degrees() {
+    fun sixSection_directionDetectionUsesRotatedGeometry() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        // 0 degrees (pointing right) → SE in 6-section (0°-60° range, center 30°)
+        // The 6-section wheel is rotated -30° so horizontal remains the easiest utility axis.
         assertEquals(Direction.SE, logic.getDirectionFromXY(1.0f, 0.0f))
-        // 90 degrees (pointing down) → S in 6-section (60°-120° range, center 90°)
-        assertEquals(Direction.S, logic.getDirectionFromXY(0.0f, 1.0f))
-        // 270 degrees (pointing up) → N in 6-section (240°-300° range, center 270°)
-        assertEquals(Direction.N, logic.getDirectionFromXY(0.0f, -1.0f))
-        // 180 degrees (pointing left) → NW in 6-section (180°-240° range, center 210°)
+        assertEquals(Direction.S, logic.getDirectionFromXY(0.5f, 0.8660254f))
+        assertEquals(Direction.SW, logic.getDirectionFromXY(-0.5f, 0.8660254f))
         assertEquals(Direction.NW, logic.getDirectionFromXY(-1.0f, 0.0f))
+        assertEquals(Direction.N, logic.getDirectionFromXY(-0.5f, -0.8660254f))
+        assertEquals(Direction.NE, logic.getDirectionFromXY(0.5f, -0.8660254f))
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 
     @Test
-    fun sixSection_singleSwipeNorthIsShift() {
+    fun sixSection_singleSwipeNeIsShift() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        val result = logic.getSingleSwipeResult(Direction.N, KeyboardMode.NORMAL)
+        val result = logic.getSingleSwipeResult(Direction.NE, KeyboardMode.NORMAL)
         assertEquals(InputAction.TOGGLE_SHIFT, result)
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 
     @Test
-    fun sixSection_singleSwipeNWIsSymbols() {
+    fun sixSection_singleSwipeNorthIsSymbols() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        val result = logic.getSingleSwipeResult(Direction.NW, KeyboardMode.NORMAL)
+        val result = logic.getSingleSwipeResult(Direction.N, KeyboardMode.NORMAL)
         assertEquals(InputAction.TOGGLE_SYMBOLS, result)
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }

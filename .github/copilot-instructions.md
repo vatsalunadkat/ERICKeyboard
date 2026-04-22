@@ -42,3 +42,12 @@ Both 8-section and 6-section modes coexist. Controlled by `DialSectionMode` enum
 - iOS bundle: `com.vatoo.erick`, App Group: `group.com.vatoo.erick`
 - Ticket format: `ERICK-{number}` in `docs/documentation/Jira/`
 - Changelog: `CHANGELOG.md` at repo root
+
+## AI-First Safety Notes
+- Read `AGENTS.md` first for the shortest safe workflow.
+- Shared behavior is authoritative in `android/shared/src/commonMain/kotlin/`.
+- The 6-section utility wheel is rotated `-30°`: `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols toggle.
+- `android/app/src/main/java/com/vatoo/erick/KeyboardLogic.kt` appears stale and unreferenced. Do not use it as the source of truth for current behavior.
+- Avoid manual edits to generated artifacts unless the task is explicitly about them: `android/**/build/`, `android/app/release/baselineProfiles/*.dm`, and `ios/ERICK/SharedKeyboard.xcframework/`.
+- `APP_CONTEXT.md` and `docs/documentation/APP_CONTEXT.md` are mirrored docs. Keep them aligned intentionally when architecture changes.
+- If you change gesture mappings or dial geometry, update `KeyboardLogicTest.kt` and the relevant docs in the same pass.

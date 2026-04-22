@@ -16,6 +16,8 @@
     ·
     <a href="docs/documentation/Research/README.md"><strong>Research</strong></a>
     ·
+    <a href="AGENTS.md"><strong>AI Agent Guide</strong></a>
+    ·
     <a href="CHANGELOG.md"><strong>Changelog</strong></a>
     <br />
     <br />
@@ -143,6 +145,7 @@ ERICK/
 
 | Document | Description |
 | --- | --- |
+| [AGENTS.md](AGENTS.md) | Short AI-first workflow, validation commands, and hotspot guide |
 | [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md) | Architecture, class diagrams, sequence diagrams, and component docs |
 | [User Guide](docs/documentation/User_Guide.md) | End-user guide for typing, settings, accessibility, and troubleshooting |
 | [Research](docs/documentation/Research/README.md) | Research notes, layout optimization, and academic references |

@@ -1,5 +1,9 @@
 # ERICK - Full Project Context for AI Assistants
 
+## 0. AI Quick Start
+
+Start with `AGENTS.md` for the shortest repo-specific workflow, validation commands, known drift, and high-risk files. Use this document for deeper architecture and product context after that quick pass.
+
 ## 1. What Is ERICK?
 
 **ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** - a combination of a left-stick direction and a right-stick direction. In the default 8-section mode, 8 directions each yield 64 chord slots. An optional 6-section mode uses 6 directions (60-degree segments) for 36 chord slots with larger, easier-to-target segments. Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
@@ -120,7 +124,7 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 | Feature | Details |
 |---------|---------|
 | **Dual-joystick chorded input** | 64 chord combinations (8-section) or 36 (6-section) for letters, single-swipe for actions |
-| **Optional 6-section dial mode** | 6 directions at 60-degree intervals, larger targets, dedicated symbols layer via NW toggle |
+| **Optional 6-section dial mode** | 6 directions at 60-degree intervals, larger targets, dedicated symbols layer via N single-swipe toggle |
 | **Physical controller support** | DualShock 4, Xbox, 8BitDo, etc. via Bluetooth. Left/right analog sticks map to left/right dials |
 | **Word prediction** | Trie + bigrams, 3 suggestion strip, tap to accept |
 | **Autocorrect** | Levenshtein edit-distance matching |

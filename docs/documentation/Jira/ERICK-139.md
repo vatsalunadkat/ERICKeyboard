@@ -19,7 +19,9 @@ Add an optional 6-section (60 degrees per segment) dial mode as an alternative t
 
 A 6x6 grid provides 36 chord positions per mode. The default (normal) mode maps 26 letters + 10 digits = 36 characters, which fits exactly. Shifted mode maps the corresponding uppercase letters and shifted symbols.
 
-Symbols that no longer fit in the chord grid are handled by a **Symbols mode**, toggled via the **NW single-swipe** on the right dial. Swiping NW once switches the entire keyboard to symbols mode; swiping NW again reverts to the normal keyboard. No settings toggle is needed for symbols mode -- it is always available as part of the 6-section dial.
+Symbols that no longer fit in the chord grid are handled by a **Symbols mode**, toggled via the **N single-swipe** on the right dial. Swiping N once switches the entire keyboard to symbols mode; swiping N again reverts to the normal keyboard. No settings toggle is needed for symbols mode -- it is always available as part of the 6-section dial.
+
+> Final implementation note: the shipped 6-section utility wheel was rotated `-30°` from this ticket's earliest draft so horizontal gestures remain the easiest utility axis. The shipped mapping is `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, and `N` Symbols.
 
 All existing features must work identically in 6-section mode: **left-hand mode**, all **3 input methods** (Instant, Confirm, Assisted), **color palettes** (including custom and colorblind-safe palettes), **custom layouts**, **word prediction**, **haptic feedback**, **typing sounds**, **controller support**, and the **typing practice mini-game**.
 
@@ -123,32 +125,33 @@ Must be re-optimized for the 6x6 grid. The optimizer (`erick_v5_vectorized.py`) 
 Reduce from 8 to 6 actions:
 
 ```
-N:   Shift (long-press or double-tap for Caps Lock)
-NE:  Period
+NE:  Shift
 SE:  Spacebar
-S:   Enter
-SW:  Backspace
-NW:  Symbols (toggle symbols mode on/off)
+S:   Period
+SW:  Enter
+NW:  Backspace
+N:   Symbols (toggle symbols mode on/off)
 ```
 
 Changes from current 8-section layout:
-- **Shift** moves to N; Caps Lock is activated by long-press or double-tap on the same direction
+- **Shift** moves to NE
 - **Spacebar** moves to SE
-- **Backspace** moves to SW
-- **Period** moves to NE
-- **NW** is now the **Symbols toggle** -- single-swiping NW switches the entire keyboard into symbols mode, and swiping NW again returns to the normal letter keyboard
+- **Backspace** moves to NW
+- **Period** moves to S
+- **Enter** moves to SW
+- **N** is now the **Symbols toggle** -- single-swiping N switches the entire keyboard into symbols mode, and swiping N again returns to the normal letter keyboard
 - **Home/End** and **comma** are no longer on the single-swipe wheel; comma is available in the symbols grid, and Home/End can be accessed via controller or other means
 
-### 5. Symbols Mode (NW Toggle)
+### 5. Symbols Mode (N Toggle)
 
-Activated by single-swiping **NW** on the right dial. Swiping NW again returns to the normal keyboard. No settings toggle is required -- symbols mode is always available when the 6-section dial is enabled.
+Activated by single-swiping **N** on the right dial. Swiping N again returns to the normal keyboard. No settings toggle is required -- symbols mode is always available when the 6-section dial is enabled.
 
 When active:
 
 - The left dial shows symbol groups instead of letter groups
 - The right dial selects individual symbols within the group
 - 6x6 = 36 symbol slots available per mode (normal + shifted = 72 symbols total)
-- A visual indicator (e.g. highlighted NW segment, status label, or tinted dial) shows that symbols mode is active
+- A visual indicator (e.g. highlighted N segment, status label, or tinted dial) shows that symbols mode is active
 
 **Normal symbols mode:**
 
@@ -166,7 +169,7 @@ The shifted variant can hold additional mathematical or currency symbols.
 
 **Behavior notes:**
 - Single-swipe actions (Shift, Period, Spacebar, Enter, Backspace) continue to work normally in symbols mode
-- The NW direction on the right dial single-swipe always toggles back to the normal keyboard
+- The N direction on the right dial single-swipe always toggles back to the normal keyboard
 - Shift in symbols mode switches to the shifted symbols grid
 - Word prediction is paused in symbols mode since the user is typing symbols
 
@@ -222,7 +225,7 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 - [x] Update `getCharactersForDirection()` return list size
 - [x] Update `getCharactersAtPosition()` direction list
 - [x] Add symbols mode chord maps (normal + shifted symbols grids)
-- [x] Add NW single-swipe toggle logic for symbols mode
+- [x] Add N single-swipe toggle logic for symbols mode
 
 ### 10. State Machine Changes
 
@@ -230,8 +233,8 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 
 - Add a `SYMBOLS` value to `KeyboardMode` enum (or a separate boolean flag)
 - When symbols mode is active, route chord lookups to the symbols map instead of the letter map
-- Single-swipe NW triggers the toggle: if in normal/shifted/caps, switch to symbols; if in symbols, switch back to the previous mode
-- Single-swipe actions (N, NE, SE, S, SW) continue to work normally in symbols mode
+- Single-swipe N triggers the toggle: if in normal/shifted/caps, switch to symbols; if in symbols, switch back to the previous mode
+- Single-swipe actions (NE, SE, S, SW, NW) continue to work normally in symbols mode
 - Exiting symbols mode returns to the previous mode (normal/shifted/caps)
 
 ### 11. Settings Changes
@@ -248,7 +251,7 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 - Add `@AppStorage("six_section_dial")` boolean (default `false`)
 - Add toggle in the settings UI with matching label and description
 
-**Important**: No separate symbols mode toggle in settings. Symbols mode is accessed exclusively via the NW single-swipe on the right dial and is always available when 6-section dial mode is enabled.
+**Important**: No separate symbols mode toggle in settings. Symbols mode is accessed exclusively via the N single-swipe on the right dial and is always available when 6-section dial mode is enabled.
 
 ### 12. Optimizer Update
 
@@ -277,7 +280,7 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 | `android/app/src/main/java/com/vatoo/erick/PreferencesManager.kt` | 6-section dial mode preference |
 | `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` | 6-section dial mode preference collection, conditional direction/map logic |
 | `ios/ERICK/ErickKeyBoard/JoystickView.swift` | All drawing code, direction enum, section model (6-section variant) |
-| `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` | 6-section mode handling, NW symbols toggle |
+| `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` | 6-section mode handling, N symbols toggle |
 | `ios/ERICK/ERICK/SettingsView.swift` | 6-section dial mode toggle (default off) |
 | `docs/documentation/Research/vatsal/erick_v5_vectorized.py` | Optimizer for 36 positions |
 | `docs/documentation/User_Guide.md` | Updated chord tables, symbols mode docs, 6-section dial instructions |
@@ -293,8 +296,8 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 - [x] Logical layout maps 26 letters + 10 digits across a 6x6 chord grid (normal mode)
 - [x] Shifted mode maps 26 uppercase letters + 10 common symbols
 - [x] Efficiency layout re-optimized for the 6x6 grid and placed in `KeyboardLogic.kt`
-- [x] Single-swipe right-dial actions: N = Shift (long-press/double-tap for Caps Lock), NE = Period, SE = Spacebar, S = Enter, SW = Backspace, NW = Symbols toggle
-- [x] NW single-swipe toggles the entire keyboard into symbols mode; swiping NW again reverts to normal
+- [x] Single-swipe right-dial actions: NE = Shift, SE = Spacebar, S = Period, SW = Enter, NW = Backspace, N = Symbols toggle
+- [x] N single-swipe toggles the entire keyboard into symbols mode; swiping N again reverts to normal
 - [x] Symbols mode provides access to all remaining symbols (brackets, slashes, quotes, math operators, etc.) via a 6x6 symbols grid
 - [x] Symbols mode has a clear visual indicator showing it is active
 - [x] All single-swipe actions (Shift, Period, Spacebar, Enter, Backspace) work normally in symbols mode
@@ -323,8 +326,8 @@ Existing custom layouts stored on user devices use 8 directions x 8 characters. 
 | Sub-Task | Points | Description |
 |---|---|---|
 | Shared: Direction enum + detection | 2 | Update `KeyboardContracts.kt` and `getDirectionFromXY()` |
-| Shared: Chord maps + single-swipe | 3 | Rewrite all layout maps for 6x6, update single-swipe actions (N=Shift, NE=Period, SE=Space, S=Enter, SW=Backspace, NW=Symbols) |
-| Shared: Symbols mode | 3 | Add symbols chord maps, NW toggle logic in state machine |
+| Shared: Chord maps + single-swipe | 3 | Rewrite all layout maps for 6x6, update single-swipe actions (NE=Shift, SE=Space, S=Period, SW=Enter, NW=Backspace, N=Symbols) |
+| Shared: Symbols mode | 3 | Add symbols chord maps, N toggle logic in state machine |
 | Shared: Color palettes | 1 | Add 6-color variants for all palettes |
 | Shared: Custom layout model | 2 | Add 6x6 data model variant, serializer, migration |
 | Android: JoystickView | 3 | Conditional 6-segment rendering (arcs, rings, labels) |
