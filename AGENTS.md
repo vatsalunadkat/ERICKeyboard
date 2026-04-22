@@ -39,7 +39,6 @@ Use this file as the shortest safe entry point for AI-assisted work in this repo
 - `ios/ERICK/ErickKeyBoard/SettingsView.swift` is very large and mixes settings, palette UI, and custom layout UI.
 - `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` contains both controller logic and visual state management.
 - `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` mixes rendering, geometry, and interaction logic.
-- `android/app/src/main/java/com/vatoo/erick/KeyboardLogic.kt` appears stale and unreferenced. Treat it as cleanup debt, not the source of truth.
 
 ## Documentation Drift Risks
 
@@ -65,7 +64,6 @@ If the machine does not have Java, Xcode, or the required SDKs configured, use e
 
 - Automated coverage is still thin outside `KeyboardLogicTest.kt`.
 - Several UI files are above the size where lower-context agents edit them safely.
-- There is at least one stale Android-local logic file that should be evaluated for deletion in a dedicated cleanup pass.
 - AI-facing docs were previously inconsistent about the rotated 6-section mapping. Preserve the corrected mapping above.
 
 ## Current Planning Ticket

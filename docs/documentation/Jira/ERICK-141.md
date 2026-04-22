@@ -26,7 +26,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 | AI-facing docs drifted from shipped 6-section behavior | `PROJECT_PROMPT.md`, `User_Guide.md`, and ticket docs described the earlier unrotated mapping | Agents implement or test the wrong gestures |
 | Large multi-concern UI files are hard to edit locally | `SettingsScreen.kt` 1595 lines, `SettingsView.swift` 1156, `KeyboardViewController.swift` 1045, `JoystickView.kt` 1012 | Lower-context agents make broad or ambiguous edits |
 | Shared tests were thin and had stale 6-section expectations | `KeyboardLogicTest.kt` still asserted `N = Shift` and `NW = Symbols` before this branch update | Behavior regressions can pass casual review |
-| A stale Android-local `KeyboardLogic.kt` still exists | The file appears unreferenced and does not match current shared behavior | Agents can patch the wrong logic surface |
+| An Android-local `KeyboardLogic.kt` shadow existed before cleanup | The file was unreferenced, diverged from current shared behavior, and has now been removed on this branch | Agents could patch the wrong logic surface without this cleanup |
 | Architecture context is duplicated | `APP_CONTEXT.md` exists at repo root and under `docs/documentation/` | Documentation drift and double-update failures |
 | Generated artifacts create noisy diffs | `android/app/release/baselineProfiles/*.dm` showed up as local changes during the merge | Agents may waste time or accidentally stage generated files |
 
@@ -39,6 +39,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Updated `.github/copilot-instructions.md`, `README.md`, and `PROJECT_PROMPT.md` to point agents to the new quick-start path.
 - Corrected the shared 6-section test expectations in `KeyboardLogicTest.kt`.
 - Corrected the main end-user and AI-facing 6-section mapping docs.
+- Removed the unused Android-local `KeyboardLogic.kt` shadow after cross-checking that Android app files import `com.vatoo.erick.shared.Direction` and runtime behavior flows through the shared module.
 - Split Android settings into a small navigation wrapper plus extracted screen files, with `MainSettingsContent.kt` holding the main settings UI.
 - Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
@@ -170,7 +171,6 @@ Make it easier for agents to prove they changed the right thing.
 
 | Item | Scope | Why It Matters |
 |---|---|---|
-| Evaluate `android/app/src/main/java/com/vatoo/erick/KeyboardLogic.kt` for deletion | Android app | It appears stale and unreferenced, which is dangerous for AI search-based edits |
 | Decide how to handle tracked baseline profile `.dm` files | Android release artifacts | They create noisy diffs and merge friction |
 | Review whether host-app `SettingsView.swift` needs later splitting | iOS | The host app still has large UI surfaces outside the extension targets |
 | Add an explicit “generated artifact” section to contributor docs | Repo-wide | Helps agents and humans avoid editing derived files |
@@ -181,7 +181,7 @@ Make it easier for agents to prove they changed the right thing.
 
 - The shipped 6-section utility mapping is `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols.
 - Shared logic is the canonical source for behavior changes.
-- A stale Android-local `KeyboardLogic.kt` exists and should not be treated as authoritative.
+- The old Android-local `KeyboardLogic.kt` shadow has been removed; behavior changes should start in `android/shared/src/commonMain/kotlin/`.
 - Large-file refactors should be isolated from behavior changes.
 - Documentation updates must travel with mapping changes.
 

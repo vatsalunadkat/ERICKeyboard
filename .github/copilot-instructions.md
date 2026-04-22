@@ -35,7 +35,7 @@ Both 8-section and 6-section modes coexist. Controlled by `DialSectionMode` enum
 - **Delegate pattern**: `KeyboardActionDelegate` interface bridges shared logic → platform UI
 - **State machine**: All input flows through `KeyboardStateMachine` which calls delegate methods
 - **Preferences**: Android uses DataStore (`PreferencesManager`), iOS uses `@AppStorage` with App Group
-- **Duplicate direction code**: `KeyboardLogic.kt` exists in both shared module AND Android platform (`android/app/.../KeyboardLogic.kt`) — must keep in sync
+- **Shared logic is authoritative**: `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` is the only live logic surface for direction and chord behavior
 
 ## Conventions
 - Package: `com.vatoo.erick` (Android), `com.vatoo.erick.shared` (shared module)
@@ -47,7 +47,6 @@ Both 8-section and 6-section modes coexist. Controlled by `DialSectionMode` enum
 - Read `AGENTS.md` first for the shortest safe workflow.
 - Shared behavior is authoritative in `android/shared/src/commonMain/kotlin/`.
 - The 6-section utility wheel is rotated `-30°`: `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols toggle.
-- `android/app/src/main/java/com/vatoo/erick/KeyboardLogic.kt` appears stale and unreferenced. Do not use it as the source of truth for current behavior.
 - Avoid manual edits to generated artifacts unless the task is explicitly about them: `android/**/build/`, `android/app/release/baselineProfiles/*.dm`, and `ios/ERICK/SharedKeyboard.xcframework/`.
 - `APP_CONTEXT.md` and `docs/documentation/APP_CONTEXT.md` are mirrored docs. Keep them aligned intentionally when architecture changes.
 - If you change gesture mappings or dial geometry, update `KeyboardLogicTest.kt` and the relevant docs in the same pass.
