@@ -44,6 +44,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Split Android settings into a small navigation wrapper plus extracted screen files, with `MainSettingsContent.kt` holding the main settings UI.
 - Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
 - Started the iOS extension settings split by extracting palette and custom-layout views out of `ios/ERICK/ErickKeyBoard/SettingsView.swift`.
+- Split the iOS extension controller-adjacent SwiftUI layers by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift` out of `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift`.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
@@ -122,7 +123,7 @@ Split into:
 | `CustomPaletteEditorView.swift` | Custom palette editor |
 | `CustomLayoutViews.swift` | Custom layout list and editor views |
 
-Status: In progress on `ERICK-141`; `SettingsView.swift` is down to 443 lines with `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift` extracted. The remaining work is the `KeyboardViewController.swift` split and macOS-side iOS build validation.
+Status: Code split completed on `ERICK-141`; `SettingsView.swift` is down to 443 lines with `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift` extracted. macOS-side iOS build validation is still pending because this branch work is being done on Windows.
 
 #### iOS `KeyboardViewController.swift` (1045 lines)
 
@@ -131,7 +132,10 @@ Split into:
 | New File | Contents |
 |---|---|
 | `KeyboardViewModel.swift` | ObservableObject visual state holder |
+| `KeyboardContainerView.swift` | SwiftUI keyboard container, preview bar, and suggestion bar |
 | `KeyboardViewController.swift` | UIInputViewController and delegate integration |
+
+Status: Code split completed on `ERICK-141`; `KeyboardViewController.swift` is down to 762 lines with `KeyboardViewModel.swift` and `KeyboardContainerView.swift` extracted. Editor diagnostics are clean on the touched Swift files, and macOS-side iOS build validation remains pending on non-Windows hardware.
 
 #### Android `JoystickView.kt` (1012 lines)
 
