@@ -19,6 +19,8 @@ Choose one canonical `APP_CONTEXT.md` and make the second copy explicitly mirror
 
 Status: Completed on `ERICK-141` by making the repo-root `APP_CONTEXT.md` canonical, marking `docs/documentation/APP_CONTEXT.md` as mirrored, and aligning the main AI-facing references.
 
+Latest validation: the canonical/mirrored doc arrangement remains intact on this branch pass; no follow-up drift was introduced while completing ERICK-141 through ERICK-145 work.
+
 ---
 
 ## Evidence

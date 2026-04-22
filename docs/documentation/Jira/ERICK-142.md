@@ -19,6 +19,8 @@ Remove or quarantine the stale Android-local `android/app/src/main/java/com/vato
 
 Status: Completed on `ERICK-141` by deleting the file after two cross-checks: a workspace search for imports/references and an Android app import audit confirming app files use `com.vatoo.erick.shared.Direction`.
 
+Latest validation: rerun on 2026-04-22 with `cd android && .\gradlew.bat :shared:testAndroidHostTest` and `cd android && .\gradlew.bat assembleDebug`; both remained green after later branch fixes.
+
 ---
 
 ## Evidence

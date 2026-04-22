@@ -6,7 +6,7 @@
 | **Priority** | High |
 | **Story Points** | 5 |
 | **Assignee** | Vatsal Unadkat |
-| **Sprint** | Backlog |
+| **Sprint** | Completed on `ERICK-141` |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | ai-first, android, maintainability, joystick |
 | **Dependencies** | Preserve shipped 8-section and rotated 6-section rendering and interaction behavior |
@@ -18,6 +18,8 @@
 Reduce the remaining edit risk in `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` by splitting rendering-heavy helpers and geometry code out of the `View` shell.
 
 Status: Completed on `ERICK-141`. `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, `JoystickSectionRenderer.kt`, and `JoystickRightDialRenderer.kt` reduced `JoystickView.kt` from 1012 lines to 490 lines while keeping `assembleDebug` green. The view now keeps state, sizing, thumb handling, direction detection, and mode-specific map selection while the rendering-heavy logic lives in dedicated files.
+
+Latest validation: `cd android && .\gradlew.bat assembleDebug` remained green on 2026-04-22 after later IME-side controller and preview fixes, so the decomposition still holds under current branch changes.
 
 ---
 

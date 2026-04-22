@@ -6,7 +6,7 @@
 | **Priority** | High |
 | **Story Points** | 8 |
 | **Assignee** | Vatsal Unadkat |
-| **Sprint** | Backlog |
+| **Sprint** | Completed on `ERICK-141` |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | ai-first, ios, maintainability, keyboard-extension |
 | **Dependencies** | Preserve shipped 6-section mapping and extension behavior |
@@ -17,7 +17,7 @@
 
 Reduce the iOS extension edit surface by splitting the two largest extension files into focused view and controller units.
 
-Status: Code split completed on `ERICK-141`. `SettingsView.swift` has been reduced from 1156 lines to 443 by extracting `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift`, and `KeyboardViewController.swift` has been reduced from 1045 lines to 762 by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift`. Editor diagnostics are clean on the touched Swift files. Remaining gap: rebuild the shared framework and validate the extension in Xcode on macOS.
+Status: Code split completed on `ERICK-141`. `SettingsView.swift` has been reduced from 1156 lines to 443 by extracting `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift`, and `KeyboardViewController.swift` has been reduced from 1045 lines to 762 by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift`. Editor diagnostics are clean on the touched Swift files. Latest branch validation reran `assembleSharedKeyboardXCFramework` successfully on Windows; the remaining gap is the actual extension/app build and smoke test in Xcode on macOS.
 
 ---
 

@@ -6,7 +6,7 @@
 | **Priority** | High |
 | **Story Points** | 8 |
 | **Assignee** | Vatsal Unadkat |
-| **Sprint** | Backlog |
+| **Sprint** | Completed on `ERICK-141` |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
 | **Labels** | ai-first, docs, maintainability, android, ios, shared |
 | **Dependencies** | Merge `main` first and preserve the shipped rotated 6-section behavior |
@@ -48,7 +48,10 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Updated the public docs and live website to point Android installs to Google Play and mark the iOS App Store release as coming soon.
 - Completed the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`, left-dial character placement into `JoystickCharacterRenderer.kt`, left-dial section/ring drawing into `JoystickSectionRenderer.kt`, and right-dial segment/icon/label rendering into `JoystickRightDialRenderer.kt`.
 - Expanded shared validation coverage with 6-section boundary and utility-swipe assertions in `KeyboardLogicTest.kt` and added `KeyboardStateMachineTest.kt` coverage for symbols toggling and mode transitions.
+- Added shared regression coverage for suggestion acceptance, accelerating backspace, and assisted controller input locking in `KeyboardStateMachineTest.kt`.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
+- Fixed Android controller-assisted single-handed input lock syncing and 6-section preview ordering while keeping the shared tests and Android debug build green.
+- Added a lightweight perfect-quote celebration to the iOS typing game with clean Swift editor diagnostics on Windows.
 
 ---
 
@@ -172,7 +175,7 @@ Make it easier for agents to prove they changed the right thing.
 3. Document the preferred validation commands in one place.
 4. Record smoke-test paths for settings, typing, controller input, and the typing game.
 
-Status: Partially completed on `ERICK-141`. Tasks 1 and 2 now have shared automated coverage, task 3 is covered in `AGENTS.md`, and task 4 is recorded below as a manual smoke checklist for cross-platform follow-up.
+Status: Completed on `ERICK-141` for the Windows-available validation path. Tasks 1 and 2 now have shared automated coverage, task 3 is covered in `AGENTS.md`, and task 4 is recorded below as a manual smoke checklist for cross-platform follow-up on Apple hardware.
 
 ### Minimum Validation Matrix
 
@@ -180,6 +183,12 @@ Status: Partially completed on `ERICK-141`. Tasks 1 and 2 now have shared automa
 - Android debug build: `cd android && .\gradlew.bat assembleDebug`
 - Rebuild iOS shared framework: `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
 - iOS build: build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`
+
+### Latest Validation Snapshot
+
+- 2026-04-22 Windows rerun: `:shared:testAndroidHostTest` passed after the new controller-assisted regression coverage and backspace/suggestion tests.
+- 2026-04-22 Windows rerun: `assembleDebug` passed after the IME controller-lock and 6-section preview fixes.
+- 2026-04-22 Windows rerun: `assembleSharedKeyboardXCFramework` returned `BUILD SUCCESSFUL`; Apple-target framework slices were skipped on this machine, so the Xcode build/smoke pass remains a separate macOS validation step.
 
 ### Manual Smoke-Test Paths
 
