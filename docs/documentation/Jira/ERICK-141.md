@@ -46,7 +46,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Started the iOS extension settings split by extracting palette and custom-layout views out of `ios/ERICK/ErickKeyBoard/SettingsView.swift`.
 - Split the iOS extension controller-adjacent SwiftUI layers by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift` out of `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift`.
 - Updated the public docs and live website to point Android installs to Google Play and mark the iOS App Store release as coming soon.
-- Continued the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`, left-dial character placement into `JoystickCharacterRenderer.kt`, and left-dial section/ring drawing into `JoystickSectionRenderer.kt`.
+- Completed the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`, left-dial character placement into `JoystickCharacterRenderer.kt`, left-dial section/ring drawing into `JoystickSectionRenderer.kt`, and right-dial segment/icon/label rendering into `JoystickRightDialRenderer.kt`.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
@@ -146,8 +146,11 @@ Extract pure drawing helpers into:
 | New File | Contents |
 |---|---|
 | `JoystickDrawingUtils.kt` | Text fitting, icon drawing, color darkening, label splitting |
+| `JoystickCharacterRenderer.kt` | Left-dial character placement and text fitting |
+| `JoystickSectionRenderer.kt` | Left-dial section fills, separator geometry, and borders |
+| `JoystickRightDialRenderer.kt` | Right-dial segment fills, labels, icons, and content layout |
 
-Status: In progress on `ERICK-141`; `JoystickView.kt` is down to 591 lines with `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, and `JoystickSectionRenderer.kt` extracted. Remaining work, if needed, is to separate the right-dial drawing loop and other orchestration code from the `View` state/interaction shell without changing runtime behavior.
+Status: Completed on `ERICK-141`; `JoystickView.kt` is down to 490 lines with `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, `JoystickSectionRenderer.kt`, and `JoystickRightDialRenderer.kt` extracted. The view now focuses on state, mode-specific map selection, sizing, thumb handling, and top-level invalidation/orchestration.
 
 ### Guardrail
 

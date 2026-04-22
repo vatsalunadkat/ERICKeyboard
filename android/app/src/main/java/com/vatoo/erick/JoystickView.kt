@@ -1,12 +1,9 @@
 package com.vatoo.erick
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
@@ -16,9 +13,7 @@ import com.vatoo.erick.shared.Direction
 import com.vatoo.erick.shared.KeyboardMode
 import com.vatoo.erick.shared.LayoutType
 import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.hypot
-import kotlin.math.sin
 
 class JoystickView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -92,8 +87,6 @@ class JoystickView @JvmOverloads constructor(
     private var thumbRadius = 0f
     private var thumbX = 0f
     private var thumbY = 0f
-    
-    private val iconBitmaps = mutableMapOf<String, Bitmap>()
 
     var activeDirection: Direction = Direction.NONE
         private set
@@ -318,11 +311,7 @@ class JoystickView @JvmOverloads constructor(
         centerY = h / 2f
         baseRadius = (Math.min(w, h) / 2f) * 0.90f
         thumbRadius = baseRadius * 0.22f
-        
-        // Bitmaps are only used for left side or legacy if needed.
-        // For the right joystick, we are now 100% programmatic.
-        iconBitmaps.clear()
-        
+
         resetThumb()
     }
 
@@ -330,58 +319,23 @@ class JoystickView @JvmOverloads constructor(
         super.onDraw(canvas)
 
         if (isRightSide) {
-            // Right Dial: colored segments
-            val rectF = RectF(centerX - baseRadius, centerY - baseRadius, centerX + baseRadius, centerY + baseRadius)
-
-            val sectionCount = if (sixSectionMode) 6 else 8
-            val sweepAngle = if (sixSectionMode) 60f else 45f
-            val startOffset = if (sixSectionMode) -90f else -22.5f
-            val dirList = if (sixSectionMode) directions6Drawing else directions
-
-            for (i in 0 until sectionCount) {
-                val startAngle = startOffset + i * sweepAngle
-                val dir = dirList[i]
-                val isActive = (dir == activeDirection && activeDirection != Direction.NONE)
-
-                val colorHex = if (sixSectionMode)
-                    ColorPalettes.getColorForDirectionHex6(dir, colorPaletteType)
-                else
-                    ColorPalettes.getColorForDirectionHex(dir, colorPaletteType)
-                val parsedColor = Color.parseColor(colorHex)
-                activeSegmentPaint.color = if (activeDirection != Direction.NONE && !isActive) darkenColor(parsedColor, 0.4f) else parsedColor
-                activeSegmentPaint.alpha = 255
-
-                canvas.drawArc(rectF, startAngle, sweepAngle, true, activeSegmentPaint)
-                
-                rightSegmentLinePaint.alpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-                canvas.drawArc(rectF, startAngle, sweepAngle, true, rightSegmentLinePaint)
-                
-                // Draw Icon and Label
-                val (iconName, label) = if (sixSectionMode) {
-                    getInfoForDirection6(dir, keyboardMode)
-                } else {
-                    getInfoForDirection(dir, keyboardMode)
-                }
-                val paintAlpha = if (activeDirection != Direction.NONE && !isActive) 60 else 255
-                val contentColor = Color.parseColor(ColorPalettes.contrastTextColor(colorHex, colorPaletteType))
-                
-                // Content area center
-                val angleRad = Math.toRadians((startAngle + sweepAngle / 2f).toDouble())
-                val contentCenterRadius = baseRadius * 0.66f
-                
-                val contentCenterX = centerX + cos(angleRad).toFloat() * contentCenterRadius
-                val contentCenterY = centerY + sin(angleRad).toFloat() * contentCenterRadius
-                
-                drawRightDialContent(
-                    canvas = canvas,
-                    iconName = iconName,
-                    label = label,
-                    centerX = contentCenterX,
-                    centerY = contentCenterY,
-                    alpha = paintAlpha,
-                    textColor = contentColor
-                )
-            }
+            drawRightDial(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                baseRadius = baseRadius,
+                sixSectionMode = sixSectionMode,
+                directions = directions,
+                directions6 = directions6Drawing,
+                activeDirection = activeDirection,
+                keyboardMode = keyboardMode,
+                colorPaletteType = colorPaletteType,
+                activeSegmentPaint = activeSegmentPaint,
+                rightSegmentLinePaint = rightSegmentLinePaint,
+                labelTextPaint = labelTextPaint,
+                iconStrokePaint = iconStrokePaint,
+                iconFillPaint = iconFillPaint
+            )
         } else if (sixSectionMode) {
             // Left Dial: 6-Section Mode — 2 Concentric Layers with 3 blocks each per section
             val innerHoleRadius = thumbRadius * 0.9f
@@ -485,71 +439,6 @@ class JoystickView @JvmOverloads constructor(
         // Draw thumb
         canvas.drawCircle(thumbX, thumbY, thumbRadius, thumbPaint)
         canvas.drawCircle(thumbX, thumbY, thumbRadius * 0.6f, thumbInnerPaint)
-    }
-
-    private fun drawRightDialContent(
-        canvas: Canvas,
-        iconName: String,
-        label: String,
-        centerX: Float,
-        centerY: Float,
-        alpha: Int,
-        textColor: Int = Color.WHITE
-    ) {
-        if (iconName.isEmpty() && label.isEmpty()) return
-
-        val hasIcon = iconName.isNotEmpty()
-        val lines = getRightDialLabelLines(label)
-
-        val availableWidth = if (hasIcon) baseRadius * 0.43f else baseRadius * 0.48f
-        val availableHeight = if (hasIcon) baseRadius * 0.36f else baseRadius * 0.30f
-
-        // Use larger font for single-char punctuation (.,<>) so they're easily visible
-        val isBigPunctuation = !hasIcon && lines.size == 1 && lines[0].length == 1 && lines[0][0] in ".,<>"
-        val textPaint = Paint(labelTextPaint).apply {
-            this.alpha = alpha
-            this.color = textColor
-            textSize = if (isBigPunctuation) {
-                minOf(baseRadius * 0.22f, availableHeight)
-            } else {
-                fittedTextSize(
-                    basePaint = labelTextPaint,
-                    lines = lines,
-                    maxWidth = availableWidth,
-                    maxHeight = availableHeight,
-                    preferredSizes = listOf(20f, 18f, 16f, 14f, 12f)
-                )
-            }
-        }
-
-        val lineHeight = textPaint.fontSpacing * 0.9f
-        val textBlockHeight = if (lines.isEmpty()) 0f else lineHeight * lines.size
-        val iconSize = if (hasIcon) minOf(baseRadius * 0.095f, availableHeight * 0.34f) else 0f
-        val spacing = if (hasIcon && lines.isNotEmpty()) baseRadius * 0.024f else 0f
-        val totalHeight = iconSize + spacing + textBlockHeight
-        var currentCenterY = centerY - totalHeight / 2f
-
-        if (hasIcon) {
-            val iconCenterY = currentCenterY + iconSize / 2f
-            drawProgrammaticIcon(
-                canvas = canvas,
-                type = iconName,
-                x = centerX,
-                y = iconCenterY,
-                size = iconSize,
-                alpha = alpha,
-                color = textColor,
-                strokePaint = iconStrokePaint,
-                fillPaint = iconFillPaint
-            )
-            currentCenterY += iconSize + spacing
-        }
-
-        lines.forEachIndexed { index, line ->
-            val lineCenterY = currentCenterY + lineHeight * index + lineHeight / 2f
-            val baseline = lineCenterY - (textPaint.descent() + textPaint.ascent()) / 2f
-            canvas.drawText(line, centerX, baseline, textPaint)
-        }
     }
 
     fun updateThumb(dx: Float, dy: Float) {
