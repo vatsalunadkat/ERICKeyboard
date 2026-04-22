@@ -61,7 +61,7 @@ If the machine does not have Java, Xcode, or the required SDKs configured, use e
 
 ## Current Repo-Level Gaps
 
-- Automated coverage is still thin outside `KeyboardLogicTest.kt`.
+- Automated coverage is still thin outside the shared logic and state-machine tests.
 - Several UI files are above the size where lower-context agents edit them safely.
 - AI-facing docs were previously inconsistent about the rotated 6-section mapping. Preserve the corrected mapping above.
 

@@ -106,6 +106,41 @@ class KeyboardLogicTest {
     }
 
     @Test
+    fun sixSection_directionDetectionHonorsBoundaryAngles() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(Direction.S, logic.getDirectionFromXY(1.0f, 0.6f))
+        assertEquals(Direction.SW, logic.getDirectionFromXY(0.0f, 1.0f))
+        assertEquals(Direction.NW, logic.getDirectionFromXY(-1.0f, 0.4f))
+        assertEquals(Direction.N, logic.getDirectionFromXY(-1.0f, -0.6f))
+        assertEquals(Direction.NE, logic.getDirectionFromXY(0.0f, -1.0f))
+        assertEquals(Direction.SE, logic.getDirectionFromXY(1.0f, -0.4f))
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSection_singleSwipeMappingPreservesRotatedUtilityWheel() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(InputAction.TOGGLE_SHIFT, logic.getSingleSwipeResult(Direction.NE, KeyboardMode.NORMAL))
+        assertEquals(InputAction.SPACE, logic.getSingleSwipeResult(Direction.SE, KeyboardMode.NORMAL))
+        assertEquals(".", logic.getSingleSwipeResult(Direction.S, KeyboardMode.NORMAL))
+        assertEquals(">", logic.getSingleSwipeResult(Direction.S, KeyboardMode.SHIFTED))
+        assertEquals(InputAction.ENTER, logic.getSingleSwipeResult(Direction.SW, KeyboardMode.NORMAL))
+        assertEquals(InputAction.BACKSPACE, logic.getSingleSwipeResult(Direction.NW, KeyboardMode.NORMAL))
+        assertEquals(InputAction.TOGGLE_SYMBOLS, logic.getSingleSwipeResult(Direction.N, KeyboardMode.NORMAL))
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSection_getDirectionsReturnsRotatedUtilityOrder() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(
+            listOf(Direction.N, Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW),
+            logic.getDirections()
+        )
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
     fun sixSection_getDirectionsReturns6() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
         val stateMachine = KeyboardStateMachine(testDelegate, testScope)

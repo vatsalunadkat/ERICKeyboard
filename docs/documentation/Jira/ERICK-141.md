@@ -47,6 +47,7 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Split the iOS extension controller-adjacent SwiftUI layers by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift` out of `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift`.
 - Updated the public docs and live website to point Android installs to Google Play and mark the iOS App Store release as coming soon.
 - Completed the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`, left-dial character placement into `JoystickCharacterRenderer.kt`, left-dial section/ring drawing into `JoystickSectionRenderer.kt`, and right-dial segment/icon/label rendering into `JoystickRightDialRenderer.kt`.
+- Expanded shared validation coverage with 6-section boundary and utility-swipe assertions in `KeyboardLogicTest.kt` and added `KeyboardStateMachineTest.kt` coverage for symbols toggling and mode transitions.
 - Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
 
 ---
@@ -171,12 +172,21 @@ Make it easier for agents to prove they changed the right thing.
 3. Document the preferred validation commands in one place.
 4. Record smoke-test paths for settings, typing, controller input, and the typing game.
 
+Status: Partially completed on `ERICK-141`. Tasks 1 and 2 now have shared automated coverage, task 3 is covered in `AGENTS.md`, and task 4 is recorded below as a manual smoke checklist for cross-platform follow-up.
+
 ### Minimum Validation Matrix
 
 - Android shared tests: `cd android && .\gradlew.bat :shared:testAndroidHostTest`
 - Android debug build: `cd android && .\gradlew.bat assembleDebug`
 - Rebuild iOS shared framework: `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
 - iOS build: build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`
+
+### Manual Smoke-Test Paths
+
+- Settings: Android host app -> open Settings -> toggle 8-section/6-section mode, palette, layout type, and controller dead zone; confirm previews and persisted preferences still update without crashes.
+- Typing: Enable the ERICK IME -> verify 6-section right-only swipes (`NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols) and at least one normal, shifted, and symbols chord.
+- Controller input: Connect a controller -> move each stick through all active directions, verify dead-zone behavior, confirm right-stick backspace hold still accelerates correctly, and confirm left-handed mode flips effective sides.
+- Typing game: On the iOS/macOS validation pass, open the host app typing demo and `TypingGameView`, confirm shared-framework updates load, and verify no regression in preview text or suggestion behavior while typing.
 
 ---
 
