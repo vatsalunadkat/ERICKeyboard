@@ -141,6 +141,16 @@ class KeyboardLogicTest {
     }
 
     @Test
+    fun sixSection_getPreviewDirectionsReturnsVisualDialOrder() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(
+            listOf(Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW, Direction.N),
+            logic.getPreviewDirections()
+        )
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
     fun sixSection_getDirectionsReturns6() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
         val stateMachine = KeyboardStateMachine(testDelegate, testScope)

@@ -49,10 +49,6 @@ import com.vatoo.erick.shared.Direction
 
 class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
-    private val sixSectionPreviewOrder = listOf(
-        Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW, Direction.N
-    )
-
     private lateinit var leftJoystick: JoystickView
     private lateinit var rightJoystick: JoystickView
     private lateinit var previewContainer: FrameLayout
@@ -501,7 +497,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
         val isSix = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
         val logicalPreviewDirs = stateMachine.getDirections()
-        val visualPreviewDirs = if (isSix) sixSectionPreviewOrder else logicalPreviewDirs
+        val visualPreviewDirs = stateMachine.getPreviewDirections()
 
         // Determine preview data: left-dial hold, right-dial hold, or nothing
         data class PreviewChar(val text: String, val colorHex: String, val dirForColor: Direction)
@@ -511,10 +507,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         if (letterDir != Direction.NONE) {
             // Left-dial hold: show all characters in that group
             val chars = stateMachine.getCharactersForDirection(letterDir)
-            val charsByDirection = logicalPreviewDirs.associateWith { dir ->
-                val index = logicalPreviewDirs.indexOf(dir)
-                chars.getOrNull(index).orEmpty()
-            }
+            val charsByDirection = logicalPreviewDirs.mapIndexed { index, dir ->
+                dir to chars.getOrNull(index).orEmpty()
+            }.toMap()
             for (dirForChar in visualPreviewDirs) {
                 val charStr = charsByDirection[dirForChar].orEmpty()
                 if (charStr.isBlank()) continue

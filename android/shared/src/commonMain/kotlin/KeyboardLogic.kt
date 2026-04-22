@@ -170,10 +170,18 @@ class KeyboardLogic {
             Direction.N, Direction.NE, Direction.SE,
             Direction.S, Direction.SW, Direction.NW
         )
+        val previewDirections6 = listOf(
+            Direction.NE, Direction.SE, Direction.S,
+            Direction.SW, Direction.NW, Direction.N
+        )
     }
 
     fun getDirections(): List<Direction> {
         return if (dialSectionMode == DialSectionMode.SIX_SECTION) directions6 else directions8
+    }
+
+    fun getPreviewDirections(): List<Direction> {
+        return if (dialSectionMode == DialSectionMode.SIX_SECTION) previewDirections6 else directions8
     }
 
     private fun getRightIndex(rightDir: Direction): Int {
