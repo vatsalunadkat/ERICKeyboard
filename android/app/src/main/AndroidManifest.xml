@@ -49,6 +49,14 @@
             android:name=".HelpActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ControllerDiagnosticsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PracticeHubActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

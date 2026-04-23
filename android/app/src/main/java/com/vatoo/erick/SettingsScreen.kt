@@ -30,6 +30,8 @@ fun SettingsScreen(
     val typingSounds by preferencesManager.typingSounds.collectAsState(initial = false)
     val inputMode by preferencesManager.inputMode.collectAsState(initial = PreferencesManager.INPUT_MODE_INSTANT)
     val sixSectionDial by preferencesManager.sixSectionDial.collectAsState(initial = false)
+    val controllerDeadZone by preferencesManager.controllerDeadZone.collectAsState(initial = PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE)
+    val controllerYAxisInverted by preferencesManager.controllerYAxisInverted.collectAsState(initial = false)
 
     val scope = rememberCoroutineScope()
 
@@ -55,6 +57,8 @@ fun SettingsScreen(
             typingSounds = typingSounds,
             inputMode = inputMode,
             sixSectionDial = sixSectionDial,
+            controllerDeadZone = controllerDeadZone,
+            controllerYAxisInverted = controllerYAxisInverted,
             customLayoutId = customLayoutId,
             customLayouts = customLayouts,
             scope = scope,

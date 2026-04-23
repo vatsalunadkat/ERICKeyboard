@@ -342,6 +342,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         }
     }
 
+    func loadPredictionProfile() -> String {
+        Self.appGroupDefaults.string(forKey: "prediction_profile") ?? ""
+    }
+
+    func savePredictionProfile(serializedProfile: String) {
+        Self.appGroupDefaults.set(serializedProfile, forKey: "prediction_profile")
+    }
+
     func getCurrentWordPrefix() -> String {
         guard let before = self.textDocumentProxy.documentContextBeforeInput, !before.isEmpty else {
             return ""
@@ -363,23 +371,19 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         let suggestions = viewModel.suggestions
         guard index < suggestions.count else { return }
         let suggestion = suggestions[index]
-        let wasNextWordMode = stateMachine.isNextWordMode
-        let result = stateMachine.acceptSuggestion(suggestion: suggestion)
-        let charsToDelete = result.first!.intValue
-        let word = result.second! as String
+        let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
+        let after = self.textDocumentProxy.documentContextAfterInput ?? ""
+        let result = stateMachine.acceptSuggestion(
+            suggestion: suggestion,
+            textBeforeCursor: before,
+            textAfterCursor: after
+        )
+        let charsToDelete = result.charsToDelete.intValue
         // Delete the partial word
         for _ in 0..<charsToDelete {
             self.textDocumentProxy.deleteBackward()
         }
-        // In next-word mode, prepend a space if text before cursor doesn't already end with one
-        if wasNextWordMode && charsToDelete == 0 {
-            let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
-            if !before.isEmpty && !before.hasSuffix(" ") {
-                self.textDocumentProxy.insertText(" ")
-            }
-        }
-        // Insert the full suggestion
-        self.textDocumentProxy.insertText(word)
+        self.textDocumentProxy.insertText(result.leadingText + result.suggestion + result.trailingText)
     }
 
     private static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard

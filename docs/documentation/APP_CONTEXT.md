@@ -3,13 +3,13 @@
 Canonical source note: the repo-root `APP_CONTEXT.md` is authoritative, and `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation. Update the root file first and sync the docs copy intentionally.
 
 **Version**: 1.0  
-**Last Updated**: April 22, 2026  
+**Last Updated**: April 23, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 **Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.
 
 ## Executive Summary
 
-ERICK is a cross-platform keyboard system for Android and iOS that replaces rows of tiny keys with two large directional controls. Users type by combining left and right movements into character chords using touch or a physical game controller. The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations, including layout handling, prediction, accessibility behavior, and controller support.
+ERICK is a cross-platform keyboard system for Android and iOS that replaces rows of tiny keys with two large directional controls. Users type by combining left and right movements into character chords using touch or a physical game controller. The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations, including layout handling, prediction, accessibility behavior, controller support, guided practice, and locally learned suggestion behavior.
 
 ## Architecture Overview
 
@@ -38,6 +38,7 @@ ERICK is a cross-platform keyboard system for Android and iOS that replaces rows
 │  │  - Suggestion orchestration                     │    │
 │  │  - Accelerating backspace logic                 │    │
 │  │  - Controller input normalization               │    │
+│  │  - Punctuation-aware suggestion acceptance      │    │
 │  └─────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │  KeyboardLogic                                  │    │
@@ -52,6 +53,7 @@ ERICK is a cross-platform keyboard system for Android and iOS that replaces rows
 │  │  - Bigram next-word predictions                 │    │
 │  │  - Levenshtein edit-distance autocorrect        │    │
 │  │  - ~700 word dictionary with frequency tiers    │    │
+│  │  - Learned word profile + persisted bigrams     │    │
 │  └─────────────────────────────────────────────────┘    │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  KeyboardContracts                               │   │
@@ -75,16 +77,19 @@ graph TB
             A1[MyInputMethodService]
             A2[JoystickView]
             A3[SettingsScreen / SettingsActivity]
-            A4[MainActivity - Onboarding]
+            A4[MainActivity - Quickstart]
             A5[PreferencesManager - DataStore]
+            A6[PracticeHubActivity]
+            A7[ControllerDiagnosticsActivity]
         end
         subgraph iOS["iOS Keyboard Extension"]
             I1[KeyboardViewController]
             I2[JoystickView - SwiftUI]
             I3[SettingsView - Extension]
-            I4[ContentView - Host App]
+            I4[ContentView - Quickstart]
             I5[App Group UserDefaults]
             I6[ControllerBridge]
+            I7[PracticeHubView]
         end
     end
 
@@ -104,6 +109,9 @@ graph TB
     A2 -->|touch dx,dy| A1
     A3 -->|layout/theme/font prefs| A5
     A5 -->|Flow updates| A1
+    A4 -->|opens learning hub| A6
+    A4 -->|opens diagnostics| A7
+    A7 -->|reuses controller normalization| S1
 
     I1 -->|implements KeyboardActionDelegate| S4
     I1 -->|handleTouch| S1
@@ -111,12 +119,28 @@ graph TB
     I2 -->|touch dx,dy| I1
     I3 -->|preferences| I5
     I5 -->|settings read| I1
+    I4 -->|opens practice lessons| I7
 
     S1 -->|resolveChord| S2
     S1 -->|getSuggestions| S3
     S1 -->|commitText / sendInputAction| S4
     S2 -->|custom layout lookup| S6
     S2 -->|palette colors| S5
+```
+
+### AI-First Change Routing
+
+```mermaid
+flowchart TD
+    Start[Behavior or UX change request] --> Decision{What changed?}
+    Decision -->|Chord geometry, preview order, utility mapping| Logic[KeyboardLogic.kt\nKeyboardLogicTest.kt]
+    Decision -->|Controller normalization, assisted lock, suggestion state| StateMachine[KeyboardStateMachine.kt\nKeyboardStateMachineTest.kt]
+    Decision -->|Prediction ranking, learning, persistence| Predictor[WordPredictionEngine.kt\nWordPredictionEngineLearningTest.kt]
+    Decision -->|Android IME behavior or suggestion taps| AndroidIME[MyInputMethodService.kt]
+    Decision -->|Android host quickstart, practice, diagnostics| AndroidHost[MainScreenContent.kt\nPracticeHubActivity.kt\nHelpActivity.kt\nControllerDiagnosticsActivity.kt]
+    Decision -->|iOS keyboard extension behavior| IosExtension[KeyboardViewController.swift]
+    Decision -->|iOS host quickstart and practice| IosHost[ContentView.swift\nLearningHubViews.swift\nHelpView.swift]
+    Decision -->|User-facing docs or architecture drift| Docs[APP_CONTEXT.md\nREADME.md\nUser_Guide.md\nJira tickets]
 ```
 
 ### Detailed Class Diagram - Shared Module
@@ -134,7 +158,7 @@ classDiagram
         +handleTouch(x, y, isLeft, actionDown, actionUp)
         +fireChord()
         +getPreviewCharacter(): String
-        +acceptSuggestion(suggestion): Pair
+        +acceptSuggestion(suggestion, textBeforeCursor, textAfterCursor): SuggestionAcceptance
         +updateSuggestions()
         +setLayoutType(type: LayoutType)
         +setCustomLayout(layout: CustomLayout)
@@ -152,7 +176,10 @@ classDiagram
         +getSuggestions(currentWord, limit): List~String~
         +getNextWordSuggestions(prevWord, limit): List~String~
         +getDefaultSuggestions(limit): List~String~
-        +acceptSuggestion(suggestion): Pair
+        +learnWord(word, count, userAdded)
+        +learnBigram(previousWord, nextWord, count)
+        +exportLearnedProfile(): String
+        +importLearnedProfile(serializedProfile: String)
     }
 
     class KeyboardContracts {
@@ -171,6 +198,8 @@ classDiagram
         +onModeChanged(mode: KeyboardMode)
         +onSuggestionsUpdated(suggestions: List)
         +getCurrentWordPrefix(): String
+        +loadPredictionProfile(): String
+        +savePredictionProfile(serializedProfile: String)
     }
 
     class ColorPalettes {

@@ -1,6 +1,7 @@
 package com.vatoo.erick
 
 import android.content.Context
+import android.content.Intent
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -37,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -65,6 +67,7 @@ import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.CustomLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +85,8 @@ internal fun MainSettingsContent(
     typingSounds: Boolean,
     inputMode: String,
     sixSectionDial: Boolean,
+    controllerDeadZone: Float,
+    controllerYAxisInverted: Boolean,
     customLayoutId: String,
     customLayouts: List<CustomLayout>,
     scope: CoroutineScope,
@@ -510,6 +515,52 @@ internal fun MainSettingsContent(
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_ASSISTED) } }
                 )
+            }
+
+            CollapsibleSection(
+                title = "Controller",
+                expanded = expandedSection == "controller",
+                onToggle = { expandedSection = if (expandedSection == "controller") null else "controller" }
+            ) {
+                Text(
+                    text = "Use diagnostics to tune controller dead zone, Y-axis inversion, and one-handed behavior with the same shared controller logic the IME uses.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Text(
+                    text = "Dead zone: ${(controllerDeadZone * 100).roundToInt()}%",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
+                )
+
+                Slider(
+                    value = controllerDeadZone,
+                    onValueChange = { value ->
+                        scope.launch { preferencesManager.setControllerDeadZone(value) }
+                    },
+                    valueRange = 0f..0.6f,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
+                SettingToggle(
+                    title = "Invert Controller Y-Axis",
+                    checked = controllerYAxisInverted,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch { preferencesManager.setControllerYAxisInverted(checked) }
+                    }
+                )
+
+                OutlinedButton(
+                    onClick = {
+                        context.startActivity(Intent(context, ControllerDiagnosticsActivity::class.java))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Open Controller Diagnostics")
+                }
             }
 
             CollapsibleSection(

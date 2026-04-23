@@ -10,8 +10,11 @@ class WordPredictionEngine {
 
     private val root = TrieNode()
     private var wordCount = 0
-    // Bigram map: previousWord -> list of (nextWord, frequency)
-    private val bigrams = mutableMapOf<String, MutableList<Pair<String, Int>>>()
+    // Bigram map: previousWord -> nextWord -> frequency
+    private val bigrams = mutableMapOf<String, MutableMap<String, Int>>()
+    private val learnedWordFrequencies = mutableMapOf<String, Int>()
+    private val userDictionaryWords = mutableSetOf<String>()
+    private val learnedBigrams = mutableMapOf<String, MutableMap<String, Int>>()
     // Default suggestions when no context is available
     private var defaultSuggestions = listOf("I", "The", "Hello")
 
@@ -39,14 +42,30 @@ class WordPredictionEngine {
         val key = word.lowercase().trim()
         val value = nextWord.lowercase().trim()
         if (key.isBlank() || value.isBlank()) return
-        val list = bigrams.getOrPut(key) { mutableListOf() }
-        // Update existing or add new
-        val existing = list.indexOfFirst { it.first == value }
-        if (existing >= 0) {
-            list[existing] = value to maxOf(list[existing].second, frequency)
-        } else {
-            list.add(value to frequency)
+        val map = bigrams.getOrPut(key) { mutableMapOf() }
+        map[value] = maxOf(map[value] ?: 0, frequency)
+    }
+
+    fun learnWord(word: String, count: Int = 1, userAdded: Boolean = false) {
+        val normalized = normalizeWord(word)
+        if (normalized.isBlank()) return
+        insert(normalized, frequency = 1)
+        learnedWordFrequencies[normalized] = (learnedWordFrequencies[normalized] ?: 0) + count.coerceAtLeast(1)
+        if (userAdded) {
+            userDictionaryWords += normalized
         }
+    }
+
+    fun addUserWord(word: String, count: Int = 1) {
+        learnWord(word, count = count, userAdded = true)
+    }
+
+    fun learnBigram(previousWord: String, nextWord: String, count: Int = 1) {
+        val previous = normalizeWord(previousWord)
+        val next = normalizeWord(nextWord)
+        if (previous.isBlank() || next.isBlank()) return
+        val map = learnedBigrams.getOrPut(previous) { mutableMapOf() }
+        map[next] = (map[next] ?: 0) + count.coerceAtLeast(1)
     }
 
     fun contains(word: String): Boolean {
@@ -79,7 +98,11 @@ class WordPredictionEngine {
         collectWords(node, StringBuilder(lower), results, limit * 4) // collect extra for sorting
 
         return results
-            .sortedByDescending { it.second }
+            .sortedWith(
+                compareByDescending<Pair<String, Int>> { scoreWordCandidate(it.first, it.second, exactMatch = it.first == lower) }
+                    .thenBy { it.first.length }
+                    .thenBy { it.first }
+            )
             .map { it.first }
             .take(limit)
     }
@@ -121,7 +144,12 @@ class WordPredictionEngine {
         collectCorrectionCandidates(root, StringBuilder(), lower, maxDistance, candidates)
 
         return candidates
-            .sortedWith(compareByDescending { it.second })
+            .sortedWith(
+                compareBy<Pair<String, Int>> { editDistance(it.first, lower) }
+                    .thenByDescending { scoreWordCandidate(it.first, it.second, exactMatch = false) }
+                    .thenBy { it.first.length }
+                    .thenBy { it.first }
+            )
             .map { it.first }
             .filter { it != lower }
             .take(limit)
@@ -184,10 +212,17 @@ class WordPredictionEngine {
     fun getNextWordSuggestions(previousWord: String, limit: Int = 3): List<String> {
         if (previousWord.isBlank()) return getDefaultSuggestions(limit)
         val lower = previousWord.lowercase().trim()
-        val nextWords = bigrams[lower] ?: return getDefaultSuggestions(limit)
-        return nextWords
-            .sortedByDescending { it.second }
-            .map { it.first }
+        val combined = mutableMapOf<String, Int>()
+        bigrams[lower]?.forEach { (word, frequency) ->
+            combined[word] = frequency
+        }
+        learnedBigrams[lower]?.forEach { (word, frequency) ->
+            combined[word] = (combined[word] ?: 0) + (frequency * 1_000)
+        }
+        if (combined.isEmpty()) return getDefaultSuggestions(limit)
+        return combined.entries
+            .sortedByDescending { it.value }
+            .map { it.key }
             .take(limit)
     }
 
@@ -197,6 +232,85 @@ class WordPredictionEngine {
      */
     fun getDefaultSuggestions(limit: Int = 3): List<String> {
         return defaultSuggestions.take(limit)
+    }
+
+    fun exportLearnedProfile(): String {
+        val wordLines = learnedWordFrequencies.keys
+            .sorted()
+            .map { word ->
+                val learnedCount = learnedWordFrequencies[word] ?: 0
+                val userFlag = if (word in userDictionaryWords) 1 else 0
+                "$word\t$learnedCount\t$userFlag"
+            }
+
+        val bigramLines = learnedBigrams.keys
+            .sorted()
+            .flatMap { previousWord ->
+                learnedBigrams[previousWord].orEmpty()
+                    .toSortedMap()
+                    .map { (nextWord, frequency) -> "$previousWord\t$nextWord\t$frequency" }
+            }
+
+        return buildString {
+            appendLine("[words]")
+            wordLines.forEach { appendLine(it) }
+            appendLine("[bigrams]")
+            bigramLines.forEach { appendLine(it) }
+        }
+    }
+
+    fun importLearnedProfile(serializedProfile: String) {
+        learnedWordFrequencies.clear()
+        userDictionaryWords.clear()
+        learnedBigrams.clear()
+
+        var currentSection = ""
+        serializedProfile.lineSequence().forEach { rawLine ->
+            val line = rawLine.trim()
+            when {
+                line.isEmpty() -> Unit
+                line == "[words]" -> currentSection = "words"
+                line == "[bigrams]" -> currentSection = "bigrams"
+                currentSection == "words" -> {
+                    val parts = line.split('\t')
+                    if (parts.size >= 3) {
+                        val word = parts[0]
+                        val learnedCount = parts[1].toIntOrNull() ?: 0
+                        val userFlag = parts[2] == "1"
+                        if (word.isNotBlank() && learnedCount > 0) {
+                            insert(word, frequency = 1)
+                            learnedWordFrequencies[word] = learnedCount
+                            if (userFlag) {
+                                userDictionaryWords += word
+                            }
+                        }
+                    }
+                }
+                currentSection == "bigrams" -> {
+                    val parts = line.split('\t')
+                    if (parts.size >= 3) {
+                        val previousWord = parts[0]
+                        val nextWord = parts[1]
+                        val frequency = parts[2].toIntOrNull() ?: 0
+                        if (previousWord.isNotBlank() && nextWord.isNotBlank() && frequency > 0) {
+                            val map = learnedBigrams.getOrPut(previousWord) { mutableMapOf() }
+                            map[nextWord] = frequency
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun normalizeWord(word: String): String {
+        return word.lowercase().trim()
+    }
+
+    private fun scoreWordCandidate(word: String, baseFrequency: Int, exactMatch: Boolean): Int {
+        val learnedFrequency = learnedWordFrequencies[word] ?: 0
+        val userBoost = if (word in userDictionaryWords) 50_000 else 0
+        val exactBoost = if (exactMatch) 20_000 else 0
+        return exactBoost + userBoost + (learnedFrequency * 1_000) + baseFrequency
     }
 
     // ── Edit distance utilities ──

@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,7 @@ class HelpActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HelpScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -57,63 +59,70 @@ fun HelpScreen(onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            SectionCard("Learning Path") {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "Start with the quickstart on the main screen, then work through 6-section basics, utility swipes, assisted one-handed typing, controller drills, and finally quote practice.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Button(
+                        onClick = {
+                            context.startActivity(android.content.Intent(context, PracticeHubActivity::class.java))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Open Practice Hub")
+                    }
+                }
+            }
+
             SectionCard("Chord Mechanics") {
                 Text(
-                    "ERICK uses a two-joystick chording system:\n\n" +
-                    "1. Swipe the LEFT dial in one of 8 directions to select a character group\n" +
-                    "2. Swipe the RIGHT dial to select a specific character within the group\n" +
-                    "3. Release both dials — the character is typed\n\n" +
-                    "The preview bar above the dials shows which characters are available as you swipe.",
+                    "ERICK uses a two-dial chording system:\n\n" +
+                    "1. Move the LEFT dial to choose a row of letters\n" +
+                    "2. Move the RIGHT dial to choose the specific letter in that row\n" +
+                    "3. Release both dials to commit the chord\n\n" +
+                    "The preview bar always shows the currently available letters for the selected row.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            SectionCard("Right Dial Shortcuts") {
+            SectionCard("6-Section Utility Wheel") {
                 Text(
-                    "When only the right dial is swiped (left dial at center):\n\n" +
-                    "• East → Space\n" +
-                    "• West → Backspace\n" +
-                    "• North → Enter\n" +
-                    "• South → Home (move cursor to start)\n" +
-                    "• NE → Period (.)\n" +
-                    "• SE → Comma (,)\n" +
-                    "• NW → Toggle Caps Lock\n" +
-                    "• SW → End (move cursor to end)",
+                    "In 6-section mode, the rotated utility wheel is:\n\n" +
+                    "• N → Symbols\n" +
+                    "• NE → Shift\n" +
+                    "• SE → Space\n" +
+                    "• S → Period\n" +
+                    "• SW → Enter\n" +
+                    "• NW → Backspace\n\n" +
+                    "In 8-section mode, the full 8-direction utility wheel remains available.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            SectionCard("Shift & Caps Lock") {
+            SectionCard("Input Modes") {
                 Text(
-                    "• Swipe NW on the right dial to toggle Caps Lock\n" +
-                    "• Shift activates automatically after certain punctuation\n" +
-                    "• A shift indicator appears below the suggestion bar when active",
+                    "• Instant commits the chord as soon as both dials release\n" +
+                    "• Confirm lets you preview and confirm before committing\n" +
+                    "• Assisted locks the left-side row so one-handed users can finish from the letter side",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            SectionCard("Word Predictions") {
+            SectionCard("Layouts and Predictions") {
                 Text(
-                    "When both dials are at the center position, a suggestion bar appears with " +
-                    "up to 3 word predictions. Tap any suggestion to insert it.\n\n" +
-                    "Predictions update as you type and learn from common English words.",
+                    "• Logical (A–Z) keeps the alphabet easy to learn\n" +
+                    "• Efficiency optimizes common English letters\n" +
+                    "• Custom layouts stay available in 8-section mode\n\n" +
+                    "When both dials rest at center, the suggestion bar shows up to three word predictions.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            SectionCard("Logical vs. Efficiency Layout") {
+            SectionCard("Controller Typing") {
                 Text(
-                    "• Logical (A–Z): Letters arranged alphabetically — easy to learn\n" +
-                    "• Efficiency: Optimized for English letter frequency — faster for experienced users\n" +
-                    "• Custom: Create your own chord-to-character mappings in Settings",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            SectionCard("Physical Controller") {
-                Text(
-                    "Connect a Bluetooth or USB game controller. The left and right analog " +
-                    "sticks map directly to the left and right dials for hands-free typing.",
+                    "Bluetooth and USB game controllers mirror the left and right dials with the analog sticks. Use Controller Diagnostics from the main screen or Settings to calibrate dead zone and Y-axis inversion before controller drills.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

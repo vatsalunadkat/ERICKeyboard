@@ -1,7 +1,7 @@
 # ERICK User Guide
 
 **Version**: 1.0  
-**Last Updated**: April 22, 2026
+**Last Updated**: April 23, 2026
 
 ---
 
@@ -49,6 +49,12 @@ It can also help everyday users who want larger touch targets, controller suppor
 3. Select **ErickKeyBoard**.
 4. Tap on ErickKeyBoard and enable **Allow Full Access** (required for settings persistence and controller support).
 5. Switch to ERICK when typing in any app.
+
+### Quickstart and Practice
+
+- The host app now offers a **Quickstart** that teaches the two-dial model, utility swipes, assisted typing, and controller typing.
+- You can **skip** the quickstart, **resume** it later, or **replay** it after finishing.
+- The new **Practice Lessons** hub includes drills for 8-section basics, 6-section basics, utility swipes, one-handed assisted typing, controller typing, and quote practice.
 
 ## What You See on Screen
 
@@ -244,6 +250,8 @@ A **suggestion bar** displays up to 3 word suggestions above the dials. Suggesti
 ### Using Suggestions
 
 - **Tap a suggestion** to insert it. The partial word is replaced with the full suggestion.
+- Suggestion acceptance now adds spacing more intelligently around punctuation and next-word predictions.
+- Frequently used words rise in rank over time and are stored locally on your device.
 - **Default suggestions** (when starting fresh): "I", "The", "Hello".
 - All predictions run fully offline with zero data collection.
 

@@ -7,7 +7,7 @@
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
     <br />
-    Type with touch or a physical game controller, get offline word prediction, and keep every keystroke on your own device.
+    Type with touch or a physical game controller, get offline learned word prediction, and keep every keystroke on your own device.
     <br />
     <br />
     <a href="APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
@@ -36,7 +36,7 @@ ERICK is an accessibility-first keyboard. Instead of asking the user to hit rows
 
 ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting low-visual-demand typing.
 
-The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes word prediction, autocorrect, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, and custom layouts.
+The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes guided quickstart flows, reusable practice lessons, controller diagnostics on Android, offline learned word prediction, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, and custom layouts.
 
 Everything runs fully offline. ERICK requests no internet permission, collects no typing data, and keeps every keystroke on the device.
 
@@ -79,9 +79,12 @@ Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-
 - [x] Three layout modes: Logical, Efficiency, and Custom
 - [x] Custom layout creator
 - [x] Word prediction, autocorrect, and next-word suggestions
+- [x] Locally learned prediction profile with persisted user dictionary and bigram history
 - [x] Live preview bar
-- [x] Typing practice mini-game
+- [x] Guided quickstart and practice hub on both platforms
+- [x] Typing practice mini-game and reusable practice lessons
 - [x] Physical controller support
+- [x] Controller diagnostics screen in the Android host app
 - [x] Seven colorblind-safe palettes plus a custom palette editor
 - [x] Haptic feedback and typing sounds
 - [x] Left-handed mode
@@ -89,7 +92,6 @@ Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-
 - [x] Font selection including OpenDyslexic
 - [x] Shift and Caps Lock indicators
 - [x] Accelerating backspace
-- [x] Guided onboarding on both platforms
 - [x] Source-available, offline-first privacy model
 
 ### Planned Features

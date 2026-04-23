@@ -10,9 +10,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,9 +42,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -70,7 +75,14 @@ fun MainScreen(
     }
 
     val context = LocalContext.current
+    val preferencesManager = remember(context) { PreferencesManager(context) }
+    val onboardingCompleted by preferencesManager.onboardingCompleted.collectAsState(initial = false)
+    val onboardingDismissed by preferencesManager.onboardingDismissed.collectAsState(initial = false)
+    val onboardingStep by preferencesManager.onboardingStep.collectAsState(initial = 0)
+    val quickstartIndex = onboardingStep.coerceIn(0, quickstartSteps.lastIndex)
+    val coroutineScope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
+    var showQuickstart by remember { mutableStateOf(false) }
     val isFullyEnabled = isKeyboardEnabled.value && isKeyboardCurrent.value
 
     LaunchedEffect(text) {
@@ -78,6 +90,50 @@ fun MainScreen(
             text = ""
             showTypingGame = true
         }
+    }
+
+    LaunchedEffect(onboardingCompleted, onboardingDismissed) {
+        if (!onboardingCompleted && !onboardingDismissed) {
+            showQuickstart = true
+        }
+    }
+
+    if (showQuickstart) {
+        QuickstartDialog(
+            step = quickstartSteps[quickstartIndex],
+            stepIndex = quickstartIndex,
+            totalSteps = quickstartSteps.size,
+            onPrevious = {
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingStep((quickstartIndex - 1).coerceAtLeast(0))
+                }
+            },
+            onNext = {
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingStep((quickstartIndex + 1).coerceAtMost(quickstartSteps.lastIndex))
+                }
+            },
+            onSkip = {
+                showQuickstart = false
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingDismissed(true)
+                    preferencesManager.setOnboardingStep(quickstartIndex)
+                }
+            },
+            onFinish = {
+                showQuickstart = false
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingCompleted(true)
+                }
+            },
+            onDismiss = {
+                showQuickstart = false
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingDismissed(true)
+                    preferencesManager.setOnboardingStep(quickstartIndex)
+                }
+            }
+        )
     }
 
     Column(
@@ -120,6 +176,7 @@ fun MainScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(IntrinsicSize.Min)
                 .padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -127,7 +184,9 @@ fun MainScreen(
                 onClick = {
                     context.startActivity(Intent(context, HelpActivity::class.java))
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             ) {
                 Text("\uD83D\uDCD6 How to Type")
             }
@@ -135,13 +194,27 @@ fun MainScreen(
                 onClick = {
                     context.startActivity(Intent(context, SettingsActivity::class.java))
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             ) {
                 Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Settings")
             }
         }
+
+        LearningPathCard(
+            onboardingCompleted = onboardingCompleted,
+            onboardingDismissed = onboardingDismissed,
+            onboardingStep = onboardingStep,
+            onOpenQuickstart = {
+                showQuickstart = true
+            },
+            onOpenPracticeHub = {
+                context.startActivity(Intent(context, PracticeHubActivity::class.java))
+            }
+        )
 
         if (isFullyEnabled) {
             Card(
@@ -187,6 +260,30 @@ fun MainScreen(
         }
 
         ControllerStatusCard()
+
+        OutlinedButton(
+            onClick = {
+                context.startActivity(Intent(context, ControllerDiagnosticsActivity::class.java))
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+        ) {
+            Icon(Icons.Default.SportsEsports, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text("Controller Diagnostics")
+        }
+
+        OutlinedButton(
+            onClick = {
+                context.startActivity(Intent(context, PracticeHubActivity::class.java))
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Text("Practice Lessons")
+        }
 
         Text(
             text = "Test Your Keyboard:",

@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| **Status** | Done |
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 13 |
@@ -105,3 +106,19 @@ Add focused shared tests for:
 3. Accepting a suggestion behaves correctly when punctuation or spacing is involved.
 4. Next-word suggestions improve after the engine observes real user history.
 5. Shared automated tests cover the new personalization and punctuation behavior.
+
+---
+
+## Implementation Summary
+
+- Added shared learned-word and learned-bigram persistence in `WordPredictionEngine.kt` with platform storage supplied through `KeyboardActionDelegate`.
+- Updated `KeyboardStateMachine.kt` to learn from committed words and accepted suggestions, persist the learned profile, and return punctuation-aware suggestion acceptance instructions.
+- Updated Android and iOS suggestion tap handling to consume the shared acceptance result instead of maintaining separate spacing heuristics.
+- Added focused shared tests for learned prediction ranking, learned bigrams, and punctuation-aware suggestion acceptance.
+
+## Validation Snapshot
+
+- `cd android && .\gradlew.bat :shared:testAndroidHostTest`
+- `cd android && .\gradlew.bat assembleDebug`
+- `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework` (Apple slices skipped on Windows as expected)
+- iOS extension editor diagnostics clean for `KeyboardViewController.swift` on this Windows machine

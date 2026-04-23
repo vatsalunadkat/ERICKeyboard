@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| **Status** | Done |
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 13 |
@@ -108,3 +109,16 @@ Keep lesson content and terminology aligned across Android and iOS even if the p
 3. The guided content covers 6-section typing, assisted one-handed input, and controller typing explicitly.
 4. Quote practice remains available as a separate freeform mode.
 5. Android and iOS terminology stay aligned for the same lessons and controls.
+
+---
+
+## Implementation Summary
+
+- Added a first-run quickstart flow on Android and iOS with replay and resume support.
+- Added reusable practice hubs on both platforms with lesson progress tracking for 8-section basics, 6-section basics, utility swipes, assisted one-handed typing, controller drills, and quote practice.
+- Updated Android and iOS help content to match the shipped 6-section utility mapping and controller workflow.
+
+## Validation Snapshot
+
+- Android host app: `cd android && .\gradlew.bat assembleDebug`
+- iOS host app: editor diagnostics clean for `ContentView.swift`, `HelpView.swift`, `LearningContent.swift`, and `LearningHubViews.swift` on this Windows machine

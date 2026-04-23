@@ -15,6 +15,8 @@ class KeyboardLogicTest {
         override fun onModeChanged(mode: KeyboardMode) = Unit
         override fun onSuggestionsUpdated(suggestions: List<String>) = Unit
         override fun getCurrentWordPrefix(): String = ""
+        override fun loadPredictionProfile(): String = ""
+        override fun savePredictionProfile(serializedProfile: String) = Unit
     }
     private val testScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 

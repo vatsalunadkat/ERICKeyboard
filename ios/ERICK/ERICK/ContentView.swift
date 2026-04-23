@@ -4,9 +4,13 @@ import GameController
 struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @AppStorage("hasEnabledKeyboard") private var hasEnabledKeyboard = false
+    @AppStorage(LearningProgressStore.quickstartCompletedKey) private var quickstartCompleted = false
+    @AppStorage(LearningProgressStore.quickstartDismissedKey) private var quickstartDismissed = false
+    @AppStorage(LearningProgressStore.quickstartStepKey) private var quickstartStep = 0
     @State private var isKeyboardActuallyEnabled: Bool = false
     @State private var testText: String = ""
     @State private var showTypingGame: Bool = false
+    @State private var showQuickstart: Bool = false
     
     private var isStep1Completed: Bool {
         hasEnabledKeyboard || isKeyboardActuallyEnabled
@@ -80,6 +84,18 @@ struct ContentView: View {
                             )
                         }
                     }
+
+                    LearningHubCard(
+                        quickstartCompleted: quickstartCompleted,
+                        quickstartDismissed: quickstartDismissed,
+                        quickstartStep: quickstartStep,
+                        onOpenQuickstart: {
+                            if quickstartCompleted {
+                                quickstartStep = 0
+                            }
+                            showQuickstart = true
+                        }
+                    )
 
                     // Success or Instructions
                     if isStep1Completed {
@@ -188,6 +204,20 @@ struct ContentView: View {
                     
                     // Controller Status (3rd card)
                     ControllerStatusCard()
+
+                    NavigationLink(destination: PracticeHubView()) {
+                        HStack {
+                            Image(systemName: "graduationcap")
+                            Text("Practice Lessons")
+                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.accentColor, lineWidth: 1)
+                        )
+                    }
                     
                     // Test Field
                     VStack(alignment: .leading, spacing: 8) {
@@ -216,9 +246,9 @@ struct ContentView: View {
                             .font(.headline)
                         
                         VStack(alignment: .leading, spacing: 10) {
-                            TipRow(text: "Use the left joystick to select a character group")
-                            TipRow(text: "Use the right joystick to select a character within the group")
-                            TipRow(text: "Swipe the right joystick alone for utility functions (space, enter, backspace)")
+                            TipRow(text: "Use the left dial to select a letter row")
+                            TipRow(text: "Use the right dial to select the final character in that row")
+                            TipRow(text: "Use Practice Lessons to drill 6-section, assisted, and controller typing")
                         }
                     }
                     .padding()
@@ -237,6 +267,9 @@ struct ContentView: View {
         .onAppear {
             checkKeyboardStatus()
             ControllerBridge.shared.start()
+            if !quickstartCompleted && !quickstartDismissed {
+                showQuickstart = true
+            }
         }
         .onChange(of: scenePhase) { newPhase in
             switch newPhase {
@@ -261,6 +294,21 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .GCControllerDidDisconnect)) { _ in
             // Controller Status card will refresh via @State when it next appears
+        }
+        .sheet(isPresented: $showQuickstart) {
+            QuickstartView(
+                currentStep: $quickstartStep,
+                onComplete: {
+                    quickstartCompleted = true
+                    quickstartDismissed = false
+                    quickstartStep = 0
+                    showQuickstart = false
+                },
+                onSkip: {
+                    quickstartDismissed = true
+                    showQuickstart = false
+                }
+            )
         }
     }
 }

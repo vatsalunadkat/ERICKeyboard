@@ -88,12 +88,50 @@ class KeyboardStateMachineTest {
         rightSwipe(stateMachine, x = 0f, y = -100f)
         releaseLeft(stateMachine)
 
-        val result = stateMachine.acceptSuggestion("apple")
+        val result = stateMachine.acceptSuggestion(
+            suggestion = "apple",
+            textBeforeCursor = "a",
+            textAfterCursor = ""
+        )
 
-        assertEquals(1, result.first)
-        assertEquals("apple", result.second)
+        assertEquals(1, result.charsToDelete)
+        assertEquals("apple", result.suggestion)
+        assertEquals(" ", result.trailingText)
         assertEquals("", stateMachine.getCurrentWordBuffer())
         assertTrue(stateMachine.isNextWordMode)
+    }
+
+    @Test
+    fun acceptSuggestionPreservesTrailingPunctuation() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        pressLeft(stateMachine, x = 0f, y = -100f)
+        rightSwipe(stateMachine, x = 0f, y = -100f)
+        releaseLeft(stateMachine)
+
+        val result = stateMachine.acceptSuggestion(
+            suggestion = "apple",
+            textBeforeCursor = "a",
+            textAfterCursor = ","
+        )
+
+        assertEquals("", result.trailingText)
+    }
+
+    @Test
+    fun nextWordSuggestionAddsLeadingSpaceAfterPunctuation() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        val result = stateMachine.acceptSuggestion(
+            suggestion = "world",
+            textBeforeCursor = "hello,",
+            textAfterCursor = ""
+        )
+
+        assertEquals(0, result.charsToDelete)
+        assertEquals(" ", result.leadingText)
     }
 
     @Test
@@ -169,6 +207,7 @@ class KeyboardStateMachineTest {
         val inputActions = mutableListOf<InputAction>()
         val modeChanges = mutableListOf<KeyboardMode>()
         val suggestionsSnapshots = mutableListOf<List<String>>()
+        var serializedPredictionProfile: String = ""
 
         override fun commitText(text: String) {
             committedTexts += text
@@ -187,5 +226,11 @@ class KeyboardStateMachineTest {
         }
 
         override fun getCurrentWordPrefix(): String = ""
+
+        override fun loadPredictionProfile(): String = serializedPredictionProfile
+
+        override fun savePredictionProfile(serializedProfile: String) {
+            serializedPredictionProfile = serializedProfile
+        }
     }
 }

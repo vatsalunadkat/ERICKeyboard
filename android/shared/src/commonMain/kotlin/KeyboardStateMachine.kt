@@ -26,6 +26,7 @@ class KeyboardStateMachine(
         private set
 
     init {
+        predictor.importLearnedProfile(delegate.loadPredictionProfile())
         // Show default suggestions when keyboard first opens
         updateSuggestions()
     }
@@ -175,23 +176,21 @@ class KeyboardStateMachine(
     }
 
     private fun normalizeControllerStick(x: Float, y: Float): ControllerStickInput {
-        val clampedX = x.coerceIn(-1f, 1f)
-        val clampedY = (y * controllerYAxisMultiplier).coerceIn(-1f, 1f)
-        val magnitude = hypot(clampedX.toDouble(), clampedY.toDouble()).toFloat()
+        val snapshot = ControllerInputProcessor.resolveStick(
+            x = x,
+            y = y,
+            deadZone = controllerDeadZone,
+            invertY = controllerYAxisMultiplier < 0f,
+            dialSectionMode = getDialSectionMode()
+        )
 
-        if (magnitude <= controllerDeadZone) {
+        if (!snapshot.isActive) {
             return ControllerStickInput(0f, 0f, false)
         }
 
-        val scale = if (controllerDeadZone > 0f) {
-            DEADZONE_RADIUS / controllerDeadZone
-        } else {
-            DEADZONE_RADIUS
-        }
-
         return ControllerStickInput(
-            x = clampedX * scale,
-            y = clampedY * scale,
+            x = snapshot.directionSpaceX,
+            y = snapshot.directionSpaceY,
             isActive = true
         )
     }
@@ -500,12 +499,12 @@ class KeyboardStateMachine(
 
     private fun onTextCommitted(text: String) {
         for (ch in text) {
-            if (ch.isLetterOrDigit() || ch == '\'') {
+            if (isWordCharacter(ch)) {
                 wordBuffer.append(ch)
             } else {
                 // Non-letter character (punctuation, etc.) — treat as word boundary
                 if (wordBuffer.isNotEmpty()) {
-                    lastCompletedWord = wordBuffer.toString()
+                    finalizeCommittedWord(wordBuffer.toString())
                 }
                 wordBuffer.clear()
             }
@@ -515,7 +514,7 @@ class KeyboardStateMachine(
 
     private fun onWordBoundary() {
         if (wordBuffer.isNotEmpty()) {
-            lastCompletedWord = wordBuffer.toString()
+            finalizeCommittedWord(wordBuffer.toString())
         }
         wordBuffer.clear()
         updateSuggestions()
@@ -559,15 +558,66 @@ class KeyboardStateMachine(
      * In next-word mode: inserts the suggestion (buffer was empty).
      * Returns the number of characters to delete and the text to insert.
      */
-    fun acceptSuggestion(suggestion: String): Pair<Int, String> {
+    fun acceptSuggestion(
+        suggestion: String,
+        textBeforeCursor: String = "",
+        textAfterCursor: String = ""
+    ): SuggestionAcceptance {
         val charsToDelete = wordBuffer.length
-        lastCompletedWord = suggestion
+        val leadingText = if (charsToDelete == 0 && shouldPrependSpaceBeforeSuggestion(textBeforeCursor)) " " else ""
+        val trailingText = if (charsToDelete > 0 && shouldAppendTrailingSpace(textAfterCursor)) " " else ""
+
+        finalizeCommittedWord(suggestion, boost = 2)
         wordBuffer.clear()
         // After accepting, show next-word predictions for the accepted word
         isNextWordMode = true
         currentSuggestions = predictor.getNextWordSuggestions(suggestion, limit = 3)
         delegate.onSuggestionsUpdated(currentSuggestions)
-        return Pair(charsToDelete, suggestion)
+        return SuggestionAcceptance(
+            charsToDelete = charsToDelete,
+            leadingText = leadingText,
+            suggestion = suggestion,
+            trailingText = trailingText
+        )
+    }
+
+    private fun finalizeCommittedWord(word: String, boost: Int = 1) {
+        val normalizedWord = normalizeWord(word)
+        if (normalizedWord.isBlank()) return
+
+        val isNewWord = !predictor.contains(normalizedWord)
+        predictor.learnWord(normalizedWord, count = boost, userAdded = isNewWord)
+        if (lastCompletedWord.isNotBlank()) {
+            predictor.learnBigram(lastCompletedWord, normalizedWord, count = boost)
+        }
+        lastCompletedWord = normalizedWord
+        delegate.savePredictionProfile(predictor.exportLearnedProfile())
+    }
+
+    private fun normalizeWord(word: String): String {
+        return word.lowercase().trim().filter { isWordCharacter(it) }
+    }
+
+    private fun isWordCharacter(ch: Char): Boolean {
+        return ch.isLetterOrDigit() || ch == '\''
+    }
+
+    private fun shouldPrependSpaceBeforeSuggestion(textBeforeCursor: String): Boolean {
+        if (textBeforeCursor.isEmpty()) return false
+        val lastChar = textBeforeCursor.last()
+        if (lastChar.isWhitespace()) return false
+        return lastChar !in listOf('(', '[', '{', '\n', '\t', '"', '\'')
+    }
+
+    private fun shouldAppendTrailingSpace(textAfterCursor: String): Boolean {
+        if (textAfterCursor.isEmpty()) return true
+        val nextChar = textAfterCursor.first()
+        return when {
+            nextChar.isWhitespace() -> false
+            isWordCharacter(nextChar) -> false
+            nextChar in listOf('.', ',', '!', '?', ';', ':', ')', ']', '}', '"', '\'') -> false
+            else -> true
+        }
     }
 
     /**

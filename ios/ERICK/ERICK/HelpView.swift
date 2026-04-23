@@ -4,60 +4,67 @@ struct HelpView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                helpSection(title: "Learning Path") {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Start with the quickstart on the main screen, then work through 6-section basics, utility swipes, assisted one-handed typing, controller drills, and finally quote practice.")
+                        NavigationLink(destination: PracticeHubView()) {
+                            Text("Open Practice Lessons")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                }
+
                 helpSection(title: "Chord Mechanics") {
                     Text("""
-                    ERICK uses a two-joystick chording system:
+                    ERICK uses a two-dial chording system:
 
-                    1. Swipe the LEFT dial in one of 8 directions to select a character group
-                    2. Swipe the RIGHT dial to select a specific character within the group
-                    3. Release both dials — the character is typed
+                    1. Move the LEFT dial to choose a row of letters
+                    2. Move the RIGHT dial to choose the specific letter in that row
+                    3. Release both dials to commit the chord
 
-                    The preview bar above the dials shows which characters are available as you swipe.
+                    The preview bar shows the currently available letters for the selected row.
                     """)
                 }
 
-                helpSection(title: "Right Dial Shortcuts") {
+                helpSection(title: "6-Section Utility Wheel") {
                     Text("""
-                    When only the right dial is swiped (left dial at center):
+                    In 6-section mode, the rotated utility wheel is:
 
-                    • East → Space
-                    • West → Backspace
-                    • North → Enter
-                    • South → Home (move cursor to start)
-                    • NE → Period (.)
-                    • SE → Comma (,)
-                    • NW → Toggle Caps Lock
-                    • SW → End (move cursor to end)
+                    • N → Symbols
+                    • NE → Shift
+                    • SE → Space
+                    • S → Period
+                    • SW → Enter
+                    • NW → Backspace
+
+                    In 8-section mode, the full 8-direction utility wheel remains available.
                     """)
                 }
 
-                helpSection(title: "Shift & Caps Lock") {
+                helpSection(title: "Input Modes") {
                     Text("""
-                    • Swipe NW on the right dial to toggle Caps Lock
-                    • Shift activates automatically after certain punctuation
-                    • A shift indicator appears below the suggestion bar when active
+                    • Instant commits the chord as soon as both dials release
+                    • Confirm lets you preview and confirm before committing
+                    • Assisted locks the left-side row so one-handed users can finish from the letter side
                     """)
                 }
 
-                helpSection(title: "Word Predictions") {
+                helpSection(title: "Layouts and Predictions") {
                     Text("""
-                    When both dials are at the center position, a suggestion bar appears with up to 3 word predictions. Tap any suggestion to insert it.
+                    • Logical (A–Z) keeps the alphabet easy to learn
+                    • Efficiency optimizes common English letters
+                    • Custom layouts stay available in 8-section mode
 
-                    Predictions update as you type and learn from common English words.
+                    When both dials rest at center, the suggestion bar shows up to three word predictions.
                     """)
                 }
 
-                helpSection(title: "Logical vs. Efficiency Layout") {
+                helpSection(title: "Controller Typing") {
                     Text("""
-                    • Logical (A–Z): Letters arranged alphabetically — easy to learn
-                    • Efficiency: Optimized for English letter frequency — faster for experienced users
-                    • Custom: Create your own chord-to-character mappings in Settings
-                    """)
-                }
-
-                helpSection(title: "Physical Controller") {
-                    Text("""
-                    Connect a Bluetooth or USB game controller. The left and right analog sticks map directly to the left and right dials for hands-free typing.
+                    Bluetooth and USB game controllers mirror the left and right dials with the analog sticks. Use the same learning path for controller drills after you are comfortable with the touch version.
                     """)
                 }
             }

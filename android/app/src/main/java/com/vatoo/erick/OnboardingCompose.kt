@@ -1,0 +1,129 @@
+package com.vatoo.erick
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun LearningPathCard(
+    onboardingCompleted: Boolean,
+    onboardingDismissed: Boolean,
+    onboardingStep: Int,
+    onOpenQuickstart: () -> Unit,
+    onOpenPracticeHub: () -> Unit
+) {
+    val progressStep = (onboardingStep + 1).coerceAtMost(quickstartSteps.size)
+    val title = when {
+        onboardingCompleted -> "Replay Quickstart or Jump Into Practice"
+        onboardingDismissed -> "Resume Your Quickstart"
+        else -> "Start the Guided Quickstart"
+    }
+    val description = when {
+        onboardingCompleted -> "You already finished the quickstart. Replay it any time or continue into targeted drills."
+        onboardingDismissed -> "Resume from step $progressStep of ${quickstartSteps.size}, or skip directly to practice drills."
+        else -> "New users should start here. The quickstart explains the dials, utility swipes, assisted mode, and controller typing."
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(description, style = MaterialTheme.typography.bodyMedium)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = onOpenQuickstart, modifier = Modifier.weight(1f)) {
+                    Text(if (onboardingCompleted) "Replay Quickstart" else if (onboardingDismissed) "Resume Quickstart" else "Start Quickstart")
+                }
+                OutlinedButton(onClick = onOpenPracticeHub, modifier = Modifier.weight(1f)) {
+                    Text("Practice Lessons")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun QuickstartDialog(
+    step: QuickstartStep,
+    stepIndex: Int,
+    totalSteps: Int,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    onSkip: () -> Unit,
+    onFinish: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(24.dp), tonalElevation = 6.dp) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Quickstart ${stepIndex + 1} of $totalSteps",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(step.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(step.summary, style = MaterialTheme.typography.titleMedium)
+                Text(step.details, style = MaterialTheme.typography.bodyMedium)
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Text(
+                        text = step.tryNext,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(onClick = onSkip, modifier = Modifier.weight(1f)) {
+                        Text("Skip for Now")
+                    }
+                    if (stepIndex > 0) {
+                        OutlinedButton(onClick = onPrevious, modifier = Modifier.weight(1f)) {
+                            Text("Back")
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                    Button(
+                        onClick = if (stepIndex == totalSteps - 1) onFinish else onNext,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(if (stepIndex == totalSteps - 1) "Finish" else "Next")
+                    }
+                }
+            }
+        }
+    }
+}

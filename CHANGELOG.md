@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android: Available now on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick)
 - iOS: App Store release coming soon. Historical sections below may still mention pre-store APK or source-install workflows from earlier milestones.
 
+## [Unreleased]
+
+## What's New
+
+### Learning & Diagnostics
+- **Controller Diagnostics Screen (Android)** - Added a host-app diagnostics screen with live raw stick values, normalized values, resolved directions, assisted-mode lock state, left-handed routing, dead-zone calibration, Y-axis inversion, and reset actions.
+- **Guided Quickstart (Android and iOS)** - Added an optional first-run quickstart covering dial mechanics, utility swipes, assisted typing, and controller typing.
+- **Practice Hub (Android and iOS)** - Added reusable lessons for 8-section basics, 6-section basics, utility swipes, assisted one-handed typing, controller drills, and quote practice.
+
+### Prediction Improvements
+- **Persistent Learned Predictions** - The shared predictor now persists learned words and learned bigram history through the platform storage layer.
+- **Suggestion Acceptance Semantics** - Suggestion taps now use shared punctuation-aware spacing behavior instead of diverging Android/iOS platform heuristics.
+- **Expanded Shared Validation** - Added focused shared tests for controller normalization, learned prediction ranking, learned bigrams, and punctuation-aware suggestion acceptance.
+
 ## [v1.0] - April 13, 2026
 
 ## What's New
