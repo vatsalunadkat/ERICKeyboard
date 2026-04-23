@@ -495,7 +495,6 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val letterDir = if (isLH) rightJoystick.activeDirection else leftJoystick.activeDirection
         val colorDir  = if (isLH) leftJoystick.activeDirection  else rightJoystick.activeDirection
 
-        val isSix = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
         val logicalPreviewDirs = stateMachine.getDirections()
         val visualPreviewDirs = stateMachine.getPreviewDirections()
 
@@ -505,15 +504,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         var highlightIndex = -1
 
         if (letterDir != Direction.NONE) {
-            // Left-dial hold: show all characters in that group
+            // Left-dial hold: keep characters in logical chord order even when the 6-section
+            // dial is visually rotated, so rows like a-f remain intuitive in the preview bar.
             val chars = stateMachine.getCharactersForDirection(letterDir)
             val charsByDirection = logicalPreviewDirs.mapIndexed { index, dir ->
                 dir to chars.getOrNull(index).orEmpty()
             }.toMap()
-            for (dirForChar in visualPreviewDirs) {
+            for (dirForChar in logicalPreviewDirs) {
                 val charStr = charsByDirection[dirForChar].orEmpty()
                 if (charStr.isBlank()) continue
-                val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(dirForChar, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
+                val colorHex = if (stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION) ColorPalettes.getColorForDirectionHex6(dirForChar, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
                 previewChars.add(PreviewChar(charStr, colorHex, dirForChar))
                 if (dirForChar == colorDir && colorDir != Direction.NONE) {
                     highlightIndex = previewChars.size - 1
@@ -522,7 +522,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         } else if (colorDir != Direction.NONE) {
             // Right-dial-only hold: show character at this color position across all left-dial groups
             val positionCharsByDirection = stateMachine.getCharactersAtPosition(colorDir).toMap()
-            val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(colorDir, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
+            val colorHex = if (stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION) ColorPalettes.getColorForDirectionHex6(colorDir, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
             for (dir in visualPreviewDirs) {
                 val ch = positionCharsByDirection[dir] ?: continue
                 previewChars.add(PreviewChar(ch, colorHex, colorDir))
