@@ -17,7 +17,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -93,6 +98,8 @@ fun QuickstartDialog(
     onFinish: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var showDetails by rememberSaveable(step.id) { mutableStateOf(false) }
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = RoundedCornerShape(24.dp), tonalElevation = 6.dp) {
             Column(
@@ -108,7 +115,14 @@ fun QuickstartDialog(
                 )
                 Text(step.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text(step.summary, style = MaterialTheme.typography.titleMedium)
-                Text(step.details, style = MaterialTheme.typography.bodyMedium)
+
+                TextButton(onClick = { showDetails = !showDetails }) {
+                    ActionButtonText(if (showDetails) "Hide Detail" else "More Detail")
+                }
+
+                if (showDetails) {
+                    Text(step.details, style = MaterialTheme.typography.bodyMedium)
+                }
 
                 Surface(
                     shape = RoundedCornerShape(16.dp),

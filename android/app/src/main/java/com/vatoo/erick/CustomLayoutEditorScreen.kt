@@ -89,7 +89,7 @@ fun CustomLayoutEditorScreen(
     val palette = ColorPalettes.getPalette(paletteType)
     var name by remember { mutableStateOf(layout.name) }
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Normal Chords", "Shifted Chords", "Single Swipe")
+    val tabs = listOf("Normal", "Shifted", "Swipe")
 
     val normalChords = remember {
         mutableStateMapOf<Direction, List<String>>().apply {
@@ -153,6 +153,25 @@ fun CustomLayoutEditorScreen(
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
             )
 
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+                    Text("Edit one layer at a time", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        text = when (selectedTab) {
+                            0 -> "Normal is the everyday map. Start here first."
+                            1 -> "Shifted is only for shifted typing. Change it after the normal layer feels right."
+                            else -> "Swipe actions are optional utility shortcuts for the right dial alone."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             ScrollableTabRow(selectedTabIndex = selectedTab) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -187,7 +206,7 @@ private fun ChordMapEditor(
             .padding(16.dp)
     ) {
         Text(
-            "$label chord map — tap a direction to edit its 8 character slots",
+            "$label map. Open one direction at a time and fill only the slots you want to change.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -271,7 +290,7 @@ private fun SingleSwipeEditor(
             .padding(16.dp)
     ) {
         Text(
-            "Single-swipe actions (right dial only, no left dial)",
+            "Optional right-dial shortcuts. Leave a direction empty if you do not want a swipe action there.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp)

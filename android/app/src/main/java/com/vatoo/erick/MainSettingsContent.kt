@@ -95,6 +95,49 @@ internal fun MainSettingsContent(
     onEditCustomLayout: (CustomLayout) -> Unit,
     onEditCustomPalette: () -> Unit
 ) {
+    val layoutSummary = when {
+        layoutType == PreferencesManager.LAYOUT_CUSTOM -> {
+            customLayouts.firstOrNull { it.id == customLayoutId }?.name ?: "Custom layout"
+        }
+        layoutType == PreferencesManager.LAYOUT_EFFICIENCY -> "Efficiency"
+        else -> "Logical (A-Z)"
+    }
+    val appearanceSummary = buildList {
+        add(
+            when (themeMode) {
+                PreferencesManager.THEME_LIGHT -> "Light"
+                PreferencesManager.THEME_DARK -> "Dark"
+                else -> "System theme"
+            }
+        )
+        if (fontPreference != PreferencesManager.FONT_SYSTEM) {
+            add(
+                when (fontPreference) {
+                    PreferencesManager.FONT_GEORGIA -> "Georgia"
+                    PreferencesManager.FONT_OPENDYSLEXIC -> "OpenDyslexic"
+                    else -> "Verdana"
+                }
+            )
+        }
+        if (colorPalette == PreferencesManager.PALETTE_PASTEL) add("Pastel colors")
+        if (colorPalette == PreferencesManager.PALETTE_CUSTOM) add("Custom colors")
+    }.joinToString(" • ")
+    val accessibilitySummary = buildList {
+        if (colorblindMode) add("Colorblind palette on")
+        if (leftHandedMode) add("Left-handed mode on")
+        if (isEmpty()) add("Standard setup")
+    }.joinToString(" • ")
+    val feedbackSummary = buildList {
+        if (hapticFeedback) add("Haptics on")
+        if (typingSounds) add("Sounds on")
+        if (isEmpty()) add("Feedback off")
+    }.joinToString(" • ")
+    val inputModeSummary = when (inputMode) {
+        PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
+        PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
+        else -> "Quick Type"
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -126,6 +169,12 @@ internal fun MainSettingsContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val context = LocalContext.current
+            SectionOverviewCard(
+                title = "Start with the essentials",
+                summary = "Most people only need Dial Mode, Input Mode, and Accessibility. The rest is optional customization.",
+                modifier = Modifier.fillMaxWidth()
+            )
+
             OutlinedButton(
                 onClick = {
                     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -138,6 +187,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Dial Mode",
+                summary = if (sixSectionDial) "6-section dial on" else "8-section dial on",
                 expanded = expandedSection == "dial_mode",
                 onToggle = { expandedSection = if (expandedSection == "dial_mode") null else "dial_mode" }
             ) {
@@ -159,6 +209,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Keyboard Layout",
+                summary = layoutSummary,
                 expanded = expandedSection == "layout",
                 onToggle = { expandedSection = if (expandedSection == "layout") null else "layout" }
             ) {
@@ -215,6 +266,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Appearance",
+                summary = appearanceSummary.ifBlank { "System theme" },
                 expanded = expandedSection == "appearance",
                 onToggle = { expandedSection = if (expandedSection == "appearance") null else "appearance" }
             ) {
@@ -351,6 +403,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Accessibility",
+                summary = accessibilitySummary,
                 expanded = expandedSection == "accessibility",
                 onToggle = { expandedSection = if (expandedSection == "accessibility") null else "accessibility" }
             ) {
@@ -431,6 +484,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Feedback",
+                summary = feedbackSummary,
                 expanded = expandedSection == "feedback",
                 onToggle = { expandedSection = if (expandedSection == "feedback") null else "feedback" }
             ) {
@@ -462,28 +516,8 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
-                title = "Dial Mode",
-                expanded = expandedSection == "dial_mode",
-                onToggle = { expandedSection = if (expandedSection == "dial_mode") null else "dial_mode" }
-            ) {
-                SettingToggle(
-                    title = "6-Section Dial Mode",
-                    checked = sixSectionDial,
-                    enabled = true,
-                    onCheckedChange = { checked ->
-                        scope.launch { preferencesManager.setSixSectionDial(checked) }
-                    }
-                )
-                Text(
-                    text = "Use 6 larger segments instead of 8. Larger targets improve accuracy but change the chord layout. Symbols are accessed via N single-swipe.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                )
-            }
-
-            CollapsibleSection(
                 title = "Input Mode",
+                summary = inputModeSummary,
                 expanded = expandedSection == "input_mode",
                 onToggle = { expandedSection = if (expandedSection == "input_mode") null else "input_mode" }
             ) {
@@ -519,6 +553,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Controller",
+                summary = "Dead zone ${(controllerDeadZone * 100).roundToInt()}%${if (controllerYAxisInverted) " • Y inverted" else ""}",
                 expanded = expandedSection == "controller",
                 onToggle = { expandedSection = if (expandedSection == "controller") null else "controller" }
             ) {
@@ -565,6 +600,7 @@ internal fun MainSettingsContent(
 
             CollapsibleSection(
                 title = "Privacy & Security",
+                summary = "No typing data leaves your device",
                 expanded = expandedSection == "privacy",
                 onToggle = { expandedSection = if (expandedSection == "privacy") null else "privacy" }
             ) {
@@ -590,6 +626,7 @@ internal fun MainSettingsContent(
 @Composable
 internal fun CollapsibleSection(
     title: String,
+    summary: String,
     expanded: Boolean,
     onToggle: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
@@ -611,14 +648,20 @@ internal fun CollapsibleSection(
                     .fillMaxWidth()
                     .clickable { onToggle() }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Icon(
                     imageVector = Icons.Default.ExpandMore,
                     contentDescription = if (expanded) "Collapse" else "Expand",
@@ -633,6 +676,23 @@ internal fun CollapsibleSection(
                     content = content
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SectionOverviewCard(
+    title: String,
+    summary: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+            Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
         }
     }
 }

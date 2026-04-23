@@ -19,6 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -63,6 +65,7 @@ fun CustomPaletteEditorScreen(
     var rInput by remember { mutableStateOf("") }
     var gInput by remember { mutableStateOf("") }
     var bInput by remember { mutableStateOf("") }
+    var showAdvancedInputs by remember { mutableStateOf(false) }
 
     fun syncFromHex(hex: String) {
         val color = parseHexColor(hex)
@@ -136,6 +139,20 @@ fun CustomPaletteEditorScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Edit one slot at a time", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        text = "Pick a direction, adjust the color with the sliders, and only open hex or RGB if you need precise values.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             Text("Tap a slot to edit its color:", style = MaterialTheme.typography.bodyMedium)
 
             Row(
@@ -180,6 +197,11 @@ fun CustomPaletteEditorScreen(
                     .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
             )
 
+            Text(
+                text = "Editing ${directionLabels[selectedIndex]}",
+                style = MaterialTheme.typography.titleSmall
+            )
+
             Text("Hue", style = MaterialTheme.typography.labelMedium)
             Slider(
                 value = hue,
@@ -204,86 +226,92 @@ fun CustomPaletteEditorScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = hexInput,
-                onValueChange = { input ->
-                    val filtered = input.filter { it in "0123456789ABCDEFabcdef" }.take(6)
-                    hexInput = filtered
-                    if (filtered.length == 6) {
-                        val hex = "#$filtered"
-                        val updatedList = colors.toMutableList()
-                        updatedList[selectedIndex] = hex
-                        colors = updatedList
-                        syncFromHex(hex)
-                    }
-                },
-                label = { Text("Hex Color") },
-                prefix = { Text("#") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            TextButton(onClick = { showAdvancedInputs = !showAdvancedInputs }) {
+                Text(if (showAdvancedInputs) "Hide Hex and RGB" else "Show Hex and RGB")
+            }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            if (showAdvancedInputs) {
                 OutlinedTextField(
-                    value = rInput,
+                    value = hexInput,
                     onValueChange = { input ->
-                        val value = input.filter { it.isDigit() }.take(3)
-                        rInput = value
-                        val red = value.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val green = gInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val blue = bInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val hex = String.format("#%02X%02X%02X", red, green, blue)
-                        val updatedList = colors.toMutableList()
-                        updatedList[selectedIndex] = hex
-                        colors = updatedList
-                        syncFromHex(hex)
+                        val filtered = input.filter { it in "0123456789ABCDEFabcdef" }.take(6)
+                        hexInput = filtered
+                        if (filtered.length == 6) {
+                            val hex = "#$filtered"
+                            val updatedList = colors.toMutableList()
+                            updatedList[selectedIndex] = hex
+                            colors = updatedList
+                            syncFromHex(hex)
+                        }
                     },
-                    label = { Text("R") },
+                    label = { Text("Hex Color") },
+                    prefix = { Text("#") },
                     singleLine = true,
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = gInput,
-                    onValueChange = { input ->
-                        val value = input.filter { it.isDigit() }.take(3)
-                        gInput = value
-                        val red = rInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val green = value.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val blue = bInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val hex = String.format("#%02X%02X%02X", red, green, blue)
-                        val updatedList = colors.toMutableList()
-                        updatedList[selectedIndex] = hex
-                        colors = updatedList
-                        syncFromHex(hex)
-                    },
-                    label = { Text("G") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                )
-                OutlinedTextField(
-                    value = bInput,
-                    onValueChange = { input ->
-                        val value = input.filter { it.isDigit() }.take(3)
-                        bInput = value
-                        val red = rInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val green = gInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val blue = value.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
-                        val hex = String.format("#%02X%02X%02X", red, green, blue)
-                        val updatedList = colors.toMutableList()
-                        updatedList[selectedIndex] = hex
-                        colors = updatedList
-                        syncFromHex(hex)
-                    },
-                    label = { Text("B") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = rInput,
+                        onValueChange = { input ->
+                            val value = input.filter { it.isDigit() }.take(3)
+                            rInput = value
+                            val red = value.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val green = gInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val blue = bInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val hex = String.format("#%02X%02X%02X", red, green, blue)
+                            val updatedList = colors.toMutableList()
+                            updatedList[selectedIndex] = hex
+                            colors = updatedList
+                            syncFromHex(hex)
+                        },
+                        label = { Text("R") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    )
+                    OutlinedTextField(
+                        value = gInput,
+                        onValueChange = { input ->
+                            val value = input.filter { it.isDigit() }.take(3)
+                            gInput = value
+                            val red = rInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val green = value.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val blue = bInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val hex = String.format("#%02X%02X%02X", red, green, blue)
+                            val updatedList = colors.toMutableList()
+                            updatedList[selectedIndex] = hex
+                            colors = updatedList
+                            syncFromHex(hex)
+                        },
+                        label = { Text("G") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    )
+                    OutlinedTextField(
+                        value = bInput,
+                        onValueChange = { input ->
+                            val value = input.filter { it.isDigit() }.take(3)
+                            bInput = value
+                            val red = rInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val green = gInput.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val blue = value.toIntOrNull()?.coerceIn(0, 255) ?: return@OutlinedTextField
+                            val hex = String.format("#%02X%02X%02X", red, green, blue)
+                            val updatedList = colors.toMutableList()
+                            updatedList[selectedIndex] = hex
+                            colors = updatedList
+                            syncFromHex(hex)
+                        },
+                        label = { Text("B") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    )
+                }
             }
         }
     }

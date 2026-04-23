@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -147,9 +148,23 @@ fun TypingGameScreen(onBack: () -> Unit) {
     var totalCharsTyped by remember { mutableIntStateOf(0) }
     var wpm by remember { mutableDoubleStateOf(0.0) }
     var quoteOrder by remember { mutableStateOf(quotes.indices.shuffled()) }
+    var showHelpDialog by remember { mutableStateOf(false) }
 
     val currentQuote = quotes[quoteOrder[currentQuoteIndex % quotes.size]]
     val focusRequester = remember { FocusRequester() }
+
+    fun restartSession() {
+        currentQuoteIndex = 0
+        typedText = ""
+        totalKeystrokes = 0
+        correctKeystrokes = 0
+        streak = 0
+        currentQuoteHasError = false
+        startTimeMs = 0L
+        totalCharsTyped = 0
+        wpm = 0.0
+        quoteOrder = quotes.indices.shuffled()
+    }
 
     // Update WPM every 500ms
     LaunchedEffect(Unit) {
@@ -181,6 +196,11 @@ fun TypingGameScreen(onBack: () -> Unit) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                actions = {
+                    IconButton(onClick = { showHelpDialog = true }) {
+                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Practice help")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -188,6 +208,25 @@ fun TypingGameScreen(onBack: () -> Unit) {
         },
         containerColor = bgColor
     ) { padding ->
+        if (showHelpDialog) {
+            AlertDialog(
+                onDismissRequest = { showHelpDialog = false },
+                title = { Text("How quote practice works") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Type the highlighted character next.")
+                        Text("Tap the quote card or anywhere on the screen if you need to refocus the hidden input field.")
+                        Text("Skip a quote if it is not useful, or restart the session to clear the running stats.")
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showHelpDialog = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -308,24 +347,30 @@ fun TypingGameScreen(onBack: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                OutlinedButton(
-                    onClick = {
-                        currentQuoteIndex++
-                        if (currentQuoteIndex >= quoteOrder.size) {
-                            quoteOrder = quotes.indices.shuffled()
-                            currentQuoteIndex = 0
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            currentQuoteIndex++
+                            if (currentQuoteIndex >= quoteOrder.size) {
+                                quoteOrder = quotes.indices.shuffled()
+                                currentQuoteIndex = 0
+                            }
+                            typedText = ""
+                            currentQuoteHasError = false
                         }
-                        typedText = ""
-                        currentQuoteHasError = false
+                    ) {
+                        Text("Skip Quote")
                     }
-                ) {
-                    Text("Skip Quote")
+
+                    OutlinedButton(onClick = ::restartSession) {
+                        Text("Restart Session")
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "Start typing with your keyboard!",
+                    text = "Start typing when you are ready.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

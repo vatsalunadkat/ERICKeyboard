@@ -8,44 +8,65 @@
 import SwiftUI
 import SharedKeyboard
 
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Start here")
+                        .font(.headline)
+                    Text("Create a blank layout for full control, or duplicate a built-in layout if you only want to tweak a few chords.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    Button("Create Blank") {
+                        newLayoutName = ""
+                        showCreateBlank = true
+                    }
+
+                    Button("Duplicate Built-in") {
+                        newLayoutName = ""
+                        showDuplicate = true
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
 struct SettingsView: View {
-    fileprivate static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
-    
-    @AppStorage("layout_type", store: SettingsView.appGroupDefaults) private var layoutType: String = "logical"
+                Text("No custom layouts yet.")
+                    .foregroundColor(.secondary)
+                    .padding(.vertical, 8)
     @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
-    @AppStorage("theme_mode", store: SettingsView.appGroupDefaults) private var themeMode: String = "system"
-    @AppStorage("colorblind_mode", store: SettingsView.appGroupDefaults) private var colorblindMode: Bool = false
-    @AppStorage("color_palette", store: SettingsView.appGroupDefaults) private var colorPalette: String = "okabe_ito"
-    @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
-    @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
-    @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
-    @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
-    @AppStorage("six_section_dial", store: SettingsView.appGroupDefaults) private var sixSectionDial: Bool = false
-    
-    @Environment(\.dismiss) var dismiss
-
-    @State private var customLayouts: [CustomLayout] = []
-    @State private var showCustomLayoutManager = false
-
+            if !layouts.isEmpty {
+                Section(header: Text("Your Layouts")) {
+                    ForEach(Array(layouts.enumerated()), id: \.element.id) { _, cl in
+                        NavigationLink {
+                            AppCustomLayoutEditorView(layout: cl, onSave: { updated in
+                                let m = manager()
+                                let _ = m.save(layout: updated)
+                                reloadLayouts()
+                            })
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text(cl.name).font(.body)
+                                let count = cl.normalChordMap.values.flatMap { ($0 as! [String]) }.filter { !$0.isEmpty }.count
+                                Text("\(count) characters mapped")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
     private func reloadCustomLayouts() {
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) { deleteTarget = cl } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
         let m = CustomLayoutManager(storage: IOSCustomLayoutStorage())
-        m.loadAll()
-        customLayouts = m.getAll()
-    }
-
-    var body: some View {
         NavigationView {
             Form {
-                // Dial Mode Section
-                Section(header: Text("Dial Mode")) {
-                    Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
-                    Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                Section(header: Text("Start Here")) {
+                    SettingsBulletRow(text: "Most people only need Dial Mode, Input Mode, and Accessibility.")
 
-                // Layout Section
-                Section(header: Text("Keyboard Layout")) {
+                Section(
+                    header: Text("Keyboard Layout"),
+                    footer: Text("Logical is easiest to learn. Efficiency is tuned for common English letters.")
+                ) {
                     Picker("Layout Type", selection: $layoutType) {
                         Text("Logical (A–Z)").tag("logical")
                         Text("Efficiency").tag("efficiency")
@@ -75,26 +96,29 @@ struct SettingsView: View {
                     }
                 }
                 
-                // Appearance Section
                 Section(header: Text("Appearance")) {
                     Picker("Theme", selection: $themeMode) {
                         Text("System Default").tag("system")
                         Text("Light").tag("light")
                         Text("Dark").tag("dark")
                     }
-                    .pickerStyle(.inline)
+                    .pickerStyle(.segmented)
                 }
 
-                // Font Section
-                Section(header: Text("Font")) {
+                Section(
+                    header: Text("Font"),
+                    footer: Text("Use a custom font only if readability improves for you.")
+                ) {
                     appFontOption(key: "system", label: "System Default", font: .body)
                     appFontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
                     appFontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
                     appFontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
                 }
 
-                // Custom Colors Section
-                Section(header: Text("Custom Colors")) {
+                Section(
+                    header: Text("Custom Colors"),
+                    footer: Text("Pastel and custom palettes disable the colorblind presets.")
+                ) {
                     Button(action: { colorPalette = "okabe_ito" }) {
                         HStack {
                             Image(systemName: (colorPalette != "pastel" && colorPalette != "custom") ? "largecircle.fill.circle" : "circle")
@@ -127,10 +151,6 @@ struct SettingsView: View {
                     ))
 
                     if colorblindMode {
-                        Text("Select the palette that works best for your type of color vision. Each option shows a preview of the 8 colors used on the keyboard.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-
                         AppColorPaletteOption(
                             title: "Okabe-Ito (Universal)",
                             subtitle: "Recommended for all types of color vision deficiency",
@@ -164,20 +184,10 @@ struct SettingsView: View {
                     Toggle("Left-Handed Mode", isOn: $leftHandedMode)
                 }
 
-                // Dial Mode Section
-                Section(header: Text("Dial Mode")) {
-                    Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
-                    Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-
-                // Input Mode Section
-                Section(header: Text("Input Mode")) {
-                    Text("Choose how chords are triggered when using the dials.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
+                Section(
+                    header: Text("Input Mode"),
+                    footer: Text("Quick Type is fastest. Steady Type is more deliberate. One-Handed locks the left-side row.")
+                ) {
                     Button(action: { inputMode = "instant" }) {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: inputMode == "instant" ? "largecircle.fill.circle" : "circle")
@@ -216,23 +226,18 @@ struct SettingsView: View {
                     }
                 }
                 
-                // Privacy & Security Section
                 Section(header: Text("Privacy & Security")) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("🔒 Your privacy is our priority. ERICKeyboard:")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        
-                        Text("✓ Does NOT collect any text you type")
-                        Text("✓ Does NOT store passwords or personal data")
-                        Text("✓ Does NOT transmit any data from your device")
-                        Text("✓ Only stores your keyboard preferences locally")
-                        Text("✓ Has no internet permissions")
-                        Text("✓ Is 100% open source for full transparency")
+                    Button {
+                        infoSheet = .privacy
+                    } label: {
+                        HStack {
+                            Text("View Privacy Details")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.vertical, 5)
                 }
             }
             .navigationTitle("Keyboard Settings")
@@ -240,6 +245,9 @@ struct SettingsView: View {
                 dismiss()
             }))
             .onAppear { reloadCustomLayouts() }
+            .sheet(item: $infoSheet) { sheet in
+                SettingsInfoSheetView(sheet: sheet)
+            }
         }
     }
 
@@ -254,6 +262,53 @@ struct SettingsView: View {
                     Text("The quick brown fox").font(font).foregroundColor(.secondary)
                 }
             }
+        }
+    }
+}
+
+private enum SettingsInfoSheet: String, Identifiable {
+    case privacy
+
+    var id: String { rawValue }
+}
+
+private struct SettingsBulletRow: View {
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text("•")
+                .fontWeight(.bold)
+            Text(text)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .foregroundColor(.secondary)
+    }
+}
+
+private struct SettingsInfoSheetView: View {
+    let sheet: SettingsInfoSheet
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    switch sheet {
+                    case .privacy:
+                        Text("ERICKeyboard keeps your typing on your device.")
+                            .font(.body)
+                        SettingsBulletRow(text: "It does not collect the text you type")
+                        SettingsBulletRow(text: "It does not store passwords or personal data")
+                        SettingsBulletRow(text: "It does not transmit typing data from your device")
+                        SettingsBulletRow(text: "It stores only keyboard preferences locally")
+                        SettingsBulletRow(text: "It requests no internet permission for typing data")
+                        SettingsBulletRow(text: "The project is open source for inspection")
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Privacy & Security")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
@@ -531,7 +586,21 @@ struct AppCustomLayoutEditorView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
 
-            Picker("Section", selection: $selectedTab) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Edit one layer at a time")
+                    .font(.headline)
+                Text(selectedTab == 0 ? "Normal is the everyday map. Start here first." : "Shifted is only for shifted typing. Change it after the normal layer feels right.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(uiColor: .secondarySystemBackground))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            .padding(.bottom, 8)
+
+            Picker("Map", selection: $selectedTab) {
                 Text("Normal").tag(0)
                 Text("Shifted").tag(1)
             }

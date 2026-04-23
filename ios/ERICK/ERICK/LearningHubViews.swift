@@ -83,6 +83,7 @@ struct QuickstartView: View {
     @Binding var currentStep: Int
     let onComplete: () -> Void
     let onSkip: () -> Void
+    @State private var showDetails = false
 
     private var boundedStep: Int {
         min(max(currentStep, 0), erickQuickstartSteps.count - 1)
@@ -108,9 +109,12 @@ struct QuickstartView: View {
                     Text(step.summary)
                         .font(.title3)
 
-                    Text(step.details)
-                        .font(.body)
-                        .foregroundColor(.secondary)
+                    DisclosureGroup(showDetails ? "Hide detail" : "More detail", isExpanded: $showDetails) {
+                        Text(step.details)
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 6)
+                    }
 
                     Text(step.tryNext)
                         .font(.footnote)
@@ -180,6 +184,9 @@ struct QuickstartView: View {
             }
             .navigationTitle("Quickstart")
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .onChange(of: boundedStep) { _ in
+            showDetails = false
         }
     }
 
