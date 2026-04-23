@@ -21,7 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Practice Hub (Android and iOS)** - Added reusable lessons for 8-section basics, 6-section basics, utility swipes, assisted one-handed typing, controller drills, and quote practice.
 - **Preset-Driven Practice Lessons** - Opening a lesson now applies its recommended dial mode, layout, and input mode automatically so drills start in the right configuration.
 - **Guided Multi-Step Drills** - Practice lessons now walk through letters, numbers, and punctuation or symbols instead of ending after a single target.
-- **Lesson Setup Actions** - Practice lessons now expose setup actions at the bottom of the lesson. Android can jump straight to the keyboard picker or settings, while iOS focuses the practice field and can open Settings for manual keyboard switching.
+- **Contextual Lesson Actions** - Practice lessons now show switch-to-ERICK and apply-setup actions only when they are needed instead of keeping a permanent setup block on screen.
+- **Compact Lesson Help and Replay Flow** - Lesson details moved behind help affordances, lesson cards show completed state more clearly, completed lessons reopen as Replay Lesson, and guided drills now include previous/next part and lesson navigation.
+
+### HCI Cleanup
+- **Simpler Home Screens** - Android and iOS home screens now emphasize Quickstart, Practice Lessons, and a compact test field instead of long always-visible instructions.
+- **Progressive Help Screens** - The How to Type flow now starts with a short learning path and keeps deeper explanations in expandable sections.
+- **More Scannable Settings** - Settings now lead with a start-here summary, section-level summaries, controller tuning shortcuts, and privacy details in secondary surfaces.
+- **Simpler Custom Layout and Palette Editing** - Custom layout flows now surface create/duplicate actions directly, explain one layer at a time, and keep advanced color inputs hidden until requested.
+- **Quote Practice Polish** - Quote practice now includes contextual help, a restart-session action, and lighter default instructional copy.
 
 ### Prediction Improvements
 - **Persistent Learned Predictions** - The shared predictor now persists learned words and learned bigram history through the platform storage layer.

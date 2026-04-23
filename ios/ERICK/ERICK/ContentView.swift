@@ -225,6 +225,8 @@ struct ContentView: View {
                     }
                     
                     ControllerStatusCard()
+
+                    BenefitsOverviewSection()
                     
                 }
                 .padding()

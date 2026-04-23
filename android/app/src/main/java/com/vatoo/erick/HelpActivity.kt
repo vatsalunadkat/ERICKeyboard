@@ -97,6 +97,15 @@ fun HelpScreen(onBack: () -> Unit) {
             }
 
             ExpandableHelpCard(
+                title = "Who ERICK Can Help",
+                summary = "Examples across physical access, cognitive support, and everyday use.",
+                expanded = expandedSections.contains(HelpSectionId.BENEFITS),
+                onToggle = { toggleSection(HelpSectionId.BENEFITS) }
+            ) {
+                BenefitsOverviewContent()
+            }
+
+            ExpandableHelpCard(
                 title = "Chord Mechanics",
                 summary = "Left picks the row. Right picks the letter. Release both to type.",
                 expanded = expandedSections.contains(HelpSectionId.CHORDS),
@@ -166,6 +175,7 @@ fun HelpScreen(onBack: () -> Unit) {
 }
 
 private enum class HelpSectionId {
+    BENEFITS,
     CHORDS,
     UTILITY,
     MODES,
@@ -253,3 +263,4 @@ private fun HelpMappingRow(direction: String, action: String) {
         Text(text = action, style = MaterialTheme.typography.bodyMedium)
     }
 }
+

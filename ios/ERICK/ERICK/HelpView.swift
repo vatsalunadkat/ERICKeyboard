@@ -23,6 +23,14 @@ struct HelpView: View {
                 }
 
                 ExpandableHelpSection(
+                    title: "Who ERICK Can Help",
+                    summary: "Examples across physical access, cognitive support, and everyday use.",
+                    isExpanded: binding(for: .benefits)
+                ) {
+                    BenefitsOverviewContent()
+                }
+
+                ExpandableHelpSection(
                     title: "Chord Mechanics",
                     summary: "Left picks the row. Right picks the letter. Release both to type.",
                     isExpanded: binding(for: .chords)
@@ -116,6 +124,7 @@ struct HelpView: View {
 }
 
 private enum HelpSectionID: Hashable {
+    case benefits
     case chords
     case utility
     case modes
@@ -207,3 +216,4 @@ private struct HelpMappingRow: View {
         }
     }
 }
+
