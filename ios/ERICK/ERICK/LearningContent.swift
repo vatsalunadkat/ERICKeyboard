@@ -13,9 +13,23 @@ struct PracticeLessonData: Identifiable {
     let title: String
     let focus: String
     let instructions: [String]
-    let targetText: String?
+    let exercises: [PracticeExerciseData]
     let successHint: String
+    let setup: PracticeLessonSetupData?
     let isFreeform: Bool
+}
+
+struct PracticeExerciseData: Identifiable {
+    let id: String
+    let title: String
+    let coaching: String
+    let targetText: String
+}
+
+struct PracticeLessonSetupData {
+    let sixSectionDial: Bool
+    let layoutType: String
+    let inputMode: String
 }
 
 enum LearningProgressStore {
@@ -73,12 +87,32 @@ let erickPracticeLessons: [PracticeLessonData] = [
         title: "8-Section Basics",
         focus: "Learn the classic eight-direction chord flow.",
         instructions: [
-            "Switch Dial Section Mode to 8-section.",
-            "Use the Logical layout so the first drills match the alphabet.",
-            "Type the target text below using the keyboard itself."
+            "This lesson automatically applies 8-section mode, the Logical layout, and Quick Type.",
+            "Work through letters, then numbers, then punctuation so you cover the core basics in one pass.",
+            "If ERICK is not active in the practice field yet, use the lesson actions at the bottom to focus the field, reapply the preset, or open settings."
         ],
-        targetText: "a",
-        successHint: "Success condition: type the target letter exactly once.",
+        exercises: [
+            PracticeExerciseData(
+                id: "letters",
+                title: "Letters",
+                coaching: "Start with a short word so you can practice row selection and character selection together.",
+                targetText: "cat"
+            ),
+            PracticeExerciseData(
+                id: "numbers",
+                title: "Numbers",
+                coaching: "Stay in 8-section mode and type a short number sequence without changing the preset.",
+                targetText: "120"
+            ),
+            PracticeExerciseData(
+                id: "punctuation",
+                title: "Punctuation",
+                coaching: "Finish with a period so you end the lesson with a utility symbol in context.",
+                targetText: "go."
+            )
+        ],
+        successHint: "Success condition: finish all three drills from letters through punctuation.",
+        setup: PracticeLessonSetupData(sixSectionDial: false, layoutType: "logical", inputMode: "instant"),
         isFreeform: false
     ),
     PracticeLessonData(
@@ -86,12 +120,32 @@ let erickPracticeLessons: [PracticeLessonData] = [
         title: "6-Section Basics",
         focus: "Practice the shipped 6-section geometry and the logical preview order.",
         instructions: [
-            "Enable 6-section mode in Settings.",
-            "Notice that the first left-dial row reads a, b, c, d, e, f in the preview.",
-            "Type the target letter below to complete the drill."
+            "This lesson automatically enables 6-section mode with the Logical layout and Quick Type.",
+            "Notice that the first left-dial preview row reads a, b, c, d, e, f in order before you start typing.",
+            "Move from letters to numbers and then to the symbols layer so you cover the full 6-section basics."
         ],
-        targetText: "a",
-        successHint: "Success condition: type the first 6-section target correctly.",
+        exercises: [
+            PracticeExerciseData(
+                id: "letters",
+                title: "Letters",
+                coaching: "Use the wider 6-section targets to type a short word from the first few logical rows.",
+                targetText: "face"
+            ),
+            PracticeExerciseData(
+                id: "numbers",
+                title: "Numbers",
+                coaching: "Stay in 6-section mode and type a short number sequence.",
+                targetText: "907"
+            ),
+            PracticeExerciseData(
+                id: "symbols",
+                title: "Symbols",
+                coaching: "Open the dedicated Symbols layer and type a question mark from the preview.",
+                targetText: "?"
+            )
+        ],
+        successHint: "Success condition: finish the letters, numbers, and symbols drills in sequence.",
+        setup: PracticeLessonSetupData(sixSectionDial: true, layoutType: "logical", inputMode: "instant"),
         isFreeform: false
     ),
     PracticeLessonData(
@@ -99,12 +153,32 @@ let erickPracticeLessons: [PracticeLessonData] = [
         title: "Utility Swipes",
         focus: "Practice the right-dial utility actions in your current dial mode.",
         instructions: [
-            "Type the letters g and o using your normal chord flow.",
-            "Finish the target with your current dial mode's period utility swipe.",
-            "If you are in 6-section mode, period is the south utility swipe."
+            "This lesson uses 6-section mode so the rotated utility wheel is easy to inspect while you drill.",
+            "Practice space, period, and the symbols layer in a controlled order.",
+            "If you need a reminder, the utility preview updates live while you hold the right dial."
         ],
-        targetText: "go.",
-        successHint: "Success condition: finish the phrase with a utility period.",
+        exercises: [
+            PracticeExerciseData(
+                id: "space",
+                title: "Space",
+                coaching: "Type two short words separated by the space utility swipe.",
+                targetText: "go on"
+            ),
+            PracticeExerciseData(
+                id: "period",
+                title: "Period",
+                coaching: "Repeat the phrase and finish it with the south period swipe.",
+                targetText: "go."
+            ),
+            PracticeExerciseData(
+                id: "symbols",
+                title: "Symbols",
+                coaching: "Toggle into Symbols and type a question mark to round out the utility lesson.",
+                targetText: "?"
+            )
+        ],
+        successHint: "Success condition: complete the space, period, and symbols drills.",
+        setup: PracticeLessonSetupData(sixSectionDial: true, layoutType: "logical", inputMode: "instant"),
         isFreeform: false
     ),
     PracticeLessonData(
@@ -112,12 +186,32 @@ let erickPracticeLessons: [PracticeLessonData] = [
         title: "Assisted One-Handed",
         focus: "Lock the left-side row and finish the chord from the letter side.",
         instructions: [
-            "Switch Input Mode to Assisted.",
-            "Turn on Left-Handed Mode if it makes the physical side routing easier for you.",
-            "Type the short target below without leaving Assisted mode."
+            "This lesson automatically switches ERICK to Assisted mode while keeping the Logical layout visible.",
+            "Use the lesson settings button if you also want to inspect Left-Handed Mode for your physical setup.",
+            "Work through a letter drill, a number drill, and a punctuation drill without leaving Assisted mode."
         ],
-        targetText: "be",
-        successHint: "Success condition: complete one short word with the assisted lock flow.",
+        exercises: [
+            PracticeExerciseData(
+                id: "letters",
+                title: "Letters",
+                coaching: "Lock a row with the left dial, then finish the word from the right side.",
+                targetText: "be"
+            ),
+            PracticeExerciseData(
+                id: "numbers",
+                title: "Numbers",
+                coaching: "Keep the same assisted flow while you type a simple number sequence.",
+                targetText: "12"
+            ),
+            PracticeExerciseData(
+                id: "punctuation",
+                title: "Punctuation",
+                coaching: "Finish with a period so the lesson still covers a utility symbol.",
+                targetText: "go."
+            )
+        ],
+        successHint: "Success condition: finish all drills while staying in Assisted mode.",
+        setup: PracticeLessonSetupData(sixSectionDial: false, layoutType: "logical", inputMode: "assisted"),
         isFreeform: false
     ),
     PracticeLessonData(
@@ -125,12 +219,32 @@ let erickPracticeLessons: [PracticeLessonData] = [
         title: "Controller Drill",
         focus: "Build dual-stick timing with the same two-stick model used by the keyboard extension.",
         instructions: [
-            "Connect a controller and switch to ERICK in any text field.",
-            "Use both analog sticks to type the target below.",
-            "If vertical movement feels reversed, adjust the controller behavior you prefer before retrying."
+            "This lesson keeps the keyboard in 8-section Logical Quick Type so the controller drill starts from the default map.",
+            "Use the bottom actions to focus the practice field, then type letters, numbers, and punctuation with both sticks.",
+            "If the sticks feel noisy or reversed, adjust the controller behavior you prefer before retrying the drill."
         ],
-        targetText: "go",
-        successHint: "Success condition: type the target using the controller sticks.",
+        exercises: [
+            PracticeExerciseData(
+                id: "letters",
+                title: "Letters",
+                coaching: "Use both analog sticks together to type a short word.",
+                targetText: "go"
+            ),
+            PracticeExerciseData(
+                id: "numbers",
+                title: "Numbers",
+                coaching: "Stay on the controller and type a simple repeated number target.",
+                targetText: "88"
+            ),
+            PracticeExerciseData(
+                id: "punctuation",
+                title: "Punctuation",
+                coaching: "Finish the controller lesson with a period so you touch a utility symbol too.",
+                targetText: "go."
+            )
+        ],
+        successHint: "Success condition: finish all controller drills with the active ERICK preset.",
+        setup: PracticeLessonSetupData(sixSectionDial: false, layoutType: "logical", inputMode: "instant"),
         isFreeform: false
     ),
     PracticeLessonData(
@@ -142,8 +256,9 @@ let erickPracticeLessons: [PracticeLessonData] = [
             "Use it as the advanced phase after drills and quickstart.",
             "A clean run still triggers the subtle celebration effect."
         ],
-        targetText: nil,
+        exercises: [],
         successHint: "Advanced mode: there is no fixed target here.",
+        setup: PracticeLessonSetupData(sixSectionDial: false, layoutType: "logical", inputMode: "instant"),
         isFreeform: true
     )
 ]

@@ -2,6 +2,7 @@ package com.vatoo.erick
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.unit.dp
 
@@ -54,12 +56,26 @@ fun LearningPathCard(
         ) {
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(description, style = MaterialTheme.typography.bodyMedium)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onOpenQuickstart, modifier = Modifier.weight(1f)) {
-                    Text(if (onboardingCompleted) "Replay Quickstart" else if (onboardingDismissed) "Resume Quickstart" else "Start Quickstart")
-                }
-                OutlinedButton(onClick = onOpenPracticeHub, modifier = Modifier.weight(1f)) {
-                    Text("Practice Lessons")
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val stackActions = maxWidth < 420.dp
+                if (stackActions) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Button(onClick = onOpenQuickstart, modifier = Modifier.fillMaxWidth()) {
+                            ActionButtonText(if (onboardingCompleted) "Replay Quickstart" else if (onboardingDismissed) "Resume Quickstart" else "Start Quickstart")
+                        }
+                        OutlinedButton(onClick = onOpenPracticeHub, modifier = Modifier.fillMaxWidth()) {
+                            ActionButtonText("Practice Lessons")
+                        }
+                    }
+                } else {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(onClick = onOpenQuickstart, modifier = Modifier.weight(1f)) {
+                            ActionButtonText(if (onboardingCompleted) "Replay Quickstart" else if (onboardingDismissed) "Resume Quickstart" else "Start Quickstart")
+                        }
+                        OutlinedButton(onClick = onOpenPracticeHub, modifier = Modifier.weight(1f)) {
+                            ActionButtonText("Practice Lessons")
+                        }
+                    }
                 }
             }
         }
@@ -105,25 +121,55 @@ fun QuickstartDialog(
                     )
                 }
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onSkip, modifier = Modifier.weight(1f)) {
-                        Text("Skip for Now")
-                    }
-                    if (stepIndex > 0) {
-                        OutlinedButton(onClick = onPrevious, modifier = Modifier.weight(1f)) {
-                            Text("Back")
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val stackActions = maxWidth < 360.dp
+                    if (stackActions) {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            OutlinedButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
+                                ActionButtonText("Skip")
+                            }
+                            if (stepIndex > 0) {
+                                OutlinedButton(onClick = onPrevious, modifier = Modifier.fillMaxWidth()) {
+                                    ActionButtonText("Back")
+                                }
+                            }
+                            Button(
+                                onClick = if (stepIndex == totalSteps - 1) onFinish else onNext,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                ActionButtonText(if (stepIndex == totalSteps - 1) "Finish" else "Next")
+                            }
                         }
                     } else {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
-                    Button(
-                        onClick = if (stepIndex == totalSteps - 1) onFinish else onNext,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(if (stepIndex == totalSteps - 1) "Finish" else "Next")
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedButton(onClick = onSkip, modifier = Modifier.weight(1f)) {
+                                ActionButtonText("Skip")
+                            }
+                            if (stepIndex > 0) {
+                                OutlinedButton(onClick = onPrevious, modifier = Modifier.weight(1f)) {
+                                    ActionButtonText("Back")
+                                }
+                            }
+                            Button(
+                                onClick = if (stepIndex == totalSteps - 1) onFinish else onNext,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                ActionButtonText(if (stepIndex == totalSteps - 1) "Finish" else "Next")
+                            }
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ActionButtonText(text: String) {
+    Text(
+        text = text,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis
+    )
 }

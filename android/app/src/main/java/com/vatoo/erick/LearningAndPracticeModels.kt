@@ -13,9 +13,23 @@ data class PracticeLesson(
     val title: String,
     val focus: String,
     val instructions: List<String>,
-    val targetText: String?,
+    val exercises: List<PracticeExercise> = emptyList(),
     val successHint: String,
+    val setup: PracticeLessonSetup? = null,
     val isFreeform: Boolean = false
+)
+
+data class PracticeExercise(
+    val id: String,
+    val title: String,
+    val coaching: String,
+    val targetText: String
+)
+
+data class PracticeLessonSetup(
+    val sixSectionDial: Boolean,
+    val layoutType: String,
+    val inputMode: String
 )
 
 const val QUOTE_PRACTICE_LESSON_ID = "quote_practice"
@@ -57,60 +71,180 @@ val practiceLessons = listOf(
         title = "8-Section Basics",
         focus = "Learn the classic eight-direction chord flow.",
         instructions = listOf(
-            "Switch Dial Section Mode to 8-section.",
-            "Use the Logical layout so the first drills match the alphabet.",
-            "Type the target text below using the keyboard itself."
+            "This lesson automatically applies 8-section mode, the Logical layout, and Quick Type.",
+            "Work through letters, then numbers, then punctuation so you cover the core basics in one pass.",
+            "If ERICK is not active in the practice field yet, use the lesson actions at the bottom to switch keyboards or open settings."
         ),
-        targetText = "a",
-        successHint = "Success condition: type the target letter exactly once."
+        exercises = listOf(
+            PracticeExercise(
+                id = "letters",
+                title = "Letters",
+                coaching = "Start with a short word so you can practice row selection and character selection together.",
+                targetText = "cat"
+            ),
+            PracticeExercise(
+                id = "numbers",
+                title = "Numbers",
+                coaching = "Stay in 8-section mode and type a short number sequence without changing the preset.",
+                targetText = "120"
+            ),
+            PracticeExercise(
+                id = "punctuation",
+                title = "Punctuation",
+                coaching = "Finish with a period so you end the lesson with a utility symbol in context.",
+                targetText = "go."
+            )
+        ),
+        successHint = "Success condition: finish all three drills from letters through punctuation.",
+        setup = PracticeLessonSetup(
+            sixSectionDial = false,
+            layoutType = PreferencesManager.LAYOUT_LOGICAL,
+            inputMode = PreferencesManager.INPUT_MODE_INSTANT
+        )
     ),
     PracticeLesson(
         id = "six_section_basics",
         title = "6-Section Basics",
         focus = "Practice the shipped 6-section geometry and the logical preview order.",
         instructions = listOf(
-            "Enable 6-section mode in Settings.",
-            "Notice that the first left-dial row reads a, b, c, d, e, f in the preview.",
-            "Type the target letter below to complete the drill."
+            "This lesson automatically enables 6-section mode with the Logical layout and Quick Type.",
+            "Notice that the first left-dial preview row reads a, b, c, d, e, f in order before you start typing.",
+            "Move from letters to numbers and then to the symbols layer so you cover the full 6-section basics."
         ),
-        targetText = "a",
-        successHint = "Success condition: type the first 6-section target correctly."
+        exercises = listOf(
+            PracticeExercise(
+                id = "letters",
+                title = "Letters",
+                coaching = "Use the wider 6-section targets to type a short word from the first few logical rows.",
+                targetText = "face"
+            ),
+            PracticeExercise(
+                id = "numbers",
+                title = "Numbers",
+                coaching = "Stay in 6-section mode and type a short number sequence.",
+                targetText = "907"
+            ),
+            PracticeExercise(
+                id = "symbols",
+                title = "Symbols",
+                coaching = "Open the dedicated Symbols layer and type a question mark from the preview.",
+                targetText = "?"
+            )
+        ),
+        successHint = "Success condition: finish the letters, numbers, and symbols drills in sequence.",
+        setup = PracticeLessonSetup(
+            sixSectionDial = true,
+            layoutType = PreferencesManager.LAYOUT_LOGICAL,
+            inputMode = PreferencesManager.INPUT_MODE_INSTANT
+        )
     ),
     PracticeLesson(
         id = "utility_swipes",
         title = "Utility Swipes",
         focus = "Practice the right-dial utility actions in your current dial mode.",
         instructions = listOf(
-            "Type the letters g and o using your normal chord flow.",
-            "Finish the target with your current dial mode's period utility swipe.",
-            "If you are in 6-section mode, period is the south utility swipe."
+            "This lesson uses 6-section mode so the rotated utility wheel is easy to inspect while you drill.",
+            "Practice space, period, and the symbols layer in a controlled order.",
+            "If you need a reminder, the utility preview updates live while you hold the right dial."
         ),
-        targetText = "go.",
-        successHint = "Success condition: finish the phrase with a utility period."
+        exercises = listOf(
+            PracticeExercise(
+                id = "space",
+                title = "Space",
+                coaching = "Type two short words separated by the space utility swipe.",
+                targetText = "go on"
+            ),
+            PracticeExercise(
+                id = "period",
+                title = "Period",
+                coaching = "Repeat the phrase and finish it with the south period swipe.",
+                targetText = "go."
+            ),
+            PracticeExercise(
+                id = "symbols",
+                title = "Symbols",
+                coaching = "Toggle into Symbols and type a question mark to round out the utility lesson.",
+                targetText = "?"
+            )
+        ),
+        successHint = "Success condition: complete the space, period, and symbols drills.",
+        setup = PracticeLessonSetup(
+            sixSectionDial = true,
+            layoutType = PreferencesManager.LAYOUT_LOGICAL,
+            inputMode = PreferencesManager.INPUT_MODE_INSTANT
+        )
     ),
     PracticeLesson(
         id = "assisted_one_handed",
         title = "Assisted One-Handed",
         focus = "Lock the left-side row and finish the chord from the letter side.",
         instructions = listOf(
-            "Switch Input Mode to Assisted.",
-            "Turn on Left-Handed Mode if it makes the physical side routing easier for you.",
-            "Type the short target below without leaving Assisted mode."
+            "This lesson automatically switches ERICK to Assisted mode while keeping the Logical layout visible.",
+            "Use the lesson settings button if you also want to inspect Left-Handed Mode for your physical setup.",
+            "Work through a letter drill, a number drill, and a punctuation drill without leaving Assisted mode."
         ),
-        targetText = "be",
-        successHint = "Success condition: complete one short word with the assisted lock flow."
+        exercises = listOf(
+            PracticeExercise(
+                id = "letters",
+                title = "Letters",
+                coaching = "Lock a row with the left dial, then finish the word from the right side.",
+                targetText = "be"
+            ),
+            PracticeExercise(
+                id = "numbers",
+                title = "Numbers",
+                coaching = "Keep the same assisted flow while you type a simple number sequence.",
+                targetText = "12"
+            ),
+            PracticeExercise(
+                id = "punctuation",
+                title = "Punctuation",
+                coaching = "Finish with a period so the lesson still covers a utility symbol.",
+                targetText = "go."
+            )
+        ),
+        successHint = "Success condition: finish all drills while staying in Assisted mode.",
+        setup = PracticeLessonSetup(
+            sixSectionDial = false,
+            layoutType = PreferencesManager.LAYOUT_LOGICAL,
+            inputMode = PreferencesManager.INPUT_MODE_ASSISTED
+        )
     ),
     PracticeLesson(
         id = "controller_drill",
         title = "Controller Drill",
         focus = "Build dual-stick timing after calibrating your controller.",
         instructions = listOf(
-            "Connect a controller and open Controller Diagnostics first if the sticks feel noisy.",
-            "Use both analog sticks to type the target below.",
-            "If vertical movement feels reversed, enable Y-axis inversion and retry."
+            "This lesson keeps the keyboard in 8-section Logical Quick Type so the controller drill starts from the default map.",
+            "Use the bottom actions to switch to ERICK, then type letters, numbers, and punctuation with both sticks.",
+            "If the sticks feel noisy or reversed, open Controller Diagnostics or Settings before retrying the drill."
         ),
-        targetText = "go",
-        successHint = "Success condition: type the target using the controller sticks."
+        exercises = listOf(
+            PracticeExercise(
+                id = "letters",
+                title = "Letters",
+                coaching = "Use both analog sticks together to type a short word.",
+                targetText = "go"
+            ),
+            PracticeExercise(
+                id = "numbers",
+                title = "Numbers",
+                coaching = "Stay on the controller and type a simple repeated number target.",
+                targetText = "88"
+            ),
+            PracticeExercise(
+                id = "punctuation",
+                title = "Punctuation",
+                coaching = "Finish the controller lesson with a period so you touch a utility symbol too.",
+                targetText = "go."
+            )
+        ),
+        successHint = "Success condition: finish all controller drills with the active ERICK preset.",
+        setup = PracticeLessonSetup(
+            sixSectionDial = false,
+            layoutType = PreferencesManager.LAYOUT_LOGICAL,
+            inputMode = PreferencesManager.INPUT_MODE_INSTANT
+        )
     ),
     PracticeLesson(
         id = QUOTE_PRACTICE_LESSON_ID,
@@ -121,8 +255,12 @@ val practiceLessons = listOf(
             "Use it as the advanced phase after drills and quickstart.",
             "A clean run still triggers the subtle celebration effect."
         ),
-        targetText = null,
         successHint = "Advanced mode: there is no fixed target here.",
+        setup = PracticeLessonSetup(
+            sixSectionDial = false,
+            layoutType = PreferencesManager.LAYOUT_LOGICAL,
+            inputMode = PreferencesManager.INPUT_MODE_INSTANT
+        ),
         isFreeform = true
     )
 )
