@@ -42,6 +42,13 @@ data class ControllerState(
     val rightStickX: Float,
     val rightStickY: Float
 )
+
+data class SuggestionAcceptance(
+    val charsToDelete: Int,
+    val leadingText: String,
+    val suggestion: String,
+    val trailingText: String
+)
 // 3. Cross-platform input action set (replaces Android's KeyEvent)
 enum class InputAction {
     SPACE, ENTER, BACKSPACE, DELETE_FORWARD, DELETE_WORD,
@@ -68,4 +75,10 @@ interface KeyboardActionDelegate {
     // Retrieve the current word prefix from the text field (for sync after cursor moves etc.)
     // Returns the word fragment immediately before the cursor, or empty string.
     fun getCurrentWordPrefix(): String
+
+    // Load a platform-specific serialized prediction profile.
+    fun loadPredictionProfile(): String
+
+    // Persist a platform-specific serialized prediction profile.
+    fun savePredictionProfile(serializedProfile: String)
 }

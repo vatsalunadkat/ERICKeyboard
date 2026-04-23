@@ -5,7 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.vatoo.erick.shared.CustomLayoutStorage
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +32,13 @@ class PreferencesManager(private val context: Context) {
         private val TYPING_SOUNDS_KEY = booleanPreferencesKey("typing_sounds")
         private val INPUT_MODE_KEY = stringPreferencesKey("input_mode")
         private val SIX_SECTION_DIAL_KEY = booleanPreferencesKey("six_section_dial")
+        private val CONTROLLER_DEAD_ZONE_KEY = floatPreferencesKey("controller_dead_zone")
+        private val CONTROLLER_Y_AXIS_INVERTED_KEY = booleanPreferencesKey("controller_y_axis_inverted")
+        private val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
+        private val ONBOARDING_DISMISSED_KEY = booleanPreferencesKey("onboarding_dismissed")
+        private val ONBOARDING_STEP_KEY = intPreferencesKey("onboarding_step")
+        private val PRACTICE_ATTEMPTED_LESSONS_KEY = stringSetPreferencesKey("practice_attempted_lessons")
+        private val PRACTICE_COMPLETED_LESSONS_KEY = stringSetPreferencesKey("practice_completed_lessons")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
@@ -55,6 +65,8 @@ class PreferencesManager(private val context: Context) {
         const val INPUT_MODE_INSTANT = "instant"
         const val INPUT_MODE_CONFIRM = "confirm"
         const val INPUT_MODE_ASSISTED = "assisted"
+
+        const val DEFAULT_CONTROLLER_DEAD_ZONE = 0.25f
     }
 
     val layoutType: Flow<String> = context.dataStore.data
@@ -120,6 +132,41 @@ class PreferencesManager(private val context: Context) {
     val sixSectionDial: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[SIX_SECTION_DIAL_KEY] ?: false
+        }
+
+    val controllerDeadZone: Flow<Float> = context.dataStore.data
+        .map { preferences ->
+            preferences[CONTROLLER_DEAD_ZONE_KEY] ?: DEFAULT_CONTROLLER_DEAD_ZONE
+        }
+
+    val controllerYAxisInverted: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[CONTROLLER_Y_AXIS_INVERTED_KEY] ?: false
+        }
+
+    val onboardingCompleted: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[ONBOARDING_COMPLETED_KEY] ?: false
+        }
+
+    val onboardingDismissed: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[ONBOARDING_DISMISSED_KEY] ?: false
+        }
+
+    val onboardingStep: Flow<Int> = context.dataStore.data
+        .map { preferences ->
+            preferences[ONBOARDING_STEP_KEY] ?: 0
+        }
+
+    val practiceAttemptedLessons: Flow<Set<String>> = context.dataStore.data
+        .map { preferences ->
+            preferences[PRACTICE_ATTEMPTED_LESSONS_KEY] ?: emptySet()
+        }
+
+    val practiceCompletedLessons: Flow<Set<String>> = context.dataStore.data
+        .map { preferences ->
+            preferences[PRACTICE_COMPLETED_LESSONS_KEY] ?: emptySet()
         }
 
     suspend fun setLayoutType(layoutType: String) {
@@ -197,6 +244,60 @@ class PreferencesManager(private val context: Context) {
     suspend fun setSixSectionDial(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[SIX_SECTION_DIAL_KEY] = enabled
+        }
+    }
+
+    suspend fun setControllerDeadZone(deadZone: Float) {
+        context.dataStore.edit { preferences ->
+            preferences[CONTROLLER_DEAD_ZONE_KEY] = deadZone.coerceIn(0f, 1f)
+        }
+    }
+
+    suspend fun setControllerYAxisInverted(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[CONTROLLER_Y_AXIS_INVERTED_KEY] = enabled
+        }
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[ONBOARDING_COMPLETED_KEY] = completed
+            if (completed) {
+                preferences[ONBOARDING_DISMISSED_KEY] = false
+                preferences[ONBOARDING_STEP_KEY] = 0
+            }
+        }
+    }
+
+    suspend fun setOnboardingDismissed(dismissed: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[ONBOARDING_DISMISSED_KEY] = dismissed
+        }
+    }
+
+    suspend fun setOnboardingStep(step: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[ONBOARDING_STEP_KEY] = step.coerceAtLeast(0)
+        }
+    }
+
+    suspend fun markPracticeLessonAttempted(lessonId: String) {
+        context.dataStore.edit { preferences ->
+            val updated = preferences[PRACTICE_ATTEMPTED_LESSONS_KEY].orEmpty().toMutableSet()
+            updated.add(lessonId)
+            preferences[PRACTICE_ATTEMPTED_LESSONS_KEY] = updated
+        }
+    }
+
+    suspend fun markPracticeLessonCompleted(lessonId: String) {
+        context.dataStore.edit { preferences ->
+            val attempted = preferences[PRACTICE_ATTEMPTED_LESSONS_KEY].orEmpty().toMutableSet()
+            attempted.add(lessonId)
+            preferences[PRACTICE_ATTEMPTED_LESSONS_KEY] = attempted
+
+            val completed = preferences[PRACTICE_COMPLETED_LESSONS_KEY].orEmpty().toMutableSet()
+            completed.add(lessonId)
+            preferences[PRACTICE_COMPLETED_LESSONS_KEY] = completed
         }
     }
 

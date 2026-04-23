@@ -4,9 +4,14 @@ import GameController
 struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @AppStorage("hasEnabledKeyboard") private var hasEnabledKeyboard = false
+    @AppStorage(LearningProgressStore.quickstartCompletedKey) private var quickstartCompleted = false
+    @AppStorage(LearningProgressStore.quickstartDismissedKey) private var quickstartDismissed = false
+    @AppStorage(LearningProgressStore.quickstartStepKey) private var quickstartStep = 0
     @State private var isKeyboardActuallyEnabled: Bool = false
     @State private var testText: String = ""
     @State private var showTypingGame: Bool = false
+    @State private var showQuickstart: Bool = false
+    @State private var infoSheet: HomeInfoSheet?
     
     private var isStep1Completed: Bool {
         hasEnabledKeyboard || isKeyboardActuallyEnabled
@@ -81,9 +86,20 @@ struct ContentView: View {
                         }
                     }
 
+                    LearningHubCard(
+                        quickstartCompleted: quickstartCompleted,
+                        quickstartDismissed: quickstartDismissed,
+                        quickstartStep: quickstartStep,
+                        onOpenQuickstart: {
+                            if quickstartCompleted {
+                                quickstartStep = 0
+                            }
+                            showQuickstart = true
+                        }
+                    )
+
                     // Success or Instructions
                     if isStep1Completed {
-                        // All good!
                         VStack(spacing: 12) {
                             Image(systemName: "checkmark.circle.fill")
                                 .resizable()
@@ -98,133 +114,119 @@ struct ContentView: View {
                             Text("You're ready to use ERICKeyboard")
                                 .font(.body)
                                 .foregroundColor(.secondary)
+
+                            Text("Use the globe key in any text field if iOS shows another keyboard first.")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.green.opacity(0.1))
                         .cornerRadius(16)
                         .environment(\.colorScheme, .light)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text("Try ERICK")
+                                    .font(.headline)
+                                Spacer()
+                                Button {
+                                    infoSheet = .tryErick
+                                } label: {
+                                    Image(systemName: "questionmark.circle")
+                                        .font(.title3)
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            TextField("Type here to test ERICK", text: $testText, axis: .vertical)
+                                .lineLimit(4...8)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .onChange(of: testText) { newValue in
+                                    if newValue.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare("start") == .orderedSame {
+                                        testText = ""
+                                        showTypingGame = true
+                                    }
+                                }
+
+                            Text("Type 'start' to open quote practice.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(uiColor: .secondarySystemBackground))
+                        .cornerRadius(16)
                     } else {
-                        Text("Setup Instructions:")
+                        Text("Finish setup")
                             .font(.title2)
                             .fontWeight(.bold)
                             .padding(.bottom, -8)
-                    }
-                    
-                    // Step 1: Enable Keyboard
-                    StepCard(
-                        stepNumber: "1",
-                        title: "Enable the Keyboard",
-                        isCompleted: isStep1Completed,
-                        activeColor: Color(red: 244/255, green: 67/255, blue: 54/255), // Red badge color
-                        activeIcon: "xmark",
-                        activeContainerColor: Color(red: 255/255, green: 235/255, blue: 238/255) // Light red container color
-                    ) {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Go to Settings → General → Keyboard → Keyboards → Add New Keyboard → ERICKeyboard")
+                        
+                        StepCard(
+                            stepNumber: "1",
+                            title: "Enable the Keyboard",
+                            isCompleted: isStep1Completed,
+                            activeColor: Color(red: 244/255, green: 67/255, blue: 54/255),
+                            activeIcon: "xmark",
+                            activeContainerColor: Color(red: 255/255, green: 235/255, blue: 238/255)
+                        ) {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Open Settings and add ERICKeyboard under General → Keyboard → Keyboards.")
+                                    .font(.body)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                Button {
+                                    infoSheet = .privacy
+                                } label: {
+                                    Label("Privacy & Security", systemImage: "questionmark.circle")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+
+                                Button(action: {
+                                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }) {
+                                    HStack {
+                                        Image(systemName: "gearshape.fill")
+                                        Text("Open Settings")
+                                    }
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color(red: 87/255, green: 99/255, blue: 128/255))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
+                                }
+
+                                Text("Return here after enabling it. ERICK will check again automatically.")
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        StepCard(
+                            stepNumber: "2",
+                            title: "Switch with Globe",
+                            isCompleted: false,
+                            activeColor: Color(red: 244/255, green: 67/255, blue: 54/255),
+                            activeIcon: "exclamationmark.triangle.fill",
+                            activeContainerColor: Color(red: 255/255, green: 235/255, blue: 238/255)
+                        ) {
+                            Text("When you start typing, use the globe key to choose ERICK.")
                                 .font(.body)
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
-                            
-                            // Privacy & Security Card
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("🔒 Privacy & Security")
-                                    .font(.headline)
-                                Text("Your privacy is our priority. ERICKeyboard:")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                
-                                VStack(alignment: .leading, spacing: 6) {
-                                    PrivacyRequirement(text: "We never collect or store your typed text")
-                                    PrivacyRequirement(text: "No passwords or personal data are saved")
-                                    PrivacyRequirement(text: "No data is transmitted — ever")
-                                    PrivacyRequirement(text: "Settings are stored locally on your device only")
-                                    PrivacyRequirement(text: "No internet permissions requested")
-                                    PrivacyRequirement(text: "100% open-source: inspect every line of code")
-                                }
-                            }
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(red: 234/255, green: 221/255, blue: 255/255)) // Matches Android's tertiary container purple
-                            .cornerRadius(12)
-                            
-                            Button(action: {
-                                if let url = URL(string: UIApplication.openSettingsURLString) {
-                                    UIApplication.shared.open(url)
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "gearshape.fill")
-                                    Text("Open Settings")
-                                }
-                                .font(.headline)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(red: 87/255, green: 99/255, blue: 128/255)) // Matches Android primary button color
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                            }
-                            
-                            Toggle("I've enabled ERICKeyboard", isOn: $hasEnabledKeyboard)
-                                .toggleStyle(SwitchToggleStyle(tint: .green))
-                                .padding(.top, 4)
                         }
                     }
                     
-                    // Step 2: Switch to Keyboard
-                    StepCard(
-                        stepNumber: "2",
-                        title: "Switch to ERICK",
-                        isCompleted: false, // Manual only step
-                        activeColor: Color(red: 244/255, green: 67/255, blue: 54/255),
-                        activeIcon: "exclamationmark.triangle.fill",
-                        activeContainerColor: Color(red: 255/255, green: 235/255, blue: 238/255)
-                    ) {
-                        Text("When typing, tap or press and hold the globe 🌐 icon on the keyboard to switch to ERICK.")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    
-                    // Controller Status (3rd card)
                     ControllerStatusCard()
-                    
-                    // Test Field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Test Your Keyboard:")
-                            .font(.headline)
-                        
-                        TextField("Tap here to test the keyboard", text: $testText, axis: .vertical)
-                            .lineLimit(4...8)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .onChange(of: testText) { newValue in
-                                if newValue.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare("start") == .orderedSame {
-                                    testText = ""
-                                    showTypingGame = true
-                                }
-                            }
-                        
-                        Text("Type 'start' to begin the typing game \u{1F3AE}")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.top, 8)
-                    
-                    // Tips Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("💡 Tips:")
-                            .font(.headline)
-                        
-                        VStack(alignment: .leading, spacing: 10) {
-                            TipRow(text: "Use the left joystick to select a character group")
-                            TipRow(text: "Use the right joystick to select a character within the group")
-                            TipRow(text: "Swipe the right joystick alone for utility functions (space, enter, backspace)")
-                        }
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(uiColor: .secondarySystemBackground))
-                    .cornerRadius(16)
+
+                    BenefitsOverviewSection()
                     
                 }
                 .padding()
@@ -237,6 +239,9 @@ struct ContentView: View {
         .onAppear {
             checkKeyboardStatus()
             ControllerBridge.shared.start()
+            if !quickstartCompleted && !quickstartDismissed {
+                showQuickstart = true
+            }
         }
         .onChange(of: scenePhase) { newPhase in
             switch newPhase {
@@ -262,7 +267,32 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .GCControllerDidDisconnect)) { _ in
             // Controller Status card will refresh via @State when it next appears
         }
+        .sheet(isPresented: $showQuickstart) {
+            QuickstartView(
+                currentStep: $quickstartStep,
+                onComplete: {
+                    quickstartCompleted = true
+                    quickstartDismissed = false
+                    quickstartStep = 0
+                    showQuickstart = false
+                },
+                onSkip: {
+                    quickstartDismissed = true
+                    showQuickstart = false
+                }
+            )
+        }
+        .sheet(item: $infoSheet) { sheet in
+            HomeInfoSheetView(sheet: sheet)
+        }
     }
+}
+
+private enum HomeInfoSheet: String, Identifiable {
+    case privacy
+    case tryErick
+
+    var id: String { rawValue }
 }
 
 struct StepCard<Content: View>: View {
@@ -358,6 +388,54 @@ struct TipRow: View {
             Text(text)
                 .font(.subheadline)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+private struct HomeInfoSheetView: View {
+    let sheet: HomeInfoSheet
+
+    private var title: String {
+        switch sheet {
+        case .privacy:
+            return "Privacy & Security"
+        case .tryErick:
+            return "Try ERICK"
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    switch sheet {
+                    case .privacy:
+                        Text("ERICKeyboard keeps your typing on your device.")
+                            .font(.body)
+                        VStack(alignment: .leading, spacing: 8) {
+                            PrivacyRequirement(text: "We never collect or store your typed text")
+                            PrivacyRequirement(text: "Passwords and personal data stay on your device")
+                            PrivacyRequirement(text: "No text is transmitted from the keyboard")
+                            PrivacyRequirement(text: "Settings are stored locally on your device only")
+                            PrivacyRequirement(text: "No internet permissions are requested for typing data")
+                            PrivacyRequirement(text: "The project is open source for inspection")
+                        }
+
+                    case .tryErick:
+                        Text("Use the test field to make sure the current keyboard and layout feel right.")
+                            .font(.body)
+                        VStack(alignment: .leading, spacing: 10) {
+                            TipRow(text: "Tap the field and type a short word or sentence")
+                            TipRow(text: "If another keyboard appears, switch back to ERICK with the globe key")
+                            TipRow(text: "Type start to open quote practice")
+                            TipRow(text: "Use Practice Lessons for guided drills instead of memorizing everything here")
+                        }
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

@@ -1,7 +1,7 @@
 # ERICK User Guide
 
 **Version**: 1.0  
-**Last Updated**: April 22, 2026
+**Last Updated**: April 23, 2026
 
 ---
 
@@ -49,6 +49,33 @@ It can also help everyday users who want larger touch targets, controller suppor
 3. Select **ErickKeyBoard**.
 4. Tap on ErickKeyBoard and enable **Allow Full Access** (required for settings persistence and controller support).
 5. Switch to ERICK when typing in any app.
+
+### Quickstart and Practice
+
+- The host app now treats **Quickstart** and **Practice Lessons** as the main learning path, with optional help shown only when you ask for it.
+- The host app now offers a **Quickstart** that teaches the two-dial model, utility swipes, assisted typing, and controller typing.
+- You can **skip** the quickstart, **resume** it later, or **replay** it after finishing.
+- The quickstart keeps its action buttons readable on smaller screens and with larger accessibility text sizes.
+- The new **Practice Lessons** hub includes drills for 8-section basics, 6-section basics, utility swipes, one-handed assisted typing, controller typing, and quote practice.
+- Opening a lesson now applies the recommended keyboard preset for that lesson, including dial mode, layout, and input mode.
+- Practice lessons now keep the default screen compact and move the longer explanation behind the question-mark help action.
+- Each guided lesson now covers the basics in sequence: letters first, then numbers, then punctuation or symbols.
+- Lesson actions now appear only when they are useful, such as when ERICK is not active yet or the lesson preset needs to be reapplied.
+- Guided lessons include **Previous Part**, **Next Part**, **Previous Lesson**, and **Next Lesson** actions so you can move through the sequence without returning to the hub.
+- Completed lessons are highlighted as complete in the hub and reopen with **Replay Lesson** instead of **Resume Lesson**.
+- On Android, the lesson can open the keyboard picker directly. On iOS, the lesson can focus the practice field and open Settings, but you still use the globe key to switch to ERICK because iOS does not allow apps to change the active keyboard directly.
+- Quote Practice remains the advanced freeform step and is launched from within the lesson flow after the guided drills.
+
+### Using Practice Lessons
+
+1. Open **Practice Lessons** from the host app.
+2. Pick the lesson that matches the skill you want to practice.
+3. Check the compact lesson header to see the current part and the preset that was applied.
+4. Tap the question-mark help action if you want the full lesson explanation or success hint.
+5. Use the contextual lesson actions only if you need to switch back to ERICK, focus the practice field, or reapply the preset.
+6. Complete each drill in order. Guided lessons now move from letters to numbers and then to punctuation or symbols.
+7. Use **Previous Part** and **Next Part** within a lesson, or **Previous Lesson** and **Next Lesson** to move across the learning path.
+8. When a lesson is complete, use **Replay Lesson** to run it again or launch **Quote Practice** when the guided drills feel easy enough for freeform typing.
 
 ## What You See on Screen
 
@@ -244,6 +271,8 @@ A **suggestion bar** displays up to 3 word suggestions above the dials. Suggesti
 ### Using Suggestions
 
 - **Tap a suggestion** to insert it. The partial word is replaced with the full suggestion.
+- Suggestion acceptance now adds spacing more intelligently around punctuation and next-word predictions.
+- Frequently used words rise in rank over time and are stored locally on your device.
 - **Default suggestions** (when starting fresh): "I", "The", "Hello".
 - All predictions run fully offline with zero data collection.
 
@@ -276,7 +305,16 @@ Custom layouts are saved locally on the device (Android DataStore / iOS App Grou
 
 ## Settings
 
-Settings are organized into collapsible sections. Only one section is expanded at a time.
+Settings are organized into collapsible sections with short summaries so you can scan the page before opening the details.
+
+### Start Here
+
+- The settings screen begins with a short overview that points most users toward **Dial Mode**, **Input Mode**, and **Accessibility** first.
+
+### Dial Mode
+
+- Switch between **8-section** and **6-section** dial geometry.
+- Use this first if you need larger directional targets.
 
 ### Layout
 
@@ -312,9 +350,14 @@ Settings are organized into collapsible sections. Only one section is expanded a
 
 - Quick Type, Steady Type, or One-Handed (see [Input Modes](#input-modes))
 
+### Controller
+
+- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback.
+- **iOS**: Controller behavior follows the active system connection and the same lesson flow, but controller calibration is currently documented through the host app workflow rather than a dedicated diagnostics screen.
+
 ### Privacy and Security
 
-- Privacy-related settings (data handling preferences)
+- Privacy details are kept in a separate info view so the main settings screen stays easier to scan.
 
 ---
 
@@ -385,7 +428,7 @@ Your typed text stays on your device.
 
 ### Controller input is not working
 
-- **Android**: Ensure the controller is paired in Bluetooth settings and recognized by the system. Try reconnecting.
+- **Android**: Ensure the controller is paired in Bluetooth settings and recognized by the system. If it still feels wrong, open **Controller Diagnostics** to inspect live stick input, dead zone, and Y-axis inversion.
 - **iOS**: The controller must be connected to the **host app** (not just the keyboard extension). Open the ERICK app and verify the controller shows as connected. The bridge transfers input to the keyboard extension automatically.
 
 ### Backspace deletes too much

@@ -18,6 +18,7 @@ struct TypingGameView: View {
     @State private var showCelebration: Bool = false
     @State private var celebrationTrigger: Int = 0
     @FocusState private var isInputFocused: Bool
+    @State private var showHelpSheet = false
     
     @State private var wpmTimer: Timer? = nil
     
@@ -177,20 +178,34 @@ struct TypingGameView: View {
                 .frame(width: 1, height: 1)
                 .opacity(0.01)
 
-                Button(action: skipQuote) {
-                    Text("Skip Quote")
-                        .font(.subheadline)
-                        .foregroundColor(.accentColor)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.accentColor, lineWidth: 1)
-                        )
+                HStack(spacing: 12) {
+                    Button(action: skipQuote) {
+                        Text("Skip Quote")
+                            .font(.subheadline)
+                            .foregroundColor(.accentColor)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                    }
+
+                    Button(action: restartSession) {
+                        Text("Restart Session")
+                            .font(.subheadline)
+                            .foregroundColor(.accentColor)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                    }
                 }
                 .padding(.bottom, 8)
 
-                Text("Start typing with your keyboard!")
+                Text("Start typing when you are ready.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .padding(.bottom, 24)
@@ -213,6 +228,18 @@ struct TypingGameView: View {
         .navigationTitle("Typing Practice")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(false)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showHelpSheet = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+            }
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            TypingPracticeHelpSheet()
+        }
         .onAppear {
             isInputFocused = true
             startWPMTimer()
@@ -339,6 +366,20 @@ struct TypingGameView: View {
         currentQuoteHasError = false
     }
 
+    private func restartSession() {
+        currentQuoteIndex = 0
+        typedText = ""
+        previousLength = 0
+        totalKeystrokes = 0
+        correctKeystrokes = 0
+        streak = 0
+        currentQuoteHasError = false
+        startTime = nil
+        totalCharsTyped = 0
+        wpm = 0.0
+        quoteOrder = Array(0..<Self.quotes.count).shuffled()
+    }
+
     private func processInput(_ newValue: String) {
         let quote = currentQuote
         let quoteChars = Array(quote)
@@ -397,6 +438,24 @@ struct TypingGameView: View {
         let elapsed = Date().timeIntervalSince(start)
         if elapsed > 0 {
             wpm = (Double(totalCharsTyped) / 5.0) / (elapsed / 60.0)
+        }
+    }
+}
+
+private struct TypingPracticeHelpSheet: View {
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Type the highlighted character next.")
+                    Text("Tap the quote card if you need to refocus the hidden input field.")
+                    Text("Skip a quote if it is not useful, or restart the session to clear the running stats.")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+            }
+            .navigationTitle("How quote practice works")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

@@ -1,348 +1,186 @@
-# ERICK-140 - Multi-Language Support (Spanish)
+# ERICK-140 - Multi-Language Support (Spanish Foundation)
 
 | Field | Value |
 |---|---|
+| **Status** | Backlog |
 | **Type** | Story |
 | **Priority** | Medium |
 | **Story Points** | 13 |
 | **Assignee** | Vatsal Unadkat |
 | **Sprint** | Backlog |
 | **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
-| **Labels** | feature, i18n, shared, android, ios, prediction |
-| **Dependencies** | None |
+| **Labels** | feature, i18n, shared, android, ios, prediction, planning |
+| **Dependencies** | Must build on shipped dual-mode support from ERICK-139 and the learned prediction persistence added in ERICK-148 |
 
 ---
 
-## Description
+## Objective
 
-Add multi-language support to ERICK, starting with **Spanish** as the first non-English language. This includes a Spanish chord layout, Spanish word prediction dictionary, Spanish autocorrect, and a language selector in settings. The architecture should be designed so that adding more languages later (French, German, etc.) requires only adding new dictionary and layout data, not structural code changes.
+Add multi-language support to ERICK, starting with Spanish, without duplicating behavior across Android and iOS. The language layer must work in both 8-section and 6-section modes, preserve current utility-wheel invariants, and keep learned prediction history isolated per language.
+
+---
+
+## Why This Ticket Needed A Refresh
+
+- The original draft assumed an English-only static predictor. That is no longer true after ERICK-148 shipped learned words, learned bigrams, punctuation-aware suggestion acceptance, and persisted prediction profiles.
+- ERICK-139 already shipped the optional 6-section mode, dedicated Symbols layer, and the corrected rotated utility mapping. Multi-language support now has to work across both dial modes.
+- ERICK-147 added quickstart and practice lessons on both platforms. If language support lands, these learning surfaces also need language-aware copy and drills.
+- The shared module is now clearly the authoritative behavior surface, so the ticket should route changes through shared profiles rather than platform-specific forks.
 
 ---
 
 ## Current Architecture
 
-### Word Prediction
-`WordPredictionEngine.kt` is a Trie-based engine with:
-- Hardcoded English dictionary (~700 words across 4 frequency tiers)
-- Bigram next-word prediction
-- Levenshtein-distance autocorrect
-- Default suggestions: `["I", "The", "Hello"]`
-- Created via `WordPredictionEngine.createWithDefaultDictionary()` which calls `loadDefaultDictionary(engine)` containing inline English word lists
+### Shared Keyboard Behavior
+- `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` is the authoritative layout surface for logical, efficiency, custom, 8-section, 6-section, and 6-section symbols behavior.
+- `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` owns word buffers, suggestion updates, next-word mode, and punctuation-aware suggestion acceptance.
+- `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` now combines a base dictionary with learned words, learned bigrams, autocorrect, and import/export of the learned profile.
+- `KeyboardActionDelegate.loadPredictionProfile()` / `savePredictionProfile()` already persist learned prediction state through the platform layer.
 
-### Chord Layouts
-`KeyboardLogic.kt` contains:
-- Logical layout: A-Z alphabetical mapping (English alphabet)
-- Efficiency layout: Frequency-optimized for English letter distribution
-- Shifted maps: English punctuation and symbols
-- All maps hardcoded as `Map<Direction, List<String>>` inline in the class
+### Platform Settings And Storage
+- Android uses `PreferencesManager.kt` with DataStore for layout, input mode, six-section mode, controller tuning, onboarding, and practice progress.
+- iOS host app and extension share state through App Group `UserDefaults`.
+- Any language preference must be readable by both the host app and the active keyboard implementation on each platform.
 
-### State Machine
-`KeyboardStateMachine.kt`:
-- Creates predictor via `WordPredictionEngine.createWithDefaultDictionary()` at init
-- No language awareness - always uses English
-
-### Settings
-- No language option exists on either platform
-- Android: `PreferencesManager.kt` with DataStore
-- iOS: `SettingsView.swift` with AppStorage
+### Product Invariants To Preserve
+- 8-section and 6-section modes must continue to coexist.
+- The shipped 6-section utility wheel stays fixed: `N = Symbols`, `NE = Shift`, `SE = Space`, `S = Period`, `SW = Enter`, `NW = Backspace`.
+- Existing English behavior must not regress.
+- Learned prediction history must not be lost when the user switches languages.
+- Custom layouts remain disabled in 6-section mode today and should not be re-enabled accidentally while refactoring.
 
 ---
 
-## Proposed Changes
+## Proposed Scope
 
-### 1. Language Model Architecture
+### 1. Introduce Shared Language Profiles
 
-Create a `LanguageProfile` data class that encapsulates everything language-specific:
+Create a shared language-profile layer that owns everything that varies by language:
 
-```kotlin
-// New file: LanguageProfile.kt (shared module)
-data class LanguageProfile(
-    val languageCode: String,           // "en", "es"
-    val displayName: String,            // "English", "Espanol"
-    val alphabet: List<Char>,           // sorted character list for the language
-    val logicalChordMap: Map<Direction, List<String>>,
-    val logicalShiftedChordMap: Map<Direction, List<String>>,
-    val efficiencyChordMap: Map<Direction, List<String>>,
-    val efficiencyShiftedChordMap: Map<Direction, List<String>>,
-    val dictionaryWords: Map<Int, List<String>>,  // tier -> word list
-    val bigrams: List<Triple<String, String, Int>>, // word1, word2, frequency
-    val defaultSuggestions: List<String>,
-    val accentedCharacters: Map<Char, List<Char>>  // base char -> accented variants
-)
-```
+- display name and language code
+- base alphabet and special characters
+- 8-section logical maps
+- 6-section logical maps
+- efficiency maps for both dial modes when available
+- base dictionary tiers
+- base bigram data
+- localized default suggestions
+- any language-specific accent or modifier metadata
 
-### 2. Spanish Language Profile
+This should live in shared code and be consumed by both Android and iOS rather than copied into platform UI files.
 
-#### Spanish Alphabet
-The Spanish alphabet has 27 letters: the standard 26 English letters plus n with tilde. Accented vowels (a with accent, e with accent, i with accent, o with accent, u with accent, u with diaeresis) are also needed but are typically entered via accent modifiers rather than dedicated chord positions.
+### 2. Make Prediction Profiles Language-Aware
 
-#### Spanish Logical Layout
+Extend the current learned-profile architecture so English and Spanish do not overwrite each other.
 
-Using the current 8-direction system (or 6-direction if ERICK-139 is implemented first):
+Required behavior:
 
-**8-direction version (8x8 = 64 slots):**
+- base dictionary and base bigrams come from the active language profile
+- learned words and learned bigrams stay isolated per language
+- switching from English to Spanish preserves English learning for when the user comes back
+- default suggestions change with the active language
 
-```
-         N    NE    E    SE    S    SW    W    NW
-N   [    a     b     c     d     e     f    g     h  ]
-NE  [    i     j     k     l     m     n    n~    o  ]
-E   [    p     q     r     s     t     u    v     w  ]
-SE  [    x     y     z     1     2     3    4     5  ]
-S   [    6     7     8     9     0     '    /     ;  ]
-SW  [    -     =     \     [     ]     `           ]
-W   [    (accent modifier - see below)              ]
-NW  [    (reserved)                                 ]
-```
+Implementation note:
 
-**6-direction version (6x6 = 36 slots):**
+- the current `loadPredictionProfile()` / `savePredictionProfile()` contract likely needs either a language key or a versioned serialized bundle that can hold multiple per-language learned profiles
 
-```
-         N    NE    SE    S    SW    NW
-N   [    a     b     c     d     e     f  ]
-NE  [    g     h     i     j     k     l  ]
-SE  [    m     n     n~    o     p     q  ]
-S   [    r     s     t     u     v     w  ]
-SW  [    x     y     z     1     2     3  ]
-NW  [    4     5     6     7     8     9  ]
-```
+### 3. Support Spanish In Both Dial Modes
 
-Note: 0 is lost in the 6x6 version. Options: put 0 on the shifted layer, or use the symbols mode from ERICK-139.
+The original ticket treated 6-section as optional future work. That is now outdated. Spanish support must define and validate:
 
-#### Accent Input Method
+- 8-section Spanish logical layout
+- 6-section Spanish logical layout
+- Spanish efficiency layout for 8-section
+- Spanish efficiency layout for 6-section, or a clearly documented fallback if phase 1 ships logical-only Spanish first
 
-Spanish requires accented characters: a with accent, e with accent, i with accent, o with accent, u with accent, n with tilde, u with diaeresis.
+Design constraints:
 
-**Option A - Accent modifier key**: Add an "accent" action to the single-swipe utility wheel. Pressing accent then typing a vowel produces the accented variant. Pressing accent twice then typing n produces n with tilde.
+- `ñ` must be enterable without awkward workarounds
+- accented vowels must be available without regressing the shipped utility-wheel mappings
+- numbers, punctuation, and symbols must remain reachable in both dial modes
 
-**Option B - Long-press**: Long-pressing a vowel chord shows a popup with accented variants. This is how standard keyboards handle it.
+### 4. Finalize The Accent Entry Strategy
 
-**Option C - Dedicated chord positions**: Give n with tilde its own chord (since it's a separate letter in Spanish). Accented vowels use the accent modifier approach since they are not separate letters.
+The old draft assumed an accent modifier could simply be added to the utility wheel. That is no longer safe because the 6-section utility wheel is already shipped and documented.
 
-**Recommendation**: Use Option C for n with tilde (dedicated position) + Option A for accented vowels (accent modifier key). This is the most efficient for Spanish typing.
+This ticket should lock one supported strategy that works across both dial modes, such as:
 
-#### Spanish Efficiency Layout
+- a shared accent state entered from the symbols layer
+- long-press or hold behavior on a vowel preview
+- a language-aware accent overlay that does not displace existing utility actions
 
-Must be optimized for Spanish letter frequency distribution:
+The final choice must be validated against the current 6-section utility mapping and should minimize extra mode confusion.
 
-| Letter | Spanish Frequency |
-|---|---|
-| e | 13.7% |
-| a | 12.5% |
-| o | 8.7% |
-| s | 7.2% |
-| n | 6.7% |
-| r | 6.9% |
-| i | 6.3% |
-| l | 5.0% |
-| d | 5.9% |
-| t | 4.6% |
-| c | 4.7% |
-| u | 3.9% |
+### 5. Add A Language Setting On Both Platforms
 
-The top 6 letters (e, a, o, s, r, n) should be placed on the easiest same-direction chords, similar to how English places e, t, a on diagonals in the current Efficiency layout.
+Add a language selector in host-app settings and make the active keyboard reload language-specific resources from shared state.
 
-The optimizer (`erick_v5_vectorized.py`) needs to be run with Spanish corpus data instead of English.
+Android:
 
-### 3. Word Prediction - Spanish Dictionary
+- `PreferencesManager.kt`
+- `SettingsScreen.kt` / `MainSettingsContent.kt`
+- `MyInputMethodService.kt`
 
-#### Dictionary Size
-Target ~1000+ Spanish words across frequency tiers:
+iOS:
 
-**Tier 1 (freq 1000) - Ultra-common:**
-de, la, que, el, en, y, a, los, se, del, las, un, por, con, no, una, su, para, es, al, lo, como, mas, pero, sus, le, ya, o, este, si, porque, esta, son, entre, cuando, muy, sin, sobre, ser, tambien, me, hasta, hay, donde, quien, desde, todo, nos, durante, todos, uno, les, ni, contra, otros, ese, eso, ante, ellos, e, esto, mi, antes, algunos, que, unos, yo, otro, otras, otra, el, cual, poco, ella, nada, cada, mucho, fue, hacer, tiene, tiene, ha, dos, anos, tiempo, bien, parte, puede, gran, mismo, hoy, dia, vida
+- `SettingsView.swift` in the host app
+- extension-side settings/state readers in `KeyboardViewController.swift`
 
-**Tier 2 (freq 500) - Common:**
-gobierno, trabajo, mundo, pais, casa, hombre, vez, forma, lugar, solo, agua, ciudad, mejor, nuevo, numero, ejemplo, familia, grupo, problema, punto, derecho, estado, lado, modo, mano, tipo, centro, caso, mujer, razon, pueblo, noche, nombre, sociedad, accion, proceso, verdad, idea, campo, persona, politica, hora, cuenta, efecto, tierra, largo, historia, fuerza, juego, real, cambio, poder, paso, hecho, cuento
+### 6. Update Preview, Help, And Learning Surfaces
 
-**Tier 3-4**: Extend with everyday vocabulary, technology terms, social media words.
+Language support should not stop at raw typing behavior. The following surfaces should use the active language profile or localized content where applicable:
 
-#### Bigrams
-Common Spanish word pairs:
-- "de" -> "la", "los", "las", "un", "una", "el"
-- "en" -> "el", "la", "los", "las", "un"
-- "que" -> "el", "la", "los", "se", "no", "es"
-- "a" -> "la", "los", "las", "un", "una"
-- "el" -> "que", "de", "gobierno", "mundo"
-- etc.
+- left-dial previews and label rendering
+- quickstart copy where language-specific examples appear
+- practice-lesson sample targets
+- help screens and user guide documentation
 
-#### Default Suggestions
-When buffer is empty: `["Hola", "Si", "No"]` (instead of English `["I", "The", "Hello"]`)
+### 7. Validation Strategy
 
-### 4. Autocorrect Adjustments
+Add shared tests for:
 
-The current Levenshtein-distance autocorrect in `WordPredictionEngine.kt` works language-independently (it operates on character strings). However, Spanish considerations:
+- language-profile selection
+- English and Spanish chord routing in both 8-section and 6-section modes
+- per-language learned-profile preservation
+- language switching mid-session
+- accent entry behavior
+- Spanish dictionary, corrections, and bigram suggestions
 
-- Accented characters should be treated as close matches to their unaccented versions (e.g., "ano" should match "a-no" with accent)
-- n with tilde should be treated as distinct from n (they are different letters in Spanish)
-- The `getCorrections()` function may need a language-aware distance function or a pre-normalization step
-
-### 5. Settings Changes
-
-#### Language Selector
-
-Add a "Language" setting to both platforms:
-
-**Android** (`PreferencesManager.kt`):
-```kotlin
-private val LANGUAGE_KEY = stringPreferencesKey("language")
-val language: Flow<String> = context.dataStore.data
-    .map { preferences -> preferences[LANGUAGE_KEY] ?: "en" }
-```
-
-**Android** (`SettingsScreen.kt`):
-- Add a "Language" section above "Layout Type"
-- Show a dropdown/selector with available languages: English, Espanol
-- Changing language immediately reloads the chord maps, dictionary, and default suggestions
-
-**iOS** (`SettingsView.swift`):
-```swift
-@AppStorage("language", store: SettingsView.appGroupDefaults)
-private var language: String = "en"
-```
-
-- Add a Picker in settings with available languages
-
-### 6. State Machine Changes
-
-**File**: `KeyboardStateMachine.kt`
-
-- Accept a `languageCode` parameter (or observe it from preferences)
-- On language change, rebuild the `WordPredictionEngine` with the new language's dictionary
-- Pass the active `LanguageProfile` to `KeyboardLogic` for chord lookups
-- Update default suggestions based on language
-
-```kotlin
-fun setLanguage(code: String) {
-    val profile = LanguageProfileRegistry.getProfile(code)
-    predictor = WordPredictionEngine.createWithDictionary(profile.dictionaryWords, profile.bigrams)
-    currentProfile = profile
-    delegate.onSuggestionsUpdated(profile.defaultSuggestions)
-}
-```
-
-### 7. KeyboardLogic Changes
-
-**File**: `KeyboardLogic.kt`
-
-- `getChordResult()` should accept a `LanguageProfile` parameter (or the logic should look up the active profile)
-- The hardcoded English maps remain as the default; Spanish maps are loaded from the Spanish profile
-- `getDirectionFromXY()` does not change (directions are language-independent)
-
-### 8. Language Profile Registry
-
-Create a registry/factory that provides language profiles:
-
-```kotlin
-// New file: LanguageProfileRegistry.kt (shared module)
-object LanguageProfileRegistry {
-    private val profiles = mutableMapOf<String, LanguageProfile>()
-
-    init {
-        profiles["en"] = EnglishProfile.create()
-        profiles["es"] = SpanishProfile.create()
-    }
-
-    fun getProfile(code: String): LanguageProfile = profiles[code] ?: profiles["en"]!!
-    fun availableLanguages(): List<Pair<String, String>> = profiles.map { it.key to it.value.displayName }
-}
-```
-
-### 9. Accent Modifier (Spanish-Specific)
-
-Add an accent modifier action to `InputAction`:
-
-```kotlin
-enum class InputAction {
-    // ... existing actions ...
-    ACCENT_ACUTE,    // produces accented vowel on next input
-    ACCENT_TILDE,    // produces n with tilde on next 'n' input
-    ACCENT_DIAERESIS // produces u with diaeresis on next 'u' input
-}
-```
-
-State machine handling:
-- When `ACCENT_ACUTE` is triggered, set a flag
-- On the next vowel chord, output the accented version instead of the plain vowel
-- If the next input is not a vowel, output the accent mark as a standalone character and then process the chord normally
-- Visual indicator on the keyboard (similar to Shift indicator) when accent mode is active
-
-#### Accent Placement on Utility Wheel
-- Replace one single-swipe direction with the accent modifier, or
-- Add a long-press variant to an existing direction (e.g., long-press comma for accent)
-- The accent key should only appear when the active language uses accented characters
-
-### 10. iOS-Specific Considerations
-
-- `JoystickView.swift` needs to read the active language profile for label rendering
-- `KeyboardViewController.swift` needs to observe language preference from App Group defaults
-- KMP shared module changes flow through the `.xcframework` build
-
-### 11. Testing
-
-- All existing English tests must continue passing
-- Add Spanish-specific tests:
-  - Chord mapping produces correct Spanish characters
-  - n with tilde is accessible via its dedicated chord
-  - Accent modifier + vowel produces accented character
-  - Accent modifier + non-vowel cancels accent and types normally
-  - Spanish word prediction returns Spanish words
-  - Spanish autocorrect handles accented characters
-  - Switching languages mid-session reloads dictionary and maps correctly
-  - Switching back to English restores English behavior
-
----
-
-## Files to Create
-
-| File | Description |
-|---|---|
-| `android/shared/src/commonMain/kotlin/LanguageProfile.kt` | Language profile data class |
-| `android/shared/src/commonMain/kotlin/LanguageProfileRegistry.kt` | Registry/factory for language profiles |
-| `android/shared/src/commonMain/kotlin/EnglishProfile.kt` | English language profile (refactored from existing inline data) |
-| `android/shared/src/commonMain/kotlin/SpanishProfile.kt` | Spanish language profile with dictionary, chord maps, bigrams |
-
-## Files to Modify
-
-| File | Changes |
-|---|---|
-| `android/shared/src/commonMain/kotlin/KeyboardContracts.kt` | Add `ACCENT_ACUTE`, `ACCENT_TILDE`, `ACCENT_DIAERESIS` to `InputAction` |
-| `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` | Accept language profile for chord lookups; move English maps to `EnglishProfile` |
-| `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` | Language switching, accent modifier state, profile-aware prediction |
-| `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` | New `createWithDictionary()` factory; accent-aware distance in autocorrect |
-| `android/app/src/main/java/com/vatoo/erick/PreferencesManager.kt` | Add language preference |
-| `android/app/src/main/java/com/vatoo/erick/SettingsScreen.kt` | Add language selector UI |
-| `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` | Observe language preference, pass to state machine |
-| `ios/ERICK/ERICK/SettingsView.swift` | Add language picker |
-| `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` | Observe language, pass to state machine |
-| `ios/ERICK/ErickKeyBoard/JoystickView.swift` | Render labels from active language profile |
-| `docs/documentation/User_Guide.md` | Add Spanish language section, accent input documentation |
-| `docs/documentation/APP_CONTEXT.md` | Architecture update for multi-language support |
+Platform validation should include Android build coverage and iOS editor diagnostics / XCFramework refresh as available.
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Language selector available in settings on both Android and iOS
-- [ ] Two languages available: English (default) and Espanol
-- [ ] Selecting Espanol switches chord layout to Spanish character arrangement
-- [ ] Spanish Logical layout maps 27 Spanish letters (including n with tilde) + digits across the chord grid
-- [ ] Spanish Efficiency layout is frequency-optimized for Spanish text
-- [ ] n with tilde has a dedicated chord position in the Spanish layout
-- [ ] Accent modifier key is accessible on the utility wheel when Spanish is active
-- [ ] Accent modifier + vowel chord produces the accented vowel (a/e/i/o/u with accent)
-- [ ] Accent modifier + non-vowel cancels the modifier and types normally
-- [ ] Visual indicator shows when accent modifier is active (similar to Shift badge)
-- [ ] Spanish word prediction dictionary loaded with 1000+ words across frequency tiers
-- [ ] Spanish bigram predictions work (e.g., typing "de" suggests "la", "los", "las")
-- [ ] Spanish default suggestions show "Hola", "Si", "No" when buffer is empty
-- [ ] Autocorrect handles accented characters (e.g., "ano" suggests "a-no with accent")
-- [ ] Switching language mid-typing session reloads dictionary and chord maps immediately
-- [ ] Switching back to English restores full English behavior
-- [ ] Language preference persists across app restarts
-- [ ] Keyboard extension reads language preference from shared storage (DataStore / App Group)
-- [ ] All existing English functionality unaffected (no regressions)
-- [ ] Adding a future language requires only creating a new `LanguageProfile` implementation
-- [ ] User Guide updated with Spanish language documentation
+- [ ] A language selector is available in settings on both Android and iOS
+- [ ] English remains the default language
+- [ ] Spanish is available as the first non-English profile
+- [ ] The active keyboard reads the selected language from shared platform storage on both Android and iOS
+- [ ] Spanish logical typing works in both 8-section and 6-section modes
+- [ ] Spanish prediction uses Spanish base dictionary data and Spanish default suggestions
+- [ ] Learned prediction history is isolated per language and survives language switching
+- [ ] Spanish accented characters and `ñ` are enterable without regressing the shipped 6-section utility wheel mapping
+- [ ] Switching languages reloads suggestions and layout data without restarting the app
+- [ ] Existing English behavior does not regress
+- [ ] Quickstart, practice, help, and user-guide content are updated anywhere language-specific examples are exposed
+- [ ] Adding a future language only requires a new shared profile and its resources, not a platform rewrite
+
+---
+
+## Files Expected To Change
+
+| File | Purpose |
+|---|---|
+| `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` | Language-aware map lookup for both 8-section and 6-section layouts |
+| `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` | Active language routing and per-language prediction profile handling |
+| `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` | Base-language resources plus learned-profile isolation |
+| `android/shared/src/commonMain/kotlin/KeyboardContracts.kt` | Any delegate/profile contract updates needed for language-aware persistence |
+| `android/app/src/main/java/com/vatoo/erick/PreferencesManager.kt` | Persist selected language on Android |
+| `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` | Read/apply language preference on Android |
+| `ios/ERICK/ERICK/SettingsView.swift` | Host-app language selector |
+| `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` | Extension-side language preference consumption |
+| `docs/documentation/User_Guide.md` | User-facing multi-language documentation |
+| `APP_CONTEXT.md` | Shared architecture update for language profiles |
 
 ---
 
@@ -350,13 +188,13 @@ State machine handling:
 
 | Sub-Task | Points | Description |
 |---|---|---|
-| Shared: LanguageProfile architecture | 2 | Create data class, registry, refactor English into profile |
-| Shared: Spanish profile + dictionary | 3 | Spanish chord maps, 1000+ word dictionary, bigrams |
-| Shared: Accent modifier logic | 2 | InputAction additions, state machine accent state handling |
-| Shared: Language-aware prediction | 2 | Factory method, accent-aware autocorrect |
-| Android: Settings + preferences | 1 | Language selector UI, DataStore key |
-| iOS: Settings + preferences | 1 | Language picker, AppStorage |
-| Platform: UI label updates | 1 | JoystickView labels from active profile on both platforms |
-| Documentation + tests | 1 | User Guide, unit tests for Spanish |
+| Shared: Language profile architecture | 2 | Introduce shared profile models, registry, and active-language routing |
+| Shared: Per-language prediction persistence | 2 | Preserve learned words/bigrams separately for English and Spanish |
+| Shared: Spanish layout resources | 2 | Define 8-section and 6-section Spanish maps and preview data |
+| Shared: Accent-entry design + implementation | 2 | Ship a Spanish-safe diacritic entry path without breaking current utility swipes |
+| Shared: Spanish dictionary + bigrams | 2 | Add Spanish base dictionary tiers and prediction resources |
+| Android: Settings + IME wiring | 1 | Add language preference and live reload on Android |
+| iOS: Settings + extension wiring | 1 | Add language preference and live reload on iOS |
+| Learning/docs/tests | 1 | Update quickstart, practice, help, user guide, and shared tests |
 
 **Total**: ~13 story points

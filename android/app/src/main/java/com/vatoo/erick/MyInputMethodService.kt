@@ -65,7 +65,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     // Must provide a scope to the state machine; cancel all timer tasks when the IME is destroyed to prevent memory leaks
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-    private val controllerDeadZone = 0.25f
+    private var controllerDeadZone = PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE
+    private var controllerYAxisInverted = false
     private val inputManager by lazy { getSystemService(INPUT_SERVICE) as InputManager }
     // Cross-platform state machine from the Shared module
     private lateinit var stateMachine: KeyboardStateMachine
@@ -94,6 +95,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     }
     private val audioManager: AudioManager by lazy {
         getSystemService(AUDIO_SERVICE) as AudioManager
+    }
+    private val predictionProfilePreferences by lazy {
+        getSharedPreferences("prediction_profile", MODE_PRIVATE)
     }
 
     override fun onCreate() {
@@ -233,6 +237,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
             stateMachine.setInputMode(inputMode)
         }.launchIn(serviceScope)
+
+        preferencesManager.controllerDeadZone.onEach { deadZone ->
+            controllerDeadZone = deadZone
+            stateMachine.setControllerDeadZone(deadZone)
+        }.launchIn(serviceScope)
+
+        preferencesManager.controllerYAxisInverted.onEach { inverted ->
+            controllerYAxisInverted = inverted
+            stateMachine.setControllerYAxisInverted(inverted)
+        }.launchIn(serviceScope)
     }
 
     override fun onDestroy() {
@@ -336,8 +350,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             val rightX = event.getPreferredAxisValue(MotionEvent.AXIS_Z, MotionEvent.AXIS_RX)
             val rightY = event.getPreferredAxisValue(MotionEvent.AXIS_RZ, MotionEvent.AXIS_RY)
 
-            leftJoystick.updateThumbFromController(leftX, leftY, controllerDeadZone)
-            rightJoystick.updateThumbFromController(rightX, rightY, controllerDeadZone)
+            val effectiveLeftY = if (controllerYAxisInverted) -leftY else leftY
+            val effectiveRightY = if (controllerYAxisInverted) -rightY else rightY
+
+            leftJoystick.updateThumbFromController(leftX, effectiveLeftY, controllerDeadZone)
+            rightJoystick.updateThumbFromController(rightX, effectiveRightY, controllerDeadZone)
 
             stateMachine.handleControllerInput(leftX, leftY, rightX, rightY)
             syncAssistedLetterLock(
@@ -720,25 +737,30 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         return before.substring(i)
     }
 
+    override fun loadPredictionProfile(): String {
+        return predictionProfilePreferences.getString("serialized_prediction_profile", "") ?: ""
+    }
+
+    override fun savePredictionProfile(serializedProfile: String) {
+        predictionProfilePreferences.edit()
+            .putString("serialized_prediction_profile", serializedProfile)
+            .apply()
+    }
+
     private fun onSuggestionTapped(index: Int) {
         if (index >= pendingSuggestions.size) return
         val suggestion = pendingSuggestions[index]
-        val wasNextWordMode = stateMachine.isNextWordMode
-        val (charsToDelete, word) = stateMachine.acceptSuggestion(suggestion)
         val ic = currentInputConnection ?: return
+        val result = stateMachine.acceptSuggestion(
+            suggestion = suggestion,
+            textBeforeCursor = ic.getTextBeforeCursor(64, 0)?.toString() ?: "",
+            textAfterCursor = ic.getTextAfterCursor(64, 0)?.toString() ?: ""
+        )
         // Delete the partial word
-        if (charsToDelete > 0) {
-            ic.deleteSurroundingText(charsToDelete, 0)
+        if (result.charsToDelete > 0) {
+            ic.deleteSurroundingText(result.charsToDelete, 0)
         }
-        // In next-word mode, prepend a space if the text before cursor doesn't already end with one
-        if (wasNextWordMode && charsToDelete == 0) {
-            val before = ic.getTextBeforeCursor(1, 0)?.toString() ?: ""
-            if (before.isNotEmpty() && !before.endsWith(" ")) {
-                ic.commitText(" ", 1)
-            }
-        }
-        // Insert the full suggestion
-        ic.commitText(word, 1)
+        ic.commitText(result.leadingText + result.suggestion + result.trailingText, 1)
     }
 
     private fun updateSuggestionBar() {

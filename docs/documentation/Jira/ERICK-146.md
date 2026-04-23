@@ -2,6 +2,7 @@
 
 | Field | Value |
 |---|---|
+| **Status** | Done |
 | **Type** | Story |
 | **Priority** | High |
 | **Story Points** | 8 |
@@ -102,3 +103,17 @@ The diagnostics screen must reuse the same normalization and direction-resolutio
 3. Dead-zone and inversion changes are visible immediately on the diagnostics screen.
 4. Left-handed mode and assisted mode are represented correctly in the diagnostics output.
 5. Android `assembleDebug` remains green and shared controller tests remain green.
+
+---
+
+## Implementation Summary
+
+- Added a shared `ControllerInputProcessor` so diagnostics and the IME use the same stick normalization and direction resolution path.
+- Added Android controller preference storage for dead zone and Y-axis inversion in `PreferencesManager.kt`.
+- Added `ControllerDiagnosticsActivity.kt` with live raw stick values, normalized values, resolved directions, dead-zone visualization, assisted lock state, and reset controls.
+- Added launcher entry points from the Android main screen and settings screen.
+
+## Validation Snapshot
+
+- `cd android && .\gradlew.bat :shared:testAndroidHostTest`
+- `cd android && .\gradlew.bat assembleDebug`
