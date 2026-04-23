@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Learning & Diagnostics
 - **Controller Diagnostics Screen (Android)** - Added a host-app diagnostics screen with live raw stick values, normalized values, resolved directions, assisted-mode lock state, left-handed routing, dead-zone calibration, Y-axis inversion, and reset actions.
 - **Guided Quickstart (Android and iOS)** - Added an optional first-run quickstart covering dial mechanics, utility swipes, assisted typing, and controller typing.
+- **Responsive Quickstart Actions** - Quickstart action rows now reflow cleanly on smaller screens and with larger text sizes so Skip, Back, Next, and Finish stay readable.
 - **Practice Hub (Android and iOS)** - Added reusable lessons for 8-section basics, 6-section basics, utility swipes, assisted one-handed typing, controller drills, and quote practice.
+- **Preset-Driven Practice Lessons** - Opening a lesson now applies its recommended dial mode, layout, and input mode automatically so drills start in the right configuration.
+- **Guided Multi-Step Drills** - Practice lessons now walk through letters, numbers, and punctuation or symbols instead of ending after a single target.
+- **Lesson Setup Actions** - Practice lessons now expose setup actions at the bottom of the lesson. Android can jump straight to the keyboard picker or settings, while iOS focuses the practice field and can open Settings for manual keyboard switching.
 
 ### Prediction Improvements
 - **Persistent Learned Predictions** - The shared predictor now persists learned words and learned bigram history through the platform storage layer.

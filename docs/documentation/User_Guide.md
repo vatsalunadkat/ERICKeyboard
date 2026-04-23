@@ -54,7 +54,22 @@ It can also help everyday users who want larger touch targets, controller suppor
 
 - The host app now offers a **Quickstart** that teaches the two-dial model, utility swipes, assisted typing, and controller typing.
 - You can **skip** the quickstart, **resume** it later, or **replay** it after finishing.
+- The quickstart keeps its action buttons readable on smaller screens and with larger accessibility text sizes.
 - The new **Practice Lessons** hub includes drills for 8-section basics, 6-section basics, utility swipes, one-handed assisted typing, controller typing, and quote practice.
+- Opening a lesson now applies the recommended keyboard preset for that lesson, including dial mode, layout, and input mode.
+- Each guided lesson now covers the basics in sequence: letters first, then numbers, then punctuation or symbols.
+- Every lesson ends with setup actions at the bottom so you can reapply the lesson preset, open settings, and get back to ERICK quickly.
+- On Android, the lesson can open the keyboard picker directly. On iOS, the lesson can focus the practice field and open Settings, but you still use the globe key to switch to ERICK because iOS does not allow apps to change the active keyboard directly.
+- Quote Practice remains the advanced freeform step and is launched from within the lesson flow after the guided drills.
+
+### Using Practice Lessons
+
+1. Open **Practice Lessons** from the host app.
+2. Pick the lesson that matches the skill you want to practice.
+3. Check the **Lesson Setup** card so you know which dial mode, layout, and input mode were applied.
+4. Use the lesson actions at the bottom if you need to switch back to ERICK or reopen settings.
+5. Complete each drill in order. Guided lessons now move from letters to numbers and then to punctuation or symbols.
+6. Launch **Quote Practice** after the guided drills feel comfortable enough for freeform typing.
 
 ## What You See on Screen
 
