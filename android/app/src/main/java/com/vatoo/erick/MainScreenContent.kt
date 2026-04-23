@@ -23,21 +23,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -83,6 +87,8 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var showQuickstart by remember { mutableStateOf(false) }
+    var showPrivacyDialog by remember { mutableStateOf(false) }
+    var showTryErickHelpDialog by remember { mutableStateOf(false) }
     val isFullyEnabled = isKeyboardEnabled.value && isKeyboardCurrent.value
 
     LaunchedEffect(text) {
@@ -133,6 +139,36 @@ fun MainScreen(
                     preferencesManager.setOnboardingStep(quickstartIndex)
                 }
             }
+        )
+    }
+
+    if (showPrivacyDialog) {
+        MainScreenInfoDialog(
+            title = "Privacy & Security",
+            message = "ERICKeyboard keeps your typing on your device.",
+            bulletPoints = listOf(
+                "No typed text is collected or stored.",
+                "Passwords and personal data stay on your device.",
+                "No text is transmitted from the keyboard.",
+                "Only keyboard preferences are stored locally.",
+                "The app requests no internet access for typing data.",
+                "The project is open source for inspection."
+            ),
+            onDismiss = { showPrivacyDialog = false }
+        )
+    }
+
+    if (showTryErickHelpDialog) {
+        MainScreenInfoDialog(
+            title = "Try ERICK",
+            message = "Use the test field to confirm that the current keyboard and layout feel right.",
+            bulletPoints = listOf(
+                "Tap the field and type a short word or sentence.",
+                "If another keyboard appears, switch back to ERICK from the picker.",
+                "Type start to jump into quote practice.",
+                "Use Practice Lessons for guided drills instead of memorizing everything here."
+            ),
+            onDismiss = { showTryErickHelpDialog = false }
         )
     }
 
@@ -251,11 +287,17 @@ fun MainScreen(
                     }
                 }
             }
+            KeyboardTestCard(
+                text = text,
+                onValueChange = { text = it },
+                onOpenHelp = { showTryErickHelpDialog = true }
+            )
         } else {
             SetupInstructionsSection(
                 isKeyboardEnabled = isKeyboardEnabled.value,
                 isKeyboardCurrent = isKeyboardCurrent.value,
-                context = context
+                context = context,
+                onOpenPrivacyInfo = { showPrivacyDialog = true }
             )
         }
 
@@ -273,65 +315,6 @@ fun MainScreen(
             Spacer(Modifier.width(8.dp))
             Text("Controller Diagnostics")
         }
-
-        OutlinedButton(
-            onClick = {
-                context.startActivity(Intent(context, PracticeHubActivity::class.java))
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            Text("Practice Lessons")
-        }
-
-        Text(
-            text = "Test Your Keyboard:",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Tap here to test the keyboard") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .padding(bottom = 4.dp),
-            maxLines = 4
-        )
-
-        Text(
-            text = "Type 'start' to begin the typing game \uD83C\uDFAE",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray,
-            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "\uD83D\uDCA1 Tips:",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "• Use the left joystick to select letter groups\n" +
-                        "• Use the right joystick to select specific letters\n" +
-                        "• Swipe right on the right joystick for space\n" +
-                        "• Tap the settings icon (⚙) on the keyboard to customize",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
     }
 }
 
@@ -339,10 +322,11 @@ fun MainScreen(
 private fun SetupInstructionsSection(
     isKeyboardEnabled: Boolean,
     isKeyboardCurrent: Boolean,
-    context: Context
+    context: Context,
+    onOpenPrivacyInfo: () -> Unit
 ) {
     Text(
-        text = "Setup Instructions:",
+        text = "Finish setup",
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -351,49 +335,20 @@ private fun SetupInstructionsSection(
     KeyboardSetupStepCard(
         stepNumber = "1",
         title = "Enable the Keyboard",
-        description = "Go to Android Settings > System > Languages & input > On-screen keyboard > Manage keyboards, then toggle on \"ERICKeyboard\".",
+        description = "Open keyboard settings and turn on ERICKeyboard.",
         isCompleted = isKeyboardEnabled,
         buttonLabel = "Open Keyboard Settings",
         buttonContainerColor = MaterialTheme.colorScheme.primary,
+        supportingAction = {
+            IconButton(onClick = onOpenPrivacyInfo) {
+                Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Privacy details")
+            }
+        },
         onButtonClick = {
             try {
                 context.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
             } catch (_: Exception) {
                 context.startActivity(Intent(Settings.ACTION_SETTINGS))
-            }
-        },
-        extraContent = {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                )
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text(
-                        text = "\uD83D\uDD12 Privacy & Security",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = "Your privacy is our priority. ERICKeyboard:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = "✓ Does NOT collect any text you type\n" +
-                            "✓ Does NOT store passwords or personal data\n" +
-                            "✓ Does NOT transmit any data from your device\n" +
-                            "✓ Only stores your keyboard preferences locally\n" +
-                            "✓ Has no internet permissions\n" +
-                            "✓ Is 100% open source for full transparency",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
             }
         }
     )
@@ -401,7 +356,7 @@ private fun SetupInstructionsSection(
     KeyboardSetupStepCard(
         stepNumber = "2",
         title = "Select as Default",
-        description = "Tap the button below or tap any text field, then select \"ERICKeyboard\" from the keyboard picker.",
+        description = "Open the keyboard picker and choose ERICKeyboard.",
         isCompleted = isKeyboardCurrent,
         buttonLabel = "Choose Input Method",
         buttonContainerColor = MaterialTheme.colorScheme.secondary,
@@ -421,7 +376,7 @@ private fun KeyboardSetupStepCard(
     buttonLabel: String,
     buttonContainerColor: Color,
     onButtonClick: () -> Unit,
-    extraContent: @Composable (() -> Unit)? = null
+    supportingAction: @Composable (() -> Unit)? = null
 ) {
     val backgroundColor = if (isCompleted) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
     val accentColor = if (isCompleted) Color(0xFF4CAF50) else Color(0xFFF44336)
@@ -472,6 +427,9 @@ private fun KeyboardSetupStepCard(
                         )
                     }
                 }
+                if (!isCompleted && supportingAction != null) {
+                    supportingAction()
+                }
                 Spacer(Modifier.width(12.dp))
                 Icon(
                     imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.Close,
@@ -487,8 +445,6 @@ private fun KeyboardSetupStepCard(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 
-                extraContent?.invoke()
-
                 Button(
                     onClick = onButtonClick,
                     modifier = Modifier.fillMaxWidth(),
@@ -501,6 +457,76 @@ private fun KeyboardSetupStepCard(
             }
         }
     }
+}
+
+@Composable
+private fun KeyboardTestCard(
+    text: String,
+    onValueChange: (String) -> Unit,
+    onOpenHelp: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Try ERICK",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onOpenHelp) {
+                    Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Typing tips")
+                }
+            }
+
+            OutlinedTextField(
+                value = text,
+                onValueChange = onValueChange,
+                label = { Text("Type here to test ERICK") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(104.dp),
+                maxLines = 4
+            )
+
+            Text(
+                text = "Type 'start' to open quote practice.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainScreenInfoDialog(
+    title: String,
+    message: String,
+    bulletPoints: List<String>,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(message, style = MaterialTheme.typography.bodyMedium)
+                bulletPoints.forEach { bullet ->
+                    Text("• $bullet", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
 
 @Composable
