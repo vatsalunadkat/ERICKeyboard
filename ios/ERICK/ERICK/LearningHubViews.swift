@@ -196,6 +196,7 @@ struct QuickstartView: View {
 struct PracticeHubView: View {
     @AppStorage(LearningProgressStore.attemptedLessonsKey) private var attemptedLessonsRaw = ""
     @AppStorage(LearningProgressStore.completedLessonsKey) private var completedLessonsRaw = ""
+    @State private var infoLesson: PracticeLessonData?
 
     private var attemptedLessons: Set<String> {
         LearningProgressStore.decodeSet(attemptedLessonsRaw)
@@ -209,10 +210,10 @@ struct PracticeHubView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Learning Path")
+                    Text("Pick a lesson")
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text("Start with 6-section basics, then utility swipes, assisted one-handed typing, controller drills, and finally quote practice.")
+                    Text("ERICK applies the lesson setup for you so you can focus on the drill.")
                         .foregroundColor(.secondary)
                     Text("Progress: \(completedLessons.count) completed / \(attemptedLessons.count) attempted")
                         .font(.footnote)
@@ -224,39 +225,65 @@ struct PracticeHubView: View {
                 .cornerRadius(16)
 
                 ForEach(erickPracticeLessons) { lesson in
-                    NavigationLink {
-                        PracticeLessonView(lesson: lesson)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(lesson.title)
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            Text(lesson.focus)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            if !lesson.isFreeform {
-                                Text("\(lesson.exercises.count) guided drills covering letters, numbers, and symbols.")
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(alignment: .top, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(lesson.title)
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Text(compactLessonSummary(lesson))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Button {
+                                infoLesson = lesson
+                            } label: {
+                                Image(systemName: "questionmark.circle")
+                                    .font(.title3)
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        HStack(spacing: 8) {
+                            if completedLessons.contains(lesson.id) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
                             }
                             Text(statusText(for: lesson.id))
                                 .font(.caption)
                                 .foregroundColor(statusColor(for: lesson.id))
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(backgroundColor(for: lesson.id))
-                        .cornerRadius(16)
+
+                        NavigationLink {
+                            PracticeLessonView(
+                                lesson: lesson,
+                                startFromBeginning: completedLessons.contains(lesson.id)
+                            )
+                        } label: {
+                            Text(primaryActionLabel(for: lesson.id))
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        markAttempted(lesson.id)
-                    })
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(backgroundColor(for: lesson.id))
+                    .cornerRadius(16)
                 }
             }
             .padding()
         }
         .navigationTitle("Practice Lessons")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $infoLesson) { lesson in
+            LessonHelpSheet(
+                lesson: lesson,
+                setupSummary: lesson.setup.map(formatLessonSetup)
+            )
+        }
     }
 
     private func statusText(for lessonId: String) -> String {
@@ -264,7 +291,7 @@ struct PracticeHubView: View {
             return "Completed"
         }
         if attemptedLessons.contains(lessonId) {
-            return "Attempted"
+            return "In progress"
         }
         return "Not started"
     }
@@ -278,20 +305,25 @@ struct PracticeHubView: View {
 
     private func backgroundColor(for lessonId: String) -> Color {
         if completedLessons.contains(lessonId) {
-            return Color.green.opacity(0.12)
+            return Color.green.opacity(0.18)
         }
         return Color(uiColor: .secondarySystemBackground)
     }
 
-    private func markAttempted(_ lessonId: String) {
-        var updated = attemptedLessons
-        updated.insert(lessonId)
-        attemptedLessonsRaw = LearningProgressStore.encodeSet(updated)
+    private func primaryActionLabel(for lessonId: String) -> String {
+        if completedLessons.contains(lessonId) {
+            return "Replay Lesson"
+        }
+        if attemptedLessons.contains(lessonId) {
+            return "Continue Lesson"
+        }
+        return "Start Lesson"
     }
 }
 
 struct PracticeLessonView: View {
     let lesson: PracticeLessonData
+    let startFromBeginning: Bool
 
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(LearningProgressStore.attemptedLessonsKey) private var attemptedLessonsRaw = ""
@@ -305,10 +337,18 @@ struct PracticeLessonView: View {
     @State private var currentExerciseIndex = 0
     @State private var completedExerciseIds: Set<String> = []
     @State private var isKeyboardActuallyEnabled = false
+    @State private var showHelpSheet = false
     @FocusState private var practiceFieldFocused: Bool
 
     private var isCompleted: Bool {
         LearningProgressStore.decodeSet(completedLessonsRaw).contains(lesson.id)
+    }
+
+    private var lessonIsFinished: Bool {
+        if lesson.isFreeform {
+            return isCompleted
+        }
+        return isCompleted || completedExerciseIds.count == lesson.exercises.count
     }
 
     private var isKeyboardEnabled: Bool {
@@ -325,38 +365,90 @@ struct PracticeLessonView: View {
         return setup.sixSectionDial == sixSectionDial && setup.layoutType == layoutType && setup.inputMode == inputMode
     }
 
+    private var previousLesson: PracticeLessonData? {
+        let currentIndex = erickPracticeLessons.firstIndex { $0.id == lesson.id } ?? 0
+        guard currentIndex > 0 else { return nil }
+        return erickPracticeLessons[currentIndex - 1]
+    }
+
+    private var nextLesson: PracticeLessonData? {
+        let currentIndex = erickPracticeLessons.firstIndex { $0.id == lesson.id } ?? 0
+        guard currentIndex < erickPracticeLessons.count - 1 else { return nil }
+        return erickPracticeLessons[currentIndex + 1]
+    }
+
+    private var contextActions: [LessonAction] {
+        var actions: [LessonAction] = []
+
+        if !isKeyboardEnabled {
+            actions.append(
+                LessonAction(id: "enable-keyboard", title: "Open iOS Settings", prominent: true) {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            )
+        } else if !lesson.isFreeform && !practiceFieldFocused {
+            actions.append(
+                LessonAction(id: "focus-field", title: "Focus Typing Field", prominent: true) {
+                    practiceFieldFocused = true
+                }
+            )
+        }
+
+        if !setupMatchesLesson {
+            actions.append(
+                LessonAction(id: "apply-setup", title: "Apply Setup", prominent: false) {
+                    applyLessonSetup()
+                }
+            )
+        }
+
+        return actions
+    }
+
+    private var partActions: [LessonAction] {
+        guard !lesson.isFreeform, lesson.exercises.count > 1 else { return [] }
+
+        var actions: [LessonAction] = []
+        if currentExerciseIndex > 0 {
+            actions.append(
+                LessonAction(id: "previous-part", title: "Previous Part", prominent: false) {
+                    currentExerciseIndex -= 1
+                    typedText = ""
+                }
+            )
+        }
+        if currentExerciseIndex < lesson.exercises.count - 1 {
+            actions.append(
+                LessonAction(id: "next-part", title: "Next Part", prominent: true) {
+                    currentExerciseIndex += 1
+                    typedText = ""
+                }
+            )
+        }
+        return actions
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(lesson.focus)
-                        .font(.headline)
-                    ForEach(Array(lesson.instructions.enumerated()), id: \.offset) { index, instruction in
-                        Text("\(index + 1). \(instruction)")
+                    Text(lesson.isFreeform ? "Advanced practice" : "Part \(currentExerciseIndex + 1) of \(lesson.exercises.count)")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.accentColor)
+                    Text(currentExercise?.title ?? lesson.focus)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                    Text(lesson.isFreeform ? "Freeform practice" : "\(completedExerciseIds.count) of \(lesson.exercises.count) parts done")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    if let setup = lesson.setup {
+                        Text(formatLessonSetup(setup))
+                            .font(.footnote)
                             .foregroundColor(.secondary)
                     }
-                    Text(lesson.successHint)
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(uiColor: .secondarySystemBackground))
-                .cornerRadius(16)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Lesson Setup")
-                        .font(.headline)
-                    if let setup = lesson.setup {
-                        Text("Recommended: \(formatLessonSetup(setup))")
-                            .font(.subheadline)
-                    }
-                    Text(setupMatchesLesson ? "Current keyboard preset already matches this lesson." : "Current keyboard preset: \(formatLessonSetup(PracticeLessonSetupData(sixSectionDial: sixSectionDial, layoutType: layoutType, inputMode: inputMode)))")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                    Text(keyboardStatusMessage)
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -386,27 +478,7 @@ struct PracticeLessonView: View {
                     .cornerRadius(16)
                 } else {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Guided Drills")
-                            .font(.headline)
-
-                        ForEach(Array(lesson.exercises.enumerated()), id: \.element.id) { index, exercise in
-                            Text("\(index + 1). \(exercise.title) - \(drillStatus(for: exercise, at: index))")
-                                .foregroundColor(completedExerciseIds.contains(exercise.id) ? .green : .secondary)
-                        }
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(uiColor: .secondarySystemBackground))
-                    .cornerRadius(16)
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(isCompleted ? "Lesson Complete" : "Drill \(currentExerciseIndex + 1) of \(lesson.exercises.count)")
-                            .font(.headline)
-
                         if let exercise = currentExercise {
-                            Text(exercise.title)
-                                .font(.title3)
-                                .fontWeight(.bold)
                             Text(exercise.coaching)
                                 .foregroundColor(.secondary)
                             Text(exercise.targetText)
@@ -419,16 +491,6 @@ struct PracticeLessonView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .focused($practiceFieldFocused)
-
-                        if isCompleted {
-                            Text("Lesson complete. You can replay the drills, reapply the preset, or go back to the hub.")
-                                .foregroundColor(.green)
-                        }
-
-                        Button("Clear Drill") {
-                            typedText = ""
-                        }
-                        .buttonStyle(.borderedProminent)
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -436,62 +498,145 @@ struct PracticeLessonView: View {
                     .cornerRadius(16)
                 }
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Lesson Actions")
-                        .font(.headline)
+                if !contextActions.isEmpty {
+                    ActionButtonGroup(actions: contextActions)
+                }
 
+                if !lessonIsFinished && !partActions.isEmpty {
+                    ActionButtonGroup(actions: partActions)
+                }
+
+                if lessonIsFinished {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Lesson complete")
+                            .font(.headline)
+                            .foregroundColor(.green)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: 12) {
+                                Button(action: resetLessonProgress) {
+                                    lessonActionLabel("Replay Lesson", fillWidth: true)
+                                }
+                                .buttonStyle(.bordered)
+
+                                if let nextLesson {
+                                    NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
+                                        lessonActionLabel("Next Lesson", fillWidth: true)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                } else if let previousLesson {
+                                    NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
+                                        lessonActionLabel("Previous Lesson", fillWidth: true)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+
+                            VStack(spacing: 12) {
+                                Button(action: resetLessonProgress) {
+                                    lessonActionLabel("Replay Lesson", fillWidth: true)
+                                }
+                                .buttonStyle(.bordered)
+
+                                if let nextLesson {
+                                    NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
+                                        lessonActionLabel("Next Lesson", fillWidth: true)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                } else if let previousLesson {
+                                    NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
+                                        lessonActionLabel("Previous Lesson", fillWidth: true)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.green.opacity(0.12))
+                    .cornerRadius(16)
+                } else if previousLesson != nil || nextLesson != nil {
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: 12) {
-                            lessonKeyboardActionButton(fillWidth: true)
-                            NavigationLink(destination: SettingsView()) {
-                                lessonActionLabel("Lesson Settings", fillWidth: true)
+                            if let previousLesson {
+                                NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
+                                    lessonActionLabel("Previous Lesson", fillWidth: true)
+                                }
+                                .buttonStyle(.bordered)
                             }
-                            .buttonStyle(.bordered)
-                            Button(action: applyLessonSetup) {
-                                lessonActionLabel("Reapply Setup", fillWidth: true)
+                            if let nextLesson {
+                                NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
+                                    lessonActionLabel("Next Lesson", fillWidth: true)
+                                }
+                                .buttonStyle(.borderedProminent)
                             }
-                            .buttonStyle(.bordered)
                         }
 
                         VStack(spacing: 12) {
-                            lessonKeyboardActionButton(fillWidth: true)
-                            NavigationLink(destination: SettingsView()) {
-                                lessonActionLabel("Lesson Settings", fillWidth: true)
+                            if let previousLesson {
+                                NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
+                                    lessonActionLabel("Previous Lesson", fillWidth: true)
+                                }
+                                .buttonStyle(.bordered)
                             }
-                            .buttonStyle(.bordered)
-                            Button(action: applyLessonSetup) {
-                                lessonActionLabel("Reapply Setup", fillWidth: true)
+                            if let nextLesson {
+                                NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
+                                    lessonActionLabel("Next Lesson", fillWidth: true)
+                                }
+                                .buttonStyle(.borderedProminent)
                             }
-                            .buttonStyle(.bordered)
                         }
                     }
                 }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(uiColor: .secondarySystemBackground))
-                .cornerRadius(16)
             }
             .padding()
         }
         .navigationTitle(lesson.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink(destination: SettingsView()) {
+                    Image(systemName: "gearshape")
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showHelpSheet = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+            }
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            LessonHelpSheet(
+                lesson: lesson,
+                setupSummary: lesson.setup.map(formatLessonSetup)
+            )
+        }
         .onAppear {
             markAttempted()
             applyLessonSetup()
             checkKeyboardStatus()
+            if startFromBeginning {
+                resetLessonProgress()
+            }
         }
         .onChange(of: typedText) { newValue in
             guard !lesson.isFreeform, let targetText = currentExercise?.targetText else { return }
             if newValue.trimmingCharacters(in: .whitespacesAndNewlines).caseInsensitiveCompare(targetText) == .orderedSame {
-                if let exercise = currentExercise {
-                    completedExerciseIds.insert(exercise.id)
-                }
-                typedText = ""
-                if currentExerciseIndex >= lesson.exercises.count - 1 {
+                guard let exercise = currentExercise else { return }
+                let updatedCompleted = completedExerciseIds.union([exercise.id])
+                completedExerciseIds = updatedCompleted
+                if updatedCompleted.count == lesson.exercises.count {
                     markCompleted()
                 } else {
-                    currentExerciseIndex += 1
+                    currentExerciseIndex = nextIncompleteExerciseIndex(
+                        currentIndex: currentExerciseIndex,
+                        exercises: lesson.exercises,
+                        completedExerciseIds: updatedCompleted
+                    )
                 }
+                typedText = ""
             }
         }
         .onChange(of: scenePhase) { newPhase in
@@ -524,54 +669,18 @@ struct PracticeLessonView: View {
         inputMode = setup.inputMode
     }
 
+    private func resetLessonProgress() {
+        typedText = ""
+        currentExerciseIndex = 0
+        completedExerciseIds = []
+    }
+
     private func checkKeyboardStatus() {
         if let keyboards = UserDefaults.standard.object(forKey: "AppleKeyboards") as? [String] {
             let actuallyEnabled = keyboards.contains { $0.localizedCaseInsensitiveContains("erick") }
             isKeyboardActuallyEnabled = actuallyEnabled
             hasEnabledKeyboard = actuallyEnabled
         }
-    }
-
-    private func drillStatus(for exercise: PracticeExerciseData, at index: Int) -> String {
-        if completedExerciseIds.contains(exercise.id) {
-            return "Done"
-        }
-        if index == currentExerciseIndex && !isCompleted {
-            return "Current"
-        }
-        return "Next"
-    }
-
-    private var keyboardStatusMessage: String {
-        if !isKeyboardEnabled {
-            return "ERICK is not enabled in iOS Settings yet. Use the button below to open Settings and enable it first."
-        }
-        if lesson.isFreeform {
-            return "The lesson preset is ready. Launch quote practice, then use the globe key in the typing field if another keyboard is active."
-        }
-        return "iOS does not let apps switch the active keyboard directly. Focus the practice field below, then tap the globe key if ERICK is not active."
-    }
-
-    @ViewBuilder
-    private func lessonKeyboardActionButton(fillWidth: Bool) -> some View {
-        Button(action: {
-            if isKeyboardEnabled {
-                if lesson.isFreeform {
-                    applyLessonSetup()
-                } else {
-                    practiceFieldFocused = true
-                }
-            } else if let url = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(url)
-            }
-        }) {
-            lessonActionLabel(
-                isKeyboardEnabled ? (lesson.isFreeform ? "Preset Ready" : "Focus Practice Field") : "Open iOS Settings",
-                fillWidth: fillWidth
-            )
-        }
-        .buttonStyle(.borderedProminent)
-        .disabled(isKeyboardEnabled && lesson.isFreeform)
     }
 
     private func lessonActionLabel(_ title: String, fillWidth: Bool) -> some View {
@@ -607,4 +716,120 @@ struct PracticeLessonView: View {
 
         return "\(dialLabel) • \(layoutLabel) • \(inputLabel)"
     }
+}
+
+private struct LessonHelpSheet: View {
+    let lesson: PracticeLessonData
+    let setupSummary: String?
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(lesson.focus)
+                        .font(.body)
+                    if let setupSummary {
+                        Text("Setup: \(setupSummary)")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                    ForEach(Array(lesson.instructions.enumerated()), id: \.offset) { _, instruction in
+                        Text("• \(instruction)")
+                            .font(.subheadline)
+                    }
+                    Text(lesson.successHint)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+            }
+            .navigationTitle(lesson.title)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+private struct LessonAction: Identifiable {
+    let id: String
+    let title: String
+    let prominent: Bool
+    let action: () -> Void
+}
+
+private struct ActionButtonGroup: View {
+    let actions: [LessonAction]
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                ForEach(actions) { action in
+                    LessonActionButton(action: action, fillWidth: true)
+                }
+            }
+
+            VStack(spacing: 12) {
+                ForEach(actions) { action in
+                    LessonActionButton(action: action, fillWidth: true)
+                }
+            }
+        }
+    }
+}
+
+private struct LessonActionButton: View {
+    let action: LessonAction
+    let fillWidth: Bool
+
+    var body: some View {
+        Button(action: action.action) {
+            Text(action.title)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(maxWidth: fillWidth ? .infinity : nil)
+                .padding(.vertical, 12)
+        }
+        .buttonStyle(action.prominent ? .borderedProminent : .bordered)
+    }
+}
+
+private func compactLessonSummary(_ lesson: PracticeLessonData) -> String {
+    if lesson.isFreeform {
+        return "Freeform quote practice"
+    }
+
+    guard let setup = lesson.setup else {
+        return "\(lesson.exercises.count) parts"
+    }
+
+    let dialLabel = setup.sixSectionDial ? "6-section" : "8-section"
+    let inputLabel: String
+    switch setup.inputMode {
+    case "confirm":
+        inputLabel = "Steady Type"
+    case "assisted":
+        inputLabel = "One-Handed"
+    default:
+        inputLabel = "Quick Type"
+    }
+
+    return "\(lesson.exercises.count) parts • \(dialLabel) • \(inputLabel)"
+}
+
+private func nextIncompleteExerciseIndex(
+    currentIndex: Int,
+    exercises: [PracticeExerciseData],
+    completedExerciseIds: Set<String>
+) -> Int {
+    if currentIndex < exercises.count - 1 {
+        for index in (currentIndex + 1)..<exercises.count where !completedExerciseIds.contains(exercises[index].id) {
+            return index
+        }
+    }
+
+    for index in exercises.indices where !completedExerciseIds.contains(exercises[index].id) {
+        return index
+    }
+
+    return currentIndex
 }

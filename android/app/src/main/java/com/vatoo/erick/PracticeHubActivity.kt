@@ -20,6 +20,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,6 +35,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -44,6 +49,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,12 +91,31 @@ private fun PracticeHubScreen(
 ) {
     var selectedLessonId by rememberSaveable { mutableStateOf<String?>(null) }
     var quotePracticeActive by rememberSaveable { mutableStateOf(false) }
+    var infoLessonId by rememberSaveable { mutableStateOf<String?>(null) }
+    var startLessonFromBeginning by rememberSaveable { mutableStateOf(false) }
+
+    infoLessonId?.let { lessonId ->
+        practiceLessons.firstOrNull { it.id == lessonId }?.let { lesson ->
+            PracticeLessonInfoDialog(
+                lesson = lesson,
+                setupSummary = lesson.setup?.let(::formatLessonSetup),
+                onDismiss = { infoLessonId = null }
+            )
+        }
+    }
+
+    fun openLesson(lessonId: String, replayFromBeginning: Boolean) {
+        selectedLessonId = lessonId
+        startLessonFromBeginning = replayFromBeginning
+        quotePracticeActive = false
+    }
 
     when (selectedLessonId) {
         null -> Unit
         else -> {
             val lesson = practiceLessons.firstOrNull { it.id == selectedLessonId }
             if (lesson != null) {
+                val lessonIndex = practiceLessons.indexOfFirst { it.id == lesson.id }
                 if (lesson.id == QUOTE_PRACTICE_LESSON_ID && quotePracticeActive) {
                     TypingGameScreen(onBack = { quotePracticeActive = false })
                     return
@@ -98,8 +123,12 @@ private fun PracticeHubScreen(
                 PracticeLessonDetailScreen(
                     preferencesManager = preferencesManager,
                     lesson = lesson,
+                    lessonIndex = lessonIndex,
+                    completedLessonIds = completedLessons,
                     isCompleted = completedLessons.contains(lesson.id),
+                    startFromBeginning = startLessonFromBeginning,
                     onBack = { selectedLessonId = null },
+                    onOpenLesson = ::openLesson,
                     onLaunchFreeform = if (lesson.isFreeform) {
                         { quotePracticeActive = true }
                     } else {
@@ -144,9 +173,9 @@ private fun PracticeHubScreen(
         ) {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Learning Path", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text("Pick a lesson", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        "Start with 6-section basics, then utility swipes, assisted one-handed typing, controller drills, and finally quote practice.",
+                        "ERICK applies the lesson setup for you so you can focus on the drill.",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
@@ -163,33 +192,42 @@ private fun PracticeHubScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (completed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                        containerColor = if (completed) CompletedLessonContainerColor else MaterialTheme.colorScheme.surface
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(lesson.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text(lesson.focus, style = MaterialTheme.typography.bodyMedium)
-                        if (!lesson.isFreeform) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(lesson.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                Text(
+                                    compactLessonSummary(lesson),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            IconButton(onClick = { infoLessonId = lesson.id }) {
+                                Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Lesson help")
+                            }
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (completed) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = CompletedLessonAccentColor
+                                )
+                            }
                             Text(
-                                "${lesson.exercises.size} guided drills covering letters, numbers, and symbols.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                lessonStatusLabel(attempted = attempted, completed = completed),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (completed) CompletedLessonAccentColor else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Text(
-                            when {
-                                completed -> "Completed"
-                                attempted -> "Attempted"
-                                else -> "Not started"
-                            },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                         Button(
-                            onClick = { selectedLessonId = lesson.id },
+                            onClick = { openLesson(lesson.id, completed) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(if (attempted) "Resume Lesson" else "Start Lesson")
+                            Text(lessonPrimaryButtonLabel(attempted = attempted, completed = completed))
                         }
                     }
                 }
@@ -203,8 +241,12 @@ private fun PracticeHubScreen(
 private fun PracticeLessonDetailScreen(
     preferencesManager: PreferencesManager,
     lesson: PracticeLesson,
+    lessonIndex: Int,
+    completedLessonIds: Set<String>,
     isCompleted: Boolean,
+    startFromBeginning: Boolean,
     onBack: () -> Unit,
+    onOpenLesson: (lessonId: String, replayFromBeginning: Boolean) -> Unit,
     onLaunchFreeform: (() -> Unit)? = null,
     onMarkAttempted: suspend () -> Unit,
     onMarkCompleted: suspend () -> Unit
@@ -221,6 +263,15 @@ private fun PracticeLessonDetailScreen(
     var hasMarkedCompleted by remember(lesson.id, isCompleted) { mutableStateOf(isCompleted) }
     var currentExerciseIndex by rememberSaveable(lesson.id) { mutableStateOf(0) }
     var completedExerciseIds by rememberSaveable(lesson.id) { mutableStateOf(emptySet<String>()) }
+    var showInfoDialog by remember { mutableStateOf(false) }
+
+    if (showInfoDialog) {
+        PracticeLessonInfoDialog(
+            lesson = lesson,
+            setupSummary = lesson.setup?.let(::formatLessonSetup),
+            onDismiss = { showInfoDialog = false }
+        )
+    }
 
     DisposableEffect(lifecycleOwner, context) {
         val observer = LifecycleEventObserver { _, event ->
@@ -234,23 +285,34 @@ private fun PracticeLessonDetailScreen(
         }
     }
 
-    LaunchedEffect(lesson.id) {
+    LaunchedEffect(lesson.id, startFromBeginning) {
         onMarkAttempted()
         applyPracticeLessonSetup(preferencesManager, lesson.setup)
         keyboardStatus.refresh()
+        if (startFromBeginning) {
+            typedText = ""
+            hasMarkedCompleted = false
+            currentExerciseIndex = 0
+            completedExerciseIds = emptySet()
+        }
     }
 
     LaunchedEffect(typedText, currentExerciseIndex, lesson.id) {
         val target = lesson.exercises.getOrNull(currentExerciseIndex)?.targetText
         if (!lesson.isFreeform && !hasMarkedCompleted && target != null && typedText.trim().equals(target, ignoreCase = true)) {
             val completedExercise = lesson.exercises[currentExerciseIndex]
-            completedExerciseIds = completedExerciseIds + completedExercise.id
+            val updatedCompletedExercises = completedExerciseIds + completedExercise.id
+            completedExerciseIds = updatedCompletedExercises
             typedText = ""
-            if (currentExerciseIndex >= lesson.exercises.lastIndex) {
+            if (updatedCompletedExercises.size == lesson.exercises.size) {
                 onMarkCompleted()
                 hasMarkedCompleted = true
             } else {
-                currentExerciseIndex += 1
+                currentExerciseIndex = findNextIncompleteExerciseIndex(
+                    currentIndex = currentExerciseIndex,
+                    exercises = lesson.exercises,
+                    completedExerciseIds = updatedCompletedExercises
+                )
             }
         }
     }
@@ -258,25 +320,21 @@ private fun PracticeLessonDetailScreen(
     val currentExercise = lesson.exercises.getOrNull(currentExerciseIndex)
     val lessonSetup = lesson.setup
     val recommendedSetup = lessonSetup?.let(::formatLessonSetup)
-    val currentSetup = formatLessonSetup(
-        PracticeLessonSetup(
-            sixSectionDial = sixSectionDial,
-            layoutType = layoutType,
-            inputMode = inputMode
-        )
-    )
     val setupMatchesLesson = lessonSetup?.let {
         it.sixSectionDial == sixSectionDial && it.layoutType == layoutType && it.inputMode == inputMode
     } ?: true
     val keyboardActionLabel = when {
         !keyboardStatus.isEnabled -> "Enable ERICK"
-        keyboardStatus.isCurrent -> "Keyboard Picker"
         else -> "Switch to ERICK"
     }
-    val keyboardStatusText = when {
-        !keyboardStatus.isEnabled -> "ERICK is not enabled in the system keyboard list yet."
-        !keyboardStatus.isCurrent -> "ERICK is enabled, but it is not the active keyboard for the practice field below."
-        else -> "ERICK is active for this lesson. Keep the practice field focused while you drill."
+    val showKeyboardAction = !keyboardStatus.isCurrent
+    val showSetupAction = !setupMatchesLesson
+    val previousLesson = practiceLessons.getOrNull(lessonIndex - 1)
+    val nextLesson = practiceLessons.getOrNull(lessonIndex + 1)
+    val completedPartsLabel = if (lesson.isFreeform) {
+        "Freeform practice"
+    } else {
+        "${completedExerciseIds.size} of ${lesson.exercises.size} parts done"
     }
 
     Scaffold(
@@ -286,6 +344,16 @@ private fun PracticeLessonDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        context.startActivity(Intent(context, SettingsActivity::class.java))
+                    }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
+                    IconButton(onClick = { showInfoDialog = true }) {
+                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Lesson help")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -306,85 +374,43 @@ private fun PracticeLessonDetailScreen(
         ) {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(lesson.focus, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    lesson.instructions.forEachIndexed { index, instruction ->
-                        Text("${index + 1}. $instruction", style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Text(lesson.successHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Lesson Setup", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(
+                        if (lesson.isFreeform) "Advanced practice" else "Part ${currentExerciseIndex + 1} of ${lesson.exercises.size}",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        currentExercise?.title ?: lesson.focus,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(completedPartsLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (recommendedSetup != null) {
-                        Text("Recommended: $recommendedSetup", style = MaterialTheme.typography.bodyMedium)
+                        Text(recommendedSetup, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text(
-                        if (setupMatchesLesson) "Current keyboard preset already matches this lesson." else "Current keyboard preset: $currentSetup",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        keyboardStatusText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
                 }
             }
 
             if (!lesson.isFreeform) {
                 Card {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Guided Drills", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                        lesson.exercises.forEachIndexed { index, exercise ->
-                            val statusLabel = when {
-                                completedExerciseIds.contains(exercise.id) -> "Done"
-                                index == currentExerciseIndex && !hasMarkedCompleted -> "Current"
-                                else -> "Next"
-                            }
-                            Text(
-                                "${index + 1}. ${exercise.title} - $statusLabel",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = if (statusLabel == "Done") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
-
-                Card {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            if (hasMarkedCompleted) "Lesson Complete" else "Drill ${currentExerciseIndex + 1} of ${lesson.exercises.size}",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold
-                        )
                         currentExercise?.let { exercise ->
-                            Text(exercise.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Text(exercise.coaching, style = MaterialTheme.typography.bodyMedium)
                             Text(exercise.targetText, style = MaterialTheme.typography.headlineMedium)
                         }
                         OutlinedTextField(
                             value = typedText,
                             onValueChange = { typedText = it },
-                            label = { Text("Type the drill target here") },
+                            label = { Text("Type here") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
-                        if (hasMarkedCompleted) {
-                            Text(
-                                "Lesson complete. You can replay the drills, switch presets, or go back to the hub.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
                     }
                 }
             } else {
                 Card {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Advanced Freeform Mode", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                        Text("Launch the quote practice experience when you want longer sessions.", style = MaterialTheme.typography.bodyMedium)
+                        Text("Launch longer freeform quote practice when you are ready.", style = MaterialTheme.typography.bodyMedium)
                         if (onLaunchFreeform != null) {
                             Button(onClick = onLaunchFreeform, modifier = Modifier.fillMaxWidth()) {
                                 Text("Launch Quote Practice")
@@ -394,95 +420,202 @@ private fun PracticeLessonDetailScreen(
                 }
             }
 
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Lesson Actions", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                        val stackActions = maxWidth < 420.dp
-                        if (stackActions) {
-                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Button(
+            if (showKeyboardAction || showSetupAction) {
+                val actionButtons = buildList {
+                    if (showKeyboardAction) {
+                        add(
+                            PracticeActionButton(
+                                label = keyboardActionLabel,
+                                emphasized = true,
+                                onClick = {
+                                    if (keyboardStatus.isEnabled) {
+                                        showKeyboardPicker(context)
+                                    } else {
+                                        context.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
+                                    }
+                                }
+                            )
+                        )
+                    }
+                    if (showSetupAction) {
+                        add(
+                            PracticeActionButton(
+                                label = "Apply Setup",
+                                emphasized = false,
+                                onClick = {
+                                    scope.launch {
+                                        applyPracticeLessonSetup(preferencesManager, lesson.setup)
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+                PracticeActionRow(actionButtons)
+            }
+
+            if (!hasMarkedCompleted && !lesson.isFreeform && lesson.exercises.size > 1) {
+                val drillButtons = buildList {
+                    if (currentExerciseIndex > 0) {
+                        add(
+                            PracticeActionButton(
+                                label = "Previous Part",
+                                emphasized = false,
+                                onClick = {
+                                    currentExerciseIndex -= 1
+                                    typedText = ""
+                                }
+                            )
+                        )
+                    }
+                    if (currentExerciseIndex < lesson.exercises.lastIndex) {
+                        add(
+                            PracticeActionButton(
+                                label = "Next Part",
+                                emphasized = true,
+                                onClick = {
+                                    currentExerciseIndex += 1
+                                    typedText = ""
+                                }
+                            )
+                        )
+                    }
+                }
+                if (drillButtons.isNotEmpty()) {
+                    PracticeActionRow(drillButtons)
+                }
+            }
+
+            if (hasMarkedCompleted) {
+                Card(colors = CardDefaults.cardColors(containerColor = CompletedLessonContainerColor)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Lesson complete", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = CompletedLessonAccentColor)
+                        val completionButtons = buildList {
+                            add(
+                                PracticeActionButton(
+                                    label = "Replay Lesson",
+                                    emphasized = false,
                                     onClick = {
-                                        if (keyboardStatus.isEnabled) {
-                                            showKeyboardPicker(context)
-                                        } else {
-                                            context.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
+                                        typedText = ""
+                                        hasMarkedCompleted = false
+                                        currentExerciseIndex = 0
+                                        completedExerciseIds = emptySet()
+                                    }
+                                )
+                            )
+                            nextLesson?.let { targetLesson ->
+                                add(
+                                    PracticeActionButton(
+                                        label = "Next Lesson",
+                                        emphasized = true,
+                                        onClick = {
+                                            onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id))
                                         }
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text(keyboardActionLabel)
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        context.startActivity(Intent(context, SettingsActivity::class.java))
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Lesson Settings")
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        scope.launch {
-                                            applyPracticeLessonSetup(preferencesManager, lesson.setup)
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Reapply Setup")
-                                }
-                            }
-                        } else {
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                                Button(
-                                    onClick = {
-                                        if (keyboardStatus.isEnabled) {
-                                            showKeyboardPicker(context)
-                                        } else {
-                                            context.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(keyboardActionLabel)
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        context.startActivity(Intent(context, SettingsActivity::class.java))
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Lesson Settings")
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        scope.launch {
-                                            applyPracticeLessonSetup(preferencesManager, lesson.setup)
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Reapply Setup")
-                                }
+                                    )
+                                )
                             }
                         }
+                        PracticeActionRow(completionButtons)
                     }
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
-                    Text("Back to Hub")
+            val lessonButtons = buildList {
+                previousLesson?.let { targetLesson ->
+                    add(
+                        PracticeActionButton(
+                            label = "Previous Lesson",
+                            emphasized = false,
+                            onClick = { onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id)) }
+                        )
+                    )
                 }
-                if (!lesson.isFreeform) {
-                    Button(onClick = { typedText = "" }, modifier = Modifier.weight(1f)) {
-                        Text("Clear Drill")
+                if (!hasMarkedCompleted) {
+                    nextLesson?.let { targetLesson ->
+                        add(
+                            PracticeActionButton(
+                                label = "Next Lesson",
+                                emphasized = true,
+                                onClick = { onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id)) }
+                            )
+                        )
                     }
+                }
+            }
+            if (lessonButtons.isNotEmpty()) {
+                PracticeActionRow(lessonButtons)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PracticeLessonInfoDialog(
+    lesson: PracticeLesson,
+    setupSummary: String?,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(lesson.title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(lesson.focus, style = MaterialTheme.typography.bodyMedium)
+                if (setupSummary != null) {
+                    Text("Setup: $setupSummary", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+                }
+                lesson.instructions.forEach { instruction ->
+                    Text("• $instruction", style = MaterialTheme.typography.bodySmall)
+                }
+                Text(lesson.successHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
+}
+
+@Composable
+private fun PracticeActionRow(buttons: List<PracticeActionButton>) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val stackButtons = maxWidth < 420.dp || buttons.size > 2
+        if (stackButtons) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                buttons.forEach { button ->
+                    PracticeActionButtonView(button = button, modifier = Modifier.fillMaxWidth())
+                }
+            }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                buttons.forEach { button ->
+                    PracticeActionButtonView(button = button, modifier = Modifier.weight(1f))
                 }
             }
         }
     }
 }
+
+@Composable
+private fun PracticeActionButtonView(button: PracticeActionButton, modifier: Modifier = Modifier) {
+    if (button.emphasized) {
+        Button(onClick = button.onClick, modifier = modifier) {
+            Text(button.label)
+        }
+    } else {
+        OutlinedButton(onClick = button.onClick, modifier = modifier) {
+            Text(button.label)
+        }
+    }
+}
+
+private data class PracticeActionButton(
+    val label: String,
+    val emphasized: Boolean,
+    val onClick: () -> Unit
+)
 
 private data class KeyboardStatusState(
     val isEnabled: Boolean,
@@ -540,6 +673,56 @@ private fun formatLessonSetup(setup: PracticeLessonSetup): String {
     }
     return "$dialLabel • $layoutLabel • $inputLabel"
 }
+
+private fun compactLessonSummary(lesson: PracticeLesson): String {
+    if (lesson.isFreeform) {
+        return "Freeform quote practice"
+    }
+
+    val setup = lesson.setup ?: return "${lesson.exercises.size} parts"
+    val dialLabel = if (setup.sixSectionDial) "6-section" else "8-section"
+    val inputLabel = when (setup.inputMode) {
+        PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
+        PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
+        else -> "Quick Type"
+    }
+    return "${lesson.exercises.size} parts • $dialLabel • $inputLabel"
+}
+
+private fun lessonStatusLabel(attempted: Boolean, completed: Boolean): String = when {
+    completed -> "Completed"
+    attempted -> "In progress"
+    else -> "Not started"
+}
+
+private fun lessonPrimaryButtonLabel(attempted: Boolean, completed: Boolean): String = when {
+    completed -> "Replay Lesson"
+    attempted -> "Continue Lesson"
+    else -> "Start Lesson"
+}
+
+private fun findNextIncompleteExerciseIndex(
+    currentIndex: Int,
+    exercises: List<PracticeExercise>,
+    completedExerciseIds: Set<String>
+): Int {
+    for (index in currentIndex + 1..exercises.lastIndex) {
+        if (!completedExerciseIds.contains(exercises[index].id)) {
+            return index
+        }
+    }
+
+    for (index in exercises.indices) {
+        if (!completedExerciseIds.contains(exercises[index].id)) {
+            return index
+        }
+    }
+
+    return currentIndex
+}
+
+private val CompletedLessonContainerColor = Color(0xFFE6F4EA)
+private val CompletedLessonAccentColor = Color(0xFF2E7D32)
 
 private fun showKeyboardPicker(context: Context) {
     val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
