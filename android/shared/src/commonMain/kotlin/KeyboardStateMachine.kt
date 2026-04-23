@@ -170,6 +170,10 @@ class KeyboardStateMachine(
         return processor.getDirections()
     }
 
+    fun getPreviewDirections(): List<Direction> {
+        return processor.getPreviewDirections()
+    }
+
     private fun normalizeControllerStick(x: Float, y: Float): ControllerStickInput {
         val clampedX = x.coerceIn(-1f, 1f)
         val clampedY = (y * controllerYAxisMultiplier).coerceIn(-1f, 1f)

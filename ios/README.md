@@ -6,6 +6,8 @@ This folder contains the iOS implementation of ERICK, the Ergonomic Radial Inclu
 
 ERICK iOS is a Custom Keyboard Extension that replaces tiny on-screen keys with two large directional controls. Users type by combining directional swipes into character chords. The iOS build supports touch input, physical game controllers, prediction features, accessibility options, and shared keyboard behavior through the Kotlin Multiplatform `SharedKeyboard.xcframework`.
 
+The iOS App Store release is coming soon. Current iOS distribution is through local or development builds from Xcode.
+
 This build is especially relevant for:
 
 - developers working on the iOS keyboard extension

@@ -1,0 +1,230 @@
+# ERICK-141 - AI-First Repository Hardening
+
+| Field | Value |
+|---|---|
+| **Type** | Tech Debt / Developer Experience |
+| **Priority** | High |
+| **Story Points** | 8 |
+| **Assignee** | Vatsal Unadkat |
+| **Sprint** | Completed on `ERICK-141` |
+| **Parent Epic** | ERICK-42 Keyboard UI & Visual Design |
+| **Labels** | ai-first, docs, maintainability, android, ios, shared |
+| **Dependencies** | Merge `main` first and preserve the shipped rotated 6-section behavior |
+
+---
+
+## Objective
+
+Make the repository safer for AI models and coding agents with mixed reasoning quality. Optimize for correctness, small edit surfaces, clear source-of-truth files, and explicit validation paths. Favor accuracy over speed.
+
+---
+
+## Audit Summary
+
+| Finding | Evidence | Risk for AI Agents |
+|---|---|---|
+| AI-facing docs drifted from shipped 6-section behavior | `PROJECT_PROMPT.md`, `User_Guide.md`, and ticket docs described the earlier unrotated mapping | Agents implement or test the wrong gestures |
+| Large multi-concern UI files are hard to edit locally | `SettingsScreen.kt` 1595 lines, `SettingsView.swift` 1156, `KeyboardViewController.swift` 1045, `JoystickView.kt` 1012 | Lower-context agents make broad or ambiguous edits |
+| Shared tests were thin and had stale 6-section expectations | `KeyboardLogicTest.kt` still asserted `N = Shift` and `NW = Symbols` before this branch update | Behavior regressions can pass casual review |
+| An Android-local `KeyboardLogic.kt` shadow existed before cleanup | The file was unreferenced, diverged from current shared behavior, and has now been removed on this branch | Agents could patch the wrong logic surface without this cleanup |
+| Architecture context is duplicated | `APP_CONTEXT.md` exists at repo root and under `docs/documentation/` | Documentation drift and double-update failures |
+| Generated artifacts create noisy diffs | `android/app/release/baselineProfiles/*.dm` showed up as local changes during the merge | Agents may waste time or accidentally stage generated files |
+
+---
+
+## Completed In This Branch
+
+- Merged `origin/main` into `ERICK-141` and resolved the 6-section conflicts in favor of the shipped rotated geometry.
+- Added `AGENTS.md` as a short, AI-first repo entrypoint.
+- Updated `.github/copilot-instructions.md`, `README.md`, and `PROJECT_PROMPT.md` to point agents to the new quick-start path.
+- Corrected the shared 6-section test expectations in `KeyboardLogicTest.kt`.
+- Corrected the main end-user and AI-facing 6-section mapping docs.
+- Removed the unused Android-local `KeyboardLogic.kt` shadow after cross-checking that Android app files import `com.vatoo.erick.shared.Direction` and runtime behavior flows through the shared module.
+- Canonicalized `APP_CONTEXT.md`: the repo-root file is now the source of truth and `docs/documentation/APP_CONTEXT.md` is explicitly marked as a mirrored copy.
+- Split Android settings into a small navigation wrapper plus extracted screen files, with `MainSettingsContent.kt` holding the main settings UI.
+- Split Android host-app home UI out of `MainActivity.kt` into `MainScreenContent.kt` and removed two unused setup-helper composables.
+- Started the iOS extension settings split by extracting palette and custom-layout views out of `ios/ERICK/ErickKeyBoard/SettingsView.swift`.
+- Split the iOS extension controller-adjacent SwiftUI layers by extracting `KeyboardViewModel.swift` and `KeyboardContainerView.swift` out of `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift`.
+- Updated the public docs and live website to point Android installs to Google Play and mark the iOS App Store release as coming soon.
+- Completed the Android joystick split by extracting text-fitting, label-mapping, icon-drawing, and color helpers into `JoystickDrawingUtils.kt`, left-dial character placement into `JoystickCharacterRenderer.kt`, left-dial section/ring drawing into `JoystickSectionRenderer.kt`, and right-dial segment/icon/label rendering into `JoystickRightDialRenderer.kt`.
+- Expanded shared validation coverage with 6-section boundary and utility-swipe assertions in `KeyboardLogicTest.kt` and added `KeyboardStateMachineTest.kt` coverage for symbols toggling and mode transitions.
+- Added shared regression coverage for suggestion acceptance, accelerating backspace, and assisted controller input locking in `KeyboardStateMachineTest.kt`.
+- Corrected the documented Android shared test task to `:shared:testAndroidHostTest`.
+- Fixed Android controller-assisted single-handed input lock syncing and 6-section preview ordering while keeping the shared tests and Android debug build green.
+- Added a lightweight perfect-quote celebration to the iOS typing game with clean Swift editor diagnostics on Windows.
+
+---
+
+## Phase 0: Immediate Hardening
+
+- [x] Add a short canonical AI guide (`AGENTS.md`)
+- [x] Encode the shipped rotated 6-section mapping in the main AI-facing docs
+- [x] Correct stale shared test expectations
+- [x] Expand Copilot instructions with high-risk files and generated-artifact rules
+- [x] Replace the narrow file-splitting ticket with a broader AI-first plan
+
+---
+
+## Phase 1: Canonical Context Cleanup
+
+### Goal
+
+Reduce the number of places an agent has to read before it can identify the correct edit surface.
+
+### Tasks
+
+1. Choose one authoritative architecture document.
+2. Make the duplicate `docs/documentation/APP_CONTEXT.md` explicitly mirrored or generated from the root copy.
+3. Keep `AGENTS.md` short and operational; keep `PROJECT_PROMPT.md` and `APP_CONTEXT.md` deeper and more descriptive.
+4. Add a lightweight docs-sync checklist whenever behavior, layout mappings, or architecture changes.
+
+### Deliverables
+
+- A clearly documented source of truth for architecture
+- A mirrored-doc update rule or generation step
+- Fewer contradictory descriptions of the same feature
+
+---
+
+## Phase 2: Reduce Edit Surface Area
+
+### Goal
+
+Split only the files whose size and mixed responsibilities create the highest risk for incorrect AI edits.
+
+### Priority Targets
+
+#### Android `SettingsScreen.kt` (1595 lines)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `SettingsScreen.kt` | Main settings screen and shared row components |
+| `CustomPaletteEditorScreen.kt` | Custom palette editor screen |
+| `CustomLayoutListScreen.kt` | Custom layout list screen |
+| `CustomLayoutEditorScreen.kt` | Custom layout editor, swipe binding row, binding editor |
+
+Status: Completed on `ERICK-141` with `MainSettingsContent.kt`, `CustomPaletteEditorScreen.kt`, `CustomLayoutListScreen.kt`, and `CustomLayoutEditorScreen.kt` extracted.
+
+#### Android `MainActivity.kt` (685 lines before split)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `MainActivity.kt` | Activity lifecycle, theme wiring, and keyboard-enabled status checks |
+| `MainScreenContent.kt` | Home screen content, setup cards, and controller status UI |
+
+Status: Completed on `ERICK-141`; the unused `InstructionStep` helpers were removed instead of being carried forward.
+
+#### iOS `ErickKeyBoard/SettingsView.swift` (1156 lines)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `SettingsView.swift` | Main settings view and section helpers |
+| `ColorPaletteComponents.swift` | Palette definitions and palette UI components |
+| `CustomPaletteEditorView.swift` | Custom palette editor |
+| `CustomLayoutViews.swift` | Custom layout list and editor views |
+
+Status: Code split completed on `ERICK-141`; `SettingsView.swift` is down to 443 lines with `ColorPaletteComponents.swift`, `CustomPaletteEditorView.swift`, and `CustomLayoutViews.swift` extracted. macOS-side iOS build validation is still pending because this branch work is being done on Windows.
+
+#### iOS `KeyboardViewController.swift` (1045 lines)
+
+Split into:
+
+| New File | Contents |
+|---|---|
+| `KeyboardViewModel.swift` | ObservableObject visual state holder |
+| `KeyboardContainerView.swift` | SwiftUI keyboard container, preview bar, and suggestion bar |
+| `KeyboardViewController.swift` | UIInputViewController and delegate integration |
+
+Status: Code split completed on `ERICK-141`; `KeyboardViewController.swift` is down to 762 lines with `KeyboardViewModel.swift` and `KeyboardContainerView.swift` extracted. Editor diagnostics are clean on the touched Swift files, and macOS-side iOS build validation remains pending on non-Windows hardware.
+
+#### Android `JoystickView.kt` (1012 lines)
+
+Extract pure drawing helpers into:
+
+| New File | Contents |
+|---|---|
+| `JoystickDrawingUtils.kt` | Text fitting, icon drawing, color darkening, label splitting |
+| `JoystickCharacterRenderer.kt` | Left-dial character placement and text fitting |
+| `JoystickSectionRenderer.kt` | Left-dial section fills, separator geometry, and borders |
+| `JoystickRightDialRenderer.kt` | Right-dial segment fills, labels, icons, and content layout |
+
+Status: Completed on `ERICK-141`; `JoystickView.kt` is down to 490 lines with `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, `JoystickSectionRenderer.kt`, and `JoystickRightDialRenderer.kt` extracted. The view now focuses on state, mode-specific map selection, sizing, thumb handling, and top-level invalidation/orchestration.
+
+### Guardrail
+
+These refactors must remain behavior-preserving. No feature work should be mixed into the split.
+
+---
+
+## Phase 3: Validation Hardening
+
+### Goal
+
+Make it easier for agents to prove they changed the right thing.
+
+### Tasks
+
+1. Expand shared tests around 6-section direction detection and single-swipe actions.
+2. Add focused tests for `KeyboardStateMachine` symbols toggling and mode transitions.
+3. Document the preferred validation commands in one place.
+4. Record smoke-test paths for settings, typing, controller input, and the typing game.
+
+Status: Completed on `ERICK-141` for the Windows-available validation path. Tasks 1 and 2 now have shared automated coverage, task 3 is covered in `AGENTS.md`, and task 4 is recorded below as a manual smoke checklist for cross-platform follow-up on Apple hardware.
+
+### Minimum Validation Matrix
+
+- Android shared tests: `cd android && .\gradlew.bat :shared:testAndroidHostTest`
+- Android debug build: `cd android && .\gradlew.bat assembleDebug`
+- Rebuild iOS shared framework: `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
+- iOS build: build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`
+
+### Latest Validation Snapshot
+
+- 2026-04-22 Windows rerun: `:shared:testAndroidHostTest` passed after the new controller-assisted regression coverage and backspace/suggestion tests.
+- 2026-04-22 Windows rerun: `assembleDebug` passed after the IME controller-lock and 6-section preview fixes.
+- 2026-04-22 Windows rerun: `assembleSharedKeyboardXCFramework` returned `BUILD SUCCESSFUL`; Apple-target framework slices were skipped on this machine, so the Xcode build/smoke pass remains a separate macOS validation step.
+
+### Manual Smoke-Test Paths
+
+- Settings: Android host app -> open Settings -> toggle 8-section/6-section mode, palette, layout type, and controller dead zone; confirm previews and persisted preferences still update without crashes.
+- Typing: Enable the ERICK IME -> verify 6-section right-only swipes (`NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols) and at least one normal, shifted, and symbols chord.
+- Controller input: Connect a controller -> move each stick through all active directions, verify dead-zone behavior, confirm right-stick backspace hold still accelerates correctly, and confirm left-handed mode flips effective sides.
+- Typing game: On the iOS/macOS validation pass, open the host app typing demo and `TypingGameView`, confirm shared-framework updates load, and verify no regression in preview text or suggestion behavior while typing.
+
+---
+
+## Phase 4: Cleanup Backlog
+
+### Items To Investigate
+
+| Item | Scope | Why It Matters |
+|---|---|---|
+| Decide how to handle tracked baseline profile `.dm` files | Android release artifacts | They create noisy diffs and merge friction |
+| Review whether host-app `SettingsView.swift` needs later splitting | iOS | The host app still has large UI surfaces outside the extension targets |
+| Add an explicit “generated artifact” section to contributor docs | Repo-wide | Helps agents and humans avoid editing derived files |
+
+---
+
+## Findings To Preserve For Future Agents
+
+- The shipped 6-section utility mapping is `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols.
+- Shared logic is the canonical source for behavior changes.
+- The old Android-local `KeyboardLogic.kt` shadow has been removed; behavior changes should start in `android/shared/src/commonMain/kotlin/`.
+- Large-file refactors should be isolated from behavior changes.
+- Documentation updates must travel with mapping changes.
+
+---
+
+## Acceptance Criteria
+
+1. A new AI agent can start from `AGENTS.md` and identify the correct code path within a few reads.
+2. The main AI-facing docs describe the shipped 6-section mapping correctly.
+3. `ERICK-141` contains a concrete, phased plan for context cleanup, large-file splitting, validation, and cleanup debt.
+4. High-risk stale sources and generated-artifact traps are documented explicitly.
+5. Shared test coverage reflects the shipped rotated 6-section behavior.

@@ -1,5 +1,9 @@
 # ERICK - Full Project Context for AI Assistants
 
+## 0. AI Quick Start
+
+Start with `AGENTS.md` for the shortest repo-specific workflow, validation commands, known drift, and high-risk files. Use this document for deeper architecture and product context after that quick pass.
+
 ## 1. What Is ERICK?
 
 **ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** - a combination of a left-stick direction and a right-stick direction. In the default 8-section mode, 8 directions each yield 64 chord slots. An optional 6-section mode uses 6 directions (60-degree segments) for 36 chord slots with larger, easier-to-target segments. Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
@@ -7,6 +11,7 @@
 **Current version**: 1.0  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
 **License**: ERICK Source Available License 1.0  
+**Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.  
 **Privacy stance**: 100% offline, zero data collection, no internet permissions, COPPA/GDPR/CCPA compliant.
 
 ---
@@ -120,7 +125,7 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 | Feature | Details |
 |---------|---------|
 | **Dual-joystick chorded input** | 64 chord combinations (8-section) or 36 (6-section) for letters, single-swipe for actions |
-| **Optional 6-section dial mode** | 6 directions at 60-degree intervals, larger targets, dedicated symbols layer via NW toggle |
+| **Optional 6-section dial mode** | 6 directions at 60-degree intervals, larger targets, dedicated symbols layer via N single-swipe toggle |
 | **Physical controller support** | DualShock 4, Xbox, 8BitDo, etc. via Bluetooth. Left/right analog sticks map to left/right dials |
 | **Word prediction** | Trie + bigrams, 3 suggestion strip, tap to accept |
 | **Autocorrect** | Levenshtein edit-distance matching |
@@ -143,7 +148,7 @@ All core logic lives in `android/shared/src/commonMain/kotlin/` and compiles to:
 
 ```
 ERICKeyboard/
-├── APP_CONTEXT.md              # Detailed architecture doc (Mermaid diagrams, class hierarchies)
+├── APP_CONTEXT.md              # Canonical architecture doc (Mermaid diagrams, class hierarchies)
 ├── CHANGELOG.md                # Version history
 ├── README.md                   # Project overview
 ├── PROJECT_PROMPT.md           # This file - AI context prompt
@@ -180,7 +185,7 @@ ERICKeyboard/
 │   ├── css/style.css           # Pastel color palette, responsive design
 │   ├── js/main.js              # Theme toggle, font controls, scroll animations
 │   └── documentation/
-│       ├── APP_CONTEXT.md      # Copy of architecture doc
+│       ├── APP_CONTEXT.md      # Mirrored architecture copy for docs navigation
 │       ├── User_Guide.md       # End-user guide
 │       ├── Jira/               # Sprint tickets, retrospectives
 │       ├── Research/           # Layout optimization research, academic references

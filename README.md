@@ -10,11 +10,13 @@
     Type with touch or a physical game controller, get offline word prediction, and keep every keystroke on your own device.
     <br />
     <br />
-    <a href="docs/documentation/APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
+    <a href="APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
     ·
     <a href="docs/documentation/User_Guide.md"><strong>User Guide</strong></a>
     ·
     <a href="docs/documentation/Research/README.md"><strong>Research</strong></a>
+    ·
+    <a href="AGENTS.md"><strong>AI Agent Guide</strong></a>
     ·
     <a href="CHANGELOG.md"><strong>Changelog</strong></a>
     <br />
@@ -59,7 +61,12 @@ ERICK is built around the idea that accessibility should improve the product for
 
 [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#) [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#) [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#) [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#) [![Kotlin Multiplatform](https://img.shields.io/badge/KMP-7F52FF?logo=kotlin&logoColor=white)](#) [![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?logo=swift&logoColor=white)](#) [![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](#)
 
-Deployed on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](#) (Coming Soon) and [![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](#) (Coming Soon)
+Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.vatoo.erick). The iOS App Store release is coming soon.
+
+## Availability
+
+- Android: Install ERICK from [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
+- iOS: App Store release coming soon. Source builds remain available from the Xcode project under `ios/`.
 
 ## Features
 
@@ -106,14 +113,14 @@ ERICK/
 │   └── README.md                iOS setup guide
 ├── docs/                        Website and documentation
 │   ├── documentation/
-│   │   ├── APP_CONTEXT.md
+│   │   ├── APP_CONTEXT.md      Mirrored architecture copy for docs navigation
 │   │   ├── User_Guide.md
 │   │   ├── Jira/
 │   │   └── Research/
 │   ├── index.html
 │   ├── accessibility.html
 │   └── privacy-policy.html
-├── APP_CONTEXT.md               Root architecture copy
+├── APP_CONTEXT.md               Canonical architecture doc
 ├── CHANGELOG.md
 ├── PROJECT_PROMPT.md
 └── README.md
@@ -143,7 +150,8 @@ ERICK/
 
 | Document | Description |
 | --- | --- |
-| [APP_CONTEXT.md](docs/documentation/APP_CONTEXT.md) | Architecture, class diagrams, sequence diagrams, and component docs |
+| [AGENTS.md](AGENTS.md) | Short AI-first workflow, validation commands, and hotspot guide |
+| [APP_CONTEXT.md](APP_CONTEXT.md) | Canonical architecture, class diagrams, sequence diagrams, and component docs |
 | [User Guide](docs/documentation/User_Guide.md) | End-user guide for typing, settings, accessibility, and troubleshooting |
 | [Research](docs/documentation/Research/README.md) | Research notes, layout optimization, and academic references |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |

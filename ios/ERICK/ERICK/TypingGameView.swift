@@ -15,6 +15,8 @@ struct TypingGameView: View {
     @State private var totalCharsTyped: Int = 0
     @State private var wpm: Double = 0.0
     @State private var quoteOrder: [Int] = Array(0..<TypingGameView.quotes.count).shuffled()
+    @State private var showCelebration: Bool = false
+    @State private var celebrationTrigger: Int = 0
     @FocusState private var isInputFocused: Bool
     
     @State private var wpmTimer: Timer? = nil
@@ -174,7 +176,7 @@ struct TypingGameView: View {
                 .focused($isInputFocused)
                 .frame(width: 1, height: 1)
                 .opacity(0.01)
-                
+
                 Button(action: skipQuote) {
                     Text("Skip Quote")
                         .font(.subheadline)
@@ -194,6 +196,19 @@ struct TypingGameView: View {
                     .padding(.bottom, 24)
             }
             .padding(.horizontal, 20)
+
+            if showCelebration {
+                VStack(spacing: 10) {
+                    CelebrationConfettiView(trigger: celebrationTrigger)
+                        .frame(width: 180, height: 70)
+                        .allowsHitTesting(false)
+
+                    celebrationOverlay
+                }
+                .padding(.top, 28)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .allowsHitTesting(false)
+            }
         }
         .navigationTitle("Typing Practice")
         .navigationBarTitleDisplayMode(.inline)
@@ -258,41 +273,60 @@ struct TypingGameView: View {
             isInputFocused = true
         }
     }
-    
+
     // MARK: - Quote Display
-    
+
     private var quoteDisplay: some View {
         let chars = Array(currentQuote)
         let typedChars = Array(typedText)
-        let hasError = typedChars.indices.contains(where: { i in
-            i < chars.count && typedChars[i] != chars[i]
+        let hasError = typedChars.indices.contains(where: { index in
+            index < chars.count && typedChars[index] != chars[index]
         })
-        
+
         return WrappingHStack(quote: currentQuote, typedText: typedText)
             .modifier(ShakeModifier(isShaking: hasError))
     }
-    
+
     // MARK: - Celebration
-    
+
     private var celebrationOverlay: some View {
-        VStack(spacing: 8) {
-            Text("✨")
-                .font(.system(size: 48))
-            Text("Well done!")
-                .font(.title2)
-                .fontWeight(.bold)
-            Text("Next quote loading...")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+        HStack(spacing: 10) {
+            Image(systemName: "sparkles")
+                .font(.headline)
+                .foregroundColor(.accentColor)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Perfect quote")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Text("Small win. Keep the streak going.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
-        .padding(32)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            Capsule(style: .continuous)
                 .fill(Color(uiColor: .secondarySystemGroupedBackground))
-                .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+                .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
         )
     }
-    
+
+    private func triggerCelebration() {
+        celebrationTrigger += 1
+
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            showCelebration = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            withAnimation(.easeOut(duration: 0.2)) {
+                showCelebration = false
+            }
+        }
+    }
+
     // MARK: - Input Processing
     
     private func skipQuote() {
@@ -337,6 +371,7 @@ struct TypingGameView: View {
             let isFullyCorrect = typedText == quote
             if isFullyCorrect && !currentQuoteHasError {
                 streak += 1
+                triggerCelebration()
             } else {
                 streak = 0
             }
@@ -412,6 +447,51 @@ struct WrappingHStack: View {
             result.append(attrChar)
         }
         return result
+    }
+}
+
+// MARK: - Celebration Confetti
+
+private struct CelebrationConfettiView: View {
+    let trigger: Int
+
+    private let particles: [(x: CGFloat, y: CGFloat, color: Color)] = [
+        (-68, -26, .yellow),
+        (-54, -8, .orange),
+        (-38, -34, .pink),
+        (-22, -18, .blue),
+        (-8, -30, .mint),
+        (8, -28, .purple),
+        (24, -12, .green),
+        (40, -32, .red),
+        (56, -10, .teal),
+        (70, -24, .cyan)
+    ]
+
+    @State private var animate = false
+
+    var body: some View {
+        ZStack {
+            ForEach(Array(particles.enumerated()), id: \.offset) { index, particle in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(particle.color)
+                    .frame(width: 6, height: 10)
+                    .rotationEffect(.degrees(Double(index * 24) + (animate ? 120 : 0)))
+                    .offset(
+                        x: animate ? particle.x : 0,
+                        y: animate ? particle.y : -4
+                    )
+                    .opacity(animate ? 0 : 1)
+                    .scaleEffect(animate ? 0.85 : 1.15)
+            }
+        }
+        .onAppear {
+            animate = false
+            withAnimation(.easeOut(duration: 0.7)) {
+                animate = true
+            }
+        }
+        .id(trigger)
     }
 }
 

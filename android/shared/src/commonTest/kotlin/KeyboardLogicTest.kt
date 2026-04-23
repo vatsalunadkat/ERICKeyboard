@@ -1,11 +1,22 @@
 package com.vatoo.erick.shared
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class KeyboardLogicTest {
 
     private val logic = KeyboardLogic()
+    private val testDelegate = object : KeyboardActionDelegate {
+        override fun commitText(text: String) = Unit
+        override fun sendInputAction(action: InputAction) = Unit
+        override fun onModeChanged(mode: KeyboardMode) = Unit
+        override fun onSuggestionsUpdated(suggestions: List<String>) = Unit
+        override fun getCurrentWordPrefix(): String = ""
+    }
+    private val testScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Test
     fun shiftedNwYellowReturnsLiteralAsterisk() {
@@ -66,39 +77,83 @@ class KeyboardLogicTest {
     }
 
     @Test
-    fun sixSection_directionDetection60Degrees() {
+    fun sixSection_directionDetectionUsesRotatedGeometry() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        // 0 degrees (pointing right) → SE in 6-section (0°-60° range, center 30°)
+        // The 6-section wheel is rotated -30° so horizontal remains the easiest utility axis.
         assertEquals(Direction.SE, logic.getDirectionFromXY(1.0f, 0.0f))
-        // 90 degrees (pointing down) → S in 6-section (60°-120° range, center 90°)
-        assertEquals(Direction.S, logic.getDirectionFromXY(0.0f, 1.0f))
-        // 270 degrees (pointing up) → N in 6-section (240°-300° range, center 270°)
-        assertEquals(Direction.N, logic.getDirectionFromXY(0.0f, -1.0f))
-        // 180 degrees (pointing left) → NW in 6-section (180°-240° range, center 210°)
+        assertEquals(Direction.S, logic.getDirectionFromXY(0.5f, 0.8660254f))
+        assertEquals(Direction.SW, logic.getDirectionFromXY(-0.5f, 0.8660254f))
         assertEquals(Direction.NW, logic.getDirectionFromXY(-1.0f, 0.0f))
+        assertEquals(Direction.N, logic.getDirectionFromXY(-0.5f, -0.8660254f))
+        assertEquals(Direction.NE, logic.getDirectionFromXY(0.5f, -0.8660254f))
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 
     @Test
-    fun sixSection_singleSwipeNorthIsShift() {
+    fun sixSection_singleSwipeNeIsShift() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        val result = logic.getSingleSwipeResult(Direction.N, KeyboardMode.NORMAL)
+        val result = logic.getSingleSwipeResult(Direction.NE, KeyboardMode.NORMAL)
         assertEquals(InputAction.TOGGLE_SHIFT, result)
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 
     @Test
-    fun sixSection_singleSwipeNWIsSymbols() {
+    fun sixSection_singleSwipeNorthIsSymbols() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        val result = logic.getSingleSwipeResult(Direction.NW, KeyboardMode.NORMAL)
+        val result = logic.getSingleSwipeResult(Direction.N, KeyboardMode.NORMAL)
         assertEquals(InputAction.TOGGLE_SYMBOLS, result)
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSection_directionDetectionHonorsBoundaryAngles() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(Direction.S, logic.getDirectionFromXY(1.0f, 0.6f))
+        assertEquals(Direction.SW, logic.getDirectionFromXY(0.0f, 1.0f))
+        assertEquals(Direction.NW, logic.getDirectionFromXY(-1.0f, 0.4f))
+        assertEquals(Direction.N, logic.getDirectionFromXY(-1.0f, -0.6f))
+        assertEquals(Direction.NE, logic.getDirectionFromXY(0.0f, -1.0f))
+        assertEquals(Direction.SE, logic.getDirectionFromXY(1.0f, -0.4f))
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSection_singleSwipeMappingPreservesRotatedUtilityWheel() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(InputAction.TOGGLE_SHIFT, logic.getSingleSwipeResult(Direction.NE, KeyboardMode.NORMAL))
+        assertEquals(InputAction.SPACE, logic.getSingleSwipeResult(Direction.SE, KeyboardMode.NORMAL))
+        assertEquals(".", logic.getSingleSwipeResult(Direction.S, KeyboardMode.NORMAL))
+        assertEquals(">", logic.getSingleSwipeResult(Direction.S, KeyboardMode.SHIFTED))
+        assertEquals(InputAction.ENTER, logic.getSingleSwipeResult(Direction.SW, KeyboardMode.NORMAL))
+        assertEquals(InputAction.BACKSPACE, logic.getSingleSwipeResult(Direction.NW, KeyboardMode.NORMAL))
+        assertEquals(InputAction.TOGGLE_SYMBOLS, logic.getSingleSwipeResult(Direction.N, KeyboardMode.NORMAL))
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSection_getDirectionsReturnsRotatedUtilityOrder() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(
+            listOf(Direction.N, Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW),
+            logic.getDirections()
+        )
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSection_getPreviewDirectionsReturnsVisualDialOrder() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(
+            listOf(Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW, Direction.N),
+            logic.getPreviewDirections()
+        )
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 
     @Test
     fun sixSection_getDirectionsReturns6() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        val stateMachine = KeyboardStateMachine()
+        val stateMachine = KeyboardStateMachine(testDelegate, testScope)
         stateMachine.setDialSectionMode(DialSectionMode.SIX_SECTION)
         assertEquals(6, stateMachine.getDirections().size)
         stateMachine.setDialSectionMode(DialSectionMode.EIGHT_SECTION)

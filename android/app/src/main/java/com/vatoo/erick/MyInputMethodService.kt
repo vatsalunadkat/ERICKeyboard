@@ -340,6 +340,9 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             rightJoystick.updateThumbFromController(rightX, rightY, controllerDeadZone)
 
             stateMachine.handleControllerInput(leftX, leftY, rightX, rightY)
+            syncAssistedLetterLock(
+                letterJoystickIsActivelyDriven = getLetterJoystick().activeDirection != Direction.NONE
+            )
             leftJoystick.keyboardMode = stateMachine.currentMode
             rightJoystick.keyboardMode = stateMachine.currentMode
             updateLivePreview()
@@ -403,13 +406,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // 3. In one-handed mode, sync the left dial to show the locked direction
         //    When the left dial is idle (not being actively touched), show the locked direction.
         //    When a chord fires and the lock clears, this resets the highlight.
-        if (stateMachine.inputMode == InputMode.ASSISTED) {
-            val letterJoystick = if (stateMachine.leftHandedMode) rightJoystick else leftJoystick
-            val isThisTheLetterJoystick = (isLeft && !stateMachine.leftHandedMode) || (!isLeft && stateMachine.leftHandedMode)
-            if (!isThisTheLetterJoystick || isUpOrCancel) {
-                letterJoystick.setLockedDirection(stateMachine.lockedLeftDir)
-            }
-        }
+        val isThisTheLetterJoystick = (isLeft && !stateMachine.leftHandedMode) || (!isLeft && stateMachine.leftHandedMode)
+        syncAssistedLetterLock(letterJoystickIsActivelyDriven = isThisTheLetterJoystick && isDownOrMove)
 
         // 4. Update the action-wheel joystick mode (whichever currently shows right-side content)
         val actionJoystick = if (stateMachine.leftHandedMode) leftJoystick else rightJoystick
@@ -497,9 +495,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val letterDir = if (isLH) rightJoystick.activeDirection else leftJoystick.activeDirection
         val colorDir  = if (isLH) leftJoystick.activeDirection  else rightJoystick.activeDirection
 
-        // Right directions matching the current dial mode (6 or 8 sections)
-        val allRightDirs = stateMachine.getDirections()
-        val isSix = stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION
+        val logicalPreviewDirs = stateMachine.getDirections()
+        val visualPreviewDirs = stateMachine.getPreviewDirections()
 
         // Determine preview data: left-dial hold, right-dial hold, or nothing
         data class PreviewChar(val text: String, val colorHex: String, val dirForColor: Direction)
@@ -507,13 +504,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         var highlightIndex = -1
 
         if (letterDir != Direction.NONE) {
-            // Left-dial hold: show all characters in that group
+            // Left-dial hold: keep characters in logical chord order even when the 6-section
+            // dial is visually rotated, so rows like a-f remain intuitive in the preview bar.
             val chars = stateMachine.getCharactersForDirection(letterDir)
-            for (i in chars.indices) {
-                val charStr = chars[i]
+            val charsByDirection = logicalPreviewDirs.mapIndexed { index, dir ->
+                dir to chars.getOrNull(index).orEmpty()
+            }.toMap()
+            for (dirForChar in logicalPreviewDirs) {
+                val charStr = charsByDirection[dirForChar].orEmpty()
                 if (charStr.isBlank()) continue
-                val dirForChar = allRightDirs.getOrNull(i) ?: Direction.NONE
-                val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(dirForChar, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
+                val colorHex = if (stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION) ColorPalettes.getColorForDirectionHex6(dirForChar, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(dirForChar, stateMachine.currentPaletteType)
                 previewChars.add(PreviewChar(charStr, colorHex, dirForChar))
                 if (dirForChar == colorDir && colorDir != Direction.NONE) {
                     highlightIndex = previewChars.size - 1
@@ -521,9 +521,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
         } else if (colorDir != Direction.NONE) {
             // Right-dial-only hold: show character at this color position across all left-dial groups
-            val positionChars = stateMachine.getCharactersAtPosition(colorDir)
-            val colorHex = if (isSix) ColorPalettes.getColorForDirectionHex6(colorDir, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
-            for ((_, ch) in positionChars) {
+            val positionCharsByDirection = stateMachine.getCharactersAtPosition(colorDir).toMap()
+            val colorHex = if (stateMachine.getDialSectionMode() == DialSectionMode.SIX_SECTION) ColorPalettes.getColorForDirectionHex6(colorDir, stateMachine.currentPaletteType) else ColorPalettes.getColorForDirectionHex(colorDir, stateMachine.currentPaletteType)
+            for (dir in visualPreviewDirs) {
+                val ch = positionCharsByDirection[dir] ?: continue
                 previewChars.add(PreviewChar(ch, colorHex, colorDir))
             }
             // No specific highlight for right-dial-only preview
@@ -602,6 +603,20 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }
 
         lastHighlightedIndex = highlightIndex
+    }
+
+    private fun getLetterJoystick(): JoystickView {
+        return if (stateMachine.leftHandedMode) rightJoystick else leftJoystick
+    }
+
+    private fun syncAssistedLetterLock(letterJoystickIsActivelyDriven: Boolean) {
+        if (stateMachine.inputMode != InputMode.ASSISTED || !::leftJoystick.isInitialized || !::rightJoystick.isInitialized) {
+            return
+        }
+
+        if (!letterJoystickIsActivelyDriven) {
+            getLetterJoystick().setLockedDirection(stateMachine.lockedLeftDir)
+        }
     }
 
     // ==========================================
