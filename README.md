@@ -159,6 +159,26 @@ ERICK/
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
 | [Sprint Archives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospectives |
 
+## AI Tooling
+
+ERICK keeps explicit instruction files for multiple coding agents. These were cross-checked against the tools' documented instruction surfaces on 2026-04-25.
+
+| Tool | Files ERICK maintains | Notes |
+| --- | --- | --- |
+| GitHub Copilot | `.github/copilot-instructions.md`, `AGENTS.md`, nested `docs/AGENTS.md` | GitHub docs also support `.github/instructions/*.instructions.md`, nested `AGENTS.md`, and root `CLAUDE.md`. ERICK keeps shared guidance in `AGENTS.md` and uses Copilot-specific overlay instructions in `.github/`. |
+| Claude Code | `CLAUDE.md`, nested `docs/CLAUDE.md` | Anthropic docs say Claude reads `CLAUDE.md`, not `AGENTS.md` directly, so ERICK imports `AGENTS.md` from `CLAUDE.md` to keep the rules aligned. |
+| Cursor | `.cursor/rules/erick-ai-first.mdc`, `AGENTS.md`, nested `docs/AGENTS.md` | Cursor project rules are the primary editor-native surface. Cursor also supports plain `AGENTS.md` files in the root and subdirectories. |
+| Codex | `AGENTS.md`, nested `docs/AGENTS.md` | OpenAI docs say Codex layers `AGENTS.md` files from the repo root down to the current working directory, with nearer files taking precedence. |
+
+Important scoped files for lower-context or weaker models:
+
+- `android/AGENTS.md` and `android/CLAUDE.md` for Android UI, IME, and screen-size guidance
+- `ios/AGENTS.md` and `ios/CLAUDE.md` for iOS keyboard-extension and host-app layout guidance
+- `docs/AGENTS.md` and `docs/CLAUDE.md` for website responsiveness, mirrored docs, and diagram updates
+- `docs/documentation/Research/AGENTS.md` and `docs/documentation/Research/CLAUDE.md` for Python research scripts and reproducible research workflow
+
+When you update shared AI workflow rules, keep these files aligned: `AGENTS.md`, `CLAUDE.md`, `android/AGENTS.md`, `android/CLAUDE.md`, `ios/AGENTS.md`, `ios/CLAUDE.md`, `docs/AGENTS.md`, `docs/CLAUDE.md`, `docs/documentation/Research/AGENTS.md`, `docs/documentation/Research/CLAUDE.md`, `.cursor/rules/erick-ai-first.mdc`, and `.github/copilot-instructions.md`.
+
 ## Contributing
 
 1. Fork the repository.

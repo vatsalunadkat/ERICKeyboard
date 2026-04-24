@@ -1,0 +1,69 @@
+---
+description: ERICK project rule for Cursor. Read AGENTS.md first, keep changes simple and local, and validate with the narrowest relevant Android or iOS check.
+alwaysApply: true
+---
+
+# ERICK AI-first rule
+
+## Start Here
+
+- Read `AGENTS.md` before broader repo docs.
+- If the task references an `ERICK-###` ticket, read the matching file in `docs/documentation/Jira/`.
+- If you are editing anything under `docs/`, also read `docs/AGENTS.md`.
+- Treat this rule as a behavioral overlay; keep it aligned with `CLAUDE.md` and `.github/copilot-instructions.md`.
+
+## Working Posture
+
+### 1. Think Before Coding
+
+- State assumptions explicitly instead of picking an interpretation silently.
+- Start from the nearest owning abstraction, test, or call site before broad repo exploration.
+- Surface tradeoffs when more than one local path looks plausible.
+
+### 2. Simplicity First
+
+- Prefer the smallest behavior-preserving change that solves the task.
+- Avoid speculative abstractions, configuration, or error handling that the request does not require.
+
+### 3. Surgical Changes
+
+- Touch only the files and lines that directly serve the task.
+- Match local style and clean up only the unused code your own change creates.
+
+### 4. Goal-Driven Execution
+
+- Name one cheap discriminating check before the first edit.
+- Run the narrowest relevant validation command, test, or diagnostic before widening scope.
+- If behavior changes, update the closest tests and docs in the same pass.
+
+## Repo Invariants
+
+- Shared typing and controller behavior lives in `android/shared/src/commonMain/kotlin/`.
+- The shipped 6-section utility mapping is `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols.
+- The 8-section and 6-section modes must both remain correct.
+- Custom layouts stay disabled in 6-section mode.
+- Avoid hand-editing generated artifacts: `android/**/build/`, `android/app/release/baselineProfiles/*.dm`, and `ios/ERICK/SharedKeyboard.xcframework/`.
+- The repo-root `APP_CONTEXT.md` is canonical; sync `docs/documentation/APP_CONTEXT.md` intentionally.
+
+## Documentation And Git Hygiene
+
+- Read the smallest canonical doc set before editing behavior, copy, or diagrams.
+- Update `APP_CONTEXT.md`, `docs/documentation/User_Guide.md`, `README.md`, `CHANGELOG.md`, or the relevant `.drawio` file when the change triggers them.
+- If git writes are enabled in the workflow, keep work on the current branch, prefer small validated commits, and use a clear commit subject plus a short validation-oriented body.
+
+## Routing Hints
+
+- Shared behavior: `KeyboardLogic.kt`, `KeyboardStateMachine.kt`, `ControllerInputProcessor.kt`, and `WordPredictionEngine.kt`
+- Android settings: `MainSettingsContent.kt`, `CustomPaletteEditorScreen.kt`, `CustomLayoutListScreen.kt`, `CustomLayoutEditorScreen.kt`
+- Android host learning flows: `MainScreenContent.kt`, `PracticeHubActivity.kt`, `HelpActivity.kt`
+- Android controller diagnostics: `ControllerDiagnosticsActivity.kt` must reuse shared `ControllerInputProcessor.kt`
+- Dial rendering: `JoystickView.kt` orchestrates state; draw helpers live in `JoystickDrawingUtils.kt`, `JoystickCharacterRenderer.kt`, `JoystickSectionRenderer.kt`, and `JoystickRightDialRenderer.kt`
+- iOS extension UI split: `KeyboardViewController.swift`, `KeyboardViewModel.swift`, `KeyboardContainerView.swift`, `SettingsView.swift`, `CustomPaletteEditorView.swift`, `CustomLayoutViews.swift`
+
+## Validation
+
+- `cd android && .\gradlew.bat :shared:testAndroidHostTest`
+- `cd android && .\gradlew.bat assembleDebug`
+- `cd android && .\gradlew.bat assembleSharedKeyboardXCFramework`
+- On Apple hardware, build the `ERICK` Xcode project after refreshing `SharedKeyboard.xcframework`
+- For docs-only work, reread the changed files and keep mirrored docs, website copy, and diagram notes consistent.
