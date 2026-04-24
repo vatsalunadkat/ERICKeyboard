@@ -86,7 +86,7 @@ Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-
 - [x] Physical controller support
 - [x] Controller diagnostics screen in the Android host app
 - [x] Seven colorblind-safe palettes plus a custom palette editor
-- [x] Haptic feedback and typing sounds
+- [x] Haptic feedback, supported controller rumble, and typing sounds
 - [x] Left-handed mode
 - [x] Light and dark theme support
 - [x] Font selection including OpenDyslexic
@@ -97,10 +97,8 @@ Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-
 ### Planned Features
 
 - [ ] Multi-language support
-- [ ] More advanced controller typing modes
+- [ ] Improved Word Prediction and User Dictionaries
 - [ ] Typing analytics and improvement tracking
-- [ ] Cloud sync for settings and custom layouts
-- [ ] Tablet-optimized layout
 
 ## Project Structure
 

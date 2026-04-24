@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Suggestion Acceptance Semantics** - Suggestion taps now use shared punctuation-aware spacing behavior instead of diverging Android/iOS platform heuristics.
 - **Expanded Shared Validation** - Added focused shared tests for controller normalization, learned prediction ranking, learned bigrams, and punctuation-aware suggestion acceptance.
 
+### Feedback & Controller
+- **Controller Rumble on Supported Hardware** - When **Haptic Feedback** is enabled, controller-originated input now also rumbles supported Android gamepads and iOS controllers that expose GameController haptics directly to the keyboard extension.
+- **Android Controller Inversion Fix** - The Android controller Y-axis inversion setting now affects actual controller typing input, not just the joystick preview state.
+
 ## [v1.0] - April 13, 2026
 
 ## What's New

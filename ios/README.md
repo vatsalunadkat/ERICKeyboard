@@ -40,6 +40,7 @@ This build is especially relevant for:
 - Physical controller support
 - Shared settings between host app and extension
 - Accessibility features such as left-handed mode, dyslexia-friendly fonts, and color palettes
+- Haptic feedback, supported controller rumble, and typing sounds
 
 ## Project Structure
 

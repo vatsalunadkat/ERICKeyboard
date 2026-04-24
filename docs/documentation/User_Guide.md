@@ -343,7 +343,7 @@ Settings are organized into collapsible sections with short summaries so you can
 
 ### Feedback
 
-- **Haptic Feedback** - vibration on key input (stronger for utility keys, lighter for letters)
+- **Haptic Feedback** - vibration on key input (stronger for utility keys, lighter for letters, and controller rumble on supported hardware)
 - **Typing Sounds** - system click sounds when typing
 
 ### Input Mode
@@ -352,8 +352,8 @@ Settings are organized into collapsible sections with short summaries so you can
 
 ### Controller
 
-- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback.
-- **iOS**: Controller behavior follows the active system connection and the same lesson flow, but controller calibration is currently documented through the host app workflow rather than a dedicated diagnostics screen.
+- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback. When **Haptic Feedback** is enabled, supported controllers can also rumble on controller-typed input.
+- **iOS**: Controller behavior follows the active system connection and the same lesson flow, but controller calibration is currently documented through the host app workflow rather than a dedicated diagnostics screen. When **Haptic Feedback** is enabled and the keyboard extension can access the controller directly, supported controllers can also rumble on controller-typed input.
 
 ### Privacy and Security
 
@@ -392,6 +392,7 @@ ERICK supports physical game controllers (DualShock 4, Xbox, 8BitDo, and others)
 - **Left analog stick** → left dial direction
 - **Right analog stick** → right dial direction
 - A dead zone of 0.25 prevents accidental input from stick drift.
+- With **Haptic Feedback** enabled, controller-originated input still uses the normal key vibration and can also rumble supported controllers.
 - You can switch freely between touch and controller input.
 
 ---
@@ -430,6 +431,12 @@ Your typed text stays on your device.
 
 - **Android**: Ensure the controller is paired in Bluetooth settings and recognized by the system. If it still feels wrong, open **Controller Diagnostics** to inspect live stick input, dead zone, and Y-axis inversion.
 - **iOS**: The controller must be connected to the **host app** (not just the keyboard extension). Open the ERICK app and verify the controller shows as connected. The bridge transfers input to the keyboard extension automatically.
+
+### Controller typing has no rumble
+
+- Ensure **Haptic Feedback** is enabled in Settings → Feedback.
+- **Android**: Some controllers do not expose a hardware vibrator. In that case typing still works and the phone or tablet still provides the normal ERICK haptic feedback.
+- **iOS**: Controller rumble requires the keyboard extension to have direct access to the controller's GameController haptics. Bridge-only controller input still types normally, but may not expose hardware rumble.
 
 ### Backspace deletes too much
 

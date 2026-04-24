@@ -72,6 +72,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private lateinit var stateMachine: KeyboardStateMachine
     private lateinit var preferencesManager: PreferencesManager
     private var connectedControllerName: String? = null
+    private var currentControllerDeviceId: Int? = null
+    private var isDispatchingControllerInput: Boolean = false
     private val controllerListener = object : InputManager.InputDeviceListener {
         override fun onInputDeviceAdded(deviceId: Int) = refreshControllerStatus()
 
@@ -356,7 +358,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             leftJoystick.updateThumbFromController(leftX, effectiveLeftY, controllerDeadZone)
             rightJoystick.updateThumbFromController(rightX, effectiveRightY, controllerDeadZone)
 
-            stateMachine.handleControllerInput(leftX, leftY, rightX, rightY)
+            currentControllerDeviceId = event.deviceId
+            dispatchControllerInput(leftX, effectiveLeftY, rightX, effectiveRightY)
             syncAssistedLetterLock(
                 letterJoystickIsActivelyDriven = getLetterJoystick().activeDirection != Direction.NONE
             )
@@ -369,11 +372,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         return super.onGenericMotionEvent(event)
     }
     private fun refreshControllerStatus() {
-        connectedControllerName = InputDevice.getDeviceIds()
+        val controller = InputDevice.getDeviceIds()
             .asSequence()
             .mapNotNull { InputDevice.getDevice(it) }
             .firstOrNull { it.isCompatibleController() }
-            ?.name
+        connectedControllerName = controller?.name
+        currentControllerDeviceId = controller?.id
 
         if (connectedControllerName == null) {
             stateMachine.handleControllerInput(0f, 0f, 0f, 0f)
@@ -400,6 +404,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         val fallback = getCenteredAxisValue(fallbackAxis)
         return if (abs(primary) >= abs(fallback)) primary else fallback
     }
+
+    private fun dispatchControllerInput(leftX: Float, leftY: Float, rightX: Float, rightY: Float) {
+        isDispatchingControllerInput = true
+        try {
+            stateMachine.handleControllerInput(leftX, leftY, rightX, rightY)
+        } finally {
+            isDispatchingControllerInput = false
+        }
+    }
+
     // --- Core: translate Android touch events and dispatch to the state machine ---
     private fun dispatchTouchToStateMachine(event: MotionEvent, isLeft: Boolean, joystick: JoystickView) {
         // Calculate offset relative to the joystick center
@@ -681,6 +695,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     private fun performHaptic(strong: Boolean) {
         if (!hapticEnabled) return
+        if (isDispatchingControllerInput) {
+            performControllerHaptic(strong)
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val amplitude = if (strong) 128 else 80
             val duration = if (strong) 25L else 18L
@@ -689,6 +707,30 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             @Suppress("DEPRECATION")
             vibrator.vibrate(if (strong) 25L else 18L)
         }
+    }
+
+    private fun performControllerHaptic(strong: Boolean): Boolean {
+        val controllerId = currentControllerDeviceId ?: return false
+        val controllerDevice = InputDevice.getDevice(controllerId) ?: return false
+        val controllerVibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            controllerDevice.vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            controllerDevice.vibrator
+        }
+
+        if (!controllerVibrator.hasVibrator()) return false
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val amplitude = if (strong) 128 else 80
+            val duration = if (strong) 25L else 18L
+            controllerVibrator.vibrate(VibrationEffect.createOneShot(duration, amplitude))
+        } else {
+            @Suppress("DEPRECATION")
+            controllerVibrator.vibrate(if (strong) 25L else 18L)
+        }
+
+        return true
     }
 
     private fun playClickSound(soft: Boolean) {
