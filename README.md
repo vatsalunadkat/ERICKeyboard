@@ -2,12 +2,16 @@
 
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Version 1.0</strong></p>
+  <p align="center"><strong>Planned Release: v1.2.0</strong></p>
 
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
     <br />
     Type with touch or a physical game controller, get offline learned word prediction, and keep every keystroke on your own device.
+    <br />
+    <br />
+    <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-Available_Now-34A853?logo=google-play&logoColor=white" alt="Get ERICK on Google Play" /></a>
+    <a href="#availability"><img src="https://img.shields.io/badge/iOS_App_Store-Coming_Soon-0A84FF?logo=apple&logoColor=white" alt="iOS App Store release coming soon" /></a>
     <br />
     <br />
     <a href="APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
@@ -61,8 +65,6 @@ ERICK is built around the idea that accessibility should improve the product for
 
 [![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](#) [![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)](#) [![Kotlin](https://img.shields.io/badge/Kotlin-%237F52FF.svg?logo=kotlin&logoColor=white)](#) [![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)](#) [![Kotlin Multiplatform](https://img.shields.io/badge/KMP-7F52FF?logo=kotlin&logoColor=white)](#) [![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?logo=swift&logoColor=white)](#) [![DataStore](https://img.shields.io/badge/DataStore-3DDC84?logo=android&logoColor=white)](#)
 
-Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.vatoo.erick). The iOS App Store release is coming soon.
-
 ## Availability
 
 - Android: Install ERICK from [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
@@ -72,27 +74,14 @@ Available now on [![Google Play Store](https://img.shields.io/badge/Google_Play-
 
 ### Current Implementation
 
-- [x] Dual-platform keyboard support on Android and iOS
-- [x] Chorded input with two radial dials
-- [x] Optional 6-section dial mode with larger 60-degree segments and dedicated symbols layer
-- [x] Three input modes: Quick Type, Steady Type, and One-Handed
-- [x] Three layout modes: Logical, Efficiency, and Custom
-- [x] Custom layout creator
-- [x] Word prediction, autocorrect, and next-word suggestions
-- [x] Locally learned prediction profile with persisted user dictionary and bigram history
-- [x] Live preview bar
-- [x] Guided quickstart and practice hub on both platforms
-- [x] Typing practice mini-game and reusable practice lessons
-- [x] Physical controller support
-- [x] Controller diagnostics screen in the Android host app
-- [x] Seven colorblind-safe palettes plus a custom palette editor
-- [x] Haptic feedback, supported controller rumble, and typing sounds
-- [x] Left-handed mode
-- [x] Light and dark theme support
-- [x] Font selection including OpenDyslexic
-- [x] Shift and Caps Lock indicators
-- [x] Accelerating backspace
-- [x] Source-available, offline-first privacy model
+- [x] Cross-platform keyboard support on Android and iOS with touch and physical controller input
+- [x] Dual-dial chorded typing with 8-section and optional 6-section modes, live previews, and utility swipes
+- [x] Multiple typing models and layouts: Quick Type, Steady Type, One-Handed, plus Logical, Efficiency, and Custom layouts
+- [x] Offline typing assistance with autocorrect, next-word suggestions, and a locally learned prediction profile
+- [x] Guided learning flows including Quickstart, reusable practice lessons, and quote practice
+- [x] Controller-focused features including Android diagnostics, controller tuning, and supported controller rumble
+- [x] Accessibility and personalization options including left-handed mode, colorblind-safe palettes, custom colors, theme support, and OpenDyslexic
+- [x] Typing polish such as haptic feedback, typing sounds, shift and Caps Lock indicators, accelerating backspace, and offline-first privacy
 
 ### Planned Features
 
@@ -128,22 +117,23 @@ ERICK/
 
 ## Project Artifacts
 
-### Touch Typing (iOS)
-<img src="docs/documentation/demo%20files/v0.4.2-alpha_iOS_typing.gif" height="400" />
-
-### Controller Typing (Android)
-<img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_controller_support.gif" height="400" />
-
-### Controller Typing (iOS)
-<img src="docs/documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif" height="400" />
-
-### Screenshots
+### Input Modes
 <p>
-  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_normal.jpg" height="400" />
-  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_dark_mode_whatsapp.jpg" height="400" />
-  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_pastel_colors_dark_mode_gmail.jpg" height="400" />
-  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_dyslexia_font_reddit.jpg" height="400" />
-  <img src="docs/documentation/demo%20files/v0.4.2-alpha_Android_colorblind_mode_instagram.jpg" height="400" />
+  <img src="docs/documentation/demo%20files/0.7.4-beta_quick_type_input_mode.gif" height="360" alt="Quick Type input mode demo" />
+  <img src="docs/documentation/demo%20files/0.7.4-beta_steady_type_input_mode.gif" height="360" alt="Steady Type input mode demo" />
+  <img src="docs/documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.gif" height="360" alt="One-Handed input mode demo" />
+</p>
+
+### Controller And Accessibility
+<p>
+  <img src="docs/documentation/demo%20files/v1.0_android_controller.gif" height="360" alt="Android controller typing demo" />
+  <img src="docs/documentation/demo%20files/v1.2_controller_using_fists.gif" height="360" alt="Alternative controller typing demo" />
+  <img src="docs/documentation/demo%20files/v1.2_six_dial_mode.png" height="360" alt="6-section dial mode screenshot" />
+</p>
+
+### Practice
+<p>
+  <img src="docs/documentation/demo%20files/v0.5.1-alpha_quotes_game.gif" height="360" alt="Quote practice game demo" />
 </p>
 
 ## Documentation
@@ -189,6 +179,17 @@ Please read the platform-specific setup guides before contributing:
 
 - [Android setup](android/README.md)
 - [iOS setup](ios/README.md)
+
+## Contributors
+
+<p>
+  <a href="https://github.com/bisensamiksha"><img src="https://github.com/bisensamiksha.png?size=64" width="48" height="48" alt="Samiksha Bisen" /></a>
+  <a href="https://github.com/xingxingyxx"><img src="https://github.com/xingxingyxx.png?size=64" width="48" height="48" alt="xingxingyxx" /></a>
+  <a href="https://github.com/VilgotM"><img src="https://github.com/VilgotM.png?size=64" width="48" height="48" alt="VilgotM" /></a>
+  <a href="https://github.com/nazgulengvall"><img src="https://github.com/nazgulengvall.png?size=64" width="48" height="48" alt="Nazgul Engvall" /></a>
+</p>
+
+Samiksha Bisen (Android and iOS), xingxingyxx (Kotlin Multiplatform and controller support), VilgotM (Android UI and polish), and Nazgul Engvall (Android settings).
 
 ## License
 

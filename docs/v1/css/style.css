@@ -599,21 +599,35 @@ img {
 }
 
 .demo-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
     gap: 1.5rem;
     justify-content: center;
+    align-items: start;
     flex-wrap: wrap;
     margin-top: 1.5rem;
 }
 
 .demo-item {
     max-width: 280px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .demo-item img {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    object-fit: contain;
+    object-position: center top;
+    background: var(--card-bg);
+    box-sizing: border-box;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    display: block;
+    padding: 0.35rem;
 }
 
 .demo-item p {
