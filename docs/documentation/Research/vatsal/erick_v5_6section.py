@@ -9,12 +9,15 @@ dial layout. Key differences from the 8-section optimizer:
   - 6 directions: N, NE, SE, S, SW, NW (no E, W)
   - 36 chord positions (6×6) instead of 64 (8×8)
   - 36 symbols: 26 letters + 10 digits
-  - 5 utility keys: SHIFT(N), PERIOD(NE), SPACE(SE), ENTER(S), BACKSPACE(SW)
+    - selectable utility model: legacy 5-action wheel or shipped 6-action wheel
+    - selectable corpus profile: wordfreq baseline or benchmark-pack mixed shortform
   - Angular geometry: 60° steps, max angular distance = 3
 """
 
 import math
+import os
 import time
+from pathlib import Path
 import numpy as np
 
 try:
@@ -33,13 +36,26 @@ except ImportError:
         @staticmethod
         def write(s): print(s)
 
+
+def env_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    return int(value) if value is not None else default
+
+
+def env_choice(name: str, choices, default: str) -> str:
+    value = os.environ.get(name, default)
+    if value not in choices:
+        raise ValueError(f"{name} must be one of {sorted(choices)}, got {value!r}")
+    return value
+
 # ════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
 # ════════════════════════════════════════════════════════════════════
 
 CHAINS          = 8
-STEPS_PER_CHAIN = 500_000
-SWAP_INTERVAL   = 200
+STEPS_PER_CHAIN = env_int("ERICK6_STEPS_PER_CHAIN", 500_000)
+SWAP_INTERVAL   = env_int("ERICK6_SWAP_INTERVAL", 200)
+BASELINE_SAMPLES = env_int("ERICK6_BASELINE_SAMPLES", 200)
 
 TEMPS = [0.012, 0.008, 0.005, 0.003, 0.0018, 0.001, 0.0005, 0.0002]
 
@@ -57,44 +73,108 @@ BASE_KEY_TIME         = 0.08
 EFFORT_TIME_SCALE     = 0.12
 TRANSITION_TIME_SCALE = 0.04
 
+UTILITY_MODEL = env_choice("ERICK6_UTILITY_MODEL", {"legacy", "shipped"}, "legacy")
+CORPUS_PROFILE = env_choice("ERICK6_CORPUS_PROFILE", {"wordfreq", "mixed_shortform"}, "wordfreq")
+
+BENCHMARK_PACK_DIR = Path(__file__).resolve().parent / "benchmark_packs"
+LETTERS = list("abcdefghijklmnopqrstuvwxyz")
+DIGITS  = list("0123456789")
+
 # ════════════════════════════════════════════════════════════════════
 # CORPUS
 # ════════════════════════════════════════════════════════════════════
 
-print("Building corpus…")
+def _add_token_sequence(tokens, weight, uni, bi, tri):
+    if not tokens:
+        return
+    for i, token in enumerate(tokens):
+        uni[token] += weight
+        if i < len(tokens) - 1:
+            bi[(tokens[i], tokens[i + 1])] += weight
+        if i < len(tokens) - 2:
+            tri[(tokens[i], tokens[i + 1], tokens[i + 2])] += weight
+
+
+def _tokenize_shortform_line(text: str):
+    tokens = []
+    prev_space = False
+    prev_symbol_toggle = False
+    for char in text.lower():
+        if char in LETTERS or char in DIGITS:
+            tokens.append(char)
+            prev_space = False
+            prev_symbol_toggle = False
+        elif char.isspace():
+            if tokens and not prev_space:
+                tokens.append("SPACE")
+                prev_space = True
+            prev_symbol_toggle = False
+        elif char == ".":
+            tokens.append(".")
+            prev_space = False
+            prev_symbol_toggle = False
+        elif "TOGGLE_SYMBOLS" in UTILITY:
+            if not prev_symbol_toggle:
+                tokens.append("TOGGLE_SYMBOLS")
+            prev_space = False
+            prev_symbol_toggle = True
+    if tokens and tokens[-1] == "SPACE":
+        tokens.pop()
+    return tokens
+
 
 def build_corpus():
     from collections import defaultdict
 
-    if not WORDFREQ_OK:
+    if CORPUS_PROFILE == "wordfreq" and not WORDFREQ_OK:
         raise RuntimeError("wordfreq not installed — run: pip install wordfreq")
-
-    print("  Fetching wordfreq corpus (top 50k words)…")
-    words = top_n_list("en", 50_000)
 
     uni = defaultdict(float)
     bi  = defaultdict(float)
     tri = defaultdict(float)
 
-    for w in words:
-        freq = 10 ** (zipf_frequency(w, "en") - 5)
-        if freq <= 0:
-            continue
-        for i, c in enumerate(w):
-            uni[c] += freq
-            if i < len(w) - 1:
-                bi[(w[i], w[i+1])]          += freq
-            if i < len(w) - 2:
-                tri[(w[i], w[i+1], w[i+2])] += freq
+    print(f"Building corpus…  profile={CORPUS_PROFILE}  utility={UTILITY_MODEL}")
 
-        uni["SPACE"] += freq
-        bi[(w[-1], "SPACE")] += freq
-        bi[("SPACE",  w[0])] += freq
-        if len(w) >= 2:
-            tri[(w[-2], w[-1], "SPACE")]  += freq
-            tri[(w[-1], "SPACE",  w[0])]  += freq
-        if len(w) >= 3:
-            tri[("SPACE", w[0], w[1])]    += freq
+    if CORPUS_PROFILE == "wordfreq":
+        print("  Fetching wordfreq corpus (top 50k words)…")
+        words = top_n_list("en", 50_000)
+
+        for w in words:
+            freq = 10 ** (zipf_frequency(w, "en") - 5)
+            if freq <= 0:
+                continue
+            for i, c in enumerate(w):
+                uni[c] += freq
+                if i < len(w) - 1:
+                    bi[(w[i], w[i+1])]          += freq
+                if i < len(w) - 2:
+                    tri[(w[i], w[i+1], w[i+2])] += freq
+
+            uni["SPACE"] += freq
+            bi[(w[-1], "SPACE")] += freq
+            bi[("SPACE",  w[0])] += freq
+            if len(w) >= 2:
+                tri[(w[-2], w[-1], "SPACE")]  += freq
+                tri[(w[-1], "SPACE",  w[0])]  += freq
+            if len(w) >= 3:
+                tri[("SPACE", w[0], w[1])]    += freq
+    else:
+        print(f"  Loading benchmark packs from {BENCHMARK_PACK_DIR}…")
+        benchmark_files = [
+            "messaging-shortform.txt",
+            "accessibility-supportive.txt",
+            "controller-tv-query.txt",
+            "punctuation-mixed.txt",
+        ]
+        for filename in benchmark_files:
+            path = BENCHMARK_PACK_DIR / filename
+            if not path.exists():
+                raise FileNotFoundError(f"Missing benchmark pack: {path}")
+            for raw_line in path.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if not line:
+                    continue
+                _add_token_sequence(_tokenize_shortform_line(line), 1.0, uni, bi, tri)
 
     def norm(d):
         s = sum(d.values())
@@ -108,9 +188,10 @@ def build_corpus():
           f"BI: {sum(bi.values()):.4f}  "
           f"TRI: {sum(tri.values()):.4f}")
     print(f"  (all must be ~1.0)")
-    return uni, bi, tri
 
-char_uni, char_bi, char_tri = build_corpus()
+    util_tokens = [f"{key}={uni[key]:.4f}" for key in UTIL_KEYS if uni.get(key, 0.0) > 0]
+    print("  Utility unigram coverage:", ", ".join(util_tokens) if util_tokens else "none")
+    return uni, bi, tri
 
 # ════════════════════════════════════════════════════════════════════
 # KEYBOARD GEOMETRY — 6-SECTION
@@ -121,13 +202,24 @@ IDX  = {d: i for i, d in enumerate(DIRS)}
 ND   = 6
 
 # 6-section right-dial single-swipe utilities
-UTILITY = {
-    "SHIFT":     "N",   # FIXED
-    ".":         "NE",  # FIXED — period
-    "SPACE":     "SE",  # FIXED
-    "ENTER":     "S",   # FIXED
-    "BACKSPACE": "SW",  # FIXED
+UTILITY_MODELS = {
+    "legacy": {
+        "SHIFT":     "N",
+        ".":         "NE",
+        "SPACE":     "SE",
+        "ENTER":     "S",
+        "BACKSPACE": "SW",
+    },
+    "shipped": {
+        "TOGGLE_SYMBOLS": "N",
+        "TOGGLE_SHIFT":   "NE",
+        "SPACE":          "SE",
+        ".":              "S",
+        "ENTER":          "SW",
+        "BACKSPACE":      "NW",
+    },
 }
+UTILITY = UTILITY_MODELS[UTILITY_MODEL]
 UTIL_KEYS  = list(UTILITY.keys())
 UTIL_RIGHT = {k: IDX[d] for k, d in UTILITY.items()}
 N_UTIL     = len(UTILITY)
@@ -148,18 +240,18 @@ ANG   = np.array([[min(abs(i-j), ND-abs(i-j)) for j in range(ND)]
 # SYMBOL SET
 # ════════════════════════════════════════════════════════════════════
 
-LETTERS = list("abcdefghijklmnopqrstuvwxyz")
-DIGITS  = list("0123456789")
-
-# In 6-section mode, comma is not a utility — it goes into symbols mode.
-# Period IS a utility (NE single-swipe), so exclude it.
-# We only have 36 chord positions, so we use: 26 letters + 10 digits = 36
+# The normal 6-section optimizer still optimizes 36 normal-layer chord slots:
+# 26 letters + 10 digits. Mixed punctuation and symbols can be represented as
+# utility tokens in the benchmark-driven corpus profile, but the symbol layer
+# itself is not re-optimized here.
 SYMBOLS  = LETTERS + DIGITS
 N_SYM    = len(SYMBOLS)
 ALL_POS  = [(l, r) for l in range(ND) for r in range(ND)]  # 36 positions
 N_POS    = len(ALL_POS)
 
 print(f"  Chord symbols: {N_SYM}  |  Utility: {N_UTIL}  |  Positions: {N_POS}")
+
+char_uni, char_bi, char_tri = build_corpus()
 
 # ════════════════════════════════════════════════════════════════════
 # PRECOMPUTED COST TABLES
@@ -640,12 +732,13 @@ if __name__ == "__main__":
     print("║  ERICK v5 (6-SECTION) — Parallel Tempering Optimizer        ║")
     print("║  6 directions · 36 positions · Normalised corpus            ║")
     print("╚══════════════════════════════════════════════════════════════╝\n")
+    print(f"Config: utility={UTILITY_MODEL}  corpus={CORPUS_PROFILE}  steps={STEPS_PER_CHAIN}  baseline={BASELINE_SAMPLES}\n")
 
     best_layout, best_score = run()
 
-    print("\nComputing baseline (200 random layouts)…")
+    print(f"\nComputing baseline ({BASELINE_SAMPLES} random layouts)…")
     rng0     = np.random.default_rng(0)
-    baseline = [total_cost(random_layout(rng0)) for _ in range(200)]
+    baseline = [total_cost(random_layout(rng0)) for _ in range(BASELINE_SAMPLES)]
     b_mean   = float(np.mean(baseline))
     b_std    = float(np.std(baseline))
     improvement = (b_mean - best_score) / b_mean * 100
