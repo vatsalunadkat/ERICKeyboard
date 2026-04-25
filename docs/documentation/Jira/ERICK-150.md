@@ -52,6 +52,7 @@ The current research pipeline already considers several important factors.
 
 - 8-section efficiency research with a documented 44.6% improvement over random baseline
 - a 6-section optimizer update captured in ERICK-139, with a separate 36-position optimizer script now checked in under `docs/documentation/Research/vatsal/erick_v5_6section.py`
+- a reproduced 6-section legacy-baseline run captured in `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`
 - shipped English efficiency layouts in shared keyboard logic
 - supporting visuals and raw logs in `docs/documentation/Research/`
 
@@ -72,7 +73,9 @@ The current research pipeline already considers several important factors.
 | 8-section shipped-map drift | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` still matches the v5 letter-placement family for the main alphabetic core, but several punctuation, digit, and filler-slot assignments differ from `v5_output.txt`. Branch 0 should treat the logged v5 layout and the shipped 8-section map as related but not byte-identical baselines. |
 | 8-section historical context | Git history shows the shipped 8-section efficiency map was introduced in commit `599dbb0b` (`Add Efficiency layout and integrate UI/state (#24)`) as part of the original product integration work. Branch 0 should therefore treat the shipping map as a stable product baseline that predates the currently checked-in `v5_output.txt` artifact, not assume the two were ever literally identical. |
 | 6-section optimizer track | `docs/documentation/Research/vatsal/erick_v5_6section.py` is a separate 36-position optimizer with the same `1.0 / 0.6 / 0.3` weight mix, but its utility model still reflects an older 5-action wheel: `SHIFT`, `.`, `SPACE`, `ENTER`, and `BACKSPACE` without the shipped `TOGGLE_SYMBOLS` action. |
-| 6-section reproducibility gap | The repo does not currently include a checked-in 6-section result log or metrics snapshot next to `erick_v5_6section.py`. In shared code, `KeyboardLogic.kt` labels `efficiencyNormalMap6` as a placeholder that still needs an optimizer re-run, and the shipped rotated utility wheel no longer matches the directions modeled in the script. |
+| 6-section reproduced metrics | The 2026-04-26 reproduction run reports final score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement over random baseline, and predicted `72.4` WPM. |
+| 6-section reproduced-map drift | The reproduced optimizer output matches only `4 / 36` placeholder slots in `KeyboardLogic.kt`: `N[2]=g`, `N[3]=7`, `NE[1]=t`, and `SE[1]=h`. The remaining 32 slots differ. |
+| 6-section exact-shipped gap | The current repo now has a checked-in reproduction summary for the legacy 5-action script, but it still does not have an exact shipped-wheel optimizer baseline. In shared code, `KeyboardLogic.kt` labels `efficiencyNormalMap6` as a placeholder that still needs an optimizer re-run, and the shipped rotated utility wheel no longer matches the directions modeled in the script. |
 | 6-section historical context | Git history shows ERICK-139 introduced `docs/documentation/Research/vatsal/erick_v5_6section.py` and the placeholder `efficiencyNormalMap6` in the same commit (`a5dd219f` / tag `v1.0`), with no checked-in 6-section result artifact added alongside them. Branch 0 should therefore treat the missing output as an original gap, not as a later repo cleanup loss. |
 | Prediction surface that now matters | `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` now includes learned word frequencies, learned bigrams, and next-word suggestions from ERICK-148. The current optimizers do not model those saved-keystroke effects yet, so Branch 7 is a real scoring gap rather than a speculative follow-up. |
 
@@ -83,7 +86,7 @@ Use this table for every baseline or branch comparison so later experiments stay
 | Dial Mode | Optimizer Script | Corpus Source | Positions | Utility Set | Weights (Uni/Bi/Tri) | Search Settings | Best Score | Random Baseline | Improvement | Predicted WPM | Shipped Map Match | Evidence Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 8-section | `docs/documentation/Research/vatsal/erick_v5_vectorized.py` | `wordfreq` top 50k English words | 64 | `SHIFT`, `SPACE`, `BACKSPACE`, `ENTER`, `CAPSLOCK`, `TAB`, `.`, `,` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.86204` | `1.55694 ± 0.12366` | `44.6%` | `73.2` | Partial drift in punctuation/filler assignments | Checked-in output exists |
-| 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | `wordfreq` top 50k English words | 36 | Older 5-action model: `SHIFT`, `.`, `SPACE`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | TBD | TBD | TBD | TBD | Placeholder map plus utility-direction drift from shipped wheel | Script exists, checked-in output missing |
+| 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | `wordfreq` top 50k English words | 36 | Older 5-action model: `SHIFT`, `.`, `SPACE`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.94132` | `1.34279 ± 0.06476` | `29.9%` | `72.4` | `4 / 36` exact slot matches plus utility-direction drift from shipped wheel | Reproduced 2026-04-26 under legacy utility assumptions |
 
 ---
 
@@ -264,6 +267,7 @@ Keep all research branches inside ERICK-150 until the baseline is reproduced and
 - Complete **Branch 0** first.
 - Start **Branch 8** in parallel only where it helps document current corpora and benchmark gaps.
 - Do not treat any later branch result as actionable until Branch 0 confirms the shipped baseline can be reproduced or the drift is explained.
+- Before using any 6-section result in Branches 1-4, either align the optimizer to the shipped rotated utility wheel plus Symbols toggle or explicitly label the run as a legacy 5-action baseline.
 
 ### Phase 2 - Re-Score The Core Objective
 
@@ -310,12 +314,11 @@ Create one trusted baseline for the current shipped Efficiency research before c
 
 ### Branch Status
 
-- Status: `Researching`
-- Latest finding summary: the current baseline is split. The 8-section v5 optimizer still has a checked-in script and output snapshot, but the shipped 8-section map is not byte-identical to that log. The 6-section optimizer also exists as a separate script, but the repo does not currently include a matching checked-in result log, its utility model predates the shipped rotated wheel, and the shipped 6-section efficiency map is still marked as a placeholder.
-- Latest finding summary: the current baseline is split. The 8-section v5 optimizer still has a checked-in script and output snapshot, but the shipped 8-section map is a stable product baseline from the original Efficiency integration commit rather than a byte-identical mirror of that log. The 6-section optimizer also exists as a separate script, but the repo does not currently include a matching checked-in result log, its utility model predates the shipped rotated wheel, and the shipped 6-section efficiency map was introduced as a placeholder in ERICK-139 rather than drifting into that state later.
-- Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `docs/documentation/Jira/ERICK-139.md`, and `docs/documentation/Jira/ERICK-148.md`.
-- Open blocker: Branch 0 still needs either a reproducible 6-section run artifact or a documented explanation for why the shipped `efficiencyNormalMap6` differs from any generated optimizer output.
-- Next action: run or recover the 6-section baseline output, compare its generated Kotlin map against `KeyboardLogic.kt`, and then decide whether the ticket should revise the 6-section baseline assumptions before any tuning branches start.
+- Status: `Needs More Data`
+- Latest finding summary: the current baseline is split, and the split is now reproduced rather than inferred. The 8-section v5 optimizer still has a checked-in script and output snapshot, but the shipped 8-section map is a stable product baseline from the original Efficiency integration commit rather than a byte-identical mirror of that log. The 6-section optimizer also exists as a separate script and now has a reproduced result (`0.94132`, `29.9%`, `72.4` WPM), but it still models a legacy 5-action utility wheel and its generated layout matches only `4 / 36` slots in the shipped placeholder map.
+- Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `docs/documentation/Jira/ERICK-139.md`, and `docs/documentation/Jira/ERICK-148.md`.
+- Open blocker: Branch 0 still lacks a checked-in optimizer path that matches the shipped rotated 6-section utility wheel and Symbols toggle, so the exact shipped 6-section objective cannot yet be reproduced from research artifacts alone.
+- Next action: decide whether Branch 0 should add a shipped-aligned 6-section optimizer pass before any cross-mode tuning work, or freeze the current 6-section reproduction as a legacy baseline and explicitly scope later branches around that limitation.
 - Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150.
 
 **Open Questions**
