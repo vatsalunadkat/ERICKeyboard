@@ -55,7 +55,7 @@ Most efficient placements: **e** (E+E), **t** (N+N), **a** (NE+NE) - the three m
 |---|---|
 | 8-section | `vatsal/erick_v5_vectorized.py` and `vatsal/v5_output.txt` still provide the clearest reproducible baseline: 8 chains, 500k steps per chain, `1.0 / 0.6 / 0.3` unigram-bigram-trigram weighting, and the 44.6% improvement snapshot shown above. |
 | 6-section | `vatsal/erick_v5_6section.py` was reproduced on 2026-04-26 with score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. The checked-in summary lives in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`. This remains a legacy baseline because the script still models an older 5-action utility wheel that omits the shipped Symbols toggle. |
-| 6-section shipped-path smoke | `vatsal/erick_v5_6section.py` now also supports `ERICK6_UTILITY_MODEL=shipped` plus `ERICK6_CORPUS_PROFILE=mixed_shortform`, which uses the Branch 8 benchmark packs to surface non-space utility costs. A 2026-04-26 smoke run validated that `TOGGLE_SYMBOLS` and `.` now receive non-zero corpus weight, but this is not yet a full comparable baseline. See `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`. |
+| 6-section shipped-path run | `vatsal/erick_v5_6section.py` now also supports `ERICK6_UTILITY_MODEL=shipped` plus `ERICK6_CORPUS_PROFILE=mixed_shortform`, which uses the Branch 8 benchmark packs to surface non-space utility costs. A full 2026-04-26 run scored `0.97299`, baseline `1.41998 ± 0.07649`, `31.5%` improvement, and predicted `70.6` WPM. This is a shipped-adjacent run, not an exact shipped baseline, because symbol-heavy text is still approximated through `TOGGLE_SYMBOLS` tokens rather than a re-optimized symbol layer. See `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`. |
 | Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 8-section layout is clearly derived from the v5 research family, but several punctuation and filler assignments differ from `v5_output.txt`. The 6-section efficiency map is explicitly commented as a placeholder that still needs an optimizer re-run, and the reproduced 6-section script output matches only `4 / 36` placeholder slots. |
 | Branch 8 evaluation pack | `vatsal/benchmark_pack.md` defines the reusable benchmark IDs, source anchors, and normalization rules. Frozen shortform seed files live in `vatsal/benchmark_packs/`, and `vatsal/results_and_logs/experiment_result_template.md` defines the required reporting schema for future ERICK-150 experiment logs. |
 
@@ -93,6 +93,7 @@ Research/
     │   ├── optimization_results.md          <- First optimizer run (40% improvement)
     │   ├── optimization_results_2.md        <- SA run (25k corpus + Google N-grams)
     │   ├── optimization_results_6section_baseline_2026-04-26.md
+    │   ├── optimization_results_6section_shipped_mixed_shortform_2026-04-26.md
     │   ├── optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md
     │   └── *.txt, *.log                     <- Raw optimizer logs and error traces
     │
@@ -170,7 +171,7 @@ The script now also supports two env-selectable research knobs:
 - `ERICK6_UTILITY_MODEL=legacy|shipped`
 - `ERICK6_CORPUS_PROFILE=wordfreq|mixed_shortform`
 
-The `mixed_shortform` corpus profile reads the checked-in Branch 8 benchmark packs and can surface utility costs for `TOGGLE_SYMBOLS`, `SPACE`, and `.`. A 2026-04-26 smoke validation for the shipped profile is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`.
+The `mixed_shortform` corpus profile reads the checked-in Branch 8 benchmark packs and can surface utility costs for `TOGGLE_SYMBOLS`, `SPACE`, and `.`. A 2026-04-26 smoke validation for this path is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, and the first full shipped-profile run is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`.
 
 For fast smoke checks, you can also override:
 
