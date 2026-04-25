@@ -1,0 +1,20 @@
+go.
+?
+type "start".
+n = symbols
+ne = shift
+se = space
+s = period
+sw = enter
+nw = backspace
+connected: controller
+dead zone: 25%
+invert controller y-axis
+allow full access
+settings -> feedback
+settings -> layout
+go on.
+controller typing?
+left picks the row. right picks the letter.
+use practice lessons first.
+switch to erick.

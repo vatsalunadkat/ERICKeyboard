@@ -1,0 +1,20 @@
+controller diagnostics
+live controller status
+connected
+no controller detected
+connect a controller
+move the sticks
+dead zone 25%
+invert controller y-axis
+reset calibration
+controller typing
+controller drill
+pair your controller
+open the erick host app
+switch to erick
+start controller drill
+open settings
+open controller diagnostics
+touch and controller input
+start controller drills
+connect a controller and move the sticks

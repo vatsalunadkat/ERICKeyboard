@@ -11,6 +11,7 @@ The ERICK layout optimization pipeline seeks to minimize typing effort for a two
 The current checked-in baseline is split across two research tracks:
 - the documented 8-section v5 baseline in `vatsal/erick_v5_vectorized.py` with matching output in `vatsal/v5_output.txt`
 - a separate 6-section optimizer in `vatsal/erick_v5_6section.py` with a reproduced baseline summary in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, although that script still models an older 5-action utility wheel rather than the current shipped 6-section product behavior
+- a Branch 8 benchmark-pack spec in `vatsal/benchmark_pack.md` plus frozen shortform seed packs in `vatsal/benchmark_packs/` for messaging, accessibility, controller, and punctuation-heavy evaluation
 
 Key research goals:
 1. Quantify chord effort using a biomechanical model (direction difficulty, dual-thumb penalties, alternation bonuses)
@@ -55,6 +56,7 @@ Most efficient placements: **e** (E+E), **t** (N+N), **a** (NE+NE) - the three m
 | 8-section | `vatsal/erick_v5_vectorized.py` and `vatsal/v5_output.txt` still provide the clearest reproducible baseline: 8 chains, 500k steps per chain, `1.0 / 0.6 / 0.3` unigram-bigram-trigram weighting, and the 44.6% improvement snapshot shown above. |
 | 6-section | `vatsal/erick_v5_6section.py` was reproduced on 2026-04-26 with score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. The checked-in summary lives in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`. This remains a legacy baseline because the script still models an older 5-action utility wheel that omits the shipped Symbols toggle. |
 | Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 8-section layout is clearly derived from the v5 research family, but several punctuation and filler assignments differ from `v5_output.txt`. The 6-section efficiency map is explicitly commented as a placeholder that still needs an optimizer re-run, and the reproduced 6-section script output matches only `4 / 36` placeholder slots. |
+| Branch 8 evaluation pack | `vatsal/benchmark_pack.md` defines the reusable benchmark IDs, source anchors, and normalization rules. Frozen shortform seed files live in `vatsal/benchmark_packs/`, and `vatsal/results_and_logs/experiment_result_template.md` defines the required reporting schema for future ERICK-150 experiment logs. |
 
 Treat the current README metrics as the 8-section v5 baseline, not as a complete summary of both shipped efficiency modes.
 
@@ -74,6 +76,8 @@ Research/
 └── vatsal/
     ├── erick_v5_vectorized.py       <- Main optimizer (Parallel Tempering, vectorized)
     ├── erick_v5_6section.py         <- 6-section optimizer (36-position variant)
+    ├── benchmark_pack.md            <- Branch 8 benchmark spec + source anchors
+    ├── benchmark_packs/             <- Frozen ERICK-specific shortform benchmark seeds
     ├── v5_output.txt                <- v5 results (44.6% improvement, 73.2 WPM)
     │
     ├── layout_design/               <- Visual mockups, wireframes, React visualizer
@@ -84,6 +88,7 @@ Research/
     │
     ├── results_and_logs/
     │   ├── erick_keyboard_report.md         <- Literature review + 3 layout variants
+    │   ├── experiment_result_template.md    <- Required report schema for Branch 1-8 runs
     │   ├── optimization_results.md          <- First optimizer run (40% improvement)
     │   ├── optimization_results_2.md        <- SA run (25k corpus + Google N-grams)
     │   ├── optimization_results_6section_baseline_2026-04-26.md
@@ -157,6 +162,10 @@ python erick_v5_6section.py
 The 6-section script prints a Kotlin `efficiencyNormalMap6` / `efficiencyShiftedMap6` snippet for comparison with `KeyboardLogic.kt`, but it should still be treated as a legacy research baseline rather than an exact mirror of the shipped rotated 6-section utility wheel.
 
 Latest reproduced result: score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. See `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`.
+
+### Branch 8 benchmark pack
+
+Use `vatsal/benchmark_pack.md` for the current benchmark IDs, source anchors, and normalization rules. The frozen shortform seed files in `vatsal/benchmark_packs/` are meant for comparison runs, not as a replacement for the main `wordfreq` baseline. New ERICK-150 experiment logs should start from `vatsal/results_and_logs/experiment_result_template.md` so corpus assumptions and utility-model drift are always recorded.
 
 ---
 
