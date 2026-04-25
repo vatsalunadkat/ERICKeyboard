@@ -16,9 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Learning, Practice, and Guidance
 - **Guided Quickstart (Android and iOS)** - Added a first-run quickstart covering dial mechanics, utility swipes, assisted typing, and controller typing, with replay and resume support.
+- **Responsive Quickstart Actions** - Quickstart action rows now reflow cleanly on smaller screens and with larger text sizes so Skip, Back, Next, and Finish stay readable.
 - **Practice Hub (Android and iOS)** - Added reusable lessons for 8-section basics, 6-section basics, utility swipes, assisted one-handed typing, controller drills, and quote practice.
-- **Structured Multi-Step Lessons** - Guided drills now move through letters, numbers, and punctuation or symbols in sequence, apply the recommended preset automatically, and support contextual lesson actions, help, and replay.
+- **Structured Multi-Step Lessons** - Guided drills now move through letters, numbers, and punctuation or symbols in sequence, apply the recommended preset automatically, and support contextual lesson actions, help, replay, and previous or next navigation.
 - **Simpler Home and Help Flows** - Android and iOS home screens now emphasize Quickstart, Practice Lessons, and a compact test field, while help content has been reorganized into a clearer progressive learning path.
+- **Quote Practice Polish** - Quote practice now includes contextual help, a restart-session action, and lighter default instructional copy.
 - **Who ERICK Can Help Content** - Added clearer accessibility and audience guidance across the Android app, iOS app, user guide, and website.
 
 ### Controller, Feedback, and Accessibility
@@ -32,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Persistent Learned Predictions** - The shared predictor now persists learned words and learned bigram history through the platform storage layer.
 - **Smarter Suggestion Acceptance** - Suggestion taps now use shared punctuation-aware spacing behavior instead of diverging Android and iOS heuristics.
 - **Shared Controller and Preview Consistency Fixes** - Controller normalization, assisted-mode controller behavior, and 6-section preview ordering were tightened so diagnostics, previews, and typing behavior stay aligned.
+- **Expanded Shared Validation** - Added focused shared tests for controller normalization, learned prediction ranking, learned bigrams, and punctuation-aware suggestion acceptance.
 
 ### Documentation, Website, and Developer Experience
 - **Public Docs and Website Refresh** - Updated the README, user guide, website pages, and availability messaging to match the current Play Store rollout, current iOS status, controller workflow, and learning surfaces.

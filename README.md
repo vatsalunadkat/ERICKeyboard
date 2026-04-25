@@ -40,7 +40,7 @@ ERICK is an accessibility-first keyboard. Instead of asking the user to hit rows
 
 ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting lower-visual-demand typing.
 
-The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes guided quickstart flows, reusable practice lessons and quote practice, controller diagnostics and tuning on Android, offline learned word prediction, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, haptic and controller rumble feedback, and custom layouts.
+The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes guided quickstart flows, reusable practice lessons and quote practice, controller diagnostics and tuning on Android, offline learned word prediction, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, haptic and controller rumble feedback, theme support, and custom layouts.
 
 Everything runs fully offline. ERICK requests no internet permission, collects no typing data, and keeps every keystroke on the device.
 
@@ -76,7 +76,8 @@ ERICK is built around the idea that accessibility should improve the product for
 
 - [x] Cross-platform keyboard support on Android and iOS with touch and physical controller input
 - [x] Dual-dial chorded typing with 8-section and optional 6-section modes, live previews, and utility swipes
-- [x] Multiple typing models and layouts: Quick Type, Steady Type, One-Handed, plus Logical, Efficiency, and Custom layouts
+- [x] Three input modes: Quick Type, Steady Type, and One-Handed
+- [x] Three layout modes: Logical, Efficiency, and Custom, plus a custom layout creator
 - [x] Offline typing assistance with autocorrect, next-word suggestions, and a locally learned prediction profile
 - [x] Guided learning flows including Quickstart, Practice Hub lessons, and quote practice
 - [x] Controller-focused features including Android diagnostics, controller tuning, and supported controller rumble
