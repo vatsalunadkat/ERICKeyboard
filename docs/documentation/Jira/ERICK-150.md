@@ -90,6 +90,7 @@ Use this table for every baseline or branch comparison so later experiments stay
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 8-section | `docs/documentation/Research/vatsal/erick_v5_vectorized.py` | `wordfreq` top 50k English words | 64 | `SHIFT`, `SPACE`, `BACKSPACE`, `ENTER`, `CAPSLOCK`, `TAB`, `.`, `,` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.86204` | `1.55694 ± 0.12366` | `44.6%` | `73.2` | Partial drift in punctuation/filler assignments | Checked-in output exists |
 | 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | `wordfreq` top 50k English words | 36 | Older 5-action model: `SHIFT`, `.`, `SPACE`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.94132` | `1.34279 ± 0.06476` | `29.9%` | `72.4` | `4 / 36` exact slot matches plus utility-direction drift from shipped wheel | Reproduced 2026-04-26 under legacy utility assumptions |
+| 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | Branch 8 `mixed_shortform` benchmark pack | 36 | Shipped 6-action model: `TOGGLE_SYMBOLS`, `TOGGLE_SHIFT`, `SPACE`, `.`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.97299` | `1.41998 ± 0.07649` | `31.5%` | `70.6` | `2 / 36` exact slot matches with the current placeholder map, but shared utility-wheel directions now align | Full 2026-04-26 shipped-adjacent run; symbol layer still approximated via `TOGGLE_SYMBOLS` tokenization |
 
 ### Verified Branch 8 Snapshot - 2026-04-26
 
@@ -415,11 +416,11 @@ Create one trusted baseline for the current shipped Efficiency research before c
 
 ### Branch Status
 
-- Status: `Needs More Data`
+- Status: `Researching`
 - Latest finding summary: the current baseline is still split, but Branch 0 now has both a legacy 6-section baseline and a full shipped-adjacent 6-section run. The new shipped-wheel mixed-text run scored `0.97299`, baseline `1.41998 ± 0.07649`, `31.5%` improvement, and predicted `70.6` WPM in `352.8s`, while using the shared shipped utility wheel directions and the Branch 8 benchmark-pack corpus profile. Even with the shipped utility wheel aligned, the resulting normal-layer map matches only `2 / 36` slots in the current shared placeholder map (`N[1]=s`, `NE[1]=t`), so the placeholder still looks clearly stale.
 - Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `docs/documentation/Jira/ERICK-139.md`, and `docs/documentation/Jira/ERICK-148.md`.
-- Open blocker: this new run is shipped-adjacent rather than exact shipped parity, because symbol-heavy text is still approximated via `TOGGLE_SYMBOLS` utility tokens and the symbol layer itself is not re-optimized in the 36-slot normal-layer search.
-- Next action: decide whether Branch 0 can freeze the new run as the practical shipped-adjacent baseline for later branches, or whether Branch 3 should first deepen symbol-layer modeling before Branch 0 is considered fully resolved.
+- Open blocker: exact shipped parity is still missing, because symbol-heavy text is approximated via `TOGGLE_SYMBOLS` utility tokens and the symbol layer itself is not re-optimized in the 36-slot normal-layer search.
+- Next action: use the new full shipped-adjacent run as the practical 6-section baseline for later branches, while treating deeper symbol-layer modeling as the remaining Branch 3 follow-up rather than a total Branch 0 blocker.
 - Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150.
 
 **Open Questions**
