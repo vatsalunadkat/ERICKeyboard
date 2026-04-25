@@ -545,6 +545,15 @@ Decide how much real-world typing cost is currently missing because the optimize
 
 If expanded mixed-text cost materially changes layout ranking, later implementation planning must treat non-letter modeling as part of the core optimizer, not a nice-to-have extension.
 
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: the first full shipped-wheel mixed-text 6-section run has now made non-space utility modeling visible in the optimizer path instead of leaving `SPACE` as the only scored utility. The benchmark-driven corpus produced non-zero unigram weight for `TOGGLE_SYMBOLS`, `SPACE`, and `.`, and the resulting run scored `0.97299` with `31.5%` improvement over random baseline. That is strong enough to prove utility-cost modeling matters, but symbol-heavy text is still approximated through toggle tokens instead of a re-optimized symbol layer.
+- Evidence reviewed: `docs/documentation/Research/vatsal/benchmark_pack.md`, `docs/documentation/Research/vatsal/benchmark_packs/`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, and `docs/documentation/Jira/ERICK-139.md`.
+- Open blocker: Branch 3 still lacks a decision on how symbol-heavy text should be modeled beyond a simple `TOGGLE_SYMBOLS` token approximation, and the current optimizer still does not search over the symbol-layer map itself.
+- Next action: define the first candidate utility-cost model for later experiments, especially whether symbol clusters should be scored as single toggle entries, toggle-in/toggle-out pairs, or a fuller symbol-layer objective.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a concrete utility-cost model exists.
+
 ### Branch 4 - Error And Confusion Modeling
 
 **Goal**
