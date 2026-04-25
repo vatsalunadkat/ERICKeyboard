@@ -61,6 +61,7 @@ The current research pipeline already considers several important factors.
 - objective weights were chosen heuristically and have not been sensitivity-tested recently
 - the optimizer is largely letter-frequency driven and only lightly reflects symbols, digits, or utility-mode switching cost
 - the research corpus is not clearly segmented by use case such as messaging, accessibility, or controller-heavy usage
+- historical optimizer generations use different corpus mixes and reporting formats, so many older score comparisons are not directly apples-to-apples
 - the cost model does not explicitly include error-proneness, neighbor confusion, or mode-switch recovery time
 - learned prediction and next-word acceptance now reduce effort in practice, but the optimizer does not account for that interaction yet
 
@@ -87,6 +88,18 @@ Use this table for every baseline or branch comparison so later experiments stay
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 8-section | `docs/documentation/Research/vatsal/erick_v5_vectorized.py` | `wordfreq` top 50k English words | 64 | `SHIFT`, `SPACE`, `BACKSPACE`, `ENTER`, `CAPSLOCK`, `TAB`, `.`, `,` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.86204` | `1.55694 ± 0.12366` | `44.6%` | `73.2` | Partial drift in punctuation/filler assignments | Checked-in output exists |
 | 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | `wordfreq` top 50k English words | 36 | Older 5-action model: `SHIFT`, `.`, `SPACE`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.94132` | `1.34279 ± 0.06476` | `29.9%` | `72.4` | `4 / 36` exact slot matches plus utility-direction drift from shipped wheel | Reproduced 2026-04-26 under legacy utility assumptions |
+
+### Verified Branch 8 Snapshot - 2026-04-26
+
+| Artifact | Corpus / Dataset | Search Context | Comparison Risk |
+|---|---|---|---|
+| `docs/documentation/Research/vatsal/results_and_logs/optimization_results.md` | merged Common Crawl, Wikipedia, and Google Books N-grams | earlier combined Simulated Annealing + Genetic Algorithm run | not directly comparable to v5 because both corpus mix and search method changed |
+| `docs/documentation/Research/vatsal/results_and_logs/optimization_results_2.md` | `wordfreq` 25k (60% web) + Google Books 1-grams 10k (40% books) + Google Books 2-grams 5k | advanced SA run with different trigram weighting and older objective mix | partially comparable for direction-of-travel, not for score ranking against v5 |
+| `docs/documentation/Research/vatsal/v5_output.txt` | `wordfreq` top 50k English words | current 8-section PT baseline | primary current 8-section comparison reference |
+| `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md` | `wordfreq` top 50k English words | reproduced 6-section PT run under legacy 5-action utility model | only comparable to other `wordfreq` v5-style runs, not to the shipped 6-section wheel |
+| `docs/documentation/Research/vatsal/scripts/corpus.txt` and `docs/documentation/Research/vatsal/scripts/corpus_data_values.py` | paste-ready unigram, bigram, and trigram snapshots derived from `wordfreq` top 50k | corpus extraction support files | useful for freezing a baseline corpus snapshot, but not yet a domain-segmented benchmark pack |
+
+Current Branch 8 gap: the repo has corpus history, but it does not yet have one mandatory benchmark suite covering messaging, accessibility phrases, controller-heavy input, punctuation-heavy text, and shared reporting columns across all future runs.
 
 ---
 
@@ -572,6 +585,15 @@ Strengthen the datasets and benchmark suite used across every other branch.
 **Decision Gate**
 
 If corpus choice changes the best layout family, every later branch conclusion must be annotated by corpus domain instead of presented as universally true.
+
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: the current corpus story is fragmented across at least three generations: an older merged web/books corpus, an intermediate mixed `wordfreq` plus Google Books corpus, and the current `wordfreq` top 50k baseline used by the v5 scripts. That means many historical score improvements are directional evidence, not directly comparable scoreboard entries.
+- Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_2.md`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, `docs/documentation/Research/vatsal/scripts/corpus.txt`, `docs/documentation/Research/vatsal/scripts/corpus_data_values.py`, and `docs/documentation/Research/vatsal/scripts/run_hybrid.py`.
+- Open blocker: there is still no single benchmark pack or mandatory result template that every branch can reuse across corpora and dial modes.
+- Next action: define the minimum benchmark pack and result columns for future runs, starting with messaging, accessibility/supportive phrases, controller-heavy text, and punctuation-heavy text.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150.
 
 ---
 
