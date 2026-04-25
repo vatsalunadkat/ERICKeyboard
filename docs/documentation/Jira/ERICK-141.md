@@ -53,6 +53,16 @@ Make the repository safer for AI models and coding agents with mixed reasoning q
 - Fixed Android controller-assisted single-handed input lock syncing and 6-section preview ordering while keeping the shared tests and Android debug build green.
 - Added a lightweight perfect-quote celebration to the iOS typing game with clean Swift editor diagnostics on Windows.
 
+## 2026-04-25 Multi-Agent Follow-up
+
+- Reviewed `forrestchang/andrej-karpathy-skills` in a local temp checkout and kept the reusable part: a compact behavioral layer centered on thinking before coding, simplicity first, surgical changes, and goal-driven execution.
+- Adapted that pattern to ERICK instead of copying the upstream Claude plugin layout directly.
+- Added `CLAUDE.md` for Claude Code, `.cursor/rules/erick-ai-first.mdc` plus `CURSOR.md` for Cursor, refreshed `AGENTS.md` for Codex and other AGENTS-aware tools, and refreshed `.github/copilot-instructions.md` for GitHub Copilot.
+- Kept ERICK-specific invariants, edit-routing hints, and validation commands in those files so future agents start at the correct abstraction and preserve the shipped 6-section behavior.
+- Cross-checked the supported instruction-file surfaces against the official docs: Copilot uses `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, `AGENTS.md`, and root `CLAUDE.md`; Claude Code uses `CLAUDE.md`; Cursor uses `.cursor/rules/*.mdc` and also supports `AGENTS.md`; Codex layers root and nested `AGENTS.md` files.
+- Switched the root Claude setup to the officially recommended pattern of importing `AGENTS.md` from `CLAUDE.md`, and added docs-scoped `docs/AGENTS.md` plus `docs/CLAUDE.md` so docs and website work has its own lower-ambiguity guidance.
+- Added subtree-specific guidance for Android, iOS, and research/Python work so layout validation, responsiveness, and reproducibility rules load closer to the files being edited.
+
 ---
 
 ## Phase 0: Immediate Hardening
@@ -218,6 +228,8 @@ Status: Completed on `ERICK-141` for the Windows-available validation path. Task
 - The old Android-local `KeyboardLogic.kt` shadow has been removed; behavior changes should start in `android/shared/src/commonMain/kotlin/`.
 - Large-file refactors should be isolated from behavior changes.
 - Documentation updates must travel with mapping changes.
+- Tool-native AI entry files now exist for Codex (`AGENTS.md`), Claude Code (`CLAUDE.md`), Cursor (`.cursor/rules/erick-ai-first.mdc`), and GitHub Copilot (`.github/copilot-instructions.md`); keep their shared behavioral guidance aligned.
+- Documentation and diagram work now has scoped instructions under `docs/AGENTS.md` and `docs/CLAUDE.md`; use them before editing `README.md`, website pages, mirrored context docs, or `.drawio` files.
 
 ---
 

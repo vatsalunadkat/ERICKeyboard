@@ -10,31 +10,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android: Available now on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick)
 - iOS: App Store release coming soon. Historical sections below may still mention pre-store APK or source-install workflows from earlier milestones.
 
-## [Unreleased]
+## [v1.2.0] - Current
 
 ## What's New
 
-### Learning & Diagnostics
-- **Controller Diagnostics Screen (Android)** - Added a host-app diagnostics screen with live raw stick values, normalized values, resolved directions, assisted-mode lock state, left-handed routing, dead-zone calibration, Y-axis inversion, and reset actions.
-- **Guided Quickstart (Android and iOS)** - Added an optional first-run quickstart covering dial mechanics, utility swipes, assisted typing, and controller typing.
+### Learning, Practice, and Guidance
+- **Guided Quickstart (Android and iOS)** - Added a first-run quickstart covering dial mechanics, utility swipes, assisted typing, and controller typing, with replay and resume support.
 - **Responsive Quickstart Actions** - Quickstart action rows now reflow cleanly on smaller screens and with larger text sizes so Skip, Back, Next, and Finish stay readable.
 - **Practice Hub (Android and iOS)** - Added reusable lessons for 8-section basics, 6-section basics, utility swipes, assisted one-handed typing, controller drills, and quote practice.
-- **Preset-Driven Practice Lessons** - Opening a lesson now applies its recommended dial mode, layout, and input mode automatically so drills start in the right configuration.
-- **Guided Multi-Step Drills** - Practice lessons now walk through letters, numbers, and punctuation or symbols instead of ending after a single target.
-- **Contextual Lesson Actions** - Practice lessons now show switch-to-ERICK and apply-setup actions only when they are needed instead of keeping a permanent setup block on screen.
-- **Compact Lesson Help and Replay Flow** - Lesson details moved behind help affordances, lesson cards show completed state more clearly, completed lessons reopen as Replay Lesson, and guided drills now include previous/next part and lesson navigation.
-
-### HCI Cleanup
-- **Simpler Home Screens** - Android and iOS home screens now emphasize Quickstart, Practice Lessons, and a compact test field instead of long always-visible instructions.
-- **Progressive Help Screens** - The How to Type flow now starts with a short learning path and keeps deeper explanations in expandable sections.
-- **More Scannable Settings** - Settings now lead with a start-here summary, section-level summaries, controller tuning shortcuts, and privacy details in secondary surfaces.
-- **Simpler Custom Layout and Palette Editing** - Custom layout flows now surface create/duplicate actions directly, explain one layer at a time, and keep advanced color inputs hidden until requested.
+- **Structured Multi-Step Lessons** - Guided drills now move through letters, numbers, and punctuation or symbols in sequence, apply the recommended preset automatically, and support contextual lesson actions, help, replay, and previous or next navigation.
+- **Simpler Home and Help Flows** - Android and iOS home screens now emphasize Quickstart, Practice Lessons, and a compact test field, while help content has been reorganized into a clearer progressive learning path.
 - **Quote Practice Polish** - Quote practice now includes contextual help, a restart-session action, and lighter default instructional copy.
+- **Who ERICK Can Help Content** - Added clearer accessibility and audience guidance across the Android app, iOS app, user guide, and website.
 
-### Prediction Improvements
+### Controller, Feedback, and Accessibility
+- **Controller Diagnostics Screen (Android)** - Added a host-app diagnostics screen with live raw stick values, normalized values, resolved directions, assisted-mode lock state, left-handed routing, dead-zone calibration, Y-axis inversion, and reset actions.
+- **Controller Tuning in Settings** - Android settings now expose controller dead zone, Y-axis inversion, and a direct path into Controller Diagnostics.
+- **Controller Rumble on Supported Hardware** - When **Haptic Feedback** is enabled, controller-originated input now also rumbles supported Android gamepads and iOS controllers that expose GameController haptics directly to the keyboard extension.
+- **Android Controller Inversion Fix** - The Android controller Y-axis inversion setting now affects actual controller typing input, not just the joystick preview state.
+- **More Scannable Accessibility and Settings Flows** - Settings now lead with clearer summaries and simpler custom layout and palette editing flows.
+
+### Prediction and Typing Quality
 - **Persistent Learned Predictions** - The shared predictor now persists learned words and learned bigram history through the platform storage layer.
-- **Suggestion Acceptance Semantics** - Suggestion taps now use shared punctuation-aware spacing behavior instead of diverging Android/iOS platform heuristics.
+- **Smarter Suggestion Acceptance** - Suggestion taps now use shared punctuation-aware spacing behavior instead of diverging Android and iOS heuristics.
+- **Shared Controller and Preview Consistency Fixes** - Controller normalization, assisted-mode controller behavior, and 6-section preview ordering were tightened so diagnostics, previews, and typing behavior stay aligned.
 - **Expanded Shared Validation** - Added focused shared tests for controller normalization, learned prediction ranking, learned bigrams, and punctuation-aware suggestion acceptance.
+
+### Documentation, Website, and Developer Experience
+- **Public Docs and Website Refresh** - Updated the README, user guide, website pages, and availability messaging to match the current Play Store rollout, current iOS status, controller workflow, and learning surfaces.
+- **AI-First Repo Hardening** - Added shared and tool-specific guidance for Copilot, Claude Code, Cursor, and AGENTS-aware workflows, along with clearer validation routing across Android, iOS, docs, and research surfaces.
+- **Large File Splits for Safer Iteration** - Split major Android and iOS settings, host-app, and joystick/controller surfaces into smaller files to make maintenance and follow-up feature work safer.
 
 ## [v1.0] - April 13, 2026
 

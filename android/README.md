@@ -41,7 +41,7 @@ In practical terms, this build is for:
 - Colorblind-safe palettes and custom colors
 - Left-handed mode
 - Dyslexia-friendly font options
-- Haptic feedback and typing sounds
+- Haptic feedback, supported controller rumble, and typing sounds
 
 ## Project Structure
 

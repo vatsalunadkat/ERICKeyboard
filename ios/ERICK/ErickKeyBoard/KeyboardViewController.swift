@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 import GameController
+import CoreHaptics
 import AudioToolbox
 import SharedKeyboard // Import the KMP shared module
 
@@ -16,6 +17,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private var mirroredMode: WheelMode = .normal
     private var mirroredChordExecuted = false
     private var currentController: GCController?
+    private var controllerHapticEngine: CHHapticEngine?
     private var localControllerTimer: Timer?
     private var prevLocalLeftActive = false
     private var prevLocalRightActive = false
@@ -23,6 +25,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private var prevBridgeLeftActive = false
     private var prevBridgeRightActive = false
     private var hasRegisteredControllerObservers = false
+    private var isDispatchingControllerInput = false
     
     private static let appGroupId = "group.com.vatoo.erick"
     private var appGroupDefaults: UserDefaults? { UserDefaults(suiteName: Self.appGroupId) }
@@ -82,6 +85,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         localControllerTimer = nil
         controllerBridgeTimer?.invalidate()
         controllerBridgeTimer = nil
+        stopControllerHaptics()
     }
     
     // MARK: - GameController (DualShock 4, etc.)
@@ -116,6 +120,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     @objc private func controllerDidDisconnect(_ note: Notification) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
+            self.stopControllerHaptics()
             self.currentController = nil
             self.localControllerTimer?.invalidate()
             self.localControllerTimer = nil
@@ -123,7 +128,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             self.prevLocalRightActive = false
             self.viewModel.leftControllerStickNormalized = (0, 0)
             self.viewModel.rightControllerStickNormalized = (0, 0)
-            self.stateMachine.handleControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
+            self.dispatchControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
             self.refreshViewState()
         }
     }
@@ -134,6 +139,9 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
         if currentController !== controller {
             currentController = controller
+            prepareControllerHaptics()
+        } else if controllerHapticEngine == nil {
+            prepareControllerHaptics()
         }
 
         startLocalControllerPolling()
@@ -160,7 +168,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.leftControllerStickNormalized = leftNorm
         viewModel.rightControllerStickNormalized = rightNorm
 
-        stateMachine.handleControllerInput(leftX: lx, leftY: ly, rightX: rx, rightY: ry)
+        dispatchControllerInput(leftX: lx, leftY: ly, rightX: rx, rightY: ry)
 
         DispatchQueue.main.async { [weak self] in
             self?.refreshViewState()
@@ -181,6 +189,46 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             ny = 0
         }
         return (nx, ny)
+    }
+
+    private func dispatchControllerInput(leftX: Float, leftY: Float, rightX: Float, rightY: Float) {
+        isDispatchingControllerInput = true
+        defer { isDispatchingControllerInput = false }
+        stateMachine.handleControllerInput(leftX: leftX, leftY: leftY, rightX: rightX, rightY: rightY)
+    }
+
+    private func prepareControllerHaptics() {
+        stopControllerHaptics()
+        controllerHapticEngine = currentController?.haptics?.createEngine(withLocality: GCHapticsLocality.default)
+    }
+
+    private func stopControllerHaptics() {
+        controllerHapticEngine?.stop(completionHandler: nil)
+        controllerHapticEngine = nil
+    }
+
+    private func performControllerHaptic(strong: Bool) {
+        if controllerHapticEngine == nil {
+            prepareControllerHaptics()
+        }
+        guard let engine = controllerHapticEngine else { return }
+
+        let intensity: Float = strong ? 0.85 : 0.45
+        let sharpness: Float = strong ? 0.55 : 0.3
+        let parameters = [
+            CHHapticEventParameter(parameterID: CHHapticEvent.ParameterID.hapticIntensity, value: intensity),
+            CHHapticEventParameter(parameterID: CHHapticEvent.ParameterID.hapticSharpness, value: sharpness)
+        ]
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: parameters, relativeTime: 0)
+
+        do {
+            try engine.start()
+            let pattern = try CHHapticPattern(events: [event], parameters: [])
+            let player = try engine.makePlayer(with: pattern)
+            try player.start(atTime: CHHapticTimeImmediate)
+        } catch {
+            stopControllerHaptics()
+        }
     }
 
     // MARK: - App Group bridge (host app reads controller, keyboard extension reads)
@@ -207,7 +255,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             viewModel.rightControllerStickNormalized = (0, 0)
             if prevBridgeLeftActive || prevBridgeRightActive {
                 // Send zeroed input to release any held directions
-                stateMachine.handleControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
+                dispatchControllerInput(leftX: 0, leftY: 0, rightX: 0, rightY: 0)
                 DispatchQueue.main.async { [weak self] in
                     self?.refreshViewState()
                 }
@@ -232,7 +280,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         // Note: bridge values are already dead-zone-filtered and normalized [0..1]
         // by ControllerBridge.tick(), so pass them as raw axis values and let
         // the state machine's normalizeControllerStick() handle scaling.
-        stateMachine.handleControllerInput(leftX: lnx, leftY: lny, rightX: rnx, rightY: rny)
+        dispatchControllerInput(leftX: lnx, leftY: lny, rightX: rnx, rightY: rny)
 
         DispatchQueue.main.async { [weak self] in
             self?.refreshViewState()
@@ -324,6 +372,9 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
 
     private func performHaptic(strong: Bool) {
         guard Self.appGroupDefaults.bool(forKey: "haptic_feedback") else { return }
+        if isDispatchingControllerInput {
+            performControllerHaptic(strong: strong)
+        }
         let style: UIImpactFeedbackGenerator.FeedbackStyle = strong ? .medium : .light
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()

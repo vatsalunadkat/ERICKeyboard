@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.core.view.WindowCompat
 import com.vatoo.erick.ui.theme.ERICKTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -13,6 +14,7 @@ class SettingsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.enableEdgeToEdge(window)
         preferencesManager = PreferencesManager(this)
         layoutPreferences = LayoutPreferences(this)
 

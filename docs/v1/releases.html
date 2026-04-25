@@ -102,19 +102,59 @@
     }
 
     .release-media {
+      --release-media-min: 170px;
+      --release-media-max-height: 360px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(var(--release-media-min), 1fr));
       gap: 0.75rem;
       margin-top: 1rem;
+      align-items: stretch;
     }
-    .release-media img {
+    .release-media--single {
+      grid-template-columns: minmax(0, min(280px, 100%));
+      justify-content: center;
+    }
+    .release-media--four-up {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .release-media--landscape {
+      --release-media-max-height: 220px;
+    }
+    .release-media--compact {
+      --release-media-min: 150px;
+      --release-media-max-height: 280px;
+    }
+    .release-media img,
+    .release-media video {
       width: 100%;
+      max-height: var(--release-media-max-height);
+      height: auto;
+      object-fit: contain;
+      object-position: center;
+      background: var(--card-bg);
+      box-sizing: border-box;
+      padding: 0.35rem;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       cursor: pointer;
       transition: transform 0.2s;
+      display: block;
     }
-    .release-media img:hover { transform: scale(1.03); }
+    .release-media img:hover,
+    .release-media video:hover { transform: scale(1.03); }
+
+    @media (max-width: 768px) {
+      .release-media--four-up {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .release-media--four-up,
+      .release-media--landscape {
+        grid-template-columns: 1fr;
+      }
+    }
 
     .roadmap-section { background: var(--lavender-light); padding: 2.5rem 1rem; text-align: center; }
     .roadmap-section h2 { margin-bottom: 0.5rem; }
@@ -202,7 +242,7 @@
     <p>ERICK began as a research-driven idea and grew into a cross-platform keyboard focused on accessibility, controller input, and lower-effort typing.</p>
     <div class="hero-buttons">
       <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" aria-label="Get it on Google Play" target="_blank" rel="noopener">
-        <span class="store-badge-note">Available Now</span>
+        <span class="store-badge-note">v1.2.0</span>
         <span class="store-badge-crop store-badge-crop-google">
           <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
         </span>
@@ -216,7 +256,7 @@
 
   <!-- ===== Stats ===== -->
   <div class="stats-grid">
-    <div class="stat-card"><div class="stat-value">7</div><div class="stat-label">Releases</div></div>
+    <div class="stat-card"><div class="stat-value">8</div><div class="stat-label">Releases</div></div>
     <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Platforms</div></div>
     <div class="stat-card"><div class="stat-value">7+</div><div class="stat-label">Color Palettes</div></div>
     <div class="stat-card"><div class="stat-value">0</div><div class="stat-label">Data Collected</div></div>
@@ -225,8 +265,39 @@
   <!-- ===== Timeline ===== -->
   <div class="timeline">
 
-    <!-- v1.0 -->
+    <!-- v1.2.0 -->
     <div class="release-card latest">
+      <div class="release-header">
+        <span class="release-version">v1.2.0</span>
+        <span class="release-date">Current release</span>
+      </div>
+      <div class="release-title">Guided Learning, Controller Diagnostics &amp; Prediction Polish</div>
+      <div class="milestones">
+        <span class="milestone-tag">Quickstart</span>
+        <span class="milestone-tag">Practice Hub</span>
+        <span class="milestone-tag">Controller Diagnostics</span>
+        <span class="milestone-tag">Prediction</span>
+      </div>
+      <ul class="release-features">
+        <li>Guided quickstart and reusable Practice Hub lessons now ship across Android and iOS</li>
+        <li>Android adds a dedicated Controller Diagnostics screen plus direct controller tuning from Settings</li>
+        <li>Learned predictions now persist more reliably, with smarter suggestion spacing and tighter shared preview behavior</li>
+        <li>Home, help, and accessibility guidance were simplified so new users can start with Quickstart, lessons, and a compact test field</li>
+        <li>Public docs, website messaging, and developer guidance were refreshed for the current Play Store rollout</li>
+      </ul>
+      <div class="release-media release-media--compact">
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quote practice and lessons demo">
+          <source src="../documentation/demo%20files/v0.5.1-alpha_quotes_game.mp4" type="video/mp4" />
+        </video>
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Alternative controller typing demo">
+          <source src="../documentation/demo%20files/v1.2_controller_using_fists.mp4" type="video/mp4" />
+        </video>
+        <img src="../documentation/demo%20files/v1.2_six_dial_mode.png" alt="Current 6-section dial mode screenshot" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- v1.0 -->
+    <div class="release-card">
       <div class="release-header">
         <span class="release-version">v1.0</span>
         <span class="release-date">April 2026</span>
@@ -246,6 +317,15 @@
         <li>Fresh-install sync and haptic/sound tuning improved the release experience</li>
         <li>iOS App Store release is next; source and development builds remain available today</li>
       </ul>
+      <div class="release-media release-media--compact">
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Android controller typing demo">
+          <source src="../documentation/demo%20files/v1.0_android_controller.mp4" type="video/mp4" />
+        </video>
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Alternative controller typing demo">
+          <source src="../documentation/demo%20files/v1.2_controller_using_fists.mp4" type="video/mp4" />
+        </video>
+        <img src="../documentation/demo%20files/v1.2_six_dial_mode.png" alt="6-section dial mode screenshot" loading="lazy" />
+      </div>
     </div>
 
     <!-- v0.7.4-beta -->
@@ -271,6 +351,17 @@
         <li>Fixed CORS vulnerability in research prototype dependency</li>
         <li>iOS controller support fix and UI/UX polish across both platforms</li>
       </ul>
+      <div class="release-media release-media--compact">
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quick Type input mode demo">
+          <source src="../documentation/demo%20files/0.7.4-beta_quick_type_input_mode.mp4" type="video/mp4" />
+        </video>
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Steady Type input mode demo">
+          <source src="../documentation/demo%20files/0.7.4-beta_steady_type_input_mode.mp4" type="video/mp4" />
+        </video>
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="One-Handed input mode demo">
+          <source src="../documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
 
     <!-- v0.5.1-alpha -->
@@ -293,6 +384,11 @@
         <li>AD_ID opt-out for stronger user privacy guarantees</li>
         <li>React website with releases timeline and accessibility documentation</li>
       </ul>
+      <div class="release-media release-media--single">
+        <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quote practice game demo">
+          <source src="../documentation/demo%20files/v0.5.1-alpha_quotes_game.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
 
     <!-- v0.4.2-alpha -->
@@ -316,7 +412,7 @@
         <li>Accordion-style collapsible settings menu on both platforms</li>
         <li>Translated all code comments to English across 6 source files</li>
       </ul>
-      <div class="release-media">
+      <div class="release-media release-media--four-up release-media--compact">
         <img src="../documentation/demo%20files/v0.4.2-alpha_iOS_typing.gif" alt="iOS typing demo" loading="lazy" />
         <img src="../documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif" alt="iOS controller support" loading="lazy" />
         <img src="../documentation/demo%20files/v0.4.2-alpha_Android_dyslexia_font_reddit.jpg" alt="Dyslexia font on Reddit" loading="lazy" />
@@ -345,7 +441,7 @@
         <li>Full iOS onboarding flow with step-by-step color-synced setup</li>
         <li>Shared App Group preferences keep iOS host app and keyboard extension in sync</li>
       </ul>
-      <div class="release-media">
+      <div class="release-media release-media--compact">
         <img src="../documentation/demo%20files/v0.3.2-alpha_Android_pastel.jpg" alt="Android pastel theme" loading="lazy" />
         <img src="../documentation/demo%20files/v0.3.2-alpha_Android_pastel_2.jpg" alt="Android pastel theme 2" loading="lazy" />
         <img src="../documentation/demo%20files/v0.3.2-alpha_iOS.png" alt="iOS keyboard" loading="lazy" />
@@ -372,7 +468,7 @@
         <li>ERICK logo and consistent branding throughout</li>
         <li>Larger joysticks, cleaner layout, and optimized touch targets</li>
       </ul>
-      <div class="release-media">
+      <div class="release-media release-media--landscape">
         <img src="../documentation/demo%20files/v0.2.1a_typing_demo.gif" alt="Typing demo" loading="lazy" />
         <img src="../documentation/demo%20files/v0.2.1a_user_onboarding.gif" alt="User onboarding" loading="lazy" />
       </div>
@@ -398,7 +494,7 @@
         <li>Hands-free typing capability demonstrated</li>
         <li>Foundation for the current ERICK project</li>
       </ul>
-      <div class="release-media">
+      <div class="release-media release-media--landscape">
         <img src="../documentation/demo%20files/v0.1.7_swipe_input.gif" alt="Swipe input" loading="lazy" />
         <img src="../documentation/demo%20files/v0.1.7_controller.gif" alt="Controller input" loading="lazy" />
         <img src="../documentation/demo%20files/v0.1.7_no_hands%20type.gif" alt="Hands-free typing" loading="lazy" />
@@ -416,12 +512,12 @@
     <h2>What's coming next</h2>
     <div class="roadmap-grid">
       <div class="roadmap-card">
-        <span class="roadmap-version">v1.1.0</span>
-        <h3>Planned Next</h3>
+        <span class="roadmap-version">Beyond v1.2</span>
+        <h3>Next Priorities</h3>
         <ul>
-          <li>Multi-language support with extended dictionaries</li>
-          <li>Typing speed analytics and personal bests</li>
-          <li>Tablet-optimized layout</li>
+          <li>Multi-language support</li>
+          <li>Improved word prediction and user dictionaries</li>
+          <li>Typing analytics and improvement tracking</li>
         </ul>
       </div>
       <div class="roadmap-card">
@@ -448,7 +544,7 @@
     </ul>
     <div class="footer-availability">
       <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" target="_blank" rel="noopener" aria-label="Get it on Google Play">
-        <span class="store-badge-note">Available Now</span>
+        <span class="store-badge-note">v1.2.0</span>
         <span class="store-badge-crop store-badge-crop-google">
           <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
         </span>
