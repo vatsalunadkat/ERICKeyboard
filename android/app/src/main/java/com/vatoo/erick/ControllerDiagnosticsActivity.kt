@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.vatoo.erick.shared.ControllerInputProcessor
 import com.vatoo.erick.shared.ControllerStickSnapshot
@@ -101,6 +102,7 @@ class ControllerDiagnosticsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.enableEdgeToEdge(window)
         preferencesManager = PreferencesManager(this)
         inputManager = getSystemService(INPUT_SERVICE) as InputManager
         stateMachine = KeyboardStateMachine(NoOpKeyboardDelegate, diagnosticsScope)

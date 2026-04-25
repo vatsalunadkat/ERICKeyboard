@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android: Available now on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick)
 - iOS: App Store release coming soon. Historical sections below may still mention pre-store APK or source-install workflows from earlier milestones.
 
-## [v1.2.0] - Planned
+## [v1.2.0] - Current
 
 ## What's New
 

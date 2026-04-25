@@ -117,6 +117,17 @@ ERICK/
 
 ## Project Artifacts
 
+### Higher-Quality MP4 Previews
+
+Use these direct clips when the GIF previews look too compressed in GitHub.
+
+- [Quick Type](docs/documentation/demo%20files/0.7.4-beta_quick_type_input_mode.mp4)
+- [Steady Type](docs/documentation/demo%20files/0.7.4-beta_steady_type_input_mode.mp4)
+- [One-Handed](docs/documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.mp4)
+- [Controller typing](docs/documentation/demo%20files/v1.0_android_controller.mp4)
+- [Alternative controller typing](docs/documentation/demo%20files/v1.2_controller_using_fists.mp4)
+- [Quote practice](docs/documentation/demo%20files/v0.5.1-alpha_quotes_game.mp4)
+
 ### Input Modes
 <p>
   <img src="docs/documentation/demo%20files/0.7.4-beta_quick_type_input_mode.gif" height="360" alt="Quick Type input mode demo" />
