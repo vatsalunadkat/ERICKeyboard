@@ -101,6 +101,39 @@ Use this table for every baseline or branch comparison so later experiments stay
 
 Current Branch 8 gap: the repo has corpus history, but it does not yet have one mandatory benchmark suite covering messaging, accessibility phrases, controller-heavy input, punctuation-heavy text, and shared reporting columns across all future runs.
 
+### Branch 8 Benchmark Draft - 2026-04-26
+
+#### Minimum benchmark pack
+
+| Benchmark ID | Domain | Why It Must Exist |
+|---|---|---|
+| `general-wordfreq-50k` | general English | preserves continuity with the current v5 baselines |
+| `messaging-shortform` | short chat and texting phrases | checks whether the optimizer overfits to bookish or long-word English |
+| `accessibility-supportive` | supportive phrases, quick responses, help text, and guided-practice style language | reflects ERICK's accessibility and onboarding use cases |
+| `controller-tv-query` | short controller-heavy titles, navigation phrases, and TV-style query text | captures the controller-first usage pattern the original optimizer did not model well |
+| `punctuation-mixed` | punctuation-heavy text such as email, command-style phrases, and symbol-rich snippets | tests whether symbol and utility costs materially affect layout ranking |
+
+#### Required result columns for every future run
+
+| Column | Why It Is Required |
+|---|---|
+| Experiment ID | keeps later reruns and branch comparisons traceable |
+| Dial mode | prevents 8-section and 6-section results from being mixed casually |
+| Utility model | makes legacy 5-action runs distinguishable from shipped-wheel runs |
+| Corpus ID and domain | records what writing style the score actually represents |
+| Corpus size and n-gram source | separates `wordfreq` top 50k, mixed corpora, and future domain packs |
+| Search method and settings | captures PT vs SA vs hybrid differences and runtime budget |
+| Objective weights | makes `1.0 / 0.6 / 0.3` vs tuned variants explicit |
+| Best score | keeps the core optimizer result comparable |
+| Random baseline and sample count | avoids reporting raw scores without context |
+| Improvement percent | keeps human-readable comparison across branches |
+| Predicted WPM | preserves the most recognizable user-facing proxy |
+| Stability or spread metric | distinguishes one dominant winner from a fragile near-tie |
+| Shipped-map match or drift note | records whether the run mirrors current product behavior |
+| Known caveats | captures utility mismatch, placeholder assumptions, or missing symbol modeling |
+
+Current reporting pattern: older reports usually include score, baseline, and improvement, while the newer v5-style outputs also include WPM and spread. They still do not consistently report corpus IDs, utility assumptions, or shipped-map drift, so Branch 8 should treat those as mandatory fields rather than optional commentary.
+
 ---
 
 ## Research Questions To Answer
@@ -592,7 +625,7 @@ If corpus choice changes the best layout family, every later branch conclusion m
 - Latest finding summary: the current corpus story is fragmented across at least three generations: an older merged web/books corpus, an intermediate mixed `wordfreq` plus Google Books corpus, and the current `wordfreq` top 50k baseline used by the v5 scripts. That means many historical score improvements are directional evidence, not directly comparable scoreboard entries.
 - Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_2.md`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, `docs/documentation/Research/vatsal/scripts/corpus.txt`, `docs/documentation/Research/vatsal/scripts/corpus_data_values.py`, and `docs/documentation/Research/vatsal/scripts/run_hybrid.py`.
 - Open blocker: there is still no single benchmark pack or mandatory result template that every branch can reuse across corpora and dial modes.
-- Next action: define the minimum benchmark pack and result columns for future runs, starting with messaging, accessibility/supportive phrases, controller-heavy text, and punctuation-heavy text.
+- Next action: populate the draft benchmark pack with concrete source files or extraction rules, then require the result-column schema for every new Branch 1-8 experiment log.
 - Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150.
 
 ---
