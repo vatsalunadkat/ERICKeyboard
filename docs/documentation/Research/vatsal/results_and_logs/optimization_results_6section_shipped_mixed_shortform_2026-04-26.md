@@ -32,7 +32,7 @@ Date: 2026-04-26
 | Improvement percent | `31.5%` |
 | Predicted WPM | `70.6` |
 | Stability / spread metric | cluster spread `1.937` |
-| Shipped-map match or drift note | shipped utility wheel is now modeled directly, but the normal-layer optimizer still only places letters and digits on the 36 chord slots |
+| Shipped-map match or drift note | shipped utility wheel is now modeled directly, but the new normal-layer result matches only `2 / 36` placeholder slots in `KeyboardLogic.kt` (`N[1]=s`, `NE[1]=t`) |
 | Known caveats | symbol-heavy text is approximated through `TOGGLE_SYMBOLS` utility tokens; the symbol layer itself is not re-optimized here |
 
 ## Corpus And Utility Findings
@@ -64,4 +64,4 @@ Date: 2026-04-26
 
 - This is the first full 6-section run in the repo that uses the shipped rotated utility wheel rather than the older legacy 5-action utility model.
 - Its `31.5%` improvement is directionally strong and lands in the same general performance band as the older legacy 6-section baseline, but it should not be compared as an exact like-for-like replacement because the corpus and utility modeling are materially different.
-- The result closes part of the Branch 0 blocker by proving a shipped-path optimizer run now exists. It does not fully close the blocker because symbol-heavy text is still approximated as utility toggles instead of using a re-optimized symbol layer.
+- The result closes part of the Branch 0 blocker by proving a shipped-path optimizer run now exists. It does not fully close the blocker because symbol-heavy text is still approximated as utility toggles instead of using a re-optimized symbol layer, and the current shared placeholder map still matches only `2 / 36` slots from this run.
