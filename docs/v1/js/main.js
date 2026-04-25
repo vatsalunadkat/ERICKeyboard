@@ -4,32 +4,30 @@
   "use strict";
 
   // ---- Theme toggle (light / dark) - DISABLED: hidden for now, light theme is default ----
-  /*
-  var themeBtn = document.getElementById("theme-toggle");
-  var html = document.documentElement;
-
-  function applyTheme(theme) {
-    html.setAttribute("data-theme", theme);
-    if (themeBtn) themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
-    try { localStorage.setItem("erick-theme", theme); } catch (e) { /* ignore */ }
-  }
-
-  // Initialise from stored preference or system
-  var stored = null;
-  try { stored = localStorage.getItem("erick-theme"); } catch (e) { /* ignore */ }
-  if (stored === "dark" || stored === "light") {
-    applyTheme(stored);
-  } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    applyTheme("dark");
-  }
-
-  if (themeBtn) {
-    themeBtn.addEventListener("click", function () {
-      var current = html.getAttribute("data-theme") || "light";
-      applyTheme(current === "dark" ? "light" : "dark");
-    });
-  }
-  */
+  // var themeBtn = document.getElementById("theme-toggle");
+  // var html = document.documentElement;
+  //
+  // function applyTheme(theme) {
+  //   html.setAttribute("data-theme", theme);
+  //   if (themeBtn) themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+  //   try { localStorage.setItem("erick-theme", theme); } catch (e) {}
+  // }
+  //
+  // // Initialise from stored preference or system
+  // var stored = null;
+  // try { stored = localStorage.getItem("erick-theme"); } catch (e) {}
+  // if (stored === "dark" || stored === "light") {
+  //   applyTheme(stored);
+  // } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  //   applyTheme("dark");
+  // }
+  //
+  // if (themeBtn) {
+  //   themeBtn.addEventListener("click", function () {
+  //     var current = html.getAttribute("data-theme") || "light";
+  //     applyTheme(current === "dark" ? "light" : "dark");
+  //   });
+  // }
 
   // ---- Font size controls ----
   var FONT_MIN = 14;
@@ -144,6 +142,161 @@
 
     revealItems.forEach(function (el) {
       observer.observe(el);
+    });
+  }
+
+  // ---- Media lightbox ----
+  var lightboxTargets = document.querySelectorAll(".demo-item img, .demo-item video, .release-media img, .release-media video");
+
+  if (lightboxTargets.length) {
+    var lightbox = document.createElement("div");
+    lightbox.className = "media-lightbox";
+    lightbox.hidden = true;
+    lightbox.innerHTML = [
+      '<div class="media-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Expanded image view">',
+      '  <button class="media-lightbox-close" type="button" aria-label="Close expanded image">×</button>',
+      '  <figure class="media-lightbox-figure">',
+      '    <div class="media-lightbox-image-wrap">',
+      '      <img class="media-lightbox-image" alt="" hidden />',
+      '      <video class="media-lightbox-video" controls loop playsinline hidden></video>',
+      '    </div>',
+      '    <figcaption class="media-lightbox-caption"></figcaption>',
+      '  </figure>',
+      '</div>'
+    ].join("");
+    document.body.appendChild(lightbox);
+
+    var lightboxDialog = lightbox.querySelector(".media-lightbox-dialog");
+    var lightboxImage = lightbox.querySelector(".media-lightbox-image");
+    var lightboxVideo = lightbox.querySelector(".media-lightbox-video");
+    var lightboxCaption = lightbox.querySelector(".media-lightbox-caption");
+    var lightboxClose = lightbox.querySelector(".media-lightbox-close");
+    var lastTrigger = null;
+    var lastTriggerWasPlaying = false;
+
+    function getCaption(target) {
+      return target.getAttribute("data-media-caption") || target.alt || target.getAttribute("aria-label") || "Media";
+    }
+
+    function getMediaSource(target) {
+      if (target.currentSrc) {
+        return target.currentSrc;
+      }
+      if (target.src) {
+        return target.src;
+      }
+
+      var source = target.querySelector("source");
+      return source ? source.src : "";
+    }
+
+    function isVideoTarget(target) {
+      return target.tagName === "VIDEO";
+    }
+
+    function playIfPossible(target) {
+      var playPromise = target.play();
+
+      if (playPromise && playPromise.catch) {
+        playPromise.catch(function () {});
+      }
+    }
+
+    function closeLightbox() {
+      var triggerToFocus = lastTrigger;
+
+      lightbox.hidden = true;
+      document.body.classList.remove("lightbox-open");
+      lightboxImage.hidden = true;
+      lightboxImage.removeAttribute("src");
+      lightboxImage.alt = "";
+      lightboxVideo.pause();
+      lightboxVideo.hidden = true;
+      lightboxVideo.removeAttribute("src");
+      lightboxVideo.removeAttribute("aria-label");
+      lightboxVideo.load();
+      lightboxCaption.textContent = "";
+
+      if (lastTrigger && isVideoTarget(lastTrigger) && lastTriggerWasPlaying) {
+        playIfPossible(lastTrigger);
+      }
+
+      lastTrigger = null;
+      lastTriggerWasPlaying = false;
+
+      if (triggerToFocus) {
+        triggerToFocus.focus();
+      }
+    }
+
+    function openLightbox(target) {
+      var caption = getCaption(target);
+
+      lastTrigger = target;
+      lastTriggerWasPlaying = isVideoTarget(target) && !target.paused;
+      lightboxCaption.textContent = caption;
+
+      if (isVideoTarget(target)) {
+        target.pause();
+        lightboxImage.hidden = true;
+        lightboxImage.removeAttribute("src");
+        lightboxImage.alt = "";
+
+        lightboxVideo.src = getMediaSource(target);
+        lightboxVideo.muted = target.muted;
+        lightboxVideo.hidden = false;
+        lightboxVideo.setAttribute("aria-label", caption);
+        lightboxVideo.load();
+      } else {
+        lightboxVideo.pause();
+        lightboxVideo.hidden = true;
+        lightboxVideo.removeAttribute("src");
+        lightboxVideo.removeAttribute("aria-label");
+        lightboxVideo.load();
+
+        lightboxImage.src = getMediaSource(target);
+        lightboxImage.alt = caption;
+        lightboxImage.hidden = false;
+      }
+
+      lightbox.hidden = false;
+      document.body.classList.add("lightbox-open");
+      lightboxClose.focus();
+
+      if (isVideoTarget(target)) {
+        playIfPossible(lightboxVideo);
+      }
+    }
+
+    lightboxTargets.forEach(function (media) {
+      var caption = getCaption(media);
+
+      media.tabIndex = 0;
+      media.setAttribute("role", "button");
+      media.setAttribute("aria-label", caption + " - open larger view");
+
+      media.addEventListener("click", function () {
+        openLightbox(media);
+      });
+
+      media.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openLightbox(media);
+        }
+      });
+    });
+
+    lightbox.addEventListener("click", function (event) {
+      if (!lightboxDialog.contains(event.target) || event.target === lightboxClose) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !lightbox.hidden) {
+        closeLightbox();
+      }
     });
   }
 })();

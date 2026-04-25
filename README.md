@@ -2,15 +2,15 @@
 
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Planned Release: v1.2.0</strong></p>
+  <p align="center"><strong>Current Version: v1.2.0</strong></p>
 
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
     <br />
-    Type with touch or a physical game controller, get offline learned word prediction, and keep every keystroke on your own device.
+    Type with touch or a physical game controller, learn with guided quickstart and practice lessons, get offline learned word prediction, and keep every keystroke on your own device.
     <br />
     <br />
-    <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-Available_Now-34A853?logo=google-play&logoColor=white" alt="Get ERICK on Google Play" /></a>
+    <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-v1.2.0-34A853?logo=google-play&logoColor=white" alt="Get ERICK v1.2.0 on Google Play" /></a>
     <a href="#availability"><img src="https://img.shields.io/badge/iOS_App_Store-Coming_Soon-0A84FF?logo=apple&logoColor=white" alt="iOS App Store release coming soon" /></a>
     <br />
     <br />
@@ -38,9 +38,9 @@
 
 ERICK is an accessibility-first keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
 
-ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting low-visual-demand typing.
+ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting lower-visual-demand typing.
 
-The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes guided quickstart flows, reusable practice lessons, controller diagnostics on Android, offline learned word prediction, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, and custom layouts.
+The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes guided quickstart flows, reusable practice lessons and quote practice, controller diagnostics and tuning on Android, offline learned word prediction, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, haptic and controller rumble feedback, and custom layouts.
 
 Everything runs fully offline. ERICK requests no internet permission, collects no typing data, and keeps every keystroke on the device.
 
@@ -67,7 +67,7 @@ ERICK is built around the idea that accessibility should improve the product for
 
 ## Availability
 
-- Android: Install ERICK from [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
+- Android: v1.2.0 is available on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
 - iOS: App Store release coming soon. Source builds remain available from the Xcode project under `ios/`.
 
 ## Features
@@ -78,12 +78,12 @@ ERICK is built around the idea that accessibility should improve the product for
 - [x] Dual-dial chorded typing with 8-section and optional 6-section modes, live previews, and utility swipes
 - [x] Multiple typing models and layouts: Quick Type, Steady Type, One-Handed, plus Logical, Efficiency, and Custom layouts
 - [x] Offline typing assistance with autocorrect, next-word suggestions, and a locally learned prediction profile
-- [x] Guided learning flows including Quickstart, reusable practice lessons, and quote practice
+- [x] Guided learning flows including Quickstart, Practice Hub lessons, and quote practice
 - [x] Controller-focused features including Android diagnostics, controller tuning, and supported controller rumble
 - [x] Accessibility and personalization options including left-handed mode, colorblind-safe palettes, custom colors, theme support, and OpenDyslexic
 - [x] Typing polish such as haptic feedback, typing sounds, shift and Caps Lock indicators, accelerating backspace, and offline-first privacy
 
-### Planned Features
+### Future Directions
 
 - [ ] Multi-language support
 - [ ] Improved Word Prediction and User Dictionaries
@@ -145,7 +145,7 @@ ERICK/
 | [User Guide](docs/documentation/User_Guide.md) | End-user guide for typing, settings, accessibility, and troubleshooting |
 | [Research](docs/documentation/Research/README.md) | Research notes, layout optimization, and academic references |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
-| [Sprint Archives](docs/documentation/Jira/) | Jira ticket archives and sprint retrospectives |
+| [Sprint Archives](docs/documentation/Jira/) | Jira ticket archives |
 
 ## AI Tooling
 
@@ -185,11 +185,13 @@ Please read the platform-specific setup guides before contributing:
 <p>
   <a href="https://github.com/bisensamiksha"><img src="https://github.com/bisensamiksha.png?size=64" width="48" height="48" alt="Samiksha Bisen" /></a>
   <a href="https://github.com/xingxingyxx"><img src="https://github.com/xingxingyxx.png?size=64" width="48" height="48" alt="xingxingyxx" /></a>
-  <a href="https://github.com/VilgotM"><img src="https://github.com/VilgotM.png?size=64" width="48" height="48" alt="VilgotM" /></a>
+  <a href="https://github.com/aditursynn"><img src="https://github.com/aditursynn.png?size=64" width="48" height="48" alt="Adilet Tursynn" /></a>
+  <a href="https://github.com/agpaneri-98"><img src="https://github.com/agpaneri-98?size=64" width="48" height="48" alt="Angeliki Paneri" /></a>
   <a href="https://github.com/nazgulengvall"><img src="https://github.com/nazgulengvall.png?size=64" width="48" height="48" alt="Nazgul Engvall" /></a>
+  <a href="https://github.com/VilgotM"><img src="https://github.com/VilgotM.png?size=64" width="48" height="48" alt="VilgotM" /></a>
 </p>
 
-Samiksha Bisen (Android and iOS), xingxingyxx (Kotlin Multiplatform and controller support), VilgotM (Android UI and polish), and Nazgul Engvall (Android settings).
+Samiksha Bisen (Android and iOS), Xingxing Yang (Kotlin Multiplatform and controller support), Adilet Tursynn (Research), Angeliki Paneri (UI/UX Design), Nazgul Engvall (Android settings), and Vilgot M (Android UI and polish).
 
 ## License
 
