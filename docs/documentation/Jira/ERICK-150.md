@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 8 |
@@ -53,6 +53,8 @@ The current research pipeline already considers several important factors.
 - 8-section efficiency research with a documented 44.6% improvement over random baseline
 - a 6-section optimizer update captured in ERICK-139, with a separate 36-position optimizer script now checked in under `docs/documentation/Research/vatsal/erick_v5_6section.py`
 - a reproduced 6-section legacy-baseline run captured in `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`
+- a checked-in benchmark-pack spec plus frozen shortform seed packs under `docs/documentation/Research/vatsal/benchmark_pack.md` and `docs/documentation/Research/vatsal/benchmark_packs/`
+- a reusable experiment report schema in `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`
 - shipped English efficiency layouts in shared keyboard logic
 - supporting visuals and raw logs in `docs/documentation/Research/`
 
@@ -60,7 +62,7 @@ The current research pipeline already considers several important factors.
 
 - objective weights were chosen heuristically and have not been sensitivity-tested recently
 - the optimizer is largely letter-frequency driven and only lightly reflects symbols, digits, or utility-mode switching cost
-- the research corpus is not clearly segmented by use case such as messaging, accessibility, or controller-heavy usage
+- the benchmark pack is now segmented by use case, but only the `wordfreq` baseline has actual optimizer runs so far
 - historical optimizer generations use different corpus mixes and reporting formats, so many older score comparisons are not directly apples-to-apples
 - the cost model does not explicitly include error-proneness, neighbor confusion, or mode-switch recovery time
 - learned prediction and next-word acceptance now reduce effort in practice, but the optimizer does not account for that interaction yet
@@ -99,9 +101,9 @@ Use this table for every baseline or branch comparison so later experiments stay
 | `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md` | `wordfreq` top 50k English words | reproduced 6-section PT run under legacy 5-action utility model | only comparable to other `wordfreq` v5-style runs, not to the shipped 6-section wheel |
 | `docs/documentation/Research/vatsal/scripts/corpus.txt` and `docs/documentation/Research/vatsal/scripts/corpus_data_values.py` | paste-ready unigram, bigram, and trigram snapshots derived from `wordfreq` top 50k | corpus extraction support files | useful for freezing a baseline corpus snapshot, but not yet a domain-segmented benchmark pack |
 
-Current Branch 8 gap: the repo has corpus history, but it does not yet have one mandatory benchmark suite covering messaging, accessibility phrases, controller-heavy input, punctuation-heavy text, and shared reporting columns across all future runs.
+Current Branch 8 state: the repo now has a checked-in benchmark spec in `docs/documentation/Research/vatsal/benchmark_pack.md`, frozen shortform seed packs under `docs/documentation/Research/vatsal/benchmark_packs/`, and a mandatory reporting template in `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`. The remaining risk is adoption drift, not missing benchmark artifacts.
 
-### Branch 8 Benchmark Draft - 2026-04-26
+### Branch 8 Benchmark Pack - 2026-04-26
 
 #### Minimum benchmark pack
 
@@ -133,6 +135,15 @@ Current Branch 8 gap: the repo has corpus history, but it does not yet have one 
 | Known caveats | captures utility mismatch, placeholder assumptions, or missing symbol modeling |
 
 Current reporting pattern: older reports usually include score, baseline, and improvement, while the newer v5-style outputs also include WPM and spread. They still do not consistently report corpus IDs, utility assumptions, or shipped-map drift, so Branch 8 should treat those as mandatory fields rather than optional commentary.
+
+Checked-in Branch 8 artifacts:
+
+- `docs/documentation/Research/vatsal/benchmark_pack.md`
+- `docs/documentation/Research/vatsal/benchmark_packs/messaging-shortform.txt`
+- `docs/documentation/Research/vatsal/benchmark_packs/accessibility-supportive.txt`
+- `docs/documentation/Research/vatsal/benchmark_packs/controller-tv-query.txt`
+- `docs/documentation/Research/vatsal/benchmark_packs/punctuation-mixed.txt`
+- `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`
 
 ---
 
@@ -239,17 +250,17 @@ Potential extensions worth testing:
 
 ## Acceptance Criteria
 
-- [ ] The ticket documents the current efficiency optimizer inputs, weights, and known blind spots
-- [ ] The ticket produces a prioritized list of follow-up experiments rather than a vague brainstorm
-- [ ] At least one proposed experiment addresses biomechanical weighting
-- [ ] At least one proposed experiment addresses n-gram weighting
-- [ ] At least one proposed experiment addresses symbols, digits, or utility-mode cost
-- [ ] At least one proposed experiment addresses error/confusion modeling
-- [ ] At least one proposed experiment addresses different user segments or input devices
-- [ ] The ticket includes a branch map with goals, tasks, outputs, open questions, and decision gates for each branch
-- [ ] The ticket documents the recommended execution order and the research-first questions that may affect any later split
-- [ ] No new child tickets are created during the planning phase; any future split remains documented inside ERICK-150 first
-- [ ] No shipped layout changes are made until the research output is reviewed
+- [x] The ticket documents the current efficiency optimizer inputs, weights, and known blind spots
+- [x] The ticket produces a prioritized list of follow-up experiments rather than a vague brainstorm
+- [x] At least one proposed experiment addresses biomechanical weighting
+- [x] At least one proposed experiment addresses n-gram weighting
+- [x] At least one proposed experiment addresses symbols, digits, or utility-mode cost
+- [x] At least one proposed experiment addresses error/confusion modeling
+- [x] At least one proposed experiment addresses different user segments or input devices
+- [x] The ticket includes a branch map with goals, tasks, outputs, open questions, and decision gates for each branch
+- [x] The ticket documents the recommended execution order and the research-first questions that may affect any later split
+- [x] No new child tickets are created during the planning phase; any future split remains documented inside ERICK-150 first
+- [x] No shipped layout changes are made until the research output is reviewed
 
 ---
 
@@ -332,6 +343,50 @@ Keep all research branches inside ERICK-150 until the baseline is reproduced and
 
 ---
 
+## Ranked Follow-Up Proposal
+
+This ranking is the final planning output of ERICK-150. It reflects both expected product leverage and the dependency order already captured above.
+
+| Rank | Branch | Why It Is Ranked Here | Outcome To Target | Shipping Or Exploratory |
+|---|---|---|---|---|
+| 1 | **Branch 0** | The current 6-section baseline still cannot reproduce the shipped rotated utility wheel and Symbols toggle, so every later cross-mode claim depends on closing or explicitly freezing this gap. | one trusted baseline statement for both dial modes | shipping-adjacent prerequisite |
+| 2 | **Branch 8** | The benchmark pack and result template now exist, but they only become valuable once later experiments adopt them consistently. | comparable cross-corpus experiment logs | shipping-adjacent research infrastructure |
+| 3 | **Branch 1** | Controller support, 6-section geometry, and assisted use create the strongest case that the old effort matrix may no longer be universally correct. | keep-or-change recommendation for the effort matrix | shipping-adjacent |
+| 4 | **Branch 2** | The current `1.0 / 0.6 / 0.3` mix still looks plausible, but it has not been sensitivity-tested recently and may hide multiple near-tie layout families. | coefficient ranges and stable PT settings | shipping-adjacent |
+| 5 | **Branch 3** | Symbols, digits, and utility cost are the clearest known modeling blind spot after the baseline itself, especially for 6-section mode. | mixed-text objective proposal with utility-cost evidence | shipping-adjacent |
+| 6 | **Branch 7** | ERICK-148 changed real typing effort through learned words, learned bigrams, and next-word suggestions, but prediction-aware research is only meaningful once the baseline and corpora are stable. | prediction-aware evaluation proposal | shipping-adjacent after baseline work |
+| 7 | **Branch 4** | Confusion-aware scoring could matter a lot, but it requires a privacy-safe evidence plan before it can move from theory to decision-making. | candidate confusion model and local-only collection plan | exploratory until data exists |
+| 8 | **Branch 6** | Learnability constraints are valuable, but they should be tested only after the team understands the pure-efficiency and confusion-aware candidate families. | hybrid objective candidates and lesson-cost proxy | exploratory |
+| 9 | **Branch 5** | Variant layouts have the highest product-complexity cost, so they should be considered last and only if earlier branches show a strong measurable gain. | one-layout versus multi-layout recommendation | exploratory / last-stage |
+
+## Shipping Recommendation
+
+### Branches That Belong On The Shipping Optimizer Path
+
+- **Branch 0** baseline closure or explicit freeze decision
+- **Branch 8** benchmark-pack adoption for every new result log
+- **Branch 1** effort-matrix calibration
+- **Branch 2** weight sensitivity and search tuning
+- **Branch 3** symbols, digits, and utility-cost modeling
+- **Branch 7** prediction-aware evaluation after the core baseline stabilizes
+
+### Branches That Should Stay Exploratory Longer
+
+- **Branch 4** until a privacy-safe confusion-evidence method exists
+- **Branch 6** until the team has stable pure-efficiency winners to compare against
+- **Branch 5** until earlier branches show that segment-specific layouts beat one global layout by enough to justify settings and teaching complexity
+
+## Recommended Split Notes
+
+Do not create child tickets during the planning phase. If later implementation or dedicated research work starts, split in this order:
+
+1. A shipped-aligned 6-section baseline and mixed-text utility-cost effort combining Branches 0 and 3.
+2. An objective-calibration effort combining Branches 1 and 2 once the baseline harness is stable.
+3. A prediction-aware evaluation harness for Branch 7 after the first reruns exist.
+4. Separate confusion, learnability, or segment-variant work only if earlier reruns materially change layout ranking.
+
+---
+
 ## Detailed Branch Plans
 
 ### Branch 0 - Baseline Reproducibility
@@ -393,6 +448,12 @@ Re-check whether the current physical effort matrix still reflects real use acro
 3. Review whether same-direction chords should still dominate as the easiest targets in every mode.
 4. Test whether cross-body diagonals, repeated outer-angle transitions, or same-hand repetition are under- or over-penalized.
 5. Compare a shared matrix against mode-specific or device-specific matrices.
+
+**Artifacts To Produce**
+
+- current effort-matrix inventory with mode and device notes
+- shared-versus-split matrix comparison summary
+- recommendation on whether the shipped matrix should change or stay frozen
 
 **Evidence To Gather**
 
@@ -460,6 +521,12 @@ Decide how much real-world typing cost is currently missing because the optimize
 3. Compare a letter-only objective against an expanded mixed-text objective.
 4. Identify whether the utility wheel itself should remain fixed, be partially modeled, or later be optimized separately.
 5. Evaluate whether coding or heavy punctuation domains require a different weighting profile.
+
+**Artifacts To Produce**
+
+- mixed-text benchmark comparison using the Branch 8 pack
+- proposed utility and symbol cost terms
+- recommendation on fixed utility wheel versus modeled utility cost
 
 **Evidence To Gather**
 
@@ -532,6 +599,12 @@ Determine whether ERICK should keep one Efficiency layout for everyone or suppor
 	- maintenance burden
 5. Recommend whether variant layouts should stay research-only or become a product direction.
 
+**Artifacts To Produce**
+
+- segment comparison scorecard
+- product-complexity memo
+- recommendation on one global layout versus segment-specific variants
+
 **Open Questions**
 
 - Is controller use different enough from touch to justify its own layout?
@@ -555,6 +628,12 @@ Measure whether a small sacrifice in raw efficiency could produce a layout that 
 3. Compare pure-efficiency winners against hybrid winners using the same baseline scorecard.
 4. Review whether lesson difficulty, onboarding friction, or practice error rates can serve as proxies for learnability.
 5. Recommend whether hybrid layouts should be considered for a later product experiment.
+
+**Artifacts To Produce**
+
+- hybrid objective definitions
+- baseline-versus-hybrid scorecard
+- recommendation on whether learnability penalties deserve a later product test
 
 **Open Questions**
 
@@ -581,6 +660,12 @@ Decide how the optimizer should change now that prediction, learned words, and l
 3. Test whether layouts optimized for prefix-heavy input differ from layouts optimized for raw character entry.
 4. Decide whether prediction-aware evaluation belongs in the optimizer itself or only in post-hoc benchmarking.
 5. Document how learned user bigrams or domain-specific predictions could change future corpora.
+
+**Artifacts To Produce**
+
+- prediction-aware metric proposal
+- prefix-heavy versus raw-entry comparison notes
+- recommendation on optimizer-integrated versus post-hoc prediction evaluation
 
 **Open Questions**
 
@@ -610,6 +695,12 @@ Strengthen the datasets and benchmark suite used across every other branch.
 4. Decide which metrics are required in every branch result, such as objective score, predicted WPM, symbol overhead, and stability.
 5. Document what experimental results are comparable and what results are only exploratory.
 
+**Artifacts To Produce**
+
+- benchmark-pack spec and frozen shortform seed files
+- mandatory result template for future experiment logs
+- comparability rules for legacy versus current result families
+
 **Open Questions**
 
 - Does one general corpus remain enough, or is the current optimizer overfitting to a narrow writing style?
@@ -621,12 +712,12 @@ If corpus choice changes the best layout family, every later branch conclusion m
 
 ### Branch Status
 
-- Status: `Researching`
+- Status: `Ready For Split`
 - Latest finding summary: the current corpus story is still fragmented across at least three generations, but the repo now has a checked-in Branch 8 benchmark spec plus frozen shortform benchmark seeds for messaging, accessibility-supportive text, controller-heavy phrases, and punctuation-heavy probes. The mandatory result schema is also now checked in, so future runs no longer need to reinvent their reporting columns.
 - Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/benchmark_pack.md`, `docs/documentation/Research/vatsal/benchmark_packs/`, `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_2.md`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, `docs/documentation/Research/vatsal/scripts/corpus.txt`, `docs/documentation/Research/vatsal/scripts/corpus_data_values.py`, and `docs/documentation/Research/vatsal/scripts/run_hybrid.py`.
 - Open blocker: the benchmark pack now exists, but later branches still need to use it consistently so cross-corpus claims stay comparable.
 - Next action: use the checked-in benchmark IDs and result template for the first Branch 1-3 experiment logs instead of creating branch-specific one-off reports.
-- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: ready to split only if later work needs automated corpus regeneration or a dedicated benchmark runner; otherwise keep this branch here as the canonical benchmark spec.
 
 ---
 
@@ -647,10 +738,11 @@ Use the following structure inside this ticket as each branch progresses:
 
 ## Exit Conditions For ERICK-150
 
-This ticket is ready to close only when:
+This planning ticket is ready to close when:
 
-- Branch 0 baseline reproduction is complete
-- each active branch has a documented result or explicit no-go outcome
-- the highest-value next steps are prioritized
-- any branch that truly deserves implementation or a dedicated research follow-up has a clear split recommendation documented here
-- the team can explain why those branches should or should not become separate tickets
+- the current baseline state and its exact open gaps are documented clearly enough that later work starts from evidence instead of guesses
+- each branch has a goal, work list, output target, open questions, and decision gate in one place
+- the highest-value next steps are ranked and labeled as shipping-adjacent versus exploratory
+- the benchmark pack and result template are checked in so future branches can report comparable results
+- any future split remains documented here first instead of being created prematurely
+- no shipped layout changes are made before the research output is reviewed
