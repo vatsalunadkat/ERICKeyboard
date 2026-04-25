@@ -8,6 +8,10 @@ This directory contains the research foundation for the ERICK keyboard, includin
 
 The ERICK layout optimization pipeline seeks to minimize typing effort for a two-joystick chorded keyboard with 64 chord positions (8 directions x 8 directions). The optimizer places characters on chords such that high-frequency letters and common letter transitions are assigned to the most ergonomically efficient positions.
 
+The current checked-in baseline is split across two research tracks:
+- the documented 8-section v5 baseline in `vatsal/erick_v5_vectorized.py` with matching output in `vatsal/v5_output.txt`
+- a separate 6-section optimizer in `vatsal/erick_v5_6section.py` that reflects the post-ERICK-139 geometry, but does not currently have a checked-in result log beside the script
+
 Key research goals:
 1. Quantify chord effort using a biomechanical model (direction difficulty, dual-thumb penalties, alternation bonuses)
 2. Optimize character placement across unigram, bigram, and trigram frequency data
@@ -44,6 +48,16 @@ Key research goals:
 
 Most efficient placements: **e** (E+E), **t** (N+N), **a** (NE+NE) - the three most common English letters on the easiest same-direction chords.
 
+## Current Baseline Status
+
+| Track | Current State |
+|---|---|
+| 8-section | `vatsal/erick_v5_vectorized.py` and `vatsal/v5_output.txt` still provide the clearest reproducible baseline: 8 chains, 500k steps per chain, `1.0 / 0.6 / 0.3` unigram-bigram-trigram weighting, and the 44.6% improvement snapshot shown above. |
+| 6-section | `vatsal/erick_v5_6section.py` exists as a distinct 36-position optimizer, but the repo does not currently include a matching checked-in metrics/output file for that script and the script still models an older 5-action utility wheel that omits the shipped Symbols toggle. |
+| Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 8-section layout is clearly derived from the v5 research family, but several punctuation and filler assignments differ from `v5_output.txt`. The 6-section efficiency map is explicitly commented as a placeholder that still needs an optimizer re-run. |
+
+Treat the current README metrics as the 8-section v5 baseline, not as a complete summary of both shipped efficiency modes.
+
 ---
 
 ## Directory Structure
@@ -59,6 +73,7 @@ Research/
 │
 └── vatsal/
     ├── erick_v5_vectorized.py       <- Main optimizer (Parallel Tempering, vectorized)
+    ├── erick_v5_6section.py         <- 6-section optimizer (36-position variant)
     ├── v5_output.txt                <- v5 results (44.6% improvement, 73.2 WPM)
     │
     ├── layout_design/               <- Visual mockups, wireframes, React visualizer
@@ -115,6 +130,8 @@ The main optimization script uses Parallel Tempering with 8 concurrent temperatu
 
 ### Running the Optimizer
 
+#### 8-section baseline
+
 ```bash
 pip install numpy wordfreq
 cd docs/documentation/Research/vatsal
@@ -127,6 +144,16 @@ python erick_v5_vectorized.py > v5_output.txt 2>&1
 ```
 
 Expected runtime: ~30 minutes on a modern CPU.
+
+#### 6-section baseline
+
+```bash
+pip install numpy wordfreq
+cd docs/documentation/Research/vatsal
+python erick_v5_6section.py
+```
+
+The 6-section script prints a Kotlin `efficiencyNormalMap6` / `efficiencyShiftedMap6` snippet for comparison with `KeyboardLogic.kt`, but no checked-in output snapshot currently ships with the repo. The script also models a 5-action utility wheel and should be treated as a research baseline candidate, not as an exact mirror of the shipped rotated 6-section utility wheel.
 
 ---
 
