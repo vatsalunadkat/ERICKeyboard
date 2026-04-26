@@ -713,6 +713,15 @@ Decide how the optimizer should change now that prediction, learned words, and l
 
 If prediction-aware evaluation materially changes the ranking of layouts, later implementation planning should treat layout and prediction as a coupled system rather than two separate optimizations.
 
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: Branch 7 now has a concrete shipped-behavior model to target. The shared state machine uses prefix completions while `wordBuffer` is non-empty, switches to next-word suggestions when the buffer is empty, and applies punctuation-aware suggestion acceptance plus learned word and bigram boosts on acceptance. That means the first prediction-aware metric should benchmark prefix and next-word savings separately before any optimizer integration attempt.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt`, `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt`, `android/shared/src/commonMain/kotlin/KeyboardContracts.kt`, `docs/documentation/Jira/ERICK-148.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_metric_proposal_2026-04-26.md`.
+- Open blocker: the repo still lacks a benchmark harness that maps corpus words and word pairs to top-3 prediction availability and acceptance opportunities.
+- Next action: implement a post-hoc benchmark pass that measures shortest useful prefix depth, next-word hit rate, and tap-substitution savings on the existing Branch 8 benchmark packs before attempting any optimizer-coupled prediction score.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until the first prediction-aware benchmark pass exists.
+
 ### Branch 8 - Corpora And Evaluation Expansion
 
 **Goal**
