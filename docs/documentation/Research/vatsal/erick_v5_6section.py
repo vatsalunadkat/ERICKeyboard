@@ -75,6 +75,7 @@ TRANSITION_TIME_SCALE = 0.04
 
 UTILITY_MODEL = env_choice("ERICK6_UTILITY_MODEL", {"legacy", "shipped"}, "legacy")
 CORPUS_PROFILE = env_choice("ERICK6_CORPUS_PROFILE", {"wordfreq", "mixed_shortform"}, "wordfreq")
+SYMBOL_COST_MODEL = env_choice("ERICK6_SYMBOL_COST_MODEL", {"single_toggle", "toggle_pair"}, "single_toggle")
 
 BENCHMARK_PACK_DIR = Path(__file__).resolve().parent / "benchmark_packs"
 LETTERS = list("abcdefghijklmnopqrstuvwxyz")
@@ -95,29 +96,45 @@ def _add_token_sequence(tokens, weight, uni, bi, tri):
             tri[(tokens[i], tokens[i + 1], tokens[i + 2])] += weight
 
 
+def _symbol_cluster_tokens():
+    if "TOGGLE_SYMBOLS" not in UTILITY:
+        return []
+    if SYMBOL_COST_MODEL == "toggle_pair":
+        return ["TOGGLE_SYMBOLS", "TOGGLE_SYMBOLS"]
+    return ["TOGGLE_SYMBOLS"]
+
+
 def _tokenize_shortform_line(text: str):
     tokens = []
+    text = text.lower()
     prev_space = False
-    prev_symbol_toggle = False
-    for char in text.lower():
+    index = 0
+
+    while index < len(text):
+        char = text[index]
         if char in LETTERS or char in DIGITS:
             tokens.append(char)
             prev_space = False
-            prev_symbol_toggle = False
+            index += 1
         elif char.isspace():
             if tokens and not prev_space:
                 tokens.append("SPACE")
                 prev_space = True
-            prev_symbol_toggle = False
+            index += 1
         elif char == ".":
             tokens.append(".")
             prev_space = False
-            prev_symbol_toggle = False
+            index += 1
         elif "TOGGLE_SYMBOLS" in UTILITY:
-            if not prev_symbol_toggle:
-                tokens.append("TOGGLE_SYMBOLS")
+            while index < len(text):
+                pending = text[index]
+                if pending in LETTERS or pending in DIGITS or pending.isspace() or pending == ".":
+                    break
+                index += 1
+            tokens.extend(_symbol_cluster_tokens())
             prev_space = False
-            prev_symbol_toggle = True
+        else:
+            index += 1
     if tokens and tokens[-1] == "SPACE":
         tokens.pop()
     return tokens
@@ -133,7 +150,7 @@ def build_corpus():
     bi  = defaultdict(float)
     tri = defaultdict(float)
 
-    print(f"Building corpus…  profile={CORPUS_PROFILE}  utility={UTILITY_MODEL}")
+    print(f"Building corpus…  profile={CORPUS_PROFILE}  utility={UTILITY_MODEL}  symbol_cost={SYMBOL_COST_MODEL}")
 
     if CORPUS_PROFILE == "wordfreq":
         print("  Fetching wordfreq corpus (top 50k words)…")
@@ -732,7 +749,7 @@ if __name__ == "__main__":
     print("║  ERICK v5 (6-SECTION) — Parallel Tempering Optimizer        ║")
     print("║  6 directions · 36 positions · Normalised corpus            ║")
     print("╚══════════════════════════════════════════════════════════════╝\n")
-    print(f"Config: utility={UTILITY_MODEL}  corpus={CORPUS_PROFILE}  steps={STEPS_PER_CHAIN}  baseline={BASELINE_SAMPLES}\n")
+    print(f"Config: utility={UTILITY_MODEL}  corpus={CORPUS_PROFILE}  symbol_cost={SYMBOL_COST_MODEL}  steps={STEPS_PER_CHAIN}  baseline={BASELINE_SAMPLES}\n")
 
     best_layout, best_score = run()
 
