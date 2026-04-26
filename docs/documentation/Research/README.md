@@ -57,6 +57,7 @@ Most efficient placements: **e** (E+E), **t** (N+N), **a** (NE+NE) - the three m
 | 6-section | `vatsal/erick_v5_6section.py` was reproduced on 2026-04-26 with score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. The checked-in summary lives in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`. This remains a legacy baseline because the script still models an older 5-action utility wheel that omits the shipped Symbols toggle. |
 | 6-section shipped-path run | `vatsal/erick_v5_6section.py` now also supports `ERICK6_UTILITY_MODEL=shipped` plus `ERICK6_CORPUS_PROFILE=mixed_shortform`, which uses the Branch 8 benchmark packs to surface non-space utility costs. A full 2026-04-26 run scored `0.97299`, baseline `1.41998 ± 0.07649`, `31.5%` improvement, and predicted `70.6` WPM. This is a shipped-adjacent run, not an exact shipped baseline, because symbol-heavy text is still approximated through `TOGGLE_SYMBOLS` tokens rather than a re-optimized symbol layer, and the resulting normal-layer map matches only `2 / 36` slots in the current shared placeholder map. See `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`. |
 | Branch 3 symbol-cost comparison | `vatsal/erick_v5_6section.py` now also supports `ERICK6_SYMBOL_COST_MODEL=single_toggle|toggle_pair`. The first full `toggle_pair` rerun scored `0.95350`, baseline `1.39249 ± 0.07509`, `31.5%` improvement, and predicted `71.1` WPM. It changed `9 / 36` normal-layer slots relative to the earlier `single_toggle` shipped-path run while still matching only `2 / 36` placeholder slots in `KeyboardLogic.kt`. See `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`. |
+| Branch 2 weight sensitivity | Fixed-runtime 100k-step sweeps now exist for both modes. `bigram_up` and `trigram_up` changed the winning layouts materially, especially in 8-section, but none of the tested mixes produced a clear cross-mode reason to replace the default `1.0 / 0.6 / 0.3` weights. All six probes were effectively converged by 50k steps, so shorter screening runs are now justified for future coefficient checks. See `vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`. |
 | Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 8-section layout is clearly derived from the v5 research family, but several punctuation and filler assignments differ from `v5_output.txt`. The 6-section efficiency map is explicitly commented as a placeholder that still needs an optimizer re-run, and the reproduced 6-section script output matches only `4 / 36` placeholder slots. |
 | Branch 8 evaluation pack | `vatsal/benchmark_pack.md` defines the reusable benchmark IDs, source anchors, and normalization rules. Frozen shortform seed files live in `vatsal/benchmark_packs/`, and `vatsal/results_and_logs/experiment_result_template.md` defines the required reporting schema for future ERICK-150 experiment logs. |
 
@@ -155,6 +156,14 @@ python erick_v5_vectorized.py > v5_output.txt 2>&1
 
 Expected runtime: ~30 minutes on a modern CPU.
 
+For Branch 2 style sweeps, you can also override:
+
+- `ERICK8_STEPS_PER_CHAIN`
+- `ERICK8_BASELINE_SAMPLES`
+- `ERICK8_SWAP_INTERVAL`
+- `ERICK8_BIGRAM_WEIGHT`
+- `ERICK8_TRIGRAM_WEIGHT`
+
 #### 6-section baseline
 
 ```bash
@@ -172,15 +181,21 @@ The script now also supports two env-selectable research knobs:
 - `ERICK6_UTILITY_MODEL=legacy|shipped`
 - `ERICK6_CORPUS_PROFILE=wordfreq|mixed_shortform`
 - `ERICK6_SYMBOL_COST_MODEL=single_toggle|toggle_pair`
+- `ERICK6_EFFORT_PROFILE=shared_derived|touch_strict|controller_relaxed`
+- `ERICK6_BIGRAM_WEIGHT`
+- `ERICK6_TRIGRAM_WEIGHT`
 
 The `mixed_shortform` corpus profile reads the checked-in Branch 8 benchmark packs and can surface utility costs for `TOGGLE_SYMBOLS`, `SPACE`, and `.`. A 2026-04-26 smoke validation for this path is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, and the first full shipped-profile run is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`.
 
 The first Branch 3 comparison using `ERICK6_SYMBOL_COST_MODEL=toggle_pair` is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`.
 
+The first Branch 1 effort-profile probe and Branch 2 weight-sensitivity probe are recorded in `vatsal/results_and_logs/branch1_effort_matrix_probe_2026-04-26.md` and `vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`.
+
 For fast smoke checks, you can also override:
 
 - `ERICK6_STEPS_PER_CHAIN`
 - `ERICK6_BASELINE_SAMPLES`
+- `ERICK6_SWAP_INTERVAL`
 
 ### Branch 8 benchmark pack
 

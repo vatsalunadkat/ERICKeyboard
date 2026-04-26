@@ -60,9 +60,9 @@ The current research pipeline already considers several important factors.
 
 ### Current Known Limits
 
-- objective weights were chosen heuristically and have not been sensitivity-tested recently
+- objective weights were chosen heuristically, and the first fixed-runtime Branch 2 probe now suggests `1.0 / 0.6 / 0.3` remains the safest cross-mode default until prediction-aware or device-specific evidence justifies a retune
 - the optimizer is largely letter-frequency driven and only lightly reflects symbols, digits, or utility-mode switching cost
-- the benchmark pack is now segmented by use case, but only the `wordfreq` baseline has actual optimizer runs so far
+- the benchmark pack is now segmented by use case and the shipped-adjacent 6-section path now uses it, but 8-section scored reruns still mostly sit on the `wordfreq` continuity baseline
 - historical optimizer generations use different corpus mixes and reporting formats, so many older score comparisons are not directly apples-to-apples
 - the cost model does not explicitly include error-proneness, neighbor confusion, or mode-switch recovery time
 - learned prediction and next-word acceptance now reduce effort in practice, but the optimizer does not account for that interaction yet
@@ -288,7 +288,7 @@ Potential extensions worth testing:
 Do not split these out yet. Keep them here until the relevant branch produces enough evidence.
 
 - Branch 1 could later justify a separate calibration effort if touch and controller need different effort matrices.
-- Branch 2 could later justify an optimizer-tuning implementation if weight sensitivity produces a clearly dominant objective mix.
+- Branch 2 no longer justifies an immediate optimizer-tuning split after the first fixed-runtime probe; only reopen it if later prediction-aware, confusion-aware, or new-corpus runs produce a clearly dominant non-default mix.
 - Branch 3 could later justify a symbols-and-utility modeling effort if non-letter cost proves large enough to change ranking.
 - Branch 4 could later justify a privacy-safe trace or instrumentation study if confusion modeling cannot be estimated from static analysis alone.
 - Branch 6 could later justify a hybrid learnability layout effort if the research shows a strong speed-versus-teachability tradeoff.
@@ -382,9 +382,9 @@ This ranking is the final planning output of ERICK-150. It reflects both expecte
 Do not create child tickets during the planning phase. If later implementation or dedicated research work starts, split in this order:
 
 1. A mixed-text and symbol-cost effort centered on Branch 3 now that Branch 0 has a practical shipped-adjacent baseline.
-2. An objective-calibration effort combining Branches 1 and 2 once Branch 3 clarifies whether utility costs materially change ranking.
-3. A prediction-aware evaluation harness for Branch 7 after the first reruns exist.
-4. Separate confusion, learnability, or segment-variant work only if earlier reruns materially change layout ranking.
+2. A prediction-aware evaluation harness for Branch 7 after the first reruns exist.
+3. A local-only confusion instrumentation spike for Branch 4 once diagnostics or practice aggregates can capture direction buckets without raw text.
+4. Re-open objective calibration only if later Branch 4, Branch 7, or new benchmark-family reruns produce a clearly dominant non-default mix.
 
 ---
 
@@ -513,6 +513,15 @@ Measure how sensitive the current results are to the unigram, bigram, trigram, a
 **Decision Gate**
 
 If the top layouts shift heavily under small coefficient changes, later branches must treat the current shipped Efficiency layout as only one candidate among several viable families.
+
+### Branch Status
+
+- Status: `No-Go`
+- Latest finding summary: Branch 2 now has the first fixed-runtime sensitivity sweep on both active research tracks. On the shipped-adjacent 6-section path, `bigram_up` (`1.0 / 0.7 / 0.2`) changed `25 / 36` normal-layer slots and moved `6 / 12` of `etaoinshrdlc`, while `trigram_up` (`1.0 / 0.5 / 0.4`) changed `11 / 36` slots but kept all 12 of those top letters in place. On the 8-section `wordfreq` continuity path, the same probes changed `39 / 64` and `31 / 64` slots respectively, moving `11 / 12` and `5 / 12` of the top letters. Those are real family shifts, but the within-family improvement bands stayed almost flat (`31.1% -> 31.4% -> 30.9%` on 6-section and `45.2% -> 45.3% -> 45.0%` on 8-section), so Branch 2 does not currently justify a coefficient retune. Search tuning also came back stable: every documented probe was effectively converged by 50k steps, and the largest remaining gain after 50k was only `0.00105`.
+- Evidence reviewed: `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch2_default_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch2_bigram_up_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch2_trigram_up_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_8section_branch2_default_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_8section_branch2_bigram_up_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_8section_branch2_trigram_up_probe_2026-04-26.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`.
+- Open blocker: coefficient families change the objective scale, so future tuning decisions need stronger external evidence than tiny improvement-band differences, such as prediction-aware savings or device-specific confusion data.
+- Next action: keep `1.0 / 0.6 / 0.3` and the current PT schedule as the defaults, use 50k steps per chain for screening sweeps, 100k for documented branch probes, and only spend 500k on final confirmation runs or on future Branch 4 / Branch 7 reruns that change the objective materially.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: no split now; only reopen Branch 2 if later objective terms or new benchmark families produce a clearly dominant non-default coefficient mix.
 
 ### Branch 3 - Symbols, Digits, And Utility Cost
 
@@ -770,8 +779,8 @@ If corpus choice changes the best layout family, every later branch conclusion m
 - Status: `Ready For Split`
 - Latest finding summary: Branch 8 is no longer just a planned harness. Branch 3 has already adopted the benchmark pack in full scored shipped-wheel runs, and Branches 4-7 now depend on the same benchmark IDs and comparability rules in their checked-in proposals. The result template has also been hardened to require benchmark IDs, symbol-cost assumptions, prediction assumptions, and an explicit comparability family so later runs stop drifting into one-off formats.
 - Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/benchmark_pack.md`, `docs/documentation/Research/vatsal/benchmark_packs/`, `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/branch8_adoption_update_2026-04-26.md`, `docs/documentation/Research/vatsal/scripts/corpus.txt`, `docs/documentation/Research/vatsal/scripts/corpus_data_values.py`, and `docs/documentation/Research/vatsal/scripts/run_hybrid.py`.
-- Open blocker: Branches 1 and 2 still lack scored reruns under the hardened Branch 8 reporting rules, so cross-family adoption is real but not complete.
-- Next action: require the hardened template and comparability-family label for the next scored Branch 1, 2, or 7 benchmark artifact instead of allowing another ad-hoc result note.
+- Open blocker: the hardened reporting rules are now used in Branches 1-3, but Branch 7 still lacks the first scored prediction-aware benchmark pass and 8-section still has no benchmark-pack-based non-`wordfreq` rerun.
+- Next action: require the hardened template and comparability-family label for the first scored Branch 7 artifact and for any future 8-section benchmark-pack experiment instead of allowing another ad-hoc result note.
 - Whether the branch still belongs inside ERICK-150 or is finally ready to split: ready to split only if later work needs automated corpus regeneration or a dedicated benchmark runner; otherwise keep this branch here as the canonical benchmark spec.
 
 ---

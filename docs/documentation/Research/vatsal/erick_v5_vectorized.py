@@ -23,6 +23,7 @@ FIXED vs broken original:
 """
 
 import math
+import os
 import time
 import numpy as np
 
@@ -42,21 +43,32 @@ except ImportError:
         @staticmethod
         def write(s): print(s)
 
+
+def env_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    return int(value) if value is not None else default
+
+
+def env_float(name: str, default: float) -> float:
+    value = os.environ.get(name)
+    return float(value) if value is not None else default
+
 # ════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
 # ════════════════════════════════════════════════════════════════════
 
 CHAINS          = 8
-STEPS_PER_CHAIN = 500_000
-SWAP_INTERVAL   = 200
+STEPS_PER_CHAIN = env_int("ERICK8_STEPS_PER_CHAIN", 500_000)
+SWAP_INTERVAL   = env_int("ERICK8_SWAP_INTERVAL", 200)
+BASELINE_SAMPLES = env_int("ERICK8_BASELINE_SAMPLES", 200)
 
 # Calibrated for normalised costs (range ~0.05–0.5).
 # Highest T accepts ~40% uphill moves; lowest T <0.1%.
 # Typical delta ≈ 0.001–0.01 on normalised scale.
 TEMPS = [0.012, 0.008, 0.005, 0.003, 0.0018, 0.001, 0.0005, 0.0002]
 
-BIGRAM_WEIGHT   = 0.6
-TRIGRAM_WEIGHT  = 0.3
+BIGRAM_WEIGHT   = env_float("ERICK8_BIGRAM_WEIGHT", 0.6)
+TRIGRAM_WEIGHT  = env_float("ERICK8_TRIGRAM_WEIGHT", 0.3)
 
 DUAL_THUMB_PENALTY   = 1.0
 SINGLE_THUMB_PENALTY = 0.25
@@ -625,12 +637,13 @@ if __name__ == "__main__":
     print("║  ERICK v5 (FINAL) — Parallel Tempering Optimizer            ║")
     print("║  Normalised corpus · Integer index masks · ~8–12k it/s      ║")
     print("╚══════════════════════════════════════════════════════════════╝\n")
+    print(f"Config: bigram={BIGRAM_WEIGHT}  trigram={TRIGRAM_WEIGHT}  steps={STEPS_PER_CHAIN}  baseline={BASELINE_SAMPLES}\n")
 
     best_layout, best_score = run()
 
-    print("\nComputing baseline (200 random layouts)…")
+    print(f"\nComputing baseline ({BASELINE_SAMPLES} random layouts)…")
     rng0     = np.random.default_rng(0)
-    baseline = [total_cost(random_layout(rng0)) for _ in range(200)]
+    baseline = [total_cost(random_layout(rng0)) for _ in range(BASELINE_SAMPLES)]
     b_mean   = float(np.mean(baseline))
     b_std    = float(np.std(baseline))
     improvement = (b_mean - best_score) / b_mean * 100
