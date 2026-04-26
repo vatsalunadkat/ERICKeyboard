@@ -473,6 +473,15 @@ Re-check whether the current physical effort matrix still reflects real use acro
 
 If the current effort matrix changes the ranking of top layouts materially, later branches must use the recalibrated matrix before drawing conclusions.
 
+### Branch Status
+
+- Status: `Needs More Data`
+- Latest finding summary: Branch 1 now has a first concrete split-matrix probe on the shipped 6-section mixed-shortform path. The current shared-derived 6-section matrix was compared against `touch_strict` and `controller_relaxed` candidate profiles with the shipped utility wheel and `toggle_pair` symbol-cost model. `controller_relaxed` changed `14 / 36` slots relative to the current shared-derived winner and `touch_strict` changed `22 / 36`, but the easiest chord family stayed the same in every profile: `N+N`, `NE+NE`, `NW+NW`, `SE+SE`, `S+S`, and `SW+SW` remained the six easiest positions. That means Branch 1 found real sensitivity in the finer-grained ranking, but not enough evidence to justify replacing the shared-derived matrix yet.
+- Evidence reviewed: `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch1_touch_strict_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch1_controller_relaxed_probe_2026-04-26.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch1_effort_matrix_probe_2026-04-26.md`.
+- Open blocker: the branch still lacks device-specific evidence from controller diagnostics or practice traces, so the split profiles are analytic probes rather than calibrated user-backed matrices.
+- Next action: keep the shared-derived matrix as the active default, and only revisit a controller-specific or touch-specific split if later local-only Branch 4 style evidence shows materially different confusion or comfort patterns by device.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a calibrated split matrix has evidence beyond analytic probes.
+
 ### Branch 2 - Weight Sensitivity And Search Tuning
 
 **Goal**

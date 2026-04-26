@@ -42,6 +42,11 @@ def env_int(name: str, default: int) -> int:
     return int(value) if value is not None else default
 
 
+def env_float(name: str, default: float) -> float:
+    value = os.environ.get(name)
+    return float(value) if value is not None else default
+
+
 def env_choice(name: str, choices, default: str) -> str:
     value = os.environ.get(name, default)
     if value not in choices:
@@ -59,8 +64,8 @@ BASELINE_SAMPLES = env_int("ERICK6_BASELINE_SAMPLES", 200)
 
 TEMPS = [0.012, 0.008, 0.005, 0.003, 0.0018, 0.001, 0.0005, 0.0002]
 
-BIGRAM_WEIGHT   = 0.6
-TRIGRAM_WEIGHT  = 0.3
+BIGRAM_WEIGHT   = env_float("ERICK6_BIGRAM_WEIGHT", 0.6)
+TRIGRAM_WEIGHT  = env_float("ERICK6_TRIGRAM_WEIGHT", 0.3)
 
 DUAL_THUMB_PENALTY   = 1.0
 SINGLE_THUMB_PENALTY = 0.25
@@ -76,6 +81,7 @@ TRANSITION_TIME_SCALE = 0.04
 UTILITY_MODEL = env_choice("ERICK6_UTILITY_MODEL", {"legacy", "shipped"}, "legacy")
 CORPUS_PROFILE = env_choice("ERICK6_CORPUS_PROFILE", {"wordfreq", "mixed_shortform"}, "wordfreq")
 SYMBOL_COST_MODEL = env_choice("ERICK6_SYMBOL_COST_MODEL", {"single_toggle", "toggle_pair"}, "single_toggle")
+EFFORT_PROFILE = env_choice("ERICK6_EFFORT_PROFILE", {"shared_derived", "touch_strict", "controller_relaxed"}, "shared_derived")
 
 BENCHMARK_PACK_DIR = Path(__file__).resolve().parent / "benchmark_packs"
 LETTERS = list("abcdefghijklmnopqrstuvwxyz")
@@ -242,12 +248,30 @@ UTIL_RIGHT = {k: IDX[d] for k, d in UTILITY.items()}
 N_UTIL     = len(UTILITY)
 
 # Effort ratings for 6 directions: N, NE, SE, S, SW, NW
-# Derived from 8-section values, dropping E and W
-L_EFF = np.array([0.95, 0.98, 1.08, 1.18, 1.30, 1.03])
-R_EFF = np.array([0.88, 0.92, 1.02, 1.12, 1.20, 0.98])
+# The default profile is derived from the 8-section matrix by dropping E and W.
+EFFORT_PROFILES = {
+    "shared_derived": {
+        "L_EFF": np.array([0.95, 0.98, 1.08, 1.18, 1.30, 1.03]),
+        "R_EFF": np.array([0.88, 0.92, 1.02, 1.12, 1.20, 0.98]),
+        "SEP": np.array([0.5, 0.8, 1.2, 1.7]),
+    },
+    "touch_strict": {
+        "L_EFF": np.array([0.93, 0.99, 1.12, 1.24, 1.38, 1.04]),
+        "R_EFF": np.array([0.86, 0.93, 1.05, 1.17, 1.30, 1.00]),
+        "SEP": np.array([0.5, 0.85, 1.3, 1.9]),
+    },
+    "controller_relaxed": {
+        "L_EFF": np.array([0.97, 0.99, 1.04, 1.10, 1.16, 1.01]),
+        "R_EFF": np.array([0.92, 0.95, 1.00, 1.07, 1.12, 0.97]),
+        "SEP": np.array([0.5, 0.74, 1.05, 1.45]),
+    },
+}
+EFFORT_PROFILE_DATA = EFFORT_PROFILES[EFFORT_PROFILE]
+L_EFF = EFFORT_PROFILE_DATA["L_EFF"]
+R_EFF = EFFORT_PROFILE_DATA["R_EFF"]
 
 # Separation cost by angular distance (max distance = 3 for 6 sections)
-SEP   = np.array([0.5, 0.8, 1.2, 1.7])
+SEP   = EFFORT_PROFILE_DATA["SEP"]
 
 # Angular distance matrix (6×6)
 ANG   = np.array([[min(abs(i-j), ND-abs(i-j)) for j in range(ND)]
@@ -749,7 +773,7 @@ if __name__ == "__main__":
     print("║  ERICK v5 (6-SECTION) — Parallel Tempering Optimizer        ║")
     print("║  6 directions · 36 positions · Normalised corpus            ║")
     print("╚══════════════════════════════════════════════════════════════╝\n")
-    print(f"Config: utility={UTILITY_MODEL}  corpus={CORPUS_PROFILE}  symbol_cost={SYMBOL_COST_MODEL}  steps={STEPS_PER_CHAIN}  baseline={BASELINE_SAMPLES}\n")
+    print(f"Config: utility={UTILITY_MODEL}  corpus={CORPUS_PROFILE}  symbol_cost={SYMBOL_COST_MODEL}  effort={EFFORT_PROFILE}  bigram={BIGRAM_WEIGHT}  trigram={TRIGRAM_WEIGHT}  steps={STEPS_PER_CHAIN}  baseline={BASELINE_SAMPLES}\n")
 
     best_layout, best_score = run()
 
