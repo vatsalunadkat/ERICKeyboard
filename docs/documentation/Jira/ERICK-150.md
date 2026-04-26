@@ -587,6 +587,15 @@ Add a realistic penalty for layouts that look efficient on paper but are easy to
 
 If confusion-aware scoring reverses the ranking of top layouts, any later optimizer upgrade should treat this branch as required rather than exploratory.
 
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: Branch 4 no longer needs to wait for a broad telemetry plan before it can start. The shared controller path already exposes raw values, adjusted values, magnitude, active state, and resolved direction in `ControllerInputProcessor.kt`, and `ControllerDiagnosticsActivity.kt` already renders those values locally. That is enough to define the first privacy-safe confusion buckets around adjacent-direction slips, mirror slips, dead-zone jitter, overshoot, and controller snap-back without storing raw typed text.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/ControllerInputProcessor.kt`, `android/app/src/main/java/com/vatoo/erick/ControllerDiagnosticsActivity.kt`, `android/app/src/main/java/com/vatoo/erick/LearningAndPracticeModels.kt`, and `docs/documentation/Research/vatsal/results_and_logs/branch4_confusion_model_proposal_2026-04-26.md`.
+- Open blocker: the repo still lacks local aggregate confusion instrumentation and the first calibrated matrix, so the branch has a model but not measured weights.
+- Next action: if Branch 4 implementation starts, route it through local-only diagnostics or practice aggregates that store expected-versus-resolved direction buckets and session totals, not raw text or raw motion traces.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a local-only instrumentation spike or first calibrated matrix exists.
+
 ### Branch 5 - User-Segment Layout Variants
 
 **Goal**
