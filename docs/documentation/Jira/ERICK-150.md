@@ -329,8 +329,8 @@ Keep all research branches inside ERICK-150 until the baseline is reproduced and
 
 ### Phase 2 - Re-Score The Core Objective
 
-- Run **Branch 1** and **Branch 2** once the baseline harness is trustworthy.
-- Begin **Branch 3** after the core weighting and effort assumptions are at least stable enough to compare against.
+- Begin **Branch 3** immediately after the practical 6-section baseline is frozen, because symbol and utility modeling is now the clearest remaining gap between the shipped-adjacent run and exact shipped parity.
+- Run **Branch 1** and **Branch 2** after Branch 3 clarifies whether mixed-text and toggle costs materially change layout ranking.
 
 ### Phase 3 - Add Real-World Penalties
 
@@ -351,10 +351,10 @@ This ranking is the final planning output of ERICK-150. It reflects both expecte
 | Rank | Branch | Why It Is Ranked Here | Outcome To Target | Shipping Or Exploratory |
 |---|---|---|---|---|
 | 1 | **Branch 0** | The current 6-section baseline still cannot reproduce the shipped rotated utility wheel and Symbols toggle, so every later cross-mode claim depends on closing or explicitly freezing this gap. | one trusted baseline statement for both dial modes | shipping-adjacent prerequisite |
-| 2 | **Branch 8** | The benchmark pack and result template now exist, but they only become valuable once later experiments adopt them consistently. | comparable cross-corpus experiment logs | shipping-adjacent research infrastructure |
-| 3 | **Branch 1** | Controller support, 6-section geometry, and assisted use create the strongest case that the old effort matrix may no longer be universally correct. | keep-or-change recommendation for the effort matrix | shipping-adjacent |
-| 4 | **Branch 2** | The current `1.0 / 0.6 / 0.3` mix still looks plausible, but it has not been sensitivity-tested recently and may hide multiple near-tie layout families. | coefficient ranges and stable PT settings | shipping-adjacent |
-| 5 | **Branch 3** | Symbols, digits, and utility cost are the clearest known modeling blind spot after the baseline itself, especially for 6-section mode. | mixed-text objective proposal with utility-cost evidence | shipping-adjacent |
+| 2 | **Branch 3** | The new shipped-adjacent 6-section run made non-space utility cost visible, and the remaining exact-parity gap now sits in symbol and toggle modeling rather than in baseline reproducibility alone. | mixed-text objective proposal with utility-cost evidence | shipping-adjacent |
+| 3 | **Branch 8** | The benchmark pack and result template now exist, and Branch 3 is already using them, so they remain the shared harness for every later run. | comparable cross-corpus experiment logs | shipping-adjacent research infrastructure |
+| 4 | **Branch 1** | Controller support, 6-section geometry, and assisted use still create a strong case that the old effort matrix may no longer be universally correct, but that decision is cleaner after Branch 3 settles utility-cost modeling. | keep-or-change recommendation for the effort matrix | shipping-adjacent |
+| 5 | **Branch 2** | The current `1.0 / 0.6 / 0.3` mix still looks plausible, but coefficient tuning is easier to interpret once Branch 3 stops undercounting non-letter cost. | coefficient ranges and stable PT settings | shipping-adjacent |
 | 6 | **Branch 7** | ERICK-148 changed real typing effort through learned words, learned bigrams, and next-word suggestions, but prediction-aware research is only meaningful once the baseline and corpora are stable. | prediction-aware evaluation proposal | shipping-adjacent after baseline work |
 | 7 | **Branch 4** | Confusion-aware scoring could matter a lot, but it requires a privacy-safe evidence plan before it can move from theory to decision-making. | candidate confusion model and local-only collection plan | exploratory until data exists |
 | 8 | **Branch 6** | Learnability constraints are valuable, but they should be tested only after the team understands the pure-efficiency and confusion-aware candidate families. | hybrid objective candidates and lesson-cost proxy | exploratory |
@@ -365,10 +365,10 @@ This ranking is the final planning output of ERICK-150. It reflects both expecte
 ### Branches That Belong On The Shipping Optimizer Path
 
 - **Branch 0** baseline closure or explicit freeze decision
+- **Branch 3** symbols, digits, and utility-cost modeling
 - **Branch 8** benchmark-pack adoption for every new result log
 - **Branch 1** effort-matrix calibration
 - **Branch 2** weight sensitivity and search tuning
-- **Branch 3** symbols, digits, and utility-cost modeling
 - **Branch 7** prediction-aware evaluation after the core baseline stabilizes
 
 ### Branches That Should Stay Exploratory Longer
@@ -381,8 +381,8 @@ This ranking is the final planning output of ERICK-150. It reflects both expecte
 
 Do not create child tickets during the planning phase. If later implementation or dedicated research work starts, split in this order:
 
-1. A shipped-aligned 6-section baseline and mixed-text utility-cost effort combining Branches 0 and 3.
-2. An objective-calibration effort combining Branches 1 and 2 once the baseline harness is stable.
+1. A mixed-text and symbol-cost effort centered on Branch 3 now that Branch 0 has a practical shipped-adjacent baseline.
+2. An objective-calibration effort combining Branches 1 and 2 once Branch 3 clarifies whether utility costs materially change ranking.
 3. A prediction-aware evaluation harness for Branch 7 after the first reruns exist.
 4. Separate confusion, learnability, or segment-variant work only if earlier reruns materially change layout ranking.
 
