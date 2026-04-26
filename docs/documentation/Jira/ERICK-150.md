@@ -634,6 +634,15 @@ Determine whether ERICK should keep one Efficiency layout for everyone or suppor
 
 Do not propose additional shipped layout modes unless this branch shows a clear measurable gain that outweighs the added product complexity.
 
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: the repo currently supports audience-aware evaluation better than it supports audience-specific shipped Efficiency variants. Settings, help, and the user guide still frame layout choice as a simple `Logical` versus `Efficiency` decision, while broader audience needs are already handled through dial mode, input mode, controller support, and practice flows. That makes segment benchmarking useful, but segment-specific official variants premature.
+- Evidence reviewed: `android/app/src/main/java/com/vatoo/erick/BenefitAudienceContent.kt`, `android/app/src/main/java/com/vatoo/erick/MainSettingsContent.kt`, `android/app/src/main/java/com/vatoo/erick/HelpActivity.kt`, `docs/documentation/User_Guide.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch5_layout_variant_recommendation_2026-04-26.md`.
+- Open blocker: Branch 5 still lacks measured segment-specific reruns from Branches 1-4 and 7, so the current recommendation is directional rather than data-backed.
+- Next action: keep one shipped Efficiency family for now and only score segment slices with the benchmark packs until a segment-specific winner clears an explicit gain threshold over the global layout.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a segment-specific winner materially beats the global layout under comparable scorecards.
+
 ### Branch 6 - Learnability And Hybrid Objectives
 
 **Goal**
