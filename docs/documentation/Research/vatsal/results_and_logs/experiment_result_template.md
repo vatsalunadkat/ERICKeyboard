@@ -12,11 +12,15 @@ Use this template for every new ERICK-150 Branch 1-8 experiment log.
 | Dial mode | |
 | Layout family | |
 | Utility model | |
+| Symbol cost model | |
 | Corpus ID | |
+| Benchmark IDs used | |
 | Corpus domain | |
 | Corpus source files | |
 | Corpus size / sample count | |
 | N-gram source | |
+| Prediction assumptions | |
+| Comparability family | |
 | Search method | |
 | Search settings | |
 | Objective weights | |
@@ -48,5 +52,6 @@ Use this template for every new ERICK-150 Branch 1-8 experiment log.
 
 - What changed from the previous baseline?
 - Which benchmark IDs were used unchanged?
+- Which symbol-cost or prediction assumptions make this run non-comparable to earlier ones?
 - Which results are directly comparable to earlier runs, and which are exploratory only?
 - Does this run change the recommended next branch order?

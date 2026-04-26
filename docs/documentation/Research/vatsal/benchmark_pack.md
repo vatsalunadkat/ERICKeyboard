@@ -62,3 +62,21 @@ The goal is not to replace the existing `wordfreq` baseline. The goal is to make
 ## Update Rule
 
 When any future research branch publishes a new result log, it should state which of these benchmark IDs it used and whether it used the frozen seed files unchanged.
+
+## Adoption Status
+
+As of 2026-04-26:
+
+- Branch 3 has already adopted this pack in full scored shipped-wheel mixed-shortform runs.
+- Branches 4-7 currently depend on these benchmark IDs for future scored work, but their current checked-in notes are proposal or planning artifacts rather than benchmark scorecards.
+
+## Comparability Families
+
+Every future scored Branch 1-8 report should label one comparability family:
+
+| Family | Use it for |
+|---|---|
+| `legacy-wordfreq` | older 6-section legacy utility runs based on the historical wordfreq corpus |
+| `shipped-mixed-shortform` | shipped-wheel runs using the frozen Branch 8 benchmark packs |
+| `prediction-posthoc` | prediction-aware post-hoc benchmark passes rather than raw optimizer outputs |
+| `proposal-only` | branch notes that define models, thresholds, or next steps without reporting scored optimizer metrics |
