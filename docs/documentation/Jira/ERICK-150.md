@@ -672,6 +672,15 @@ Measure whether a small sacrifice in raw efficiency could produce a layout that 
 
 If hybrid objectives remain close to the top efficiency score while improving teaching clarity, this branch becomes a strong candidate for future product testing.
 
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: Branch 6 can now move from abstract “memorability” talk to a first hybrid score proposal because ERICK already teaches through explicit preview order and staged lessons. The repo has enough structure to score row coherence, preview predictability, lesson-introduction span, and utility-anchor stability without claiming that retention has already been measured.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `/memories/repo/6-section-preview-order.md`, `android/app/src/main/java/com/vatoo/erick/LearningAndPracticeModels.kt`, and `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_objective_proposal_2026-04-26.md`.
+- Open blocker: the branch still lacks computed proxy values against real candidate layouts, so the current hybrid objective is a measurement proposal rather than a scored comparison.
+- Next action: if Branch 6 gets an implementation spike, compute the proxy terms first for the current Logical, current Efficiency, and the latest Branch 3 mixed-text winner before inventing new hybrid layouts.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until the proxy terms are actually computed on comparable layouts.
+
 ### Branch 7 - Prediction-Aware Evaluation
 
 **Goal**
