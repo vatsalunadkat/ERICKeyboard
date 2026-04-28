@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Done |
+| **Status** | In-progress |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 8 |
@@ -19,6 +19,34 @@
 Audit the current Efficiency layout research, document what the optimizer already models, and identify the next experiments that could produce a meaningfully better typing-efficiency layout for ERICK.
 
 This ticket is a research spike, not an implementation commitment. It should end with a ranked proposal for which follow-up experiments are worth building into the shipped optimizer and which ideas should stay exploratory.
+
+---
+
+## Current Execution Tracker
+
+Current confirmed checkpoint as of 2026-04-28:
+
+- Last fully completed and committed experimental checkpoint: `Branch 2` in commit `db60393`.
+- Branches `0`, `1`, `2`, `3`, and `8` have committed research outputs or infrastructure checkpoints.
+- Branches `4`, `5`, `6`, and `7` have committed proposal-level outputs, but only `Branch 7` currently has uncommitted implementation work in progress (`prediction_aware_benchmark.py`).
+
+| Branch | Tracker Status | Latest Commit | Current State |
+|---|---|---|---|
+| `Branch 0` | `Completed` | `4f4e3a1` | Baseline freeze and shipped-adjacent 6-section baseline documented. |
+| `Branch 1` | `Completed` | `36d85ec` | Effort-profile probe completed and ticket updated with keep-current-matrix guidance. |
+| `Branch 2` | `Completed` | `db60393` | Weight-sensitivity probe completed; current `1.0 / 0.6 / 0.3` mix remains the default. |
+| `Branch 3` | `Completed` | `3935ec5` | Symbol-cost comparison completed; `toggle_pair` is the stronger current approximation. |
+| `Branch 4` | `Proposal Committed` | `2d617ca` | Confusion-model proposal is documented, but no local instrumentation spike is checked in yet. |
+| `Branch 5` | `Proposal Committed` | `b421274` | Variant-layout recommendation is documented; no new benchmark implementation work started. |
+| `Branch 6` | `Proposal Committed` | `eec8dda` | Hybrid-objective proposal is documented; no scored proxy pass exists yet. |
+| `Branch 7` | `In Progress` | `2eb53f1` | Prediction-metric proposal is committed, and a local post-hoc benchmark harness has been started but is not committed yet. |
+| `Branch 8` | `Completed` | `5b09971` | Benchmark-pack adoption and reporting hardening are checked in. |
+
+### Tracker Notes
+
+- In this ticket, `Completed` means the branch has a committed research result or infrastructure checkpoint, not necessarily a shipped product change.
+- `Proposal Committed` means the branch produced a committed design or measurement proposal, but not a checked-in implementation spike.
+- `In Progress` means there is active local work beyond the last commit and the branch is not ready to call complete yet.
 
 ---
 
