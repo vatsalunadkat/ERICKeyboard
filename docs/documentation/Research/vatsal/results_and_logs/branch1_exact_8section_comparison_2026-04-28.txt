@@ -1,0 +1,3 @@
+layout|score|predicted_wpm|slot_matches
+current_shipped_efficiency_8_exact|0.95690|70.5|5/64
+optimizer_winner_8_exact|0.90377|71.7|5/64

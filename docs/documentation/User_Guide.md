@@ -1,7 +1,7 @@
 # ERICK User Guide
 
 **Version**: 1.0  
-**Last Updated**: April 23, 2026
+**Last Updated**: April 28, 2026
 
 ---
 
@@ -170,6 +170,8 @@ The default layout. Characters are arranged in a predictable A–Z order so the 
 ### Efficiency
 
 A layout designed around character frequency so common English letters (e, t, a, o, i, n, s, h, r, d…) are placed on the easiest chord combinations. Intended for users who want more speed after they become comfortable with ERICK.
+
+In 6-section mode, the built-in Efficiency preset now uses the current mixed-shortform research winner rather than the older placeholder arrangement.
 
 ### Custom
 

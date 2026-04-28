@@ -25,7 +25,10 @@ FIXED vs broken original:
 import math
 import os
 import time
+from pathlib import Path
+import re
 import numpy as np
+from collections import defaultdict
 
 try:
     from wordfreq import zipf_frequency, top_n_list
@@ -69,6 +72,8 @@ TEMPS = [0.012, 0.008, 0.005, 0.003, 0.0018, 0.001, 0.0005, 0.0002]
 
 BIGRAM_WEIGHT   = env_float("ERICK8_BIGRAM_WEIGHT", 0.6)
 TRIGRAM_WEIGHT  = env_float("ERICK8_TRIGRAM_WEIGHT", 0.3)
+CORPUS_PROFILE  = os.environ.get("ERICK8_CORPUS_PROFILE", "wordfreq")
+SYMBOL_POLICY   = os.environ.get("ERICK8_SYMBOL_POLICY", "legacy_research")
 
 DUAL_THUMB_PENALTY   = 1.0
 SINGLE_THUMB_PENALTY = 0.25
@@ -85,59 +90,143 @@ TRANSITION_TIME_SCALE = 0.04
 # CORPUS
 # ════════════════════════════════════════════════════════════════════
 
-print("Building corpus…")
+ROOT = Path(__file__).resolve().parents[4]
+KOTLIN_PATH = ROOT / "android" / "shared" / "src" / "commonMain" / "kotlin" / "KeyboardLogic.kt"
+BENCHMARK_PACK_DIR = ROOT / "docs" / "documentation" / "Research" / "vatsal" / "benchmark_packs"
+BENCHMARK_FILES = [
+    "messaging-shortform.txt",
+    "accessibility-supportive.txt",
+    "controller-tv-query.txt",
+    "punctuation-mixed.txt",
+]
+
+print(f"Building corpus…  profile={CORPUS_PROFILE}  symbol_policy={SYMBOL_POLICY}")
+
+
+def parse_kotlin_map(map_name: str) -> dict[str, list[str]]:
+    lines = KOTLIN_PATH.read_text(encoding="utf-8").splitlines()
+    start = next(index for index, line in enumerate(lines) if f"private val {map_name} = mapOf(" in line)
+    rows = {}
+    for line in lines[start + 1 :]:
+        if line.strip() == ")":
+            break
+        match = re.search(r"Direction\.(\w+)\s+to listOf\((.*)\)", line)
+        if not match:
+            continue
+        rows[match.group(1)] = re.findall(r'"([^"]*)"', match.group(2))
+    return rows
+
+
+def build_symbols() -> list[str]:
+    letters = list("abcdefghijklmnopqrstuvwxyz")
+    digits = list("0123456789")
+    if SYMBOL_POLICY == "legacy_research":
+        return letters + digits + list("'-!?:;\"()/@#")
+    if SYMBOL_POLICY == "shipped_exact":
+        rows = parse_kotlin_map("efficiencyNormalMap")
+        symbols = []
+        seen = set()
+        for direction in ("N", "NE", "E", "SE", "S", "SW", "W", "NW"):
+            for value in rows[direction]:
+                if value and value not in seen:
+                    symbols.append(value)
+                    seen.add(value)
+        return symbols
+    raise ValueError(f"Unsupported ERICK8_SYMBOL_POLICY: {SYMBOL_POLICY}")
+
+
+def add_weighted_sequence(tokens, weight, uni, bi, tri):
+    if not tokens:
+        return
+    for index, token in enumerate(tokens):
+        uni[token] += weight
+        if index < len(tokens) - 1:
+            bi[(tokens[index], tokens[index + 1])] += weight
+        if index < len(tokens) - 2:
+            tri[(tokens[index], tokens[index + 1], tokens[index + 2])] += weight
+
+
+def tokenize_text(text: str) -> list[str]:
+    tokens = []
+    previous_space = False
+    for char in text.lower():
+        if char in SYMBOL_SET:
+            tokens.append(char)
+            previous_space = False
+        elif char == "." and "." in UTIL_KEYS:
+            tokens.append(".")
+            previous_space = False
+        elif char == "," and "," in UTIL_KEYS:
+            tokens.append(",")
+            previous_space = False
+        elif char.isspace():
+            if tokens and not previous_space:
+                tokens.append("SPACE")
+                previous_space = True
+        else:
+            previous_space = False
+    if tokens and tokens[-1] == "SPACE":
+        tokens.pop()
+    return tokens
+
 
 def build_corpus():
-    from collections import defaultdict
-
-    if not WORDFREQ_OK:
-        raise RuntimeError("wordfreq not installed — run: pip install wordfreq")
-
-    print("  Fetching wordfreq corpus (top 50k words)…")
-    words = top_n_list("en", 50_000)
-
     uni = defaultdict(float)
     bi  = defaultdict(float)
     tri = defaultdict(float)
 
-    for w in words:
-        freq = 10 ** (zipf_frequency(w, "en") - 5)
-        if freq <= 0:
-            continue
-        for i, c in enumerate(w):
-            uni[c] += freq
-            if i < len(w) - 1:
-                bi[(w[i], w[i+1])]          += freq
-            if i < len(w) - 2:
-                tri[(w[i], w[i+1], w[i+2])] += freq
+    if CORPUS_PROFILE == "wordfreq":
+        if not WORDFREQ_OK:
+            raise RuntimeError("wordfreq not installed — run: pip install wordfreq")
 
-        uni["SPACE"] += freq
-        bi[(w[-1], "SPACE")] += freq
-        bi[("SPACE",  w[0])] += freq
-        if len(w) >= 2:
-            tri[(w[-2], w[-1], "SPACE")]  += freq
-            tri[(w[-1], "SPACE",  w[0])]  += freq
-        if len(w) >= 3:
-            tri[("SPACE", w[0], w[1])]    += freq
+        print("  Fetching wordfreq corpus (top 50k words)…")
+        words = top_n_list("en", 50_000)
 
-    # FIX 1: normalise ALL THREE dicts to sum = 1
-    # Without this: BI/TRI sums ~500k → costs ~258k → temps 0.08
-    # are useless (acceptance = exp(-Δ/0.08) ≈ exp(-12500) ≈ 0)
+        for word in words:
+            freq = 10 ** (zipf_frequency(word, "en") - 5)
+            if freq <= 0:
+                continue
+            tokens = [char for char in word.lower() if char in SYMBOL_SET]
+            if not tokens:
+                continue
+            add_weighted_sequence(tokens, freq, uni, bi, tri)
+            uni["SPACE"] += freq
+            bi[(tokens[-1], "SPACE")] += freq
+            bi[("SPACE", tokens[0])] += freq
+            if len(tokens) >= 2:
+                tri[(tokens[-2], tokens[-1], "SPACE")] += freq
+                tri[(tokens[-1], "SPACE", tokens[0])] += freq
+            if len(tokens) >= 3:
+                tri[("SPACE", tokens[0], tokens[1])] += freq
+    elif CORPUS_PROFILE == "mixed_shortform":
+        print(f"  Loading benchmark packs from {BENCHMARK_PACK_DIR}…")
+        for filename in BENCHMARK_FILES:
+            path = BENCHMARK_PACK_DIR / filename
+            for raw_line in path.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if line:
+                    add_weighted_sequence(tokenize_text(line), 1.0, uni, bi, tri)
+    else:
+        raise ValueError(f"Unsupported ERICK8_CORPUS_PROFILE: {CORPUS_PROFILE}")
+
     def norm(d):
         s = sum(d.values())
         return {k: v / s for k, v in d.items()}
 
     uni = norm(uni)
-    bi  = norm(bi)   # ← was missing
-    tri = norm(tri)  # ← was missing
+    bi  = norm(bi)
+    tri = norm(tri)
 
     print(f"  Corpus scale — UNI: {sum(uni.values()):.4f}  "
           f"BI: {sum(bi.values()):.4f}  "
           f"TRI: {sum(tri.values()):.4f}")
     print(f"  (all must be ~1.0)")
+    utility_coverage = ", ".join(
+        f"{key}={uni.get(key, 0.0):.4f}" for key in UTIL_KEYS if uni.get(key, 0.0) > 0
+    )
+    if utility_coverage:
+        print(f"  Utility unigram coverage: {utility_coverage}")
     return uni, bi, tri
-
-char_uni, char_bi, char_tri = build_corpus()
 
 # ════════════════════════════════════════════════════════════════════
 # KEYBOARD GEOMETRY
@@ -174,17 +263,19 @@ ANG   = np.array([[min(abs(i-j), ND-abs(i-j)) for j in range(ND)]
 LETTERS = list("abcdefghijklmnopqrstuvwxyz")
 DIGITS  = list("0123456789")
 
-# FIX 3: '.' and ',' must NOT appear here — they live in UTILITY.
-# If a char is in both SYMBOLS and UTILITY then layout_to_map returns
-# (None, dir) for it, but print_char_table does IDX[None] → KeyError.
-PUNCT   = list("'-!?:;\"()/@#")   # no '.' or ','
-
-SYMBOLS  = LETTERS + DIGITS + PUNCT   # 48 chord-assigned chars
+SYMBOLS  = build_symbols()
+SYMBOL_SET = set(SYMBOLS)
 N_SYM    = len(SYMBOLS)
 ALL_POS  = [(l, r) for l in range(ND) for r in range(ND)]  # 64 positions
 N_POS    = len(ALL_POS)
 
+overlap = set(SYMBOLS) & set(UTIL_KEYS)
+if overlap:
+    raise ValueError(f"Symbol inventory overlaps utility keys: {sorted(overlap)}")
+
 print(f"  Chord symbols: {N_SYM}  |  Utility: {N_UTIL}")
+
+char_uni, char_bi, char_tri = build_corpus()
 
 # ════════════════════════════════════════════════════════════════════
 # PRECOMPUTED COST TABLES

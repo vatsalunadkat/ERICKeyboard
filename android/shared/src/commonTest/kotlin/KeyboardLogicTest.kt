@@ -68,12 +68,41 @@ class KeyboardLogicTest {
     }
 
     @Test
-    fun sixSection_symbolsChordReturnsPunctuation() {
+    fun sixSection_efficiencyLayoutUsesUpdatedWinnerMapping() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
-        // N direction, first position in symbols → "!"
+        assertEquals(
+            "c",
+            logic.getChordResult(Direction.N, Direction.N, KeyboardMode.NORMAL, LayoutType.EFFICIENCY)
+        )
         assertEquals(
             "!",
+            logic.getChordResult(Direction.S, Direction.N, KeyboardMode.SHIFTED, LayoutType.EFFICIENCY)
+        )
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun eightSection_efficiencyLayoutUsesExactRerunWinner() {
+        assertEquals(
+            "c",
+            logic.getChordResult(Direction.N, Direction.N, KeyboardMode.NORMAL, LayoutType.EFFICIENCY)
+        )
+        assertEquals(
+            "?",
+            logic.getChordResult(Direction.N, Direction.SE, KeyboardMode.SHIFTED, LayoutType.EFFICIENCY)
+        )
+    }
+
+    @Test
+    fun sixSection_symbolsLayoutUsesOptimizedWinner() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        assertEquals(
+            "-",
             logic.getChordResult(Direction.N, Direction.N, KeyboardMode.SYMBOLS)
+        )
+        assertEquals(
+            "\u2260",
+            logic.getChordResult(Direction.NW, Direction.N, KeyboardMode.SYMBOLS_SHIFTED)
         )
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }

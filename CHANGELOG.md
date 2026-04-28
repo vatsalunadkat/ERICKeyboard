@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **More Scannable Accessibility and Settings Flows** - Settings now lead with clearer summaries and simpler custom layout and palette editing flows.
 
 ### Prediction and Typing Quality
+- **8-Section Efficiency Preset Refresh** - The built-in 8-section Efficiency layout now uses the current exact shipped-symbol mixed-shortform winner from the benchmark-pack rerun instead of the older legacy arrangement.
+- **6-Section Efficiency Preset Refresh** - The built-in 6-section Efficiency layout now uses the measured mixed-shortform winner from the shipped-wheel optimizer path instead of the earlier placeholder arrangement, so the preset that users can select in settings matches the strongest checked-in 6-section research candidate.
+- **6-Section Symbols Layer Refresh** - The dedicated 6-section symbols layer now uses a measured mixed-shortform symbol-cluster ordering while preserving the shipped direct-period utility swipe and the existing shifted-symbol pairings.
 - **Persistent Learned Predictions** - The shared predictor now persists learned words and learned bigram history through the platform storage layer.
 - **Smarter Suggestion Acceptance** - Suggestion taps now use shared punctuation-aware spacing behavior instead of diverging Android and iOS heuristics.
 - **Shared Controller and Preview Consistency Fixes** - Controller normalization, assisted-mode controller behavior, and 6-section preview ordering were tightened so diagnostics, previews, and typing behavior stay aligned.

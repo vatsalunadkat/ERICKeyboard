@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Completed |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 13 |
@@ -146,25 +146,38 @@ The most relevant signals for ERICK Part 2 are below.
 
 ## Current Execution Tracker
 
-Initial Part 2 tracker as of 2026-04-28:
+Current Part 2 tracker as of 2026-04-28:
 
-- This ticket starts with all branches at `Not Started`.
-- Branch `0` should happen first so later branches share a comparable scorecard and literature map.
-- Branch `1` is the most direct ERICK-150 carryover because it closes the remaining benchmark and shipped-baseline gaps.
-- Branches `2` through `9` broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
+- Branch `0` is now frozen through the Part 2 literature map and scorecard note in `results_and_logs/branch0_part2_scorecard_freeze_2026-04-28.md`.
+- Branch `1` is now closed through the initial baseline probe plus the direct 6-section implementation and the exact 8-section rerun in `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`.
+- Branch `2` is now closed through the onboarding/training plan in `results_and_logs/branch2_onboarding_training_plan_2026-04-28.md`.
+- Branch `3` is now closed through the accessibility persona matrix in `results_and_logs/branch3_accessibility_persona_matrix_2026-04-28.md`.
+- Branch `4` is now closed through the controller task bundle in `results_and_logs/branch4_controller_task_bundle_2026-04-28.md`.
+- Branch `5` is now closed through the error and recovery plan in `results_and_logs/branch5_error_recovery_plan_2026-04-28.md`.
+- Branch `6` is now closed through the predictor interaction scorecard in `results_and_logs/branch6_predictor_interaction_scorecard_2026-04-28.md`.
+- Branch `7` is now closed through the mixed-task workflow pack in `results_and_logs/branch7_mixed_task_workflow_pack_2026-04-28.md`.
+- Branch `8` is now closed through the adoption proxy plan in `results_and_logs/branch8_adoption_proxy_plan_2026-04-28.md`.
+- Branch `9` is now closed through the future-split ranking memo in `results_and_logs/branch9_future_split_ranking_2026-04-28.md`.
+
+## Final Outcome
+
+- All planned Branches `0` through `9` are now completed inside ERICK-151.
+- The highest-priority split candidates have now been turned into follow-up tickets: ERICK-152 for lesson-path refresh, ERICK-153 for setup guidance, and ERICK-154 for predictor trust and domain assistance.
+- ERICK-140 has been rewritten as the multilingual foundation ticket, with Spanish foundation work separated from later optimization work.
+- The strongest active `No-Go` conclusions recorded here are: no silent correction or automatic retuning, no optimizer-coupled prediction scoring for now, and no shortcut or macro push before mixed-task evidence lands. Branch 1 originally also recorded a `No-Go` on silent 8-section replacement, but that historical recommendation was later superseded by a direct product decision while the active user base was still small.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
-| `Branch 0` | `Not Started` | Literature and scorecard freeze | Makes the rest of Part 2 comparable instead of anecdotal. |
-| `Branch 1` | `Not Started` | Shipped baseline completion | Closes the remaining ERICK-150 benchmark and comparability gaps. |
-| `Branch 2` | `Not Started` | Onboarding and training aids | Tests what actually reduces first-session friction. |
-| `Branch 3` | `Not Started` | Accessibility persona evaluation | Moves from generic accessibility claims to concrete task/persona evidence. |
-| `Branch 4` | `Not Started` | Controller and alternative hardware research | Treats controller typing as a real product path, not only a supported extra. |
-| `Branch 5` | `Not Started` | Error prevention and recovery | Extends the confusion drill into live-typing recovery research. |
-| `Branch 6` | `Not Started` | Prediction, disambiguation, and adaptive assistance | Studies prediction as real assistance, not only as a layout score modifier. |
-| `Branch 7` | `Not Started` | Mixed-task workflow research | Covers symbols, editing, navigation, and shortcut-heavy tasks. |
-| `Branch 8` | `Not Started` | Adoption, habit formation, and trust | Addresses the difference between “can type fast” and “will keep using it.” |
-| `Branch 9` | `Not Started` | Personalization, multilingual, and future splits | Holds the speculative but promising directions until the core system is better measured. |
+| `Branch 0` | `Completed` | Literature and scorecard freeze | Makes the rest of Part 2 comparable instead of anecdotal. |
+| `Branch 1` | `Completed` | Shipped baseline completion | Closes the remaining ERICK-150 benchmark and comparability gaps. |
+| `Branch 2` | `Completed` | Onboarding and training aids | Defines the first-session measurement plan, the tutorial comparisons, and the split-ready instrumentation work. |
+| `Branch 3` | `Completed` | Accessibility persona evaluation | Converts broad accessibility claims into persona bundles, task bundles, and split-ready setup guidance. |
+| `Branch 4` | `Completed` | Controller and alternative hardware research | Defines the controller benchmark bundle, diagnostics expansion plan, and controller-versus-touch split rationale. |
+| `Branch 5` | `Completed` | Error prevention and recovery | Defines the recovery taxonomy, records a No-Go on silent correction, and keeps explicit coaching as the split-ready path. |
+| `Branch 6` | `Completed` | Prediction, disambiguation, and adaptive assistance | Reframes prediction as a trust, visibility, and domain-assistance problem rather than an optimizer-ranking problem. |
+| `Branch 7` | `Completed` | Mixed-task workflow research | Defines the mixed-task workflow pack and points future work at utility, symbols, and navigation bottlenecks before macros. |
+| `Branch 8` | `Completed` | Adoption, habit formation, and trust | Defines privacy-preserving adoption proxies and prioritizes setup, expectation, and trust work ahead of new optimizer work. |
+| `Branch 9` | `Completed` | Personalization, multilingual, and future splits | Ranks the split candidates, keeps multilingual work attached to ERICK-140, and leaves layout personalization last. |
 
 ---
 
@@ -220,11 +233,11 @@ Do not treat later branch results as product-direction evidence until this branc
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: Part 2 does not yet have a comparable whole-keyboard scorecard.
-- Evidence reviewed: ERICK-150, current User Guide, current Quickstart and Practice Lessons, `research_papers/` corpus.
+- Status: `Completed`
+- Latest finding summary: Part 2 now has a frozen literature map, reusable task IDs, and explicit comparability rules for behavioral versus replay results.
+- Evidence reviewed: ERICK-150, current User Guide, current Quickstart and Practice Lessons, `research_papers/` corpus, and `results_and_logs/branch0_part2_scorecard_freeze_2026-04-28.md`.
 - Open blocker: none.
-- Next action: create the shared Part 2 scorecard and literature map before running new experiments.
+- Next action: reuse the frozen scorecard and task IDs in later branch notes instead of redefining them locally.
 - Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
 
 ### Branch 1 - Shipped Baseline Completion And Cross-Mode Benchmark Adoption
@@ -266,12 +279,12 @@ If the shipped maps remain close enough to the best measured candidates, keep la
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK-150 improved the 6-section shipped-path evaluation but did not finish the exact shipped baseline problem or the 8-section benchmark-pack adoption gap.
-- Evidence reviewed: ERICK-150 Branches 0, 3, 8 and the current research README.
+- Status: `Completed`
+- Latest finding summary: the shipped 6-section `Efficiency` map now directly matches the Branch 3 mixed-shortform winner in shared code, while the exact 8-section benchmark-pack rerun with `ERICK8_SYMBOL_POLICY=shipped_exact` found a materially better winner than the then-current shipped 8-section map (`0.90671` vs `0.95690`, `71.7` vs `70.5` WPM). ERICK-151 recorded a historical `No-Go` on silently replacing that 8-section preset in place, but that recommendation was later superseded by a direct product decision and the shared 8-section `Efficiency` map now matches the exact rerun winner.
+- Evidence reviewed: ERICK-150 Branches 0, 3, 8, the current research README, `results_and_logs/branch1_baseline_probe_2026-04-28.md`, `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`, `results_and_logs/branch1_exact_8section_comparison_2026-04-28.txt`, `results_and_logs/branch1_8section_shipment_decision_2026-04-28.md`, and `results_and_logs/optimization_results_8section_shipped_exact_mixed_shortform_full_2026-04-28.txt`.
 - Open blocker: none.
-- Next action: run the exact-or-closest shipped 6-section baseline and the first 8-section benchmark-pack rerun.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151 until the baseline is clean enough to support later decisions.
+- Next action: none inside Branch 1; the remaining product-path question was resolved by directly shipping the exact rerun winner.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: completed inside ERICK-151; the research branch is closed and the later shipping decision is already reflected on the product path.
 
 ### Branch 2 - Onboarding And Training-Aid Effectiveness
 
@@ -328,12 +341,12 @@ If one or two teaching aids materially reduce first-session friction, create a d
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: the current product already has a real learning surface, but it has not been measured against alternative training aids.
-- Evidence reviewed: current Quickstart and Practice Lessons, User Guide, Twiddler and Senorita literature.
+- Status: `Completed`
+- Latest finding summary: ERICK already ships a real learning path, but it also ships an inconsistent first recommended lesson (`Quickstart` points to 6-section basics while the Practice Hub lists 8-section basics first) and lacks the event-level instrumentation needed to measure first-session friction.
+- Evidence reviewed: current Quickstart, Practice Lessons, HelpActivity, lesson persistence in PreferencesManager, User Guide, and `results_and_logs/branch2_onboarding_training_plan_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define first-session metrics and pick the first two tutorial-aid comparisons.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a focused onboarding instrumentation and tutorial-routing ticket starting with sequential cueing in lesson 1 and routed first lessons for touch-first versus controller-first users.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 3 - Accessibility Persona Evaluation
 
@@ -384,12 +397,12 @@ If persona bundles lead to clearly different recommended defaults or task outcom
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK has several accessibility surfaces but no persona-driven research plan that connects them to real task bundles.
-- Evidence reviewed: User Guide accessibility sections, current settings surfaces, assistive-input surveys, disability-focused chord papers.
+- Status: `Completed`
+- Latest finding summary: ERICK's current settings and lesson surfaces already imply distinct bundles for reduced precision touch, low-vision scanning, one-handed use, controller-first use, and fatigue-oriented use, so one-size-fits-all accessibility guidance is no longer the strongest framing.
+- Evidence reviewed: BenefitAudienceContent, MainSettingsContent, learning surfaces, User Guide accessibility sections, and `results_and_logs/branch3_accessibility_persona_matrix_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the initial ERICK persona bundles and the first task matrix.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split persona-specific setup guidance into focused product work for onboarding, settings, and practice entry points.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 4 - Controller And Alternative Hardware Research
 
@@ -439,12 +452,12 @@ If controller behavior diverges materially from touch behavior, split a controll
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: the current product already has controller lessons and diagnostics, but controller typing still lacks a product-level benchmark story.
-- Evidence reviewed: Controller Diagnostics, current lessons, current User Guide controller section, Twiddler and portable-device literature.
+- Status: `Completed`
+- Latest finding summary: controller typing already shares ERICK's main state machine and normalization path, but it adds calibration cost, dead-zone jitter, and snap-back failure modes that justify a controller-specific benchmark and follow-up instead of treating controller use as only a touch variant.
+- Evidence reviewed: Controller Diagnostics, shared controller confusion metrics, current lessons, HelpActivity guidance, current User Guide controller section, `results_and_logs/branch4_local_confusion_spike_2026-04-28.md`, and `results_and_logs/branch4_controller_task_bundle_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the controller task bundle and determine which current diagnostics measures are worth promoting into benchmark results.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a controller-focused follow-up covering benchmark execution, richer local diagnostics summaries, and controller-first onboarding experiments.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 5 - Error Prevention And Recovery
 
@@ -495,12 +508,12 @@ If a recovery or forgiveness strategy improves completion without surprising use
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK now has the first confusion bucket surface, but not yet a live-typing recovery research plan.
-- Evidence reviewed: Branch 4 confusion drill, current backspace behavior, current predictor behavior, ambiguity/disambiguation papers.
+- Status: `Completed`
+- Latest finding summary: ERICK now has enough concrete recovery surfaces to reject silent correction and automatic retuning as the default path, while still treating explicit, local, threshold-based coaching as a promising follow-up.
+- Evidence reviewed: current confusion drill, current backspace behavior, current predictor behavior, current controller recovery surfaces, and `results_and_logs/branch5_error_recovery_plan_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the error taxonomy and the first correction-cost measures.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a focused recovery-coaching ticket and carry forward the explicit `No-Go` on silent correction and automatic preference changes.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 6 - Prediction, Disambiguation, And Adaptive Assistance
 
@@ -545,12 +558,12 @@ If predictor changes look more promising as a trust or workflow problem than a r
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK has a live predictor and ERICK-150 showed it matters in post-hoc cost, but the live behavior has not been studied as a product experience.
-- Evidence reviewed: `WordPredictionEngine`, User Guide prediction section, ERICK-150 Branch 7, disambiguation and motor-impaired text-entry surveys.
+- Status: `Completed`
+- Latest finding summary: ERICK's predictor already provides explicit prefix completion, lightweight correction, next-word suggestions, and local learned-state adaptation, but the most promising next work is in visibility, trust, and domain-aware assistance rather than ranking or optimizer coupling.
+- Evidence reviewed: `WordPredictionEngine`, `KeyboardStateMachine`, live suggestion-bar behavior in `MyInputMethodService`, User Guide prediction section, `results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`, and `results_and_logs/branch6_predictor_interaction_scorecard_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the first live predictor scorecard and the first acceptance questions.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a predictor trust-and-visibility follow-up focused on domain-aware assistance and learned-state controls, not layout re-optimization.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 7 - Mixed-Task Workflow Research
 
@@ -597,12 +610,12 @@ If mixed-task cost dominates real use, future product work should not keep treat
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK’s benchmark packs improved shortform realism, but the product still lacks a deliberately mixed-task research branch.
-- Evidence reviewed: ERICK-150 Branches 3 and 8, User Guide utility/prediction/controller flows, mixed-task and shortcut-adjacent literature.
+- Status: `Completed`
+- Latest finding summary: mixed-task bottlenecks now look more likely to come from utility placement, symbol-mode switching, navigation asymmetry, and repeated correction work than from prose-layout ranking alone.
+- Evidence reviewed: `KeyboardLogic`, `KeyboardContracts`, `KeyboardStateMachine`, User Guide utility and prediction flows, `benchmark_pack.md`, `results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`, and `results_and_logs/branch7_mixed_task_workflow_pack_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the first mixed-task bundle and audit the highest-friction utility paths.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a mixed-task execution ticket and measure the pack before opening shortcut or macro research.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 8 - Adoption, Habit Formation, And Trust
 
@@ -658,12 +671,12 @@ If adoption barriers look dominated by setup, expectation, and trust rather than
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: the literature strongly suggests adoption is its own research problem, and ERICK has not yet translated that into product-specific measures.
-- Evidence reviewed: Ong et al. (2024), learning-curve papers, User Guide, current lesson and prediction surfaces.
+- Status: `Completed`
+- Latest finding summary: ERICK already persists enough local state to start privacy-preserving adoption measurement, and the strongest current barrier now looks more like setup, expectation, and trust than raw typing speed.
+- Evidence reviewed: MainScreenContent, PracticeHubActivity, PreferencesManager, current suggestion-profile persistence, current lessons, User Guide, and `results_and_logs/branch8_adoption_proxy_plan_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the first ERICK-specific adoption hypotheses and proxy measures.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a privacy-preserving onboarding and adoption-proxy ticket before opening new optimizer work.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 9 - Personalization, Multilingual, And Future Splits
 
@@ -707,12 +720,12 @@ Do not split this branch into product work until the core English, touch, contro
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: these directions look promising, but the current product and research baseline are not stable enough to prioritize them yet.
-- Evidence reviewed: ERICK-150 outcomes, motor-impaired survey literature, exploratory personalization paper.
+- Status: `Completed`
+- Latest finding summary: the future-facing candidates can now be ranked, with onboarding instrumentation, persona presets, and prediction-first assistance ahead of multilingual expansion and far ahead of algorithmic layout personalization.
+- Evidence reviewed: prior Branch 2 through 8 outcomes, `ERICK-140`, `WordPredictionEngine`, `CustomLayoutManager`, APP_CONTEXT future-architecture notes, and `results_and_logs/branch9_future_split_ranking_2026-04-28.md`.
 - Open blocker: none.
-- Next action: keep this branch as a holding area until the more grounded branches produce real priorities.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: use the ranking memo to decide follow-up tickets; do not create a standalone product ticket from Branch 9 itself.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: completed inside ERICK-151 as the ranking memo.
 
 ---
 
@@ -732,6 +745,8 @@ Do not split this branch into product work until the core English, touch, contro
 ---
 
 ## Exit Conditions For ERICK-151
+
+Status: satisfied on 2026-04-28.
 
 This ticket is ready to close when:
 

@@ -1,0 +1,27 @@
+﻿    Chord symbols: 36  |  Utility: 6  |  Positions: 36
+Building corpus...  profile=mixed_shortform  utility=shipped  symbol_cost=toggle_pair
+  Loading benchmark packs from D:\vatoo\GitHub\ERICKeyboard\docs\documentation\Research\vatsal\benchmark_packs...
+  Corpus scale - UNI: 1.0000  BI: 1.0000  TRI: 1.0000
+  (all must be ~1.0)
+  Utility unigram coverage: TOGGLE_SYMBOLS=0.0362, SPACE=0.1024, .=0.0056
+  Bigrams: 191 CC + 28 UC + 30 CU
+  Trigrams: 519 (317CCC+ 58UCC+ 68CCU+ 76CUC)
+
+Precomputing adjacency masks...
+  [ok] Ready
+
+Branch 1 Baseline Probe
+6-section family: shipped-mixed-shortform replay via current 6-section optimizer
+8-section family: benchmark-pack replay against the current shipped map and the v5 logged winner
+
+6-section shipped baseline replay
+layout|score|predicted_wpm|slot_matches
+current_shipped_efficiency_6|1.15437|63.9|2/36
+branch3_toggle_pair_winner_6|0.95497|71.1|2/36
+
+8-section mixed-shortform replay
+layout|score|predicted_wpm|slot_matches
+current_shipped_efficiency_8_shared40|0.94816|70.9|44/64
+v5_logged_winner_8_shared40|0.95189|71.0|44/64
+
+
