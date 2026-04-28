@@ -152,7 +152,9 @@ Current Part 2 tracker as of 2026-04-28:
 - Branch `1` is now closed through the initial baseline probe plus the direct 6-section implementation and the exact 8-section rerun in `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`.
 - Branch `2` is now closed through the onboarding/training plan in `results_and_logs/branch2_onboarding_training_plan_2026-04-28.md`.
 - Branch `3` is now closed through the accessibility persona matrix in `results_and_logs/branch3_accessibility_persona_matrix_2026-04-28.md`.
-- Branches `4` through `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
+- Branch `4` is now closed through the controller task bundle in `results_and_logs/branch4_controller_task_bundle_2026-04-28.md`.
+- Branch `5` is now closed through the error and recovery plan in `results_and_logs/branch5_error_recovery_plan_2026-04-28.md`.
+- Branches `6` through `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
@@ -160,8 +162,8 @@ Current Part 2 tracker as of 2026-04-28:
 | `Branch 1` | `Completed` | Shipped baseline completion | Closes the remaining ERICK-150 benchmark and comparability gaps. |
 | `Branch 2` | `Completed` | Onboarding and training aids | Defines the first-session measurement plan, the tutorial comparisons, and the split-ready instrumentation work. |
 | `Branch 3` | `Completed` | Accessibility persona evaluation | Converts broad accessibility claims into persona bundles, task bundles, and split-ready setup guidance. |
-| `Branch 4` | `Not Started` | Controller and alternative hardware research | Treats controller typing as a real product path, not only a supported extra. |
-| `Branch 5` | `Not Started` | Error prevention and recovery | Extends the confusion drill into live-typing recovery research. |
+| `Branch 4` | `Completed` | Controller and alternative hardware research | Defines the controller benchmark bundle, diagnostics expansion plan, and controller-versus-touch split rationale. |
+| `Branch 5` | `Completed` | Error prevention and recovery | Defines the recovery taxonomy, records a No-Go on silent correction, and keeps explicit coaching as the split-ready path. |
 | `Branch 6` | `Not Started` | Prediction, disambiguation, and adaptive assistance | Studies prediction as real assistance, not only as a layout score modifier. |
 | `Branch 7` | `Not Started` | Mixed-task workflow research | Covers symbols, editing, navigation, and shortcut-heavy tasks. |
 | `Branch 8` | `Not Started` | Adoption, habit formation, and trust | Addresses the difference between “can type fast” and “will keep using it.” |
@@ -440,12 +442,12 @@ If controller behavior diverges materially from touch behavior, split a controll
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: the current product already has controller lessons and diagnostics, but controller typing still lacks a product-level benchmark story.
-- Evidence reviewed: Controller Diagnostics, current lessons, current User Guide controller section, Twiddler and portable-device literature.
+- Status: `Completed`
+- Latest finding summary: controller typing already shares ERICK's main state machine and normalization path, but it adds calibration cost, dead-zone jitter, and snap-back failure modes that justify a controller-specific benchmark and follow-up instead of treating controller use as only a touch variant.
+- Evidence reviewed: Controller Diagnostics, shared controller confusion metrics, current lessons, HelpActivity guidance, current User Guide controller section, `results_and_logs/branch4_local_confusion_spike_2026-04-28.md`, and `results_and_logs/branch4_controller_task_bundle_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the controller task bundle and determine which current diagnostics measures are worth promoting into benchmark results.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a controller-focused follow-up covering benchmark execution, richer local diagnostics summaries, and controller-first onboarding experiments.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 5 - Error Prevention And Recovery
 
@@ -496,12 +498,12 @@ If a recovery or forgiveness strategy improves completion without surprising use
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK now has the first confusion bucket surface, but not yet a live-typing recovery research plan.
-- Evidence reviewed: Branch 4 confusion drill, current backspace behavior, current predictor behavior, ambiguity/disambiguation papers.
+- Status: `Completed`
+- Latest finding summary: ERICK now has enough concrete recovery surfaces to reject silent correction and automatic retuning as the default path, while still treating explicit, local, threshold-based coaching as a promising follow-up.
+- Evidence reviewed: current confusion drill, current backspace behavior, current predictor behavior, current controller recovery surfaces, and `results_and_logs/branch5_error_recovery_plan_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the error taxonomy and the first correction-cost measures.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a focused recovery-coaching ticket and carry forward the explicit `No-Go` on silent correction and automatic preference changes.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 6 - Prediction, Disambiguation, And Adaptive Assistance
 
