@@ -162,9 +162,9 @@ Current Part 2 tracker as of 2026-04-28:
 ## Final Outcome
 
 - All planned Branches `0` through `9` are now completed inside ERICK-151.
-- The highest-priority split candidate is a privacy-preserving onboarding instrumentation and routed-first-lessons ticket, based on Branches `2` and `8`.
-- The next split-ready candidates are persona-specific setup guidance, predictor trust and domain assistance, controller benchmark execution, and mixed-task workflow measurement.
-- The strongest `No-Go` conclusions recorded here are: no silent 8-section layout replacement, no silent correction or automatic retuning, no optimizer-coupled prediction scoring for now, and no shortcut or macro push before mixed-task evidence lands.
+- The highest-priority split candidates have now been turned into follow-up tickets: ERICK-152 for lesson-path refresh, ERICK-153 for setup guidance, and ERICK-154 for predictor trust and domain assistance.
+- ERICK-140 has been rewritten as the multilingual foundation ticket, with Spanish foundation work separated from later optimization work.
+- The strongest active `No-Go` conclusions recorded here are: no silent correction or automatic retuning, no optimizer-coupled prediction scoring for now, and no shortcut or macro push before mixed-task evidence lands. Branch 1 originally also recorded a `No-Go` on silent 8-section replacement, but that historical recommendation was later superseded by a direct product decision while the active user base was still small.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
@@ -280,11 +280,11 @@ If the shipped maps remain close enough to the best measured candidates, keep la
 ### Branch Status
 
 - Status: `Completed`
-- Latest finding summary: the shipped 6-section `Efficiency` map now directly matches the Branch 3 mixed-shortform winner in shared code, while the first exact 8-section benchmark-pack rerun with `ERICK8_SYMBOL_POLICY=shipped_exact` found a materially better winner than the current shipped 8-section map (`0.90377` vs `0.95690`, `71.7` vs `70.5` WPM) with only `5 / 64` exact slot matches. The shipment decision for 8-section is still `No-Go` for an in-place replacement because the continuity and learnability risk is too high for a silent preset swap.
+- Latest finding summary: the shipped 6-section `Efficiency` map now directly matches the Branch 3 mixed-shortform winner in shared code, while the exact 8-section benchmark-pack rerun with `ERICK8_SYMBOL_POLICY=shipped_exact` found a materially better winner than the then-current shipped 8-section map (`0.90671` vs `0.95690`, `71.7` vs `70.5` WPM). ERICK-151 recorded a historical `No-Go` on silently replacing that 8-section preset in place, but that recommendation was later superseded by a direct product decision and the shared 8-section `Efficiency` map now matches the exact rerun winner.
 - Evidence reviewed: ERICK-150 Branches 0, 3, 8, the current research README, `results_and_logs/branch1_baseline_probe_2026-04-28.md`, `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`, `results_and_logs/branch1_exact_8section_comparison_2026-04-28.txt`, `results_and_logs/branch1_8section_shipment_decision_2026-04-28.md`, and `results_and_logs/optimization_results_8section_shipped_exact_mixed_shortform_full_2026-04-28.txt`.
 - Open blocker: none.
-- Next action: none inside Branch 1; any future 8-section layout migration should split into its own focused follow-up.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: completed inside ERICK-151; any future 8-section shipping change can split into its own focused ticket if needed.
+- Next action: none inside Branch 1; the remaining product-path question was resolved by directly shipping the exact rerun winner.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: completed inside ERICK-151; the research branch is closed and the later shipping decision is already reflected on the product path.
 
 ### Branch 2 - Onboarding And Training-Aid Effectiveness
 
