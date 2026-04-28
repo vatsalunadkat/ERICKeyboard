@@ -150,14 +150,16 @@ Current Part 2 tracker as of 2026-04-28:
 
 - Branch `0` is now frozen through the Part 2 literature map and scorecard note in `results_and_logs/branch0_part2_scorecard_freeze_2026-04-28.md`.
 - Branch `1` is now closed through the initial baseline probe plus the direct 6-section implementation and the exact 8-section rerun in `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`.
-- Branches `2` through `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
+- Branch `2` is now closed through the onboarding/training plan in `results_and_logs/branch2_onboarding_training_plan_2026-04-28.md`.
+- Branch `3` is now closed through the accessibility persona matrix in `results_and_logs/branch3_accessibility_persona_matrix_2026-04-28.md`.
+- Branches `4` through `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
 | `Branch 0` | `Completed` | Literature and scorecard freeze | Makes the rest of Part 2 comparable instead of anecdotal. |
 | `Branch 1` | `Completed` | Shipped baseline completion | Closes the remaining ERICK-150 benchmark and comparability gaps. |
-| `Branch 2` | `Not Started` | Onboarding and training aids | Tests what actually reduces first-session friction. |
-| `Branch 3` | `Not Started` | Accessibility persona evaluation | Moves from generic accessibility claims to concrete task/persona evidence. |
+| `Branch 2` | `Completed` | Onboarding and training aids | Defines the first-session measurement plan, the tutorial comparisons, and the split-ready instrumentation work. |
+| `Branch 3` | `Completed` | Accessibility persona evaluation | Converts broad accessibility claims into persona bundles, task bundles, and split-ready setup guidance. |
 | `Branch 4` | `Not Started` | Controller and alternative hardware research | Treats controller typing as a real product path, not only a supported extra. |
 | `Branch 5` | `Not Started` | Error prevention and recovery | Extends the confusion drill into live-typing recovery research. |
 | `Branch 6` | `Not Started` | Prediction, disambiguation, and adaptive assistance | Studies prediction as real assistance, not only as a layout score modifier. |
@@ -327,12 +329,12 @@ If one or two teaching aids materially reduce first-session friction, create a d
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: the current product already has a real learning surface, but it has not been measured against alternative training aids.
-- Evidence reviewed: current Quickstart and Practice Lessons, User Guide, Twiddler and Senorita literature.
+- Status: `Completed`
+- Latest finding summary: ERICK already ships a real learning path, but it also ships an inconsistent first recommended lesson (`Quickstart` points to 6-section basics while the Practice Hub lists 8-section basics first) and lacks the event-level instrumentation needed to measure first-session friction.
+- Evidence reviewed: current Quickstart, Practice Lessons, HelpActivity, lesson persistence in PreferencesManager, User Guide, and `results_and_logs/branch2_onboarding_training_plan_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define first-session metrics and pick the first two tutorial-aid comparisons.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a focused onboarding instrumentation and tutorial-routing ticket starting with sequential cueing in lesson 1 and routed first lessons for touch-first versus controller-first users.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 3 - Accessibility Persona Evaluation
 
@@ -383,12 +385,12 @@ If persona bundles lead to clearly different recommended defaults or task outcom
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK has several accessibility surfaces but no persona-driven research plan that connects them to real task bundles.
-- Evidence reviewed: User Guide accessibility sections, current settings surfaces, assistive-input surveys, disability-focused chord papers.
+- Status: `Completed`
+- Latest finding summary: ERICK's current settings and lesson surfaces already imply distinct bundles for reduced precision touch, low-vision scanning, one-handed use, controller-first use, and fatigue-oriented use, so one-size-fits-all accessibility guidance is no longer the strongest framing.
+- Evidence reviewed: BenefitAudienceContent, MainSettingsContent, learning surfaces, User Guide accessibility sections, and `results_and_logs/branch3_accessibility_persona_matrix_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the initial ERICK persona bundles and the first task matrix.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split persona-specific setup guidance into focused product work for onboarding, settings, and practice entry points.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 4 - Controller And Alternative Hardware Research
 
