@@ -101,6 +101,7 @@ graph TB
         S5[ColorPalettes - 7 Palettes + Custom]
         S6[CustomLayout + CustomLayoutSerializer]
         S7[KeyboardFactory - iOS Init Helper]
+        S8[KeyboardLanguageProfiles + PredictionProfileBundle]
     end
 
     A1 -->|implements KeyboardActionDelegate| S4
@@ -124,8 +125,11 @@ graph TB
     S1 -->|resolveChord| S2
     S1 -->|getSuggestions| S3
     S1 -->|commitText / sendInputAction| S4
+    S1 -->|language switching + learned profile bundle| S8
     S2 -->|custom layout lookup| S6
+    S2 -->|language-aware overlays| S8
     S2 -->|palette colors| S5
+    S3 -->|localized base dictionaries| S8
 ```
 
 ### AI-First Change Routing
@@ -135,7 +139,8 @@ flowchart TD
     Start[Behavior or UX change request] --> Decision{What changed?}
     Decision -->|Chord geometry, preview order, utility mapping| Logic[KeyboardLogic.kt\nKeyboardLogicTest.kt]
     Decision -->|Controller normalization, assisted lock, suggestion state| StateMachine[KeyboardStateMachine.kt\nKeyboardStateMachineTest.kt]
-    Decision -->|Prediction ranking, learning, persistence| Predictor[WordPredictionEngine.kt\nWordPredictionEngineLearningTest.kt]
+    Decision -->|Prediction ranking, language dictionaries, learning, persistence| Predictor[WordPredictionEngine.kt\nWordPredictionEngineLearningTest.kt]
+    Decision -->|Language selection, diacritics, profile bundling| Language[KeyboardLanguageProfiles.kt\nPredictionProfileBundle.kt]
     Decision -->|Android IME behavior or suggestion taps| AndroidIME[MyInputMethodService.kt]
     Decision -->|Android host quickstart, practice, diagnostics| AndroidHost[MainScreenContent.kt\nPracticeHubActivity.kt\nHelpActivity.kt\nControllerDiagnosticsActivity.kt]
     Decision -->|iOS keyboard extension behavior| IosExtension[KeyboardViewController.swift]
@@ -152,6 +157,8 @@ classDiagram
         -coroutineScope: CoroutineScope
         -keyboardLogic: KeyboardLogic
         -predictor: WordPredictionEngine
+        -currentLanguage: KeyboardLanguage
+        -predictionProfilesByLanguage: Map
         +currentMode: KeyboardMode
         +leftHandedMode: Boolean
         +isNextWordMode: Boolean
@@ -160,12 +167,14 @@ classDiagram
         +getPreviewCharacter(): String
         +acceptSuggestion(suggestion, textBeforeCursor, textAfterCursor): SuggestionAcceptance
         +updateSuggestions()
+        +setKeyboardLanguage(language: KeyboardLanguage)
         +setLayoutType(type: LayoutType)
         +setCustomLayout(layout: CustomLayout)
         +setControllerDeadZone(dz: Float)
     }
 
     class KeyboardLogic {
+        +activeLanguage: KeyboardLanguage
         +getDirectionFromXY(x, y): Direction
         +getChordResult(left, right, mode, layout?): Any?
         +getSingleSwipeResult(dir, mode, layout?): Any?
@@ -173,6 +182,7 @@ classDiagram
     }
 
     class WordPredictionEngine {
+        +createWithDefaultDictionary(language: KeyboardLanguage): WordPredictionEngine
         +getSuggestions(currentWord, limit): List~String~
         +getNextWordSuggestions(prevWord, limit): List~String~
         +getDefaultSuggestions(limit): List~String~
@@ -188,7 +198,20 @@ classDiagram
         <<enum>> KeyboardMode
         <<enum>> LayoutType
         <<enum>> InputAction
+        <<enum>> KeyboardLanguage
         <<enum>> ControllerButton
+    }
+
+    class KeyboardLanguageProfiles {
+        <<object>>
+        +profile(language: KeyboardLanguage): KeyboardLanguageProfile
+        +supportsEfficiencyLayout(language: KeyboardLanguage): Boolean
+    }
+
+    class PredictionProfileBundle {
+        <<object>>
+        +serialize(profiles: Map): String
+        +deserialize(serialized: String): Map
     }
 
     class KeyboardActionDelegate {
@@ -235,7 +258,10 @@ classDiagram
 
     KeyboardStateMachine --> KeyboardLogic : uses
     KeyboardStateMachine --> WordPredictionEngine : uses
+    KeyboardStateMachine --> PredictionProfileBundle : persists
     KeyboardStateMachine --> KeyboardActionDelegate : calls delegate
+    KeyboardLogic --> KeyboardLanguageProfiles : resolves overlays
+    WordPredictionEngine --> KeyboardLanguageProfiles : loads resources
     KeyboardLogic --> CustomLayout : optional layout
     KeyboardLogic --> ColorPalettes : palette lookup
     CustomLayoutManager --> CustomLayoutSerializer : JSON conversion

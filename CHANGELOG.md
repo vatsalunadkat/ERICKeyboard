@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **More Scannable Accessibility and Settings Flows** - Settings now lead with clearer summaries and simpler custom layout and palette editing flows.
 
 ### Prediction and Typing Quality
+- **Shared Multi-Language Profiles (Android and iOS)** - Added selectable keyboard-language profiles for English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish. Non-English languages now use shared logical-first character overlays and per-language prediction resources, while learned word history stays isolated per language instead of being overwritten by one shared profile.
 - **8-Section Efficiency Preset Refresh** - The built-in 8-section Efficiency layout now uses the current exact shipped-symbol mixed-shortform winner from the benchmark-pack rerun instead of the older legacy arrangement.
 - **6-Section Efficiency Preset Refresh** - The built-in 6-section Efficiency layout now uses the measured mixed-shortform winner from the shipped-wheel optimizer path instead of the earlier placeholder arrangement, so the preset that users can select in settings matches the strongest checked-in 6-section research candidate.
 - **6-Section Symbols Layer Refresh** - The dedicated 6-section symbols layer now uses a measured mixed-shortform symbol-cluster ordering while preserving the shipped direct-period utility swipe and the existing shifted-symbol pairings.
