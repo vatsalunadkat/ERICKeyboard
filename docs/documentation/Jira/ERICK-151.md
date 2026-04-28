@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | In Progress |
+| **Status** | Completed |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 13 |
@@ -156,7 +156,15 @@ Current Part 2 tracker as of 2026-04-28:
 - Branch `5` is now closed through the error and recovery plan in `results_and_logs/branch5_error_recovery_plan_2026-04-28.md`.
 - Branch `6` is now closed through the predictor interaction scorecard in `results_and_logs/branch6_predictor_interaction_scorecard_2026-04-28.md`.
 - Branch `7` is now closed through the mixed-task workflow pack in `results_and_logs/branch7_mixed_task_workflow_pack_2026-04-28.md`.
-- Branches `8` and `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
+- Branch `8` is now closed through the adoption proxy plan in `results_and_logs/branch8_adoption_proxy_plan_2026-04-28.md`.
+- Branch `9` is now closed through the future-split ranking memo in `results_and_logs/branch9_future_split_ranking_2026-04-28.md`.
+
+## Final Outcome
+
+- All planned Branches `0` through `9` are now completed inside ERICK-151.
+- The highest-priority split candidate is a privacy-preserving onboarding instrumentation and routed-first-lessons ticket, based on Branches `2` and `8`.
+- The next split-ready candidates are persona-specific setup guidance, predictor trust and domain assistance, controller benchmark execution, and mixed-task workflow measurement.
+- The strongest `No-Go` conclusions recorded here are: no silent 8-section layout replacement, no silent correction or automatic retuning, no optimizer-coupled prediction scoring for now, and no shortcut or macro push before mixed-task evidence lands.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
@@ -168,8 +176,8 @@ Current Part 2 tracker as of 2026-04-28:
 | `Branch 5` | `Completed` | Error prevention and recovery | Defines the recovery taxonomy, records a No-Go on silent correction, and keeps explicit coaching as the split-ready path. |
 | `Branch 6` | `Completed` | Prediction, disambiguation, and adaptive assistance | Reframes prediction as a trust, visibility, and domain-assistance problem rather than an optimizer-ranking problem. |
 | `Branch 7` | `Completed` | Mixed-task workflow research | Defines the mixed-task workflow pack and points future work at utility, symbols, and navigation bottlenecks before macros. |
-| `Branch 8` | `Not Started` | Adoption, habit formation, and trust | Addresses the difference between “can type fast” and “will keep using it.” |
-| `Branch 9` | `Not Started` | Personalization, multilingual, and future splits | Holds the speculative but promising directions until the core system is better measured. |
+| `Branch 8` | `Completed` | Adoption, habit formation, and trust | Defines privacy-preserving adoption proxies and prioritizes setup, expectation, and trust work ahead of new optimizer work. |
+| `Branch 9` | `Completed` | Personalization, multilingual, and future splits | Ranks the split candidates, keeps multilingual work attached to ERICK-140, and leaves layout personalization last. |
 
 ---
 
@@ -663,12 +671,12 @@ If adoption barriers look dominated by setup, expectation, and trust rather than
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: the literature strongly suggests adoption is its own research problem, and ERICK has not yet translated that into product-specific measures.
-- Evidence reviewed: Ong et al. (2024), learning-curve papers, User Guide, current lesson and prediction surfaces.
+- Status: `Completed`
+- Latest finding summary: ERICK already persists enough local state to start privacy-preserving adoption measurement, and the strongest current barrier now looks more like setup, expectation, and trust than raw typing speed.
+- Evidence reviewed: MainScreenContent, PracticeHubActivity, PreferencesManager, current suggestion-profile persistence, current lessons, User Guide, and `results_and_logs/branch8_adoption_proxy_plan_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the first ERICK-specific adoption hypotheses and proxy measures.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a privacy-preserving onboarding and adoption-proxy ticket before opening new optimizer work.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 9 - Personalization, Multilingual, And Future Splits
 
@@ -712,12 +720,12 @@ Do not split this branch into product work until the core English, touch, contro
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: these directions look promising, but the current product and research baseline are not stable enough to prioritize them yet.
-- Evidence reviewed: ERICK-150 outcomes, motor-impaired survey literature, exploratory personalization paper.
+- Status: `Completed`
+- Latest finding summary: the future-facing candidates can now be ranked, with onboarding instrumentation, persona presets, and prediction-first assistance ahead of multilingual expansion and far ahead of algorithmic layout personalization.
+- Evidence reviewed: prior Branch 2 through 8 outcomes, `ERICK-140`, `WordPredictionEngine`, `CustomLayoutManager`, APP_CONTEXT future-architecture notes, and `results_and_logs/branch9_future_split_ranking_2026-04-28.md`.
 - Open blocker: none.
-- Next action: keep this branch as a holding area until the more grounded branches produce real priorities.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: use the ranking memo to decide follow-up tickets; do not create a standalone product ticket from Branch 9 itself.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: completed inside ERICK-151 as the ranking memo.
 
 ---
 
@@ -737,6 +745,8 @@ Do not split this branch into product work until the core English, touch, contro
 ---
 
 ## Exit Conditions For ERICK-151
+
+Status: satisfied on 2026-04-28.
 
 This ticket is ready to close when:
 
