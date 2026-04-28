@@ -43,7 +43,7 @@ class KeyboardStateMachineTest {
         pressLeft(stateMachine, x = -100f, y = -173.20508f)
         rightSwipe(stateMachine, x = -100f, y = -173.20508f)
 
-        assertEquals(listOf("£"), delegate.committedTexts)
+        assertEquals(listOf("\u2013"), delegate.committedTexts)
         assertEquals(KeyboardMode.SYMBOLS, stateMachine.currentMode)
 
         releaseLeft(stateMachine)

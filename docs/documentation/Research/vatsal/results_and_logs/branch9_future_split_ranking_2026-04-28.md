@@ -16,13 +16,13 @@
 
 | Rank | Candidate | Why it ranks here | Recommendation |
 |---|---|---|---|
-| `1` | Onboarding instrumentation and routed first lessons | Branches 2 and 8 both point to first-session friction and missing local measurement as the main blocker. | Make this the first real split ticket after ERICK-151. |
-| `2` | Persona-specific setup guidance and presets | Branch 3 found that ERICK already implies distinct bundles for touch precision, low vision, one-handed, and controller-first use. | Split soon after Branch 2 work starts. |
-| `3` | Predictor trust, visibility, and domain-aware assistance | Branch 6 found prediction value already exists, but the open problem is domain fit and trust, not layout ranking. | Split ahead of layout personalization. |
+| `1` | Onboarding instrumentation and routed first lessons | Branches 2 and 8 both point to first-session friction and missing local measurement as the main blocker. | Now split as ERICK-152 for the lesson-path refresh. Any later local instrumentation should stay separate if it expands beyond lesson routing. |
+| `2` | Persona-specific setup guidance and presets | Branch 3 found that ERICK already implies distinct bundles for touch precision, low vision, one-handed, and controller-first use. | Now split as ERICK-153. |
+| `3` | Predictor trust, visibility, and domain-aware assistance | Branch 6 found prediction value already exists, but the open problem is domain fit and trust, not layout ranking. | Now split as ERICK-154 ahead of layout personalization. |
 | `4` | Mixed-task benchmark execution | Branch 7 found likely bottlenecks in symbols, navigation, and repeated utility use. | Run after the first onboarding and predictor follow-ups are scoped. |
 | `5` | Controller-first benchmark execution and onboarding | Branch 4 showed real divergence from touch, but controller work should reuse the same onboarding and trust instrumentation. | Keep as a focused follow-up, not the first split. |
 | `6` | Multilingual foundation refresh (`ERICK-140`) | Real ticket already exists, but it depends on cleaner English predictor, onboarding, and profile boundaries. | Keep in backlog until the first product-experience tickets land. |
-| `7` | Algorithmic layout personalization beyond manual custom layouts | Branch 1 recorded a `No-Go` on silent 8-section replacement, and custom layouts already provide user-directed layout control. | Lowest near-term priority. |
+| `7` | Algorithmic layout personalization beyond manual custom layouts | Even after the direct 8-section preset refresh, custom layouts already provide user-directed layout control and the repo still lacks stronger trust and multilingual baselines. | Lowest near-term priority. |
 
 ## Dependency Map For Personalization And Multilingual Work
 
@@ -40,7 +40,7 @@ Prediction-first is the right default.
 
 - The shared predictor already supports learned words, learned bigrams, and local profile persistence.
 - Manual custom layouts already give ERICK a user-controlled layout-personalization surface today.
-- The 8-section exact rerun still ended in a `No-Go` for silent replacement, which makes further adaptive layout work a high-trust-risk path.
+- Even after the direct 8-section preset refresh, further adaptive layout work remains a high-trust-risk path compared with predictor and onboarding improvements.
 - In 6-section mode, layout complexity is especially sensitive and custom layouts remain outside the shipped path.
 
 That means ERICK should personalize assistance before it personalizes layout.
@@ -49,6 +49,6 @@ That means ERICK should personalize assistance before it personalizes layout.
 
 Branch 9 should end as a ranking memo, not as its own product ticket.
 
-- The first split candidate after ERICK-151 should be privacy-preserving onboarding instrumentation plus routed first lessons.
-- Multilingual work remains valid and should stay attached to `ERICK-140`, but it should not jump ahead of the new evidence on onboarding, trust, and English-side predictor behavior.
-- Algorithmic layout personalization should stay last because the repo already has manual custom layouts and the measured migration risk remains high.
+- The first split-ready work has now been captured as ERICK-152, ERICK-153, and ERICK-154.
+- Multilingual work remains valid in ERICK-140, but it should still follow the new evidence on onboarding, trust, and English-side predictor behavior instead of jumping the queue.
+- Algorithmic layout personalization should stay last because the repo already has manual custom layouts and the remaining trust and baseline risk is still high.

@@ -77,28 +77,28 @@ class KeyboardLogic {
     )
 
     // ========== EFFICIENCY LAYOUT ==========
-    // Optimized by English letter frequency: e, t, a, o, i, n, s, h, r, d, l, c, ...
+    // Updated to the measured exact rerun winner for the shipped 8-section symbol inventory.
     // Left direction = row, Right direction index: N=0, NE=1, E=2, SE=3, S=4, SW=5, W=6, NW=7
     private val efficiencyNormalMap = mapOf(
-        Direction.N  to listOf("t", "s", "g", "7", "=", "", "4", "k"),
-        Direction.NE to listOf("i", "a", "n", "p", "/", "", "", "'"),
-        Direction.E  to listOf("v", "l", "e", "r", "x", "", "", ";"),
-        Direction.SE to listOf("-", "y", "d", "o", "m", "", "", ""),
-        Direction.S  to listOf("`", "6", "b", "f", "u", "", "", ""),
-        Direction.SW to listOf("\\", "[", "]", "5", "q", "j", "", ""),
-        Direction.W  to listOf("", "", "", "", "", "2", "3", "z"),
-        Direction.NW to listOf("h", "w", "1", "8", "9", "", "0", "c")
+        Direction.N  to listOf("c", "a", "h", "/", "", "", "]", "k"),
+        Direction.NE to listOf("i", "t", "s", "u", "", "", "\\", "x"),
+        Direction.E  to listOf("v", "r", "e", "n", "q", "", "", "["),
+        Direction.SE to listOf("4", "f", "l", "o", "w", "`", "", ""),
+        Direction.S  to listOf("", "", "=", "d", "g", ";", "3", ""),
+        Direction.SW to listOf("", "", "", "'", "z", "m", "j", "7"),
+        Direction.W  to listOf("0", "", "", "", "8", "6", "b", "2"),
+        Direction.NW to listOf("p", "-", "9", "", "", "1", "5", "y")
     )
 
     private val efficiencyShiftedMap = mapOf(
-        Direction.N  to listOf("T", "S", "G", "&", "+", "", "$", "K"),
-        Direction.NE to listOf("I", "A", "N", "P", "?", "", "", "\""),
-        Direction.E  to listOf("V", "L", "E", "R", "X", "", "", ":"),
-        Direction.SE to listOf("_", "Y", "D", "O", "M", "", "", ""),
-        Direction.S  to listOf("~", "^", "B", "F", "U", "", "", ""),
-        Direction.SW to listOf("|", "{", "}", "%", "Q", "J", "", ""),
-        Direction.W  to listOf("", "", "", "", "", "@", "#", "Z"),
-        Direction.NW to listOf("H", "W", "!", "*", "(", "", ")", "C")
+        Direction.N  to listOf("C", "A", "H", "?", "", "", "}", "K"),
+        Direction.NE to listOf("I", "T", "S", "U", "", "", "|", "X"),
+        Direction.E  to listOf("V", "R", "E", "N", "Q", "", "", "{"),
+        Direction.SE to listOf("$", "F", "L", "O", "W", "~", "", ""),
+        Direction.S  to listOf("", "", "+", "D", "G", ":", "#", ""),
+        Direction.SW to listOf("", "", "", "\"", "Z", "M", "J", "&"),
+        Direction.W  to listOf(")", "", "", "", "*", "^", "B", "@"),
+        Direction.NW to listOf("P", "_", "(", "", "", "!", "%", "Y")
     )
 
     // ========== 6-SECTION LOGICAL LAYOUT (6x6 = 36 slots) ==========
@@ -142,22 +142,24 @@ class KeyboardLogic {
     )
 
     // ========== 6-SECTION SYMBOLS MODE ==========
+    // Updated to the measured mixed-shortform symbol-cluster winner while preserving the
+    // shipped utility wheel and the existing shifted-symbol slot pairings.
     private val symbolsNormalMap6 = mapOf(
-        Direction.N  to listOf("!", "@", "#", "$", "%", "^"),
-        Direction.NE to listOf("&", "*", "(", ")", "-", "="),
-        Direction.SE to listOf("[", "]", "{", "}", "\\", "|"),
-        Direction.S  to listOf(";", ":", "'", "\"", ",", "."),
-        Direction.SW to listOf("/", "?", "<", ">", "`", "~"),
-        Direction.NW to listOf("+", "_", "", "", "", "")
+        Direction.N  to listOf("-", ">", "<", "", "_", "%"),
+        Direction.NE to listOf("=", "?", "}", "&", "", "~"),
+        Direction.SE to listOf(",", "+", "\\", ".", ")", ""),
+        Direction.S  to listOf("@", "]", "*", "#", "!", "{"),
+        Direction.SW to listOf("^", "", "$", "|", "/", "'"),
+        Direction.NW to listOf("\"", ";", "`", "(", "[", ":")
     )
 
     private val symbolsShiftedMap6 = mapOf(
-        Direction.N  to listOf("\u00A3", "\u20AC", "\u00A5", "\u00A2", "\u2030", "\u00B0"),
-        Direction.NE to listOf("\u00D7", "\u00F7", "\u00AB", "\u00BB", "\u2013", "\u2014"),
-        Direction.SE to listOf("\u2018", "\u2019", "\u201C", "\u201D", "\u2026", "\u00B7"),
-        Direction.S  to listOf("\u00BF", "\u00A1", "\u00B1", "\u2260", "\u2264", "\u2265"),
-        Direction.SW to listOf("\u221A", "\u221E", "\u03C0", "\u2211", "\u0394", "\u00B5"),
-        Direction.NW to listOf("\u2190", "\u2192", "\u2191", "\u2193", "", "")
+        Direction.N  to listOf("\u2013", "\u2211", "\u03C0", "", "\u2192", "\u2030"),
+        Direction.NE to listOf("\u2014", "\u221E", "\u201D", "\u00D7", "", "\u00B5"),
+        Direction.SE to listOf("\u2264", "\u2190", "\u2026", "\u2265", "\u00BB", ""),
+        Direction.S  to listOf("\u20AC", "\u2019", "\u00F7", "\u00A5", "\u00A3", "\u201C"),
+        Direction.SW to listOf("\u00B0", "", "\u00A2", "\u00B7", "\u221A", "\u00B1"),
+        Direction.NW to listOf("\u2260", "\u00BF", "\u0394", "\u00AB", "\u2018", "\u00A1")
     )
 
     // Direction lists for each mode

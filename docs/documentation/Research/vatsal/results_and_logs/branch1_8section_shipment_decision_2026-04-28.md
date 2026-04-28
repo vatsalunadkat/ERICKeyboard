@@ -2,9 +2,11 @@
 
 ## Decision
 
-`No-Go` for replacing the current shipped 8-section `Efficiency` layout in place.
+Historical `No-Go` for replacing the then-current shipped 8-section `Efficiency` layout in place.
 
-Keep the current shipped 8-section map on the product path for now, and treat the exact rerun winner as a research candidate rather than an immediate shipping change.
+At the time of this note, the decision was to keep the then-current shipped 8-section map on the product path and treat the exact rerun winner as a research candidate rather than an immediate shipping change.
+
+That decision was later superseded by a direct product call after confirming the active user base was still small enough to accept the migration risk.
 
 ## Why This Is The Decision
 
@@ -13,9 +15,9 @@ Keep the current shipped 8-section map on the product path for now, and treat th
 Under the explicit shipped-symbol policy:
 
 - current shipped `efficiencyNormalMap`: `0.95690`, `70.5` predicted WPM
-- exact rerun winner: `0.90377`, `71.7` predicted WPM
+- exact rerun winner: `0.90671`, `71.7` predicted WPM
 
-That is a meaningful optimizer win: about `5.5%` better score and `1.2` predicted WPM.
+That is a meaningful optimizer win: about `5.2%` better score and `1.2` predicted WPM.
 
 ### The continuity cost is too high for an in-place swap
 
@@ -43,9 +45,9 @@ Branch 6 already showed on the 6-section side that raw efficiency wins alone are
 
 ## Product Outcome
 
-### Ship now
+### Historical ship-now outcome
 
-- keep the current shipped 8-section `Efficiency` layout unchanged
+- keep the then-current shipped 8-section `Efficiency` layout unchanged
 
 ### Preserve as research artifact
 
@@ -54,14 +56,21 @@ Branch 6 already showed on the 6-section side that raw efficiency wins alone are
 
 ### If revisited later
 
-- do not replace the current 8-section `Efficiency` preset in place without a dedicated migration decision
+- do not replace the then-current 8-section `Efficiency` preset in place without a dedicated migration decision
 - if the winner is ever tested on-product, prefer a separate opt-in layout variant or a focused migration experiment instead of silently mutating the existing preset
+
+## Later Addendum
+
+The later product-path outcome differed from this historical note:
+
+- the shared 8-section `Efficiency` preset was updated directly to the exact rerun winner
+- post-implementation validation now shows the shipped 8-section map scoring `0.90671` and `71.7` predicted WPM under the same benchmark settings
 
 ## Short Rationale
 
 Branch 1 cleaned the baseline successfully:
 
 - 6-section: direct implementation approved and shipped in shared code
-- 8-section: exact rerun completed, but immediate product replacement rejected
+- 8-section: exact rerun completed, and immediate product replacement was initially rejected in this historical note
 
 That split is defensible because the 6-section change converged the product onto the already measured winner, while the 8-section change would replace almost the entire learned map for a relatively modest predicted speed gain.
