@@ -26,10 +26,10 @@ This ticket is a research spike, not an implementation commitment. It should end
 
 Current confirmed checkpoint as of 2026-04-28:
 
-- Last fully completed and committed experimental checkpoint: `Branch 2` in commit `db60393`.
-- Branches `0`, `1`, `2`, `3`, and `8` have committed research outputs or infrastructure checkpoints.
-- Branches `4`, `5`, and `6` still have committed proposal-level outputs.
-- Branch `7` now has a completed local benchmark pass and is ready for a checkpoint commit; the current result is a `No-Go` for optimizer-coupled prediction scoring because layout ranking stayed unchanged.
+- Last fully completed and committed experimental checkpoint: `Branch 7` in commit `e4c185b`.
+- Branches `0`, `1`, `2`, `3`, `7`, and `8` have committed research outputs or infrastructure checkpoints.
+- Branch `4` now has a completed local instrumentation spike and ticket update ready for the next checkpoint commit.
+- Branches `5` and `6` still have committed proposal-level outputs only.
 
 | Branch | Tracker Status | Latest Commit | Current State |
 |---|---|---|---|
@@ -37,10 +37,10 @@ Current confirmed checkpoint as of 2026-04-28:
 | `Branch 1` | `Completed` | `36d85ec` | Effort-profile probe completed and ticket updated with keep-current-matrix guidance. |
 | `Branch 2` | `Completed` | `db60393` | Weight-sensitivity probe completed; current `1.0 / 0.6 / 0.3` mix remains the default. |
 | `Branch 3` | `Completed` | `3935ec5` | Symbol-cost comparison completed; `toggle_pair` is the stronger current approximation. |
-| `Branch 4` | `Proposal Committed` | `2d617ca` | Confusion-model proposal is documented, but no local instrumentation spike is checked in yet. |
+| `Branch 4` | `Ready To Commit` | `2d617ca` | Local-only diagnostics drill and shared confusion buckets are implemented; the spike is ready for its checkpoint commit. |
 | `Branch 5` | `Proposal Committed` | `b421274` | Variant-layout recommendation is documented; no new benchmark implementation work started. |
 | `Branch 6` | `Proposal Committed` | `eec8dda` | Hybrid-objective proposal is documented; no scored proxy pass exists yet. |
-| `Branch 7` | `Ready To Commit` | `2eb53f1` | Post-hoc prediction benchmark pass completed locally; current result is `No-Go` for coupling prediction into the optimizer because ranking stayed unchanged. |
+| `Branch 7` | `Completed` | `e4c185b` | Post-hoc prediction benchmark pass completed and committed; current result is `No-Go` for coupling prediction into the optimizer because ranking stayed unchanged. |
 | `Branch 8` | `Completed` | `5b09971` | Benchmark-pack adoption and reporting hardening are checked in. |
 
 ### Tracker Notes
@@ -636,12 +636,12 @@ If confusion-aware scoring reverses the ranking of top layouts, any later optimi
 
 ### Branch Status
 
-- Status: `Researching`
-- Latest finding summary: Branch 4 no longer needs to wait for a broad telemetry plan before it can start. The shared controller path already exposes raw values, adjusted values, magnitude, active state, and resolved direction in `ControllerInputProcessor.kt`, and `ControllerDiagnosticsActivity.kt` already renders those values locally. That is enough to define the first privacy-safe confusion buckets around adjacent-direction slips, mirror slips, dead-zone jitter, overshoot, and controller snap-back without storing raw typed text.
-- Evidence reviewed: `android/shared/src/commonMain/kotlin/ControllerInputProcessor.kt`, `android/app/src/main/java/com/vatoo/erick/ControllerDiagnosticsActivity.kt`, `android/app/src/main/java/com/vatoo/erick/LearningAndPracticeModels.kt`, and `docs/documentation/Research/vatsal/results_and_logs/branch4_confusion_model_proposal_2026-04-26.md`.
-- Open blocker: the repo still lacks local aggregate confusion instrumentation and the first calibrated matrix, so the branch has a model but not measured weights.
-- Next action: if Branch 4 implementation starts, route it through local-only diagnostics or practice aggregates that store expected-versus-resolved direction buckets and session totals, not raw text or raw motion traces.
-- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a local-only instrumentation spike or first calibrated matrix exists.
+- Status: `Ready For Split`
+- Latest finding summary: Branch 4 now has the first checked-in local-only instrumentation spike. The shared module exposes reusable confusion bucket helpers for exact match, adjacent slip, mirror slip, dead-zone jitter, and passive snap-back reversal, and Android controller diagnostics now includes a local Confusion Drill card that records aggregate expected-versus-resolved direction counts plus hot pairs for the current session. This proves that the repo can gather privacy-safe confusion evidence without raw typed text or raw stick traces and without modifying the shipping typing path.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/ControllerInputProcessor.kt`, `android/shared/src/commonMain/kotlin/ControllerConfusionMetrics.kt`, `android/shared/src/commonTest/kotlin/ControllerConfusionMetricsTest.kt`, `android/app/src/main/java/com/vatoo/erick/ControllerDiagnosticsActivity.kt`, `docs/documentation/Research/vatsal/results_and_logs/branch4_confusion_model_proposal_2026-04-26.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch4_local_confusion_spike_2026-04-28.md`.
+- Open blocker: the spike still lacks real device-session counts, so the confusion matrix remains ordinal and uncalibrated.
+- Next action: if later work needs calibrated probabilities, split that follow-up from ERICK-150 and use this diagnostics drill or a practice-task aggregate surface to collect local bucket totals under controlled conditions.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: ready to split if calibration work actually starts; the spike phase is complete inside ERICK-150.
 
 ### Branch 5 - User-Segment Layout Variants
 
@@ -806,10 +806,10 @@ If corpus choice changes the best layout family, every later branch conclusion m
 ### Branch Status
 
 - Status: `Ready For Split`
-- Latest finding summary: Branch 8 is no longer just a planned harness. Branch 3 has already adopted the benchmark pack in full scored shipped-wheel runs, and Branches 4-7 now depend on the same benchmark IDs and comparability rules in their checked-in proposals. The result template has also been hardened to require benchmark IDs, symbol-cost assumptions, prediction assumptions, and an explicit comparability family so later runs stop drifting into one-off formats.
+- Latest finding summary: Branch 8 is no longer just a planned harness. Branch 3 already adopted the benchmark pack in full scored shipped-wheel runs, Branch 7 now has a scored prediction-aware benchmark artifact, and Branch 4's local-only confusion spike plus the earlier proposal branches all still depend on the same benchmark IDs and comparability rules. The result template has also been hardened to require benchmark IDs, symbol-cost assumptions, prediction assumptions, and an explicit comparability family so later runs stop drifting into one-off formats.
 - Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/benchmark_pack.md`, `docs/documentation/Research/vatsal/benchmark_packs/`, `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/branch8_adoption_update_2026-04-26.md`, `docs/documentation/Research/vatsal/scripts/corpus.txt`, `docs/documentation/Research/vatsal/scripts/corpus_data_values.py`, and `docs/documentation/Research/vatsal/scripts/run_hybrid.py`.
-- Open blocker: the hardened reporting rules are now used in Branches 1-3, but Branch 7 still lacks the first scored prediction-aware benchmark pass and 8-section still has no benchmark-pack-based non-`wordfreq` rerun.
-- Next action: require the hardened template and comparability-family label for the first scored Branch 7 artifact and for any future 8-section benchmark-pack experiment instead of allowing another ad-hoc result note.
+- Open blocker: 8-section still has no benchmark-pack-based non-`wordfreq` rerun, so full cross-mode adoption of the Branch 8 pack remains incomplete.
+- Next action: require the hardened template and comparability-family label for the first 8-section benchmark-pack experiment instead of allowing another ad-hoc result note.
 - Whether the branch still belongs inside ERICK-150 or is finally ready to split: ready to split only if later work needs automated corpus regeneration or a dedicated benchmark runner; otherwise keep this branch here as the canonical benchmark spec.
 
 ---

@@ -353,7 +353,7 @@ Settings are organized into collapsible sections with short summaries so you can
 
 ### Controller
 
-- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback. When **Haptic Feedback** is enabled, supported controllers can also rumble on controller-typed input.
+- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback. The diagnostics screen also includes a local **Confusion Drill** that records only aggregate expected-versus-resolved direction buckets for the current session, with no typed text or raw stick traces stored. When **Haptic Feedback** is enabled, supported controllers can also rumble on controller-typed input.
 - **iOS**: Controller behavior follows the active system connection and the same lesson flow, but controller calibration is currently documented through the host app workflow rather than a dedicated diagnostics screen. When **Haptic Feedback** is enabled and the keyboard extension can access the controller directly, supported controllers can also rumble on controller-typed input.
 
 ### Privacy and Security
