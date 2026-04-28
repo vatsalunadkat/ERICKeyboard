@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | In-progress |
+| **Status** | Done |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 8 |
@@ -26,10 +26,10 @@ This ticket is a research spike, not an implementation commitment. It should end
 
 Current confirmed checkpoint as of 2026-04-28:
 
-- Last fully completed and committed experimental checkpoint: `Branch 7` in commit `e4c185b`.
-- Branches `0`, `1`, `2`, `3`, `7`, and `8` have committed research outputs or infrastructure checkpoints.
-- Branch `4` now has a completed local instrumentation spike and ticket update ready for the next checkpoint commit.
-- Branches `5` and `6` still have committed proposal-level outputs only.
+- Last fully completed and committed experimental checkpoint: the Branch `5` and Branch `6` closure pass in commit `f29d024`.
+- Branches `0` through `8` now have committed research outputs, decision notes, or validated infrastructure checkpoints.
+- Branch `8` remains the only branch that is still `Ready For Split`, but it is no longer blocking ERICK-150 closure.
+- Branches `5`, `6`, and `7` all closed as measured `No-Go` outcomes rather than as shipping directions.
 
 | Branch | Tracker Status | Latest Commit | Current State |
 |---|---|---|---|
@@ -37,9 +37,9 @@ Current confirmed checkpoint as of 2026-04-28:
 | `Branch 1` | `Completed` | `36d85ec` | Effort-profile probe completed and ticket updated with keep-current-matrix guidance. |
 | `Branch 2` | `Completed` | `db60393` | Weight-sensitivity probe completed; current `1.0 / 0.6 / 0.3` mix remains the default. |
 | `Branch 3` | `Completed` | `3935ec5` | Symbol-cost comparison completed; `toggle_pair` is the stronger current approximation. |
-| `Branch 4` | `Ready To Commit` | `2d617ca` | Local-only diagnostics drill and shared confusion buckets are implemented; the spike is ready for its checkpoint commit. |
-| `Branch 5` | `Proposal Committed` | `b421274` | Variant-layout recommendation is documented; no new benchmark implementation work started. |
-| `Branch 6` | `Proposal Committed` | `eec8dda` | Hybrid-objective proposal is documented; no scored proxy pass exists yet. |
+| `Branch 4` | `Completed` | `3700d87` | Local-only diagnostics drill and shared confusion buckets are implemented and validated as the Branch 4 spike outcome. |
+| `Branch 5` | `Completed` | `f29d024` | Segment-specific shipped Efficiency variants closed as `No-Go`; keep one Efficiency family and use segment packs only as evaluation slices. |
+| `Branch 6` | `Completed` | `f29d024` | Measured learnability replay completed; no checked-in hybrid candidate cleared the `3%` efficiency / `15%` proxy-improvement gate. |
 | `Branch 7` | `Completed` | `e4c185b` | Post-hoc prediction benchmark pass completed and committed; current result is `No-Go` for coupling prediction into the optimizer because ranking stayed unchanged. |
 | `Branch 8` | `Completed` | `5b09971` | Benchmark-pack adoption and reporting hardening are checked in. |
 
@@ -48,6 +48,7 @@ Current confirmed checkpoint as of 2026-04-28:
 - In this ticket, `Completed` means the branch has a committed research result or infrastructure checkpoint, not necessarily a shipped product change.
 - `Proposal Committed` means the branch produced a committed design or measurement proposal, but not a checked-in implementation spike.
 - `Ready To Commit` means the branch has a completed local result and ticket update, but its next checkpoint commit has not been created yet.
+- A `Completed` branch can still end in `No-Go` or `Ready For Split`; it only means the research question for ERICK-150 now has a checked-in answer.
 
 ---
 
@@ -683,12 +684,12 @@ Do not propose additional shipped layout modes unless this branch shows a clear 
 
 ### Branch Status
 
-- Status: `Researching`
-- Latest finding summary: the repo currently supports audience-aware evaluation better than it supports audience-specific shipped Efficiency variants. Settings, help, and the user guide still frame layout choice as a simple `Logical` versus `Efficiency` decision, while broader audience needs are already handled through dial mode, input mode, controller support, and practice flows. That makes segment benchmarking useful, but segment-specific official variants premature.
-- Evidence reviewed: `android/app/src/main/java/com/vatoo/erick/BenefitAudienceContent.kt`, `android/app/src/main/java/com/vatoo/erick/MainSettingsContent.kt`, `android/app/src/main/java/com/vatoo/erick/HelpActivity.kt`, `docs/documentation/User_Guide.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch5_layout_variant_recommendation_2026-04-26.md`.
-- Open blocker: Branch 5 still lacks measured segment-specific reruns from Branches 1-4 and 7, so the current recommendation is directional rather than data-backed.
-- Next action: keep one shipped Efficiency family for now and only score segment slices with the benchmark packs until a segment-specific winner clears an explicit gain threshold over the global layout.
-- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a segment-specific winner materially beats the global layout under comparable scorecards.
+- Status: `No-Go`
+- Latest finding summary: Branch 5 now closes as a measured product-direction `No-Go`, not just a directional memo. The current product surfaces already teach a simple `Logical` versus `Efficiency` choice, Branch 1 did not justify a split effort matrix, Branch 4 only established the local confusion spike rather than a calibrated audience-specific matrix, Branch 7 did not change layout ranking under prediction-aware evaluation, and Branch 6 confirmed that the strongest current tradeoff is still between the existing `Logical` and `Efficiency` stories rather than between multiple near-tie Efficiency families.
+- Evidence reviewed: `android/app/src/main/java/com/vatoo/erick/BenefitAudienceContent.kt`, `android/app/src/main/java/com/vatoo/erick/MainSettingsContent.kt`, `android/app/src/main/java/com/vatoo/erick/HelpActivity.kt`, `docs/documentation/User_Guide.md`, `docs/documentation/Research/vatsal/results_and_logs/branch5_layout_variant_recommendation_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/branch5_layout_variant_decision_2026-04-28.md`, `docs/documentation/Research/vatsal/results_and_logs/branch4_local_confusion_spike_2026-04-28.md`, `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`.
+- Open blocker: none for ERICK-150 closure. Future work would need fresh segment-specific reruns that clear the Branch 5 split gate rather than more proposal text.
+- Next action: keep one shipped Efficiency family and continue using segment packs only as evaluation slices until a segment-specific winner beats the global layout by at least `3%` on its own pack while losing no more than `1%` on the general pack.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: completed inside ERICK-150 for now; no split unless future measured reruns clear the existing Branch 5 gate.
 
 ### Branch 6 - Learnability And Hybrid Objectives
 
@@ -721,12 +722,12 @@ If hybrid objectives remain close to the top efficiency score while improving te
 
 ### Branch Status
 
-- Status: `Researching`
-- Latest finding summary: Branch 6 can now move from abstract “memorability” talk to a first hybrid score proposal because ERICK already teaches through explicit preview order and staged lessons. The repo has enough structure to score row coherence, preview predictability, lesson-introduction span, and utility-anchor stability without claiming that retention has already been measured.
-- Evidence reviewed: `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `/memories/repo/6-section-preview-order.md`, `android/app/src/main/java/com/vatoo/erick/LearningAndPracticeModels.kt`, and `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_objective_proposal_2026-04-26.md`.
-- Open blocker: the branch still lacks computed proxy values against real candidate layouts, so the current hybrid objective is a measurement proposal rather than a scored comparison.
-- Next action: if Branch 6 gets an implementation spike, compute the proxy terms first for the current Logical, current Efficiency, and the latest Branch 3 mixed-text winner before inventing new hybrid layouts.
-- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until the proxy terms are actually computed on comparable layouts.
+- Status: `No-Go`
+- Latest finding summary: Branch 6 now has a measured proxy pass rather than only a proposal. The replay scored the current `Logical` 6-section map, the current shared `efficiencyNormalMap6` placeholder, and the Branch 3 `toggle_pair` winner against the shipped mixed-shortform objective plus row-dispersion, preview-jump, and lesson-span proxies. `Logical` improved the combined proxy by `35.2%` versus the best pure-efficiency layout, but its replay score was `42.5%` worse. The shared placeholder map was `20.9%` worse on score and `12.6%` worse on the proxy than the Branch 3 winner. No checked-in candidate cleared the proposed hybrid-interest gate of staying within `3%` of best efficiency while improving learnability proxies by at least `15%`.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `/memories/repo/6-section-preview-order.md`, `android/app/src/main/java/com/vatoo/erick/LearningAndPracticeModels.kt`, `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_objective_proposal_2026-04-26.md`, `docs/documentation/Research/vatsal/branch6_learnability_probe.py`, `docs/documentation/Research/vatsal/results_and_logs/branch6_learnability_probe_2026-04-28.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`.
+- Open blocker: none for ERICK-150 closure. A future revisit would need a new candidate family near the Branch 3 score band or real retention evidence, not another unmeasured hybrid formula.
+- Next action: keep Branch 6 exploratory and treat the current result as support for the existing product split between `Logical` and `Efficiency`, not as justification for a third built-in layout family.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: completed inside ERICK-150 for now; no split unless a future candidate actually clears the hybrid-interest gate.
 
 ### Branch 7 - Prediction-Aware Evaluation
 
@@ -839,3 +840,5 @@ This planning ticket is ready to close when:
 - the benchmark pack and result template are checked in so future branches can report comparable results
 - any future split remains documented here first instead of being created prematurely
 - no shipped layout changes are made before the research output is reviewed
+
+Closure note on 2026-04-28: these exit conditions are now satisfied. ERICK-150 ends with one updated evidence base, one shipped Efficiency family recommendation, three checked-in `No-Go` outcomes for Branches 5-7, a completed local Branch 4 spike, and Branch 8 left as a reusable benchmark surface rather than as a blocker.
