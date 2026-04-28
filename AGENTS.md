@@ -24,6 +24,7 @@ Use this file as the shortest safe entry point for Codex and other AGENTS-aware 
 4. Run the narrowest validation that can falsify the change.
 5. Update the tests, docs, and diagrams triggered by the change.
 6. If the workflow allows git writes, commit and push small validated checkpoints on the current branch.
+7. If a user-visible feature, setting, learning flow, or prediction behavior changes on Android, mirror it on iOS in the same pass unless the task is explicitly platform-specific or a concrete blocker is documented.
 
 ## Working Posture
 
@@ -80,6 +81,7 @@ Use this file as the shortest safe entry point for Codex and other AGENTS-aware 
 ## Critical Invariants
 
 - Start behavior changes in the shared module unless the change is purely platform UI.
+- User-visible Android and iOS behavior should stay aligned. If one platform receives a new feature, settings change, learning flow update, or predictor behavior adjustment, implement the same product behavior on the other platform in the same task unless the user explicitly scopes the work to one platform or a concrete blocker is called out.
 - The 6-section utility wheel is rotated `-30°` from the older draft design.
 - Current 6-section single-swipe actions are:
   - `NE` = Shift
@@ -118,9 +120,9 @@ Use this file as the shortest safe entry point for Codex and other AGENTS-aware 
 ## Git Workflow For Autonomous Agents
 
 - Stay on the current branch unless the user explicitly asks for branch creation.
-- If commit and push are allowed in the workflow, prefer small validated commits at natural checkpoints instead of one large opaque diff.
+- If commit and push are allowed in the workflow, prefer frequent small validated commits at natural checkpoints instead of one large opaque diff.
 - Use commit subjects in the form `scope: outcome` when possible.
-- Add a short commit body that states why the change was made and how it was validated.
+- Add a detailed commit body that states why the change was made, the important implementation notes, and how it was validated.
 - Do not force-push, rewrite history, or commit unrelated changes unless explicitly asked.
 - If the environment or user does not allow autonomous git writes, leave the work in a commit-ready state and report the recommended commit message.
 

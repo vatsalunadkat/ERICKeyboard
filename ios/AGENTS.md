@@ -8,6 +8,7 @@ Use this file for work under `ios/`. It supplements the repo-root `AGENTS.md` wi
 - `ERICK/ErickKeyBoard/` is the custom keyboard extension.
 - `ERICK/SharedKeyboard.xcframework/` is generated output. Do not hand-edit it.
 - If a change affects shared typing behavior, mappings, controller logic, or predictions, start in `android/shared/` unless the task is purely iOS UI.
+- When Android receives a new user-visible feature, settings change, learning flow update, or predictor behavior, mirror the iOS host-app and extension surfaces in the same task unless the user explicitly scopes the work to one platform or a concrete blocker is documented.
 
 ## iOS UI And Layout Rules
 

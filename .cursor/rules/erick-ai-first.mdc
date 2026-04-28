@@ -35,10 +35,12 @@ alwaysApply: true
 - Name one cheap discriminating check before the first edit.
 - Run the narrowest relevant validation command, test, or diagnostic before widening scope.
 - If behavior changes, update the closest tests and docs in the same pass.
+- If Android receives a new user-visible feature, settings change, learning flow update, or predictor behavior change, implement the matching iOS behavior in the same pass unless the user explicitly scopes the work to one platform or a concrete blocker is documented.
 
 ## Repo Invariants
 
 - Shared typing and controller behavior lives in `android/shared/src/commonMain/kotlin/`.
+- Android and iOS user-visible behavior should stay aligned; mirror new features, settings, learning flow changes, and predictor behavior across both platforms in the same task unless the work is explicitly platform-specific or blocked.
 - The shipped 6-section utility mapping is `NE` Shift, `SE` Space, `S` Period, `SW` Enter, `NW` Backspace, `N` Symbols.
 - The 8-section and 6-section modes must both remain correct.
 - Custom layouts stay disabled in 6-section mode.
@@ -49,7 +51,7 @@ alwaysApply: true
 
 - Read the smallest canonical doc set before editing behavior, copy, or diagrams.
 - Update `APP_CONTEXT.md`, `docs/documentation/User_Guide.md`, `README.md`, `CHANGELOG.md`, or the relevant `.drawio` file when the change triggers them.
-- If git writes are enabled in the workflow, keep work on the current branch, prefer small validated commits, and use a clear commit subject plus a short validation-oriented body.
+- If git writes are enabled in the workflow, keep work on the current branch, prefer frequent small validated commits, and use a clear commit subject plus a detailed validation-oriented body.
 
 ## Routing Hints
 
