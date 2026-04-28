@@ -154,7 +154,9 @@ Current Part 2 tracker as of 2026-04-28:
 - Branch `3` is now closed through the accessibility persona matrix in `results_and_logs/branch3_accessibility_persona_matrix_2026-04-28.md`.
 - Branch `4` is now closed through the controller task bundle in `results_and_logs/branch4_controller_task_bundle_2026-04-28.md`.
 - Branch `5` is now closed through the error and recovery plan in `results_and_logs/branch5_error_recovery_plan_2026-04-28.md`.
-- Branches `6` through `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
+- Branch `6` is now closed through the predictor interaction scorecard in `results_and_logs/branch6_predictor_interaction_scorecard_2026-04-28.md`.
+- Branch `7` is now closed through the mixed-task workflow pack in `results_and_logs/branch7_mixed_task_workflow_pack_2026-04-28.md`.
+- Branches `8` and `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
@@ -164,8 +166,8 @@ Current Part 2 tracker as of 2026-04-28:
 | `Branch 3` | `Completed` | Accessibility persona evaluation | Converts broad accessibility claims into persona bundles, task bundles, and split-ready setup guidance. |
 | `Branch 4` | `Completed` | Controller and alternative hardware research | Defines the controller benchmark bundle, diagnostics expansion plan, and controller-versus-touch split rationale. |
 | `Branch 5` | `Completed` | Error prevention and recovery | Defines the recovery taxonomy, records a No-Go on silent correction, and keeps explicit coaching as the split-ready path. |
-| `Branch 6` | `Not Started` | Prediction, disambiguation, and adaptive assistance | Studies prediction as real assistance, not only as a layout score modifier. |
-| `Branch 7` | `Not Started` | Mixed-task workflow research | Covers symbols, editing, navigation, and shortcut-heavy tasks. |
+| `Branch 6` | `Completed` | Prediction, disambiguation, and adaptive assistance | Reframes prediction as a trust, visibility, and domain-assistance problem rather than an optimizer-ranking problem. |
+| `Branch 7` | `Completed` | Mixed-task workflow research | Defines the mixed-task workflow pack and points future work at utility, symbols, and navigation bottlenecks before macros. |
 | `Branch 8` | `Not Started` | Adoption, habit formation, and trust | Addresses the difference between “can type fast” and “will keep using it.” |
 | `Branch 9` | `Not Started` | Personalization, multilingual, and future splits | Holds the speculative but promising directions until the core system is better measured. |
 
@@ -548,12 +550,12 @@ If predictor changes look more promising as a trust or workflow problem than a r
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK has a live predictor and ERICK-150 showed it matters in post-hoc cost, but the live behavior has not been studied as a product experience.
-- Evidence reviewed: `WordPredictionEngine`, User Guide prediction section, ERICK-150 Branch 7, disambiguation and motor-impaired text-entry surveys.
+- Status: `Completed`
+- Latest finding summary: ERICK's predictor already provides explicit prefix completion, lightweight correction, next-word suggestions, and local learned-state adaptation, but the most promising next work is in visibility, trust, and domain-aware assistance rather than ranking or optimizer coupling.
+- Evidence reviewed: `WordPredictionEngine`, `KeyboardStateMachine`, live suggestion-bar behavior in `MyInputMethodService`, User Guide prediction section, `results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`, and `results_and_logs/branch6_predictor_interaction_scorecard_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the first live predictor scorecard and the first acceptance questions.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a predictor trust-and-visibility follow-up focused on domain-aware assistance and learned-state controls, not layout re-optimization.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 7 - Mixed-Task Workflow Research
 
@@ -600,12 +602,12 @@ If mixed-task cost dominates real use, future product work should not keep treat
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK’s benchmark packs improved shortform realism, but the product still lacks a deliberately mixed-task research branch.
-- Evidence reviewed: ERICK-150 Branches 3 and 8, User Guide utility/prediction/controller flows, mixed-task and shortcut-adjacent literature.
+- Status: `Completed`
+- Latest finding summary: mixed-task bottlenecks now look more likely to come from utility placement, symbol-mode switching, navigation asymmetry, and repeated correction work than from prose-layout ranking alone.
+- Evidence reviewed: `KeyboardLogic`, `KeyboardContracts`, `KeyboardStateMachine`, User Guide utility and prediction flows, `benchmark_pack.md`, `results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`, and `results_and_logs/branch7_mixed_task_workflow_pack_2026-04-28.md`.
 - Open blocker: none.
-- Next action: define the first mixed-task bundle and audit the highest-friction utility paths.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
+- Next action: split a mixed-task execution ticket and measure the pack before opening shortcut or macro research.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: ready to split.
 
 ### Branch 8 - Adoption, Habit Formation, And Trust
 
