@@ -28,6 +28,19 @@ enum class InputMode {
     ASSISTED   // Lock left direction for one-handed typing
 }
 
+enum class KeyboardLanguage {
+    ENGLISH,
+    SPANISH,
+    PORTUGUESE,
+    FRENCH,
+    GERMAN,
+    ITALIAN,
+    NORWEGIAN_BOKMAL,
+    DANISH,
+    SWEDISH,
+    FINNISH
+}
+
 enum class PredictionDomain {
     GENERAL,
     CONVERSATION,

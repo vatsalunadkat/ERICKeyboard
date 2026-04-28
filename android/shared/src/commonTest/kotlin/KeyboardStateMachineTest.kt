@@ -145,6 +145,29 @@ class KeyboardStateMachineTest {
     }
 
     @Test
+    fun switchingKeyboardLanguageRefreshesDefaultSuggestions() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.setKeyboardLanguage(KeyboardLanguage.SPANISH)
+
+        assertEquals(KeyboardLanguage.SPANISH, stateMachine.getKeyboardLanguage())
+        assertTrue(stateMachine.currentSuggestions.contains("Hola"))
+    }
+
+    @Test
+    fun switchingKeyboardLanguagePersistsPredictionProfilesAsBundle() = runTest {
+        val delegate = RecordingDelegate().apply {
+            serializedPredictionProfile = "[words]\nerick\t2\t1\n[bigrams]\nhello\terick\t3\n"
+        }
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.setKeyboardLanguage(KeyboardLanguage.SPANISH)
+
+        assertTrue(delegate.serializedPredictionProfile.startsWith("[prediction-profiles]"))
+    }
+
+    @Test
     fun backspaceHoldStartsRepeatingAfterDelay() = runTest {
         val delegate = RecordingDelegate()
         val stateMachine = KeyboardStateMachine(delegate, this)

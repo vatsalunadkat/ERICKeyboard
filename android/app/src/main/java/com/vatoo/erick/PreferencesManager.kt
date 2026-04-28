@@ -23,6 +23,7 @@ class PreferencesManager(private val context: Context) {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         private val COLORBLIND_MODE_KEY = booleanPreferencesKey("colorblind_mode")
         private val COLOR_PALETTE_KEY = stringPreferencesKey("color_palette")
+        private val KEYBOARD_LANGUAGE_KEY = stringPreferencesKey("keyboard_language")
         private val LEFT_HANDED_MODE_KEY = booleanPreferencesKey("left_handed_mode")
         private val CUSTOM_LAYOUT_ID_KEY = stringPreferencesKey("custom_layout_id")
         private val CUSTOM_LAYOUTS_JSON_KEY = stringPreferencesKey("custom_layouts_json")
@@ -60,6 +61,17 @@ class PreferencesManager(private val context: Context) {
         const val PALETTE_TRITANOPIA = "tritanopia"
         const val PALETTE_PASTEL = "pastel"
         const val PALETTE_CUSTOM = "custom"
+
+        const val LANGUAGE_ENGLISH = "english"
+        const val LANGUAGE_SPANISH = "spanish"
+        const val LANGUAGE_PORTUGUESE = "portuguese"
+        const val LANGUAGE_FRENCH = "french"
+        const val LANGUAGE_GERMAN = "german"
+        const val LANGUAGE_ITALIAN = "italian"
+        const val LANGUAGE_NORWEGIAN_BOKMAL = "norwegian_bokmal"
+        const val LANGUAGE_DANISH = "danish"
+        const val LANGUAGE_SWEDISH = "swedish"
+        const val LANGUAGE_FINNISH = "finnish"
 
         const val DEFAULT_CUSTOM_COLORS = "#E60012,#F39800,#FFF100,#009944,#0068B7,#1D2088,#920783,#000000"
 
@@ -99,6 +111,11 @@ class PreferencesManager(private val context: Context) {
     val colorPalette: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[COLOR_PALETTE_KEY] ?: PALETTE_OKABE_ITO
+        }
+
+    val keyboardLanguage: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[KEYBOARD_LANGUAGE_KEY] ?: LANGUAGE_ENGLISH
         }
 
     val leftHandedMode: Flow<Boolean> = context.dataStore.data
@@ -208,6 +225,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setColorPalette(palette: String) {
         context.dataStore.edit { preferences ->
             preferences[COLOR_PALETTE_KEY] = palette
+        }
+    }
+
+    suspend fun setKeyboardLanguage(language: String) {
+        context.dataStore.edit { preferences ->
+            preferences[KEYBOARD_LANGUAGE_KEY] = language
         }
     }
 

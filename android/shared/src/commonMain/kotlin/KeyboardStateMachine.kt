@@ -8,7 +8,10 @@ class KeyboardStateMachine(
     private val coroutineScope: CoroutineScope // Lifecycle-bound scope provided by Android/iOS
 ) {
     private val processor = KeyboardLogic()
-    private val predictor = WordPredictionEngine.createWithDefaultDictionary()
+    private var currentLanguage = KeyboardLanguage.ENGLISH
+    private var currentPredictionDomain = PredictionDomain.GENERAL
+    private var predictionProfilesByLanguage = mutableMapOf<KeyboardLanguage, String>()
+    private var predictor = WordPredictionEngine.createWithDefaultDictionary(currentLanguage)
     private val DEADZONE_RADIUS = 40f
     private var controllerDeadZone = 0.25f
     private var controllerYAxisMultiplier = 1f
@@ -26,7 +29,11 @@ class KeyboardStateMachine(
         private set
 
     init {
-        predictor.importLearnedProfile(delegate.loadPredictionProfile())
+        predictionProfilesByLanguage = PredictionProfileBundle.deserialize(delegate.loadPredictionProfile()).toMutableMap()
+        processor.activeLanguage = currentLanguage
+        predictor = WordPredictionEngine.createWithDefaultDictionary(currentLanguage)
+        predictor.setPredictionDomain(currentPredictionDomain)
+        predictor.importLearnedProfile(predictionProfilesByLanguage[currentLanguage].orEmpty())
         // Show default suggestions when keyboard first opens
         updateSuggestions()
     }
@@ -144,9 +151,26 @@ class KeyboardStateMachine(
     }
 
     fun setPredictionDomain(domain: PredictionDomain) {
+        currentPredictionDomain = domain
         predictor.setPredictionDomain(domain)
         updateSuggestions()
     }
+
+    fun setKeyboardLanguage(language: KeyboardLanguage) {
+        if (currentLanguage == language) return
+
+        predictionProfilesByLanguage[currentLanguage] = predictor.exportLearnedProfile()
+        currentLanguage = language
+        processor.activeLanguage = language
+        predictor = WordPredictionEngine.createWithDefaultDictionary(language)
+        predictor.setPredictionDomain(currentPredictionDomain)
+        predictor.importLearnedProfile(predictionProfilesByLanguage[language].orEmpty())
+        lastCompletedWord = ""
+        persistPredictionProfiles()
+        syncWordBufferFromEditor()
+    }
+
+    fun getKeyboardLanguage(): KeyboardLanguage = currentLanguage
 
     fun getCurrentPalette(): List<ColorEntry> {
         return ColorPalettes.getPalette(currentPaletteType)
@@ -596,7 +620,12 @@ class KeyboardStateMachine(
             predictor.learnBigram(lastCompletedWord, normalizedWord, count = boost)
         }
         lastCompletedWord = normalizedWord
-        delegate.savePredictionProfile(predictor.exportLearnedProfile())
+        persistPredictionProfiles()
+    }
+
+    private fun persistPredictionProfiles() {
+        predictionProfilesByLanguage[currentLanguage] = predictor.exportLearnedProfile()
+        delegate.savePredictionProfile(PredictionProfileBundle.serialize(predictionProfilesByLanguage))
     }
 
     private fun normalizeWord(word: String): String {

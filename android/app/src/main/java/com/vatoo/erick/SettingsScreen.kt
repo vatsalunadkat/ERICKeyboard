@@ -22,6 +22,7 @@ fun SettingsScreen(
     val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.THEME_SYSTEM)
     val colorblindMode by preferencesManager.colorblindMode.collectAsState(initial = false)
     val colorPalette by preferencesManager.colorPalette.collectAsState(initial = PreferencesManager.PALETTE_OKABE_ITO)
+    val keyboardLanguage by preferencesManager.keyboardLanguage.collectAsState(initial = PreferencesManager.LANGUAGE_ENGLISH)
     val leftHandedMode by preferencesManager.leftHandedMode.collectAsState(initial = false)
     val customLayoutId by preferencesManager.customLayoutId.collectAsState(initial = "")
     val fontPreference by preferencesManager.fontPreference.collectAsState(initial = PreferencesManager.FONT_SYSTEM)
@@ -50,6 +51,7 @@ fun SettingsScreen(
             darkTheme = darkTheme,
             themeMode = themeMode,
             fontPreference = fontPreference,
+            keyboardLanguage = keyboardLanguage,
             colorblindMode = colorblindMode,
             colorPalette = colorPalette,
             customPaletteColors = customPaletteColors,

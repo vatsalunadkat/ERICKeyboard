@@ -15,6 +15,7 @@ import com.vatoo.erick.shared.DialSectionMode
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.InputMode
 import com.vatoo.erick.shared.KeyboardActionDelegate
+import com.vatoo.erick.shared.KeyboardLanguage
 import com.vatoo.erick.shared.KeyboardStateMachine
 import com.vatoo.erick.shared.LayoutType
 import com.vatoo.erick.shared.PredictionDomain
@@ -241,6 +242,23 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 else -> InputMode.INSTANT
             }
             stateMachine.setInputMode(inputMode)
+        }.launchIn(serviceScope)
+
+        preferencesManager.keyboardLanguage.onEach { languageKey ->
+            val keyboardLanguage = when (languageKey) {
+                PreferencesManager.LANGUAGE_SPANISH -> KeyboardLanguage.SPANISH
+                PreferencesManager.LANGUAGE_PORTUGUESE -> KeyboardLanguage.PORTUGUESE
+                PreferencesManager.LANGUAGE_FRENCH -> KeyboardLanguage.FRENCH
+                PreferencesManager.LANGUAGE_GERMAN -> KeyboardLanguage.GERMAN
+                PreferencesManager.LANGUAGE_ITALIAN -> KeyboardLanguage.ITALIAN
+                PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> KeyboardLanguage.NORWEGIAN_BOKMAL
+                PreferencesManager.LANGUAGE_DANISH -> KeyboardLanguage.DANISH
+                PreferencesManager.LANGUAGE_SWEDISH -> KeyboardLanguage.SWEDISH
+                PreferencesManager.LANGUAGE_FINNISH -> KeyboardLanguage.FINNISH
+                else -> KeyboardLanguage.ENGLISH
+            }
+            stateMachine.setKeyboardLanguage(keyboardLanguage)
+            if (::suggestionBar.isInitialized) updateSuggestionBar()
         }.launchIn(serviceScope)
 
         preferencesManager.predictionDomain.onEach { domainKey ->

@@ -78,6 +78,7 @@ internal fun MainSettingsContent(
     darkTheme: Boolean,
     themeMode: String,
     fontPreference: String,
+    keyboardLanguage: String,
     colorblindMode: Boolean,
     colorPalette: String,
     customPaletteColors: String,
@@ -119,6 +120,7 @@ internal fun MainSettingsContent(
         layoutType == PreferencesManager.LAYOUT_EFFICIENCY -> "Efficiency"
         else -> "Logical (A-Z)"
     }
+    val languageSummary = keyboardLanguageDisplayName(keyboardLanguage)
     val appearanceSummary = buildList {
         add(
             when (themeMode) {
@@ -233,11 +235,44 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
+                title = "Language",
+                summary = languageSummary,
+                expanded = expandedSection == "language",
+                onToggle = { expandedSection = if (expandedSection == "language") null else "language" }
+            ) {
+                Text(
+                    text = "Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                keyboardLanguageOptions.forEach { option ->
+                    LayoutRadioOption(
+                        title = option.label,
+                        subtitle = option.subtitle,
+                        selected = keyboardLanguage == option.value,
+                        enabled = true,
+                        onClick = { scope.launch { preferencesManager.setKeyboardLanguage(option.value) } }
+                    )
+                }
+            }
+
+            CollapsibleSection(
                 title = "Keyboard Layout",
                 summary = layoutSummary,
                 expanded = expandedSection == "layout",
                 onToggle = { expandedSection = if (expandedSection == "layout") null else "layout" }
             ) {
+                if (keyboardLanguage != PreferencesManager.LANGUAGE_ENGLISH) {
+                    Text(
+                        text = "Non-English languages currently fall back to the language-aware logical layout even if Efficiency stays selected.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
                 LayoutRadioOption(
                     title = "Logical (A-Z)",
                     subtitle = null,
@@ -960,6 +995,38 @@ private fun predictionDomainDisplayName(predictionDomain: String): String = when
     PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY -> "Accessibility"
     PreferencesManager.PREDICTION_DOMAIN_GAMING -> "Gaming"
     else -> "General"
+}
+
+private data class KeyboardLanguageOption(
+    val value: String,
+    val label: String,
+    val subtitle: String
+)
+
+private val keyboardLanguageOptions = listOf(
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ENGLISH, "English", "Full logical and efficiency support."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SPANISH, "Spanish", "Includes accented vowels, ü, ñ, and inverted punctuation."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_PORTUGUESE, "Portuguese", "Includes accented vowels, tilde vowels, and ç."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FRENCH, "French", "Includes accents, cedilla, and apostrophe-heavy prediction data."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_GERMAN, "German", "Includes umlauts and ß."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ITALIAN, "Italian", "Includes accented vowels and Italian prediction data."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL, "Norwegian Bokmal", "Scandinavian profile with æ, ø, and å."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_DANISH, "Danish", "Scandinavian profile with æ, ø, and å."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SWEDISH, "Swedish", "Scandinavian profile with å, ä, and ö."),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FINNISH, "Finnish", "Includes ä and ö with Finnish prediction data.")
+)
+
+private fun keyboardLanguageDisplayName(keyboardLanguage: String): String = when (keyboardLanguage) {
+    PreferencesManager.LANGUAGE_SPANISH -> "Spanish"
+    PreferencesManager.LANGUAGE_PORTUGUESE -> "Portuguese"
+    PreferencesManager.LANGUAGE_FRENCH -> "French"
+    PreferencesManager.LANGUAGE_GERMAN -> "German"
+    PreferencesManager.LANGUAGE_ITALIAN -> "Italian"
+    PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> "Norwegian Bokmal"
+    PreferencesManager.LANGUAGE_DANISH -> "Danish"
+    PreferencesManager.LANGUAGE_SWEDISH -> "Swedish"
+    PreferencesManager.LANGUAGE_FINNISH -> "Finnish"
+    else -> "English"
 }
 
 @Composable

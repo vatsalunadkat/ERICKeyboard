@@ -34,6 +34,7 @@ struct SettingsView: View {
                     .foregroundColor(.secondary)
                     .padding(.vertical, 8)
     @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
             if !layouts.isEmpty {
                 Section(header: Text("Your Layouts")) {
                     ForEach(Array(layouts.enumerated()), id: \.element.id) { _, cl in
@@ -64,8 +65,26 @@ struct SettingsView: View {
                     SettingsBulletRow(text: "Most people only need Dial Mode, Input Mode, and Accessibility.")
 
                 Section(
+                    header: Text("Language"),
+                    footer: Text("English keeps the dedicated efficiency layout. The other supported languages currently use language-aware logical maps and symbol overlays.")
+                ) {
+                    Picker("Language", selection: $keyboardLanguage) {
+                        Text("English").tag("english")
+                        Text("Spanish").tag("spanish")
+                        Text("Portuguese").tag("portuguese")
+                        Text("French").tag("french")
+                        Text("German").tag("german")
+                        Text("Italian").tag("italian")
+                        Text("Norwegian Bokmal").tag("norwegian_bokmal")
+                        Text("Danish").tag("danish")
+                        Text("Swedish").tag("swedish")
+                        Text("Finnish").tag("finnish")
+                    }
+                }
+
+                Section(
                     header: Text("Keyboard Layout"),
-                    footer: Text("Logical is easiest to learn. Efficiency is tuned for common English letters.")
+                    footer: Text("Logical is easiest to learn. Efficiency is tuned for common English letters, and other languages currently fall back to the language-aware logical layout.")
                 ) {
                     Picker("Layout Type", selection: $layoutType) {
                         Text("Logical (A–Z)").tag("logical")

@@ -471,6 +471,32 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func applyLayoutPreference() {
+        let languageKey = Self.appGroupDefaults.string(forKey: "keyboard_language") ?? "english"
+        let keyboardLanguage: KeyboardLanguage
+        switch languageKey {
+        case "spanish":
+            keyboardLanguage = .spanish
+        case "portuguese":
+            keyboardLanguage = .portuguese
+        case "french":
+            keyboardLanguage = .french
+        case "german":
+            keyboardLanguage = .german
+        case "italian":
+            keyboardLanguage = .italian
+        case "norwegian_bokmal":
+            keyboardLanguage = .norwegian_bokmal
+        case "danish":
+            keyboardLanguage = .danish
+        case "swedish":
+            keyboardLanguage = .swedish
+        case "finnish":
+            keyboardLanguage = .finnish
+        default:
+            keyboardLanguage = .english
+        }
+        stateMachine.setKeyboardLanguage(language: keyboardLanguage)
+
         let layoutType: LayoutType
         if isCustomLayout {
             layoutType = .custom

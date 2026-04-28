@@ -471,9 +471,13 @@ class WordPredictionEngine {
          * Creates a WordPredictionEngine pre-loaded with a common English dictionary.
          * Words are assigned frequency tiers so common words rank higher.
          */
-        fun createWithDefaultDictionary(): WordPredictionEngine {
+        fun createWithDefaultDictionary(language: KeyboardLanguage = KeyboardLanguage.ENGLISH): WordPredictionEngine {
             val engine = WordPredictionEngine()
-            loadDefaultDictionary(engine)
+            if (language == KeyboardLanguage.ENGLISH) {
+                loadDefaultDictionary(engine)
+            } else {
+                loadLanguageResources(engine, KeyboardLanguageProfiles.profile(language))
+            }
             return engine
         }
 
@@ -624,6 +628,18 @@ class WordPredictionEngine {
 
             // Default suggestions for start of input
             engine.defaultSuggestions = listOf("I", "The", "Hello")
+        }
+
+        private fun loadLanguageResources(engine: WordPredictionEngine, profile: KeyboardLanguageProfile) {
+            profile.dictionaryWords.forEach { (word, frequency) ->
+                engine.insert(word, frequency)
+            }
+            profile.bigrams.forEach { (word, nextWords) ->
+                nextWords.forEach { (nextWord, frequency) ->
+                    engine.insertBigram(word, nextWord, frequency)
+                }
+            }
+            engine.defaultSuggestions = profile.defaultSuggestions
         }
 
         private fun loadDomainVocabulary(engine: WordPredictionEngine) {

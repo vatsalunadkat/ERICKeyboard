@@ -24,6 +24,7 @@ struct SettingsView: View {
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
     @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
     @AppStorage("prediction_domain", store: SettingsView.appGroupDefaults) private var predictionDomain: String = "general"
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     @AppStorage("six_section_dial", store: SettingsView.appGroupDefaults) private var sixSectionDial: Bool = false
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
@@ -110,6 +111,9 @@ struct SettingsView: View {
         .onChange(of: predictionDomain) { _ in
             onSettingsChanged?()
         }
+        .onChange(of: keyboardLanguage) { _ in
+            onSettingsChanged?()
+        }
         .onChange(of: sixSectionDial) { _ in
             onSettingsChanged?()
         }
@@ -159,11 +163,44 @@ struct SettingsView: View {
 
                 // Layout Section
                 CollapsibleSettingsSection(
+                    title: "Language",
+                    isExpanded: expandedSection == "language",
+                    onToggle: { expandedSection = expandedSection == "language" ? nil : "language" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 4)
+
+                        settingsRadioRow(label: "English", selected: keyboardLanguage == "english") { keyboardLanguage = "english" }
+                        settingsRadioRow(label: "Spanish", selected: keyboardLanguage == "spanish") { keyboardLanguage = "spanish" }
+                        settingsRadioRow(label: "Portuguese", selected: keyboardLanguage == "portuguese") { keyboardLanguage = "portuguese" }
+                        settingsRadioRow(label: "French", selected: keyboardLanguage == "french") { keyboardLanguage = "french" }
+                        settingsRadioRow(label: "German", selected: keyboardLanguage == "german") { keyboardLanguage = "german" }
+                        settingsRadioRow(label: "Italian", selected: keyboardLanguage == "italian") { keyboardLanguage = "italian" }
+                        settingsRadioRow(label: "Norwegian Bokmal", selected: keyboardLanguage == "norwegian_bokmal") { keyboardLanguage = "norwegian_bokmal" }
+                        settingsRadioRow(label: "Danish", selected: keyboardLanguage == "danish") { keyboardLanguage = "danish" }
+                        settingsRadioRow(label: "Swedish", selected: keyboardLanguage == "swedish") { keyboardLanguage = "swedish" }
+                        settingsRadioRow(label: "Finnish", selected: keyboardLanguage == "finnish") { keyboardLanguage = "finnish" }
+                    }
+                }
+
+                CollapsibleSettingsSection(
                     title: "Keyboard Layout",
                     isExpanded: expandedSection == "layout",
                     onToggle: { expandedSection = expandedSection == "layout" ? nil : "layout" }
                 ) {
                     VStack(spacing: 0) {
+                        if keyboardLanguage != "english" {
+                            Text("Non-English languages currently fall back to the language-aware logical layout even if Efficiency stays selected.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 12)
+                                .padding(.bottom, 4)
+                        }
+
                         settingsRadioRow(label: "Logical (A–Z)", selected: layoutType == "logical") {
                             layoutType = "logical"
                         }

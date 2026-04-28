@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class KeyboardLogicTest {
 
@@ -94,6 +95,34 @@ class KeyboardLogicTest {
     }
 
     @Test
+    fun spanishLogicalOverlayAddsNWithTildeInEightSection() {
+        logic.activeLanguage = KeyboardLanguage.SPANISH
+
+        assertEquals(
+            "ñ",
+            logic.getChordResult(Direction.SE, Direction.W, KeyboardMode.NORMAL)
+        )
+        assertEquals(
+            "Ñ",
+            logic.getChordResult(Direction.SE, Direction.W, KeyboardMode.SHIFTED)
+        )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+    }
+
+    @Test
+    fun nonEnglishEfficiencyFallsBackToLogicalOverlay() {
+        logic.activeLanguage = KeyboardLanguage.SPANISH
+
+        assertEquals(
+            "ñ",
+            logic.getChordResult(Direction.SE, Direction.W, KeyboardMode.NORMAL, LayoutType.EFFICIENCY)
+        )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+    }
+
+    @Test
     fun sixSection_symbolsLayoutUsesOptimizedWinner() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
         assertEquals(
@@ -104,6 +133,24 @@ class KeyboardLogicTest {
             "\u2260",
             logic.getChordResult(Direction.NW, Direction.N, KeyboardMode.SYMBOLS_SHIFTED)
         )
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSectionSymbolsOverlayAddsGermanUmlauts() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        logic.activeLanguage = KeyboardLanguage.GERMAN
+
+        assertEquals(
+            "ä",
+            logic.getChordResult(Direction.N, Direction.N, KeyboardMode.SYMBOLS)
+        )
+        assertEquals(
+            "Ä",
+            logic.getChordResult(Direction.N, Direction.N, KeyboardMode.SYMBOLS_SHIFTED)
+        )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 

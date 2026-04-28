@@ -50,6 +50,21 @@ class WordPredictionEngineLearningTest {
     }
 
     @Test
+    fun spanishDictionaryLoadsLocalizedSuggestions() {
+        val engine = WordPredictionEngine.createWithDefaultDictionary(KeyboardLanguage.SPANISH)
+
+        assertTrue(engine.getDefaultSuggestions(limit = 3).contains("Hola"))
+        assertTrue(engine.getSuggestions("ni", limit = 5).contains("niño"))
+    }
+
+    @Test
+    fun germanDictionaryKeepsEszettWordsAvailable() {
+        val engine = WordPredictionEngine.createWithDefaultDictionary(KeyboardLanguage.GERMAN)
+
+        assertTrue(engine.getSuggestions("str", limit = 5).contains("straße"))
+    }
+
+    @Test
     fun exportedProfilesIncludeVersionHeaderAndLegacyProfilesStillImport() {
         val engine = WordPredictionEngine.createWithDefaultDictionary()
         engine.addUserWord("erick", count = 2)
