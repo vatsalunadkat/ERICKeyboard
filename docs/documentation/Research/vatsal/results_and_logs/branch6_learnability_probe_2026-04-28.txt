@@ -1,0 +1,29 @@
+  Chord symbols: 36 | Utility: 6 | Positions: 36
+  Building corpus... profile=mixed_shortform utility=shipped symbol_cost=toggle_pair
+  Loading benchmark packs from D:\vatoo\GitHub\ERICKeyboard\docs\documentation\Research\vatsal\benchmark_packs...
+  Corpus scale -- UNI: 1.0000 BI: 1.0000 TRI: 1.0000
+  (all must be ~1.0)
+  Utility unigram coverage: TOGGLE_SYMBOLS=0.0362 SPACE=0.1024 .=0.0056
+  Bigrams: 191 CC + 28 UC + 30 CU
+  Trigrams: 519 (317CCC+ 58UCC+ 68CCU+ 76CUC)
+
+  Precomputing adjacency masks...
+  Ready
+
+  Branch 6 Learnability Probe
+  Utility model: shipped
+  Corpus profile: mixed_shortform
+  Symbol cost model: toggle_pair
+  Learnability proxy: row_dispersion + preview_jump_penalty + lesson_span_penalty
+  Utility anchor stability is held constant across candidates and is not part of the combined score.
+
+  layout|score|predicted_wpm|row_dispersion|preview_jump_penalty|lesson_span_penalty|learnability_proxy|score_delta_vs_best|learnability_delta_vs_best
+  logical_6|1.36054|57.1|0.37|4.20|10.50|15.07|-42.5%|+0.0%
+  efficiency_placeholder_6|1.15437|63.9|7.27|7.40|11.50|26.17|-20.9%|-73.7%
+  branch3_toggle_pair|0.95497|71.1|5.53|6.20|11.50|23.23|+0.0%|-54.2%
+
+  Best pure-efficiency candidate: branch3_toggle_pair (0.95497, 71.1 WPM)
+  Best learnability proxy: logical_6 (15.07)
+  Hybrid-interest gate: within 3% of the best efficiency score and at least 15% learnability-proxy improvement.
+  logical_6: within_score_gate=False learnability_gain_vs_best_efficiency=+35.2%
+  efficiency_placeholder_6: within_score_gate=False learnability_gain_vs_best_efficiency=-12.6%

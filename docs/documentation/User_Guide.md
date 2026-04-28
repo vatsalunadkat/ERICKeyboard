@@ -54,7 +54,8 @@ It can also help everyday users who want larger touch targets, controller suppor
 
 - The host app now treats **Quickstart** and **Practice Lessons** as the main learning path, with optional help shown only when you ask for it.
 - The host app now offers a **Quickstart** that teaches the two-dial model, utility swipes, assisted typing, and controller typing.
-- You can **skip** the quickstart, **resume** it later, or **replay** it after finishing.
+- The quickstart opens automatically only on the first launch of the host app, then stays out of the way on later launches.
+- After that first launch, use **How to Type** to open **Replay Quickstart**, which appears above the **Practice Lessons** button.
 - The quickstart keeps its action buttons readable on smaller screens and with larger accessibility text sizes.
 - The new **Practice Lessons** hub includes drills for 8-section basics, 6-section basics, utility swipes, one-handed assisted typing, controller typing, and quote practice.
 - Opening a lesson now applies the recommended keyboard preset for that lesson, including dial mode, layout, and input mode.
@@ -352,7 +353,7 @@ Settings are organized into collapsible sections with short summaries so you can
 
 ### Controller
 
-- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback. When **Haptic Feedback** is enabled, supported controllers can also rumble on controller-typed input.
+- **Android**: Adjust controller dead zone, invert the Y-axis if needed, and open **Controller Diagnostics** for live stick feedback. The diagnostics screen also includes a local **Confusion Drill** that records only aggregate expected-versus-resolved direction buckets for the current session, with no typed text or raw stick traces stored. When **Haptic Feedback** is enabled, supported controllers can also rumble on controller-typed input.
 - **iOS**: Controller behavior follows the active system connection and the same lesson flow, but controller calibration is currently documented through the host app workflow rather than a dedicated diagnostics screen. When **Haptic Feedback** is enabled and the keyboard extension can access the controller directly, supported controllers can also rumble on controller-typed input.
 
 ### Privacy and Security

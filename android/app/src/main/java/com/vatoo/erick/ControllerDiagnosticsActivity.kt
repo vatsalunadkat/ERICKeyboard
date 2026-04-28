@@ -41,6 +41,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
@@ -48,7 +49,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +59,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.vatoo.erick.shared.ControllerConfusionAnalyzer
+import com.vatoo.erick.shared.ControllerConfusionDrillSample
+import com.vatoo.erick.shared.ControllerConfusionType
+import com.vatoo.erick.shared.ControllerPassiveSignal
 import com.vatoo.erick.shared.ControllerInputProcessor
 import com.vatoo.erick.shared.ControllerStickSnapshot
 import com.vatoo.erick.shared.DialSectionMode
@@ -250,7 +255,6 @@ private fun ControllerDiagnosticsScreen(
     onYAxisInvertedChanged: (Boolean) -> Unit,
     onResetCalibration: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val leftSnapshot = ControllerInputProcessor.resolveStick(
         x = leftRawX,
         y = leftRawY,
@@ -265,6 +269,15 @@ private fun ControllerDiagnosticsScreen(
         invertY = controllerYAxisInverted,
         dialSectionMode = dialSectionMode
     )
+    val targetDirections = remember(dialSectionMode) { ControllerConfusionAnalyzer.directionsForMode(dialSectionMode) }
+    val selectedStickState = remember { mutableStateOf(DiagnosticsStick.RIGHT) }
+    val targetDirectionIndexState = remember(dialSectionMode) { mutableStateOf(0) }
+    val confusionSummaryState = remember(dialSectionMode) { mutableStateOf(ControllerConfusionUiSummary()) }
+    val currentTargetDirection = targetDirections[targetDirectionIndexState.value.coerceIn(0, targetDirections.lastIndex)]
+    val selectedSnapshot = if (selectedStickState.value == DiagnosticsStick.LEFT) leftSnapshot else rightSnapshot
+
+    TrackPassiveSnapBackSignal(leftSnapshot, controllerDeadZone, confusionSummaryState)
+    TrackPassiveSnapBackSignal(rightSnapshot, controllerDeadZone, confusionSummaryState)
 
     Scaffold(
         topBar = {
@@ -364,6 +377,95 @@ private fun ControllerDiagnosticsScreen(
                 }
             }
 
+            Card {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Local Confusion Drill", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Record expected-versus-resolved direction buckets locally on this device. ERICK stores only aggregate counts here: no typed text and no raw stick traces.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { selectedStickState.value = DiagnosticsStick.LEFT },
+                            modifier = Modifier.weight(1f),
+                            enabled = selectedStickState.value != DiagnosticsStick.LEFT
+                        ) {
+                            Text("Track Left Stick")
+                        }
+                        Button(
+                            onClick = { selectedStickState.value = DiagnosticsStick.RIGHT },
+                            modifier = Modifier.weight(1f),
+                            enabled = selectedStickState.value != DiagnosticsStick.RIGHT
+                        ) {
+                            Text("Track Right Stick")
+                        }
+                    }
+
+                    Text("Target direction: ${currentTargetDirection.name}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Text(
+                        text = "Current resolved direction on ${selectedStickState.value.label}: ${selectedSnapshot.direction.name}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "Current dead-zone band: ${ControllerConfusionAnalyzer.deadZoneBand(controllerDeadZone)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = {
+                                val sample = ControllerConfusionAnalyzer.classifyDrillSample(
+                                    expectedDirection = currentTargetDirection,
+                                    snapshot = selectedSnapshot,
+                                    deadZone = controllerDeadZone,
+                                    dialSectionMode = dialSectionMode
+                                )
+                                confusionSummaryState.value = confusionSummaryState.value.recordSample(selectedStickState.value, sample)
+                                targetDirectionIndexState.value = (targetDirectionIndexState.value + 1) % targetDirections.size
+                            },
+                            modifier = Modifier.weight(1f),
+                            enabled = controllerName != null
+                        ) {
+                            Text("Record Sample")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                targetDirectionIndexState.value = (targetDirectionIndexState.value + 1) % targetDirections.size
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Next Target")
+                        }
+                    }
+
+                    OutlinedButton(
+                        onClick = { confusionSummaryState.value = ControllerConfusionUiSummary() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Reset Drill Counts")
+                    }
+
+                    StickMetricRow("Total samples", confusionSummaryState.value.totalSamples.toString())
+                    StickMetricRow(
+                        "Samples L/R",
+                        "${confusionSummaryState.value.leftStickSamples} / ${confusionSummaryState.value.rightStickSamples}"
+                    )
+                    StickMetricRow("Exact matches", confusionSummaryState.value.exactMatches.toString())
+                    StickMetricRow("Adjacent slips", confusionSummaryState.value.adjacentSlips.toString())
+                    StickMetricRow("Mirror slips", confusionSummaryState.value.mirrorSlips.toString())
+                    StickMetricRow("Dead-zone jitter", confusionSummaryState.value.deadZoneJitters.toString())
+                    StickMetricRow("Other mismatches", confusionSummaryState.value.otherMismatches.toString())
+                    StickMetricRow("Snap-back releases", confusionSummaryState.value.snapBackReversals.toString())
+
+                    confusionSummaryState.value.topPairs().forEach { (pair, count) ->
+                        StickMetricRow("Hot pair", "$pair ×$count")
+                    }
+                }
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 ControllerStickCard(
                     title = "Left Stick",
@@ -447,6 +549,91 @@ private fun StickMetricRow(label: String, value: String) {
 private fun formatPair(x: Float, y: Float): String = "${formatValue(x)}, ${formatValue(y)}"
 
 private fun formatValue(value: Float): String = String.format(Locale.US, "%.2f", value)
+
+@Composable
+private fun TrackPassiveSnapBackSignal(
+    snapshot: ControllerStickSnapshot,
+    deadZone: Float,
+    summaryState: MutableState<ControllerConfusionUiSummary>
+) {
+    val wasActiveState = remember { mutableStateOf(false) }
+    val previousDirectionState = remember { mutableStateOf(Direction.NONE) }
+    val lastDirectionState = remember { mutableStateOf(Direction.NONE) }
+
+    LaunchedEffect(snapshot.isActive, snapshot.direction) {
+        if (snapshot.isActive && snapshot.direction != Direction.NONE) {
+            if (wasActiveState.value && snapshot.direction != lastDirectionState.value) {
+                previousDirectionState.value = lastDirectionState.value
+            }
+            lastDirectionState.value = snapshot.direction
+            wasActiveState.value = true
+            return@LaunchedEffect
+        }
+
+        if (!wasActiveState.value) {
+            return@LaunchedEffect
+        }
+
+        val signal = ControllerConfusionAnalyzer.detectSnapBackReversal(
+            previousDirection = previousDirectionState.value,
+            lastDirectionBeforeRelease = lastDirectionState.value,
+            deadZone = deadZone,
+        )
+        if (signal != null) {
+            summaryState.value = summaryState.value.recordPassiveSignal(signal)
+        }
+        wasActiveState.value = false
+        previousDirectionState.value = Direction.NONE
+        lastDirectionState.value = Direction.NONE
+    }
+}
+
+private enum class DiagnosticsStick(val label: String) {
+    LEFT("left stick"),
+    RIGHT("right stick"),
+}
+
+private data class ControllerConfusionUiSummary(
+    val totalSamples: Int = 0,
+    val leftStickSamples: Int = 0,
+    val rightStickSamples: Int = 0,
+    val exactMatches: Int = 0,
+    val adjacentSlips: Int = 0,
+    val mirrorSlips: Int = 0,
+    val deadZoneJitters: Int = 0,
+    val otherMismatches: Int = 0,
+    val snapBackReversals: Int = 0,
+    val pairCounts: Map<String, Int> = emptyMap(),
+) {
+    fun recordSample(stick: DiagnosticsStick, sample: ControllerConfusionDrillSample): ControllerConfusionUiSummary {
+        val pairKey = "${stick.name}:${sample.expectedDirection.name}->${sample.resolvedDirection.name}"
+        val updatedPairs = pairCounts + (pairKey to ((pairCounts[pairKey] ?: 0) + 1))
+        return copy(
+            totalSamples = totalSamples + 1,
+            leftStickSamples = leftStickSamples + if (stick == DiagnosticsStick.LEFT) 1 else 0,
+            rightStickSamples = rightStickSamples + if (stick == DiagnosticsStick.RIGHT) 1 else 0,
+            exactMatches = exactMatches + if (sample.confusionType == ControllerConfusionType.EXACT_MATCH) 1 else 0,
+            adjacentSlips = adjacentSlips + if (sample.confusionType == ControllerConfusionType.ADJACENT_SLIP) 1 else 0,
+            mirrorSlips = mirrorSlips + if (sample.confusionType == ControllerConfusionType.MIRROR_SLIP) 1 else 0,
+            deadZoneJitters = deadZoneJitters + if (sample.confusionType == ControllerConfusionType.DEAD_ZONE_JITTER) 1 else 0,
+            otherMismatches = otherMismatches + if (sample.confusionType == ControllerConfusionType.OTHER_MISMATCH) 1 else 0,
+            pairCounts = updatedPairs,
+        )
+    }
+
+    fun recordPassiveSignal(signal: ControllerPassiveSignal): ControllerConfusionUiSummary {
+        return copy(
+            snapBackReversals = snapBackReversals + if (signal.confusionType == ControllerConfusionType.SNAP_BACK_REVERSAL) 1 else 0,
+        )
+    }
+
+    fun topPairs(limit: Int = 4): List<Pair<String, Int>> {
+        return pairCounts.entries
+            .sortedByDescending { it.value }
+            .take(limit)
+            .map { it.key.replace(':', ' ') to it.value }
+    }
+}
 
 private object NoOpKeyboardDelegate : KeyboardActionDelegate {
     override fun commitText(text: String) = Unit

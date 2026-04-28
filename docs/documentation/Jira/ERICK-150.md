@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 8 |
@@ -19,6 +19,36 @@
 Audit the current Efficiency layout research, document what the optimizer already models, and identify the next experiments that could produce a meaningfully better typing-efficiency layout for ERICK.
 
 This ticket is a research spike, not an implementation commitment. It should end with a ranked proposal for which follow-up experiments are worth building into the shipped optimizer and which ideas should stay exploratory.
+
+---
+
+## Current Execution Tracker
+
+Current confirmed checkpoint as of 2026-04-28:
+
+- Last fully completed and committed experimental checkpoint: the Branch `5` and Branch `6` closure pass in commit `f29d024`.
+- Branches `0` through `8` now have committed research outputs, decision notes, or validated infrastructure checkpoints.
+- Branch `8` remains the only branch that is still `Ready For Split`, but it is no longer blocking ERICK-150 closure.
+- Branches `5`, `6`, and `7` all closed as measured `No-Go` outcomes rather than as shipping directions.
+
+| Branch | Tracker Status | Latest Commit | Current State |
+|---|---|---|---|
+| `Branch 0` | `Completed` | `4f4e3a1` | Baseline freeze and shipped-adjacent 6-section baseline documented. |
+| `Branch 1` | `Completed` | `36d85ec` | Effort-profile probe completed and ticket updated with keep-current-matrix guidance. |
+| `Branch 2` | `Completed` | `db60393` | Weight-sensitivity probe completed; current `1.0 / 0.6 / 0.3` mix remains the default. |
+| `Branch 3` | `Completed` | `3935ec5` | Symbol-cost comparison completed; `toggle_pair` is the stronger current approximation. |
+| `Branch 4` | `Completed` | `3700d87` | Local-only diagnostics drill and shared confusion buckets are implemented and validated as the Branch 4 spike outcome. |
+| `Branch 5` | `Completed` | `f29d024` | Segment-specific shipped Efficiency variants closed as `No-Go`; keep one Efficiency family and use segment packs only as evaluation slices. |
+| `Branch 6` | `Completed` | `f29d024` | Measured learnability replay completed; no checked-in hybrid candidate cleared the `3%` efficiency / `15%` proxy-improvement gate. |
+| `Branch 7` | `Completed` | `e4c185b` | Post-hoc prediction benchmark pass completed and committed; current result is `No-Go` for coupling prediction into the optimizer because ranking stayed unchanged. |
+| `Branch 8` | `Completed` | `5b09971` | Benchmark-pack adoption and reporting hardening are checked in. |
+
+### Tracker Notes
+
+- In this ticket, `Completed` means the branch has a committed research result or infrastructure checkpoint, not necessarily a shipped product change.
+- `Proposal Committed` means the branch produced a committed design or measurement proposal, but not a checked-in implementation spike.
+- `Ready To Commit` means the branch has a completed local result and ticket update, but its next checkpoint commit has not been created yet.
+- A `Completed` branch can still end in `No-Go` or `Ready For Split`; it only means the research question for ERICK-150 now has a checked-in answer.
 
 ---
 
@@ -51,17 +81,100 @@ The current research pipeline already considers several important factors.
 ### Current Documented Outputs
 
 - 8-section efficiency research with a documented 44.6% improvement over random baseline
-- a 6-section optimizer update and re-run captured in ERICK-139
+- a 6-section optimizer update captured in ERICK-139, with a separate 36-position optimizer script now checked in under `docs/documentation/Research/vatsal/erick_v5_6section.py`
+- a reproduced 6-section legacy-baseline run captured in `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`
+- a checked-in benchmark-pack spec plus frozen shortform seed packs under `docs/documentation/Research/vatsal/benchmark_pack.md` and `docs/documentation/Research/vatsal/benchmark_packs/`
+- a reusable experiment report schema in `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`
 - shipped English efficiency layouts in shared keyboard logic
 - supporting visuals and raw logs in `docs/documentation/Research/`
 
 ### Current Known Limits
 
-- objective weights were chosen heuristically and have not been sensitivity-tested recently
+- objective weights were chosen heuristically, and the first fixed-runtime Branch 2 probe now suggests `1.0 / 0.6 / 0.3` remains the safest cross-mode default until prediction-aware or device-specific evidence justifies a retune
 - the optimizer is largely letter-frequency driven and only lightly reflects symbols, digits, or utility-mode switching cost
-- the research corpus is not clearly segmented by use case such as messaging, accessibility, or controller-heavy usage
+- the benchmark pack is now segmented by use case and the shipped-adjacent 6-section path now uses it, but 8-section scored reruns still mostly sit on the `wordfreq` continuity baseline
+- historical optimizer generations use different corpus mixes and reporting formats, so many older score comparisons are not directly apples-to-apples
 - the cost model does not explicitly include error-proneness, neighbor confusion, or mode-switch recovery time
 - learned prediction and next-word acceptance now reduce effort in practice, but the optimizer does not account for that interaction yet
+
+### Verified Branch 0 Snapshot - 2026-04-26
+
+| Area | Verified Current State |
+|---|---|
+| 8-section optimizer | `docs/documentation/Research/vatsal/erick_v5_vectorized.py` remains the clearest baseline for the shipped efficiency research: 8 chains, 500,000 steps per chain, temperatures `[0.012, 0.008, 0.005, 0.003, 0.0018, 0.001, 0.0005, 0.0002]`, and unigram/bigram/trigram weights `1.0 / 0.6 / 0.3`. |
+| 8-section checked-in metrics | `docs/documentation/Research/vatsal/v5_output.txt` reports final score `0.86204`, baseline `1.55694 ± 0.12366`, `44.6%` improvement over random baseline, and predicted `73.2` WPM. |
+| 8-section shipped-map drift | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` still matches the v5 letter-placement family for the main alphabetic core, but several punctuation, digit, and filler-slot assignments differ from `v5_output.txt`. Branch 0 should treat the logged v5 layout and the shipped 8-section map as related but not byte-identical baselines. |
+| 8-section historical context | Git history shows the shipped 8-section efficiency map was introduced in commit `599dbb0b` (`Add Efficiency layout and integrate UI/state (#24)`) as part of the original product integration work. Branch 0 should therefore treat the shipping map as a stable product baseline that predates the currently checked-in `v5_output.txt` artifact, not assume the two were ever literally identical. |
+| 6-section optimizer track | `docs/documentation/Research/vatsal/erick_v5_6section.py` is a separate 36-position optimizer with the same `1.0 / 0.6 / 0.3` weight mix, but its utility model still reflects an older 5-action wheel: `SHIFT`, `.`, `SPACE`, `ENTER`, and `BACKSPACE` without the shipped `TOGGLE_SYMBOLS` action. |
+| 6-section reproduced metrics | The 2026-04-26 reproduction run reports final score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement over random baseline, and predicted `72.4` WPM. |
+| 6-section reproduced-map drift | The reproduced optimizer output matches only `4 / 36` placeholder slots in `KeyboardLogic.kt`: `N[2]=g`, `N[3]=7`, `NE[1]=t`, and `SE[1]=h`. The remaining 32 slots differ. |
+| 6-section exact-shipped gap | The current repo now has a checked-in reproduction summary for the legacy 5-action script, but it still does not have an exact shipped-wheel optimizer baseline. In shared code, `KeyboardLogic.kt` labels `efficiencyNormalMap6` as a placeholder that still needs an optimizer re-run, and the shipped rotated utility wheel no longer matches the directions modeled in the script. |
+| 6-section historical context | Git history shows ERICK-139 introduced `docs/documentation/Research/vatsal/erick_v5_6section.py` and the placeholder `efficiencyNormalMap6` in the same commit (`a5dd219f` / tag `v1.0`), with no checked-in 6-section result artifact added alongside them. Branch 0 should therefore treat the missing output as an original gap, not as a later repo cleanup loss. |
+| Prediction surface that now matters | `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` now includes learned word frequencies, learned bigrams, and next-word suggestions from ERICK-148. The current optimizers do not model those saved-keystroke effects yet, so Branch 7 is a real scoring gap rather than a speculative follow-up. |
+
+### Branch 0 Scorecard Template
+
+Use this table for every baseline or branch comparison so later experiments stay comparable.
+
+| Dial Mode | Optimizer Script | Corpus Source | Positions | Utility Set | Weights (Uni/Bi/Tri) | Search Settings | Best Score | Random Baseline | Improvement | Predicted WPM | Shipped Map Match | Evidence Status |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 8-section | `docs/documentation/Research/vatsal/erick_v5_vectorized.py` | `wordfreq` top 50k English words | 64 | `SHIFT`, `SPACE`, `BACKSPACE`, `ENTER`, `CAPSLOCK`, `TAB`, `.`, `,` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.86204` | `1.55694 ± 0.12366` | `44.6%` | `73.2` | Partial drift in punctuation/filler assignments | Checked-in output exists |
+| 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | `wordfreq` top 50k English words | 36 | Older 5-action model: `SHIFT`, `.`, `SPACE`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.94132` | `1.34279 ± 0.06476` | `29.9%` | `72.4` | `4 / 36` exact slot matches plus utility-direction drift from shipped wheel | Reproduced 2026-04-26 under legacy utility assumptions |
+| 6-section | `docs/documentation/Research/vatsal/erick_v5_6section.py` | Branch 8 `mixed_shortform` benchmark pack | 36 | Shipped 6-action model: `TOGGLE_SYMBOLS`, `TOGGLE_SHIFT`, `SPACE`, `.`, `ENTER`, `BACKSPACE` | `1.0 / 0.6 / 0.3` | 8 chains, 500k steps, PT temps `0.012 -> 0.0002` | `0.97299` | `1.41998 ± 0.07649` | `31.5%` | `70.6` | `2 / 36` exact slot matches with the current placeholder map, but shared utility-wheel directions now align | Full 2026-04-26 shipped-adjacent run; symbol layer still approximated via `TOGGLE_SYMBOLS` tokenization |
+
+### Verified Branch 8 Snapshot - 2026-04-26
+
+| Artifact | Corpus / Dataset | Search Context | Comparison Risk |
+|---|---|---|---|
+| `docs/documentation/Research/vatsal/results_and_logs/optimization_results.md` | merged Common Crawl, Wikipedia, and Google Books N-grams | earlier combined Simulated Annealing + Genetic Algorithm run | not directly comparable to v5 because both corpus mix and search method changed |
+| `docs/documentation/Research/vatsal/results_and_logs/optimization_results_2.md` | `wordfreq` 25k (60% web) + Google Books 1-grams 10k (40% books) + Google Books 2-grams 5k | advanced SA run with different trigram weighting and older objective mix | partially comparable for direction-of-travel, not for score ranking against v5 |
+| `docs/documentation/Research/vatsal/v5_output.txt` | `wordfreq` top 50k English words | current 8-section PT baseline | primary current 8-section comparison reference |
+| `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md` | `wordfreq` top 50k English words | reproduced 6-section PT run under legacy 5-action utility model | only comparable to other `wordfreq` v5-style runs, not to the shipped 6-section wheel |
+| `docs/documentation/Research/vatsal/scripts/corpus.txt` and `docs/documentation/Research/vatsal/scripts/corpus_data_values.py` | paste-ready unigram, bigram, and trigram snapshots derived from `wordfreq` top 50k | corpus extraction support files | useful for freezing a baseline corpus snapshot, but not yet a domain-segmented benchmark pack |
+
+Current Branch 8 state: the repo now has a checked-in benchmark spec in `docs/documentation/Research/vatsal/benchmark_pack.md`, frozen shortform seed packs under `docs/documentation/Research/vatsal/benchmark_packs/`, and a mandatory reporting template in `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`. The remaining risk is adoption drift, not missing benchmark artifacts.
+
+### Branch 8 Benchmark Pack - 2026-04-26
+
+#### Minimum benchmark pack
+
+| Benchmark ID | Domain | Why It Must Exist |
+|---|---|---|
+| `general-wordfreq-50k` | general English | preserves continuity with the current v5 baselines |
+| `messaging-shortform` | short chat and texting phrases | checks whether the optimizer overfits to bookish or long-word English |
+| `accessibility-supportive` | supportive phrases, quick responses, help text, and guided-practice style language | reflects ERICK's accessibility and onboarding use cases |
+| `controller-tv-query` | short controller-heavy titles, navigation phrases, and TV-style query text | captures the controller-first usage pattern the original optimizer did not model well |
+| `punctuation-mixed` | punctuation-heavy text such as email, command-style phrases, and symbol-rich snippets | tests whether symbol and utility costs materially affect layout ranking |
+
+#### Required result columns for every future run
+
+| Column | Why It Is Required |
+|---|---|
+| Experiment ID | keeps later reruns and branch comparisons traceable |
+| Dial mode | prevents 8-section and 6-section results from being mixed casually |
+| Utility model | makes legacy 5-action runs distinguishable from shipped-wheel runs |
+| Corpus ID and domain | records what writing style the score actually represents |
+| Corpus size and n-gram source | separates `wordfreq` top 50k, mixed corpora, and future domain packs |
+| Search method and settings | captures PT vs SA vs hybrid differences and runtime budget |
+| Objective weights | makes `1.0 / 0.6 / 0.3` vs tuned variants explicit |
+| Best score | keeps the core optimizer result comparable |
+| Random baseline and sample count | avoids reporting raw scores without context |
+| Improvement percent | keeps human-readable comparison across branches |
+| Predicted WPM | preserves the most recognizable user-facing proxy |
+| Stability or spread metric | distinguishes one dominant winner from a fragile near-tie |
+| Shipped-map match or drift note | records whether the run mirrors current product behavior |
+| Known caveats | captures utility mismatch, placeholder assumptions, or missing symbol modeling |
+
+Current reporting pattern: older reports usually include score, baseline, and improvement, while the newer v5-style outputs also include WPM and spread. They still do not consistently report corpus IDs, utility assumptions, or shipped-map drift, so Branch 8 should treat those as mandatory fields rather than optional commentary.
+
+Checked-in Branch 8 artifacts:
+
+- `docs/documentation/Research/vatsal/benchmark_pack.md`
+- `docs/documentation/Research/vatsal/benchmark_packs/messaging-shortform.txt`
+- `docs/documentation/Research/vatsal/benchmark_packs/accessibility-supportive.txt`
+- `docs/documentation/Research/vatsal/benchmark_packs/controller-tv-query.txt`
+- `docs/documentation/Research/vatsal/benchmark_packs/punctuation-mixed.txt`
+- `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`
 
 ---
 
@@ -168,17 +281,17 @@ Potential extensions worth testing:
 
 ## Acceptance Criteria
 
-- [ ] The ticket documents the current efficiency optimizer inputs, weights, and known blind spots
-- [ ] The ticket produces a prioritized list of follow-up experiments rather than a vague brainstorm
-- [ ] At least one proposed experiment addresses biomechanical weighting
-- [ ] At least one proposed experiment addresses n-gram weighting
-- [ ] At least one proposed experiment addresses symbols, digits, or utility-mode cost
-- [ ] At least one proposed experiment addresses error/confusion modeling
-- [ ] At least one proposed experiment addresses different user segments or input devices
-- [ ] The ticket includes a branch map with goals, tasks, outputs, open questions, and decision gates for each branch
-- [ ] The ticket documents the recommended execution order and the research-first questions that may affect any later split
-- [ ] No new child tickets are created during the planning phase; any future split remains documented inside ERICK-150 first
-- [ ] No shipped layout changes are made until the research output is reviewed
+- [x] The ticket documents the current efficiency optimizer inputs, weights, and known blind spots
+- [x] The ticket produces a prioritized list of follow-up experiments rather than a vague brainstorm
+- [x] At least one proposed experiment addresses biomechanical weighting
+- [x] At least one proposed experiment addresses n-gram weighting
+- [x] At least one proposed experiment addresses symbols, digits, or utility-mode cost
+- [x] At least one proposed experiment addresses error/confusion modeling
+- [x] At least one proposed experiment addresses different user segments or input devices
+- [x] The ticket includes a branch map with goals, tasks, outputs, open questions, and decision gates for each branch
+- [x] The ticket documents the recommended execution order and the research-first questions that may affect any later split
+- [x] No new child tickets are created during the planning phase; any future split remains documented inside ERICK-150 first
+- [x] No shipped layout changes are made until the research output is reviewed
 
 ---
 
@@ -205,7 +318,7 @@ Potential extensions worth testing:
 Do not split these out yet. Keep them here until the relevant branch produces enough evidence.
 
 - Branch 1 could later justify a separate calibration effort if touch and controller need different effort matrices.
-- Branch 2 could later justify an optimizer-tuning implementation if weight sensitivity produces a clearly dominant objective mix.
+- Branch 2 no longer justifies an immediate optimizer-tuning split after the first fixed-runtime probe; only reopen it if later prediction-aware, confusion-aware, or new-corpus runs produce a clearly dominant non-default mix.
 - Branch 3 could later justify a symbols-and-utility modeling effort if non-letter cost proves large enough to change ranking.
 - Branch 4 could later justify a privacy-safe trace or instrumentation study if confusion modeling cannot be estimated from static analysis alone.
 - Branch 6 could later justify a hybrid learnability layout effort if the research shows a strong speed-versus-teachability tradeoff.
@@ -242,11 +355,12 @@ Keep all research branches inside ERICK-150 until the baseline is reproduced and
 - Complete **Branch 0** first.
 - Start **Branch 8** in parallel only where it helps document current corpora and benchmark gaps.
 - Do not treat any later branch result as actionable until Branch 0 confirms the shipped baseline can be reproduced or the drift is explained.
+- Before using any 6-section result in Branches 1-4, either align the optimizer to the shipped rotated utility wheel plus Symbols toggle or explicitly label the run as a legacy 5-action baseline.
 
 ### Phase 2 - Re-Score The Core Objective
 
-- Run **Branch 1** and **Branch 2** once the baseline harness is trustworthy.
-- Begin **Branch 3** after the core weighting and effort assumptions are at least stable enough to compare against.
+- Begin **Branch 3** immediately after the practical 6-section baseline is frozen, because symbol and utility modeling is now the clearest remaining gap between the shipped-adjacent run and exact shipped parity.
+- Run **Branch 1** and **Branch 2** after Branch 3 clarifies whether mixed-text and toggle costs materially change layout ranking.
 
 ### Phase 3 - Add Real-World Penalties
 
@@ -257,6 +371,50 @@ Keep all research branches inside ERICK-150 until the baseline is reproduced and
 
 - Run **Branch 5** to decide whether there should be one efficiency layout or more than one.
 - Run **Branch 7** once prediction-aware evaluation can use the shipped ERICK-148 behavior instead of hypothetical prediction gains.
+
+---
+
+## Ranked Follow-Up Proposal
+
+This ranking is the final planning output of ERICK-150. It reflects both expected product leverage and the dependency order already captured above.
+
+| Rank | Branch | Why It Is Ranked Here | Outcome To Target | Shipping Or Exploratory |
+|---|---|---|---|---|
+| 1 | **Branch 0** | The current 6-section baseline still cannot reproduce the shipped rotated utility wheel and Symbols toggle, so every later cross-mode claim depends on closing or explicitly freezing this gap. | one trusted baseline statement for both dial modes | shipping-adjacent prerequisite |
+| 2 | **Branch 3** | The new shipped-adjacent 6-section run made non-space utility cost visible, and the remaining exact-parity gap now sits in symbol and toggle modeling rather than in baseline reproducibility alone. | mixed-text objective proposal with utility-cost evidence | shipping-adjacent |
+| 3 | **Branch 8** | The benchmark pack and result template now exist, and Branch 3 is already using them, so they remain the shared harness for every later run. | comparable cross-corpus experiment logs | shipping-adjacent research infrastructure |
+| 4 | **Branch 1** | Controller support, 6-section geometry, and assisted use still create a strong case that the old effort matrix may no longer be universally correct, but that decision is cleaner after Branch 3 settles utility-cost modeling. | keep-or-change recommendation for the effort matrix | shipping-adjacent |
+| 5 | **Branch 2** | The current `1.0 / 0.6 / 0.3` mix still looks plausible, but coefficient tuning is easier to interpret once Branch 3 stops undercounting non-letter cost. | coefficient ranges and stable PT settings | shipping-adjacent |
+| 6 | **Branch 7** | ERICK-148 changed real typing effort through learned words, learned bigrams, and next-word suggestions, but prediction-aware research is only meaningful once the baseline and corpora are stable. | prediction-aware evaluation proposal | shipping-adjacent after baseline work |
+| 7 | **Branch 4** | Confusion-aware scoring could matter a lot, but it requires a privacy-safe evidence plan before it can move from theory to decision-making. | candidate confusion model and local-only collection plan | exploratory until data exists |
+| 8 | **Branch 6** | Learnability constraints are valuable, but they should be tested only after the team understands the pure-efficiency and confusion-aware candidate families. | hybrid objective candidates and lesson-cost proxy | exploratory |
+| 9 | **Branch 5** | Variant layouts have the highest product-complexity cost, so they should be considered last and only if earlier branches show a strong measurable gain. | one-layout versus multi-layout recommendation | exploratory / last-stage |
+
+## Shipping Recommendation
+
+### Branches That Belong On The Shipping Optimizer Path
+
+- **Branch 0** baseline closure or explicit freeze decision
+- **Branch 3** symbols, digits, and utility-cost modeling
+- **Branch 8** benchmark-pack adoption for every new result log
+- **Branch 1** effort-matrix calibration
+- **Branch 2** weight sensitivity and search tuning
+- **Branch 7** prediction-aware evaluation after the core baseline stabilizes
+
+### Branches That Should Stay Exploratory Longer
+
+- **Branch 4** until a privacy-safe confusion-evidence method exists
+- **Branch 6** until the team has stable pure-efficiency winners to compare against
+- **Branch 5** until earlier branches show that segment-specific layouts beat one global layout by enough to justify settings and teaching complexity
+
+## Recommended Split Notes
+
+Do not create child tickets during the planning phase. If later implementation or dedicated research work starts, split in this order:
+
+1. A mixed-text and symbol-cost effort centered on Branch 3 now that Branch 0 has a practical shipped-adjacent baseline.
+2. A prediction-aware evaluation harness for Branch 7 after the first reruns exist.
+3. A local-only confusion instrumentation spike for Branch 4 once diagnostics or practice aggregates can capture direction buckets without raw text.
+4. Re-open objective calibration only if later Branch 4, Branch 7, or new benchmark-family reruns produce a clearly dominant non-default mix.
 
 ---
 
@@ -286,6 +444,15 @@ Create one trusted baseline for the current shipped Efficiency research before c
 - drift log between docs, optimizer outputs, and shipped maps
 - agreed comparison template for later experiments
 
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: the current baseline is still split, but Branch 0 now has both a legacy 6-section baseline and a full shipped-adjacent 6-section run. The new shipped-wheel mixed-text run scored `0.97299`, baseline `1.41998 ± 0.07649`, `31.5%` improvement, and predicted `70.6` WPM in `352.8s`, while using the shared shipped utility wheel directions and the Branch 8 benchmark-pack corpus profile. Even with the shipped utility wheel aligned, the resulting normal-layer map matches only `2 / 36` slots in the current shared placeholder map (`N[1]=s`, `NE[1]=t`), so the placeholder still looks clearly stale.
+- Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/v5_output.txt`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `docs/documentation/Jira/ERICK-139.md`, and `docs/documentation/Jira/ERICK-148.md`.
+- Open blocker: exact shipped parity is still missing, because symbol-heavy text is approximated via `TOGGLE_SYMBOLS` utility tokens and the symbol layer itself is not re-optimized in the 36-slot normal-layer search.
+- Next action: use the new full shipped-adjacent run as the practical 6-section baseline for later branches, while treating deeper symbol-layer modeling as the remaining Branch 3 follow-up rather than a total Branch 0 blocker.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150.
+
 **Open Questions**
 
 - Are the documented 8-section and 6-section optimizer assumptions still exactly what the code ships today?
@@ -313,6 +480,12 @@ Re-check whether the current physical effort matrix still reflects real use acro
 4. Test whether cross-body diagonals, repeated outer-angle transitions, or same-hand repetition are under- or over-penalized.
 5. Compare a shared matrix against mode-specific or device-specific matrices.
 
+**Artifacts To Produce**
+
+- current effort-matrix inventory with mode and device notes
+- shared-versus-split matrix comparison summary
+- recommendation on whether the shipped matrix should change or stay frozen
+
 **Evidence To Gather**
 
 - literature references already in the research folder
@@ -329,6 +502,15 @@ Re-check whether the current physical effort matrix still reflects real use acro
 **Decision Gate**
 
 If the current effort matrix changes the ranking of top layouts materially, later branches must use the recalibrated matrix before drawing conclusions.
+
+### Branch Status
+
+- Status: `Needs More Data`
+- Latest finding summary: Branch 1 now has a first concrete split-matrix probe on the shipped 6-section mixed-shortform path. The current shared-derived 6-section matrix was compared against `touch_strict` and `controller_relaxed` candidate profiles with the shipped utility wheel and `toggle_pair` symbol-cost model. `controller_relaxed` changed `14 / 36` slots relative to the current shared-derived winner and `touch_strict` changed `22 / 36`, but the easiest chord family stayed the same in every profile: `N+N`, `NE+NE`, `NW+NW`, `SE+SE`, `S+S`, and `SW+SW` remained the six easiest positions. That means Branch 1 found real sensitivity in the finer-grained ranking, but not enough evidence to justify replacing the shared-derived matrix yet.
+- Evidence reviewed: `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch1_touch_strict_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch1_controller_relaxed_probe_2026-04-26.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch1_effort_matrix_probe_2026-04-26.md`.
+- Open blocker: the branch still lacks device-specific evidence from controller diagnostics or practice traces, so the split profiles are analytic probes rather than calibrated user-backed matrices.
+- Next action: keep the shared-derived matrix as the active default, and only revisit a controller-specific or touch-specific split if later local-only Branch 4 style evidence shows materially different confusion or comfort patterns by device.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a calibrated split matrix has evidence beyond analytic probes.
 
 ### Branch 2 - Weight Sensitivity And Search Tuning
 
@@ -362,6 +544,15 @@ Measure how sensitive the current results are to the unigram, bigram, trigram, a
 
 If the top layouts shift heavily under small coefficient changes, later branches must treat the current shipped Efficiency layout as only one candidate among several viable families.
 
+### Branch Status
+
+- Status: `No-Go`
+- Latest finding summary: Branch 2 now has the first fixed-runtime sensitivity sweep on both active research tracks. On the shipped-adjacent 6-section path, `bigram_up` (`1.0 / 0.7 / 0.2`) changed `25 / 36` normal-layer slots and moved `6 / 12` of `etaoinshrdlc`, while `trigram_up` (`1.0 / 0.5 / 0.4`) changed `11 / 36` slots but kept all 12 of those top letters in place. On the 8-section `wordfreq` continuity path, the same probes changed `39 / 64` and `31 / 64` slots respectively, moving `11 / 12` and `5 / 12` of the top letters. Those are real family shifts, but the within-family improvement bands stayed almost flat (`31.1% -> 31.4% -> 30.9%` on 6-section and `45.2% -> 45.3% -> 45.0%` on 8-section), so Branch 2 does not currently justify a coefficient retune. Search tuning also came back stable: every documented probe was effectively converged by 50k steps, and the largest remaining gain after 50k was only `0.00105`.
+- Evidence reviewed: `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/erick_v5_vectorized.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch2_default_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch2_bigram_up_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_branch2_trigram_up_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_8section_branch2_default_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_8section_branch2_bigram_up_probe_2026-04-26.txt`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_8section_branch2_trigram_up_probe_2026-04-26.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`.
+- Open blocker: coefficient families change the objective scale, so future tuning decisions need stronger external evidence than tiny improvement-band differences, such as prediction-aware savings or device-specific confusion data.
+- Next action: keep `1.0 / 0.6 / 0.3` and the current PT schedule as the defaults, use 50k steps per chain for screening sweeps, 100k for documented branch probes, and only spend 500k on final confirmation runs or on future Branch 4 / Branch 7 reruns that change the objective materially.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: no split now; only reopen Branch 2 if later objective terms or new benchmark families produce a clearly dominant non-default coefficient mix.
+
 ### Branch 3 - Symbols, Digits, And Utility Cost
 
 **Goal**
@@ -380,6 +571,12 @@ Decide how much real-world typing cost is currently missing because the optimize
 4. Identify whether the utility wheel itself should remain fixed, be partially modeled, or later be optimized separately.
 5. Evaluate whether coding or heavy punctuation domains require a different weighting profile.
 
+**Artifacts To Produce**
+
+- mixed-text benchmark comparison using the Branch 8 pack
+- proposed utility and symbol cost terms
+- recommendation on fixed utility wheel versus modeled utility cost
+
 **Evidence To Gather**
 
 - messaging-style corpus samples
@@ -395,6 +592,15 @@ Decide how much real-world typing cost is currently missing because the optimize
 **Decision Gate**
 
 If expanded mixed-text cost materially changes layout ranking, later implementation planning must treat non-letter modeling as part of the core optimizer, not a nice-to-have extension.
+
+### Branch Status
+
+- Status: `Researching`
+- Latest finding summary: the first full Branch 3 comparison now shows that symbol entry and exit cost materially changes the mixed-text 6-section winner. Re-running the shipped-wheel mixed-shortform path with `ERICK6_SYMBOL_COST_MODEL=toggle_pair` improved the score from `0.97299` to `0.95350`, increased predicted WPM from `70.6` to `71.1`, doubled `TOGGLE_SYMBOLS` unigram coverage from `0.0184` to `0.0362`, and changed `9 / 36` normal-layer slots relative to the earlier `single_toggle` approximation. Both variants still match only `2 / 36` slots in the current shared placeholder map, so the placeholder remains clearly stale.
+- Evidence reviewed: `docs/documentation/Research/vatsal/benchmark_pack.md`, `docs/documentation/Research/vatsal/benchmark_packs/`, `docs/documentation/Research/vatsal/erick_v5_6section.py`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_full_2026-04-26.txt`, `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, and `docs/documentation/Jira/ERICK-139.md`.
+- Open blocker: `toggle_pair` is now the stronger approximation, but Branch 3 still does not model symbol-layer character placements directly, so exact shipped parity remains open.
+- Next action: use `toggle_pair` as the default Branch 3 approximation for future mixed-text reruns, then scope the first symbol-layer-aware objective instead of treating `single_toggle` as sufficient.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until a concrete utility-cost model exists.
 
 ### Branch 4 - Error And Confusion Modeling
 
@@ -429,6 +635,15 @@ Add a realistic penalty for layouts that look efficient on paper but are easy to
 
 If confusion-aware scoring reverses the ranking of top layouts, any later optimizer upgrade should treat this branch as required rather than exploratory.
 
+### Branch Status
+
+- Status: `Ready For Split`
+- Latest finding summary: Branch 4 now has the first checked-in local-only instrumentation spike. The shared module exposes reusable confusion bucket helpers for exact match, adjacent slip, mirror slip, dead-zone jitter, and passive snap-back reversal, and Android controller diagnostics now includes a local Confusion Drill card that records aggregate expected-versus-resolved direction counts plus hot pairs for the current session. This proves that the repo can gather privacy-safe confusion evidence without raw typed text or raw stick traces and without modifying the shipping typing path.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/ControllerInputProcessor.kt`, `android/shared/src/commonMain/kotlin/ControllerConfusionMetrics.kt`, `android/shared/src/commonTest/kotlin/ControllerConfusionMetricsTest.kt`, `android/app/src/main/java/com/vatoo/erick/ControllerDiagnosticsActivity.kt`, `docs/documentation/Research/vatsal/results_and_logs/branch4_confusion_model_proposal_2026-04-26.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch4_local_confusion_spike_2026-04-28.md`.
+- Open blocker: the spike still lacks real device-session counts, so the confusion matrix remains ordinal and uncalibrated.
+- Next action: if later work needs calibrated probabilities, split that follow-up from ERICK-150 and use this diagnostics drill or a practice-task aggregate surface to collect local bucket totals under controlled conditions.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: ready to split if calibration work actually starts; the spike phase is complete inside ERICK-150.
+
 ### Branch 5 - User-Segment Layout Variants
 
 **Goal**
@@ -451,6 +666,12 @@ Determine whether ERICK should keep one Efficiency layout for everyone or suppor
 	- maintenance burden
 5. Recommend whether variant layouts should stay research-only or become a product direction.
 
+**Artifacts To Produce**
+
+- segment comparison scorecard
+- product-complexity memo
+- recommendation on one global layout versus segment-specific variants
+
 **Open Questions**
 
 - Is controller use different enough from touch to justify its own layout?
@@ -460,6 +681,15 @@ Determine whether ERICK should keep one Efficiency layout for everyone or suppor
 **Decision Gate**
 
 Do not propose additional shipped layout modes unless this branch shows a clear measurable gain that outweighs the added product complexity.
+
+### Branch Status
+
+- Status: `No-Go`
+- Latest finding summary: Branch 5 now closes as a measured product-direction `No-Go`, not just a directional memo. The current product surfaces already teach a simple `Logical` versus `Efficiency` choice, Branch 1 did not justify a split effort matrix, Branch 4 only established the local confusion spike rather than a calibrated audience-specific matrix, Branch 7 did not change layout ranking under prediction-aware evaluation, and Branch 6 confirmed that the strongest current tradeoff is still between the existing `Logical` and `Efficiency` stories rather than between multiple near-tie Efficiency families.
+- Evidence reviewed: `android/app/src/main/java/com/vatoo/erick/BenefitAudienceContent.kt`, `android/app/src/main/java/com/vatoo/erick/MainSettingsContent.kt`, `android/app/src/main/java/com/vatoo/erick/HelpActivity.kt`, `docs/documentation/User_Guide.md`, `docs/documentation/Research/vatsal/results_and_logs/branch5_layout_variant_recommendation_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/branch5_layout_variant_decision_2026-04-28.md`, `docs/documentation/Research/vatsal/results_and_logs/branch4_local_confusion_spike_2026-04-28.md`, `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`.
+- Open blocker: none for ERICK-150 closure. Future work would need fresh segment-specific reruns that clear the Branch 5 split gate rather than more proposal text.
+- Next action: keep one shipped Efficiency family and continue using segment packs only as evaluation slices until a segment-specific winner beats the global layout by at least `3%` on its own pack while losing no more than `1%` on the general pack.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: completed inside ERICK-150 for now; no split unless future measured reruns clear the existing Branch 5 gate.
 
 ### Branch 6 - Learnability And Hybrid Objectives
 
@@ -475,6 +705,12 @@ Measure whether a small sacrifice in raw efficiency could produce a layout that 
 4. Review whether lesson difficulty, onboarding friction, or practice error rates can serve as proxies for learnability.
 5. Recommend whether hybrid layouts should be considered for a later product experiment.
 
+**Artifacts To Produce**
+
+- hybrid objective definitions
+- baseline-versus-hybrid scorecard
+- recommendation on whether learnability penalties deserve a later product test
+
 **Open Questions**
 
 - How much efficiency loss is acceptable for a meaningful memorability gain?
@@ -483,6 +719,15 @@ Measure whether a small sacrifice in raw efficiency could produce a layout that 
 **Decision Gate**
 
 If hybrid objectives remain close to the top efficiency score while improving teaching clarity, this branch becomes a strong candidate for future product testing.
+
+### Branch Status
+
+- Status: `No-Go`
+- Latest finding summary: Branch 6 now has a measured proxy pass rather than only a proposal. The replay scored the current `Logical` 6-section map, the current shared `efficiencyNormalMap6` placeholder, and the Branch 3 `toggle_pair` winner against the shipped mixed-shortform objective plus row-dispersion, preview-jump, and lesson-span proxies. `Logical` improved the combined proxy by `35.2%` versus the best pure-efficiency layout, but its replay score was `42.5%` worse. The shared placeholder map was `20.9%` worse on score and `12.6%` worse on the proxy than the Branch 3 winner. No checked-in candidate cleared the proposed hybrid-interest gate of staying within `3%` of best efficiency while improving learnability proxies by at least `15%`.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/KeyboardLogic.kt`, `/memories/repo/6-section-preview-order.md`, `android/app/src/main/java/com/vatoo/erick/LearningAndPracticeModels.kt`, `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_objective_proposal_2026-04-26.md`, `docs/documentation/Research/vatsal/branch6_learnability_probe.py`, `docs/documentation/Research/vatsal/results_and_logs/branch6_learnability_probe_2026-04-28.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`.
+- Open blocker: none for ERICK-150 closure. A future revisit would need a new candidate family near the Branch 3 score band or real retention evidence, not another unmeasured hybrid formula.
+- Next action: keep Branch 6 exploratory and treat the current result as support for the existing product split between `Logical` and `Efficiency`, not as justification for a third built-in layout family.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: completed inside ERICK-150 for now; no split unless a future candidate actually clears the hybrid-interest gate.
 
 ### Branch 7 - Prediction-Aware Evaluation
 
@@ -501,6 +746,12 @@ Decide how the optimizer should change now that prediction, learned words, and l
 4. Decide whether prediction-aware evaluation belongs in the optimizer itself or only in post-hoc benchmarking.
 5. Document how learned user bigrams or domain-specific predictions could change future corpora.
 
+**Artifacts To Produce**
+
+- prediction-aware metric proposal
+- prefix-heavy versus raw-entry comparison notes
+- recommendation on optimizer-integrated versus post-hoc prediction evaluation
+
 **Open Questions**
 
 - Should layout optimization assume strong prediction support, or should layout remain robust when prediction is ignored?
@@ -509,6 +760,15 @@ Decide how the optimizer should change now that prediction, learned words, and l
 **Decision Gate**
 
 If prediction-aware evaluation materially changes the ranking of layouts, later implementation planning should treat layout and prediction as a coupled system rather than two separate optimizations.
+
+### Branch Status
+
+- Status: `No-Go`
+- Latest finding summary: Branch 7 now has its first post-hoc benchmark pass against real layout candidates. The new harness scored the Branch 2 `default`, `bigram_up`, and `trigram_up` winners for both dial modes against the shipped predictor dictionary and bigram tables plus the Branch 8 benchmark packs. Prediction reduced measured cost by about `5.8%` to `6.2%`, mostly through prefix completions that became useful after an average of `1.81` typed characters. However, the ranking of the candidate layouts did not change in either mode: 6-section stayed `bigram_up -> trigram_up -> default`, and 8-section stayed `default -> bigram_up -> trigram_up`. Next-word suggestions barely appeared in this benchmark family (`0.45%` hit rate in 8-section, `0.00%` in 6-section) and never beat raw entry under the current tap-cost model.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt`, `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt`, `android/shared/src/commonMain/kotlin/KeyboardContracts.kt`, `docs/documentation/Jira/ERICK-148.md`, `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_metric_proposal_2026-04-26.md`, `docs/documentation/Research/vatsal/prediction_aware_benchmark.py`, `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`.
+- Open blocker: the current pass still uses the shipped built-in predictor state only. It does not replay learned user profiles or domain-specific next-word corpora, so it should not be overread as a universal cap on prediction value.
+- Next action: keep prediction-aware evaluation as a post-hoc reporting layer, and only revisit optimizer-coupled prediction scoring if a later learned-state replay or new benchmark family actually changes layout ranking.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: completed inside ERICK-150 for now; no split unless future learned-state or domain-specific prediction work shows a ranking change worth isolating.
 
 ### Branch 8 - Corpora And Evaluation Expansion
 
@@ -529,6 +789,12 @@ Strengthen the datasets and benchmark suite used across every other branch.
 4. Decide which metrics are required in every branch result, such as objective score, predicted WPM, symbol overhead, and stability.
 5. Document what experimental results are comparable and what results are only exploratory.
 
+**Artifacts To Produce**
+
+- benchmark-pack spec and frozen shortform seed files
+- mandatory result template for future experiment logs
+- comparability rules for legacy versus current result families
+
 **Open Questions**
 
 - Does one general corpus remain enough, or is the current optimizer overfitting to a narrow writing style?
@@ -537,6 +803,15 @@ Strengthen the datasets and benchmark suite used across every other branch.
 **Decision Gate**
 
 If corpus choice changes the best layout family, every later branch conclusion must be annotated by corpus domain instead of presented as universally true.
+
+### Branch Status
+
+- Status: `Ready For Split`
+- Latest finding summary: Branch 8 is no longer just a planned harness. Branch 3 already adopted the benchmark pack in full scored shipped-wheel runs, Branch 7 now has a scored prediction-aware benchmark artifact, and Branch 4's local-only confusion spike plus the earlier proposal branches all still depend on the same benchmark IDs and comparability rules. The result template has also been hardened to require benchmark IDs, symbol-cost assumptions, prediction assumptions, and an explicit comparability family so later runs stop drifting into one-off formats.
+- Evidence reviewed: `docs/documentation/Research/README.md`, `docs/documentation/Research/vatsal/benchmark_pack.md`, `docs/documentation/Research/vatsal/benchmark_packs/`, `docs/documentation/Research/vatsal/results_and_logs/experiment_result_template.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`, `docs/documentation/Research/vatsal/results_and_logs/branch8_adoption_update_2026-04-26.md`, `docs/documentation/Research/vatsal/scripts/corpus.txt`, `docs/documentation/Research/vatsal/scripts/corpus_data_values.py`, and `docs/documentation/Research/vatsal/scripts/run_hybrid.py`.
+- Open blocker: 8-section still has no benchmark-pack-based non-`wordfreq` rerun, so full cross-mode adoption of the Branch 8 pack remains incomplete.
+- Next action: require the hardened template and comparability-family label for the first 8-section benchmark-pack experiment instead of allowing another ad-hoc result note.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: ready to split only if later work needs automated corpus regeneration or a dedicated benchmark runner; otherwise keep this branch here as the canonical benchmark spec.
 
 ---
 
@@ -557,10 +832,13 @@ Use the following structure inside this ticket as each branch progresses:
 
 ## Exit Conditions For ERICK-150
 
-This ticket is ready to close only when:
+This planning ticket is ready to close when:
 
-- Branch 0 baseline reproduction is complete
-- each active branch has a documented result or explicit no-go outcome
-- the highest-value next steps are prioritized
-- any branch that truly deserves implementation or a dedicated research follow-up has a clear split recommendation documented here
-- the team can explain why those branches should or should not become separate tickets
+- the current baseline state and its exact open gaps are documented clearly enough that later work starts from evidence instead of guesses
+- each branch has a goal, work list, output target, open questions, and decision gate in one place
+- the highest-value next steps are ranked and labeled as shipping-adjacent versus exploratory
+- the benchmark pack and result template are checked in so future branches can report comparable results
+- any future split remains documented here first instead of being created prematurely
+- no shipped layout changes are made before the research output is reviewed
+
+Closure note on 2026-04-28: these exit conditions are now satisfied. ERICK-150 ends with one updated evidence base, one shipped Efficiency family recommendation, three checked-in `No-Go` outcomes for Branches 5-7, a completed local Branch 4 spike, and Branch 8 left as a reusable benchmark surface rather than as a blocker.

@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.vatoo.erick.ui.theme.ERICKTheme
+import kotlinx.coroutines.launch
 
 class HelpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,8 +44,45 @@ class HelpActivity : ComponentActivity() {
 @Composable
 fun HelpScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val preferencesManager = androidx.compose.runtime.remember(context) { PreferencesManager(context) }
+    val coroutineScope = rememberCoroutineScope()
     var expandedSections by rememberSaveable {
         mutableStateOf(setOf<HelpSectionId>(HelpSectionId.CHORDS, HelpSectionId.UTILITY))
+    }
+    var showQuickstart by rememberSaveable { mutableStateOf(false) }
+    var quickstartStep by rememberSaveable { mutableStateOf(0) }
+
+    if (showQuickstart) {
+        val boundedStep = quickstartStep.coerceIn(0, quickstartSteps.lastIndex)
+        QuickstartDialog(
+            step = quickstartSteps[boundedStep],
+            stepIndex = boundedStep,
+            totalSteps = quickstartSteps.size,
+            onPrevious = {
+                quickstartStep = (boundedStep - 1).coerceAtLeast(0)
+            },
+            onNext = {
+                quickstartStep = (boundedStep + 1).coerceAtMost(quickstartSteps.lastIndex)
+            },
+            onSkip = {
+                showQuickstart = false
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingDismissed(true)
+                }
+            },
+            onFinish = {
+                showQuickstart = false
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingCompleted(true)
+                }
+            },
+            onDismiss = {
+                showQuickstart = false
+                coroutineScope.launch {
+                    preferencesManager.setOnboardingDismissed(true)
+                }
+            }
+        )
     }
 
     fun toggleSection(sectionId: HelpSectionId) {
@@ -87,6 +126,15 @@ fun HelpScreen(onBack: () -> Unit) {
                     HelpBullet("Open Quickstart for the core dial model.")
                     HelpBullet("Use Practice Lessons for guided drills instead of memorizing rules here.")
                     HelpBullet("Open Controller Diagnostics only when you plan to type with a gamepad.")
+                    Button(
+                        onClick = {
+                            quickstartStep = 0
+                            showQuickstart = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Replay Quickstart")
+                    }
                     Button(
                         onClick = {
                             context.startActivity(android.content.Intent(context, PracticeHubActivity::class.java))

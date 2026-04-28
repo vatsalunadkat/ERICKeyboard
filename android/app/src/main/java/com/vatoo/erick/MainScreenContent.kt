@@ -80,8 +80,8 @@ fun MainScreen(
 
     val context = LocalContext.current
     val preferencesManager = remember(context) { PreferencesManager(context) }
-    val onboardingCompleted by preferencesManager.onboardingCompleted.collectAsState(initial = false)
-    val onboardingDismissed by preferencesManager.onboardingDismissed.collectAsState(initial = false)
+    val onboardingCompleted by preferencesManager.onboardingCompleted.collectAsState(initial = null)
+    val onboardingDismissed by preferencesManager.onboardingDismissed.collectAsState(initial = null)
     val onboardingStep by preferencesManager.onboardingStep.collectAsState(initial = 0)
     val quickstartIndex = onboardingStep.coerceIn(0, quickstartSteps.lastIndex)
     val coroutineScope = rememberCoroutineScope()
@@ -99,8 +99,10 @@ fun MainScreen(
     }
 
     LaunchedEffect(onboardingCompleted, onboardingDismissed) {
-        if (!onboardingCompleted && !onboardingDismissed) {
+        if (onboardingCompleted == false && onboardingDismissed == false) {
             showQuickstart = true
+            preferencesManager.setOnboardingDismissed(true)
+            preferencesManager.setOnboardingStep(0)
         }
     }
 
@@ -239,18 +241,6 @@ fun MainScreen(
                 Text("Settings")
             }
         }
-
-        LearningPathCard(
-            onboardingCompleted = onboardingCompleted,
-            onboardingDismissed = onboardingDismissed,
-            onboardingStep = onboardingStep,
-            onOpenQuickstart = {
-                showQuickstart = true
-            },
-            onOpenPracticeHub = {
-                context.startActivity(Intent(context, PracticeHubActivity::class.java))
-            }
-        )
 
         if (isFullyEnabled) {
             Card(

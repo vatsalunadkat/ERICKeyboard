@@ -8,6 +8,11 @@ This directory contains the research foundation for the ERICK keyboard, includin
 
 The ERICK layout optimization pipeline seeks to minimize typing effort for a two-joystick chorded keyboard with 64 chord positions (8 directions x 8 directions). The optimizer places characters on chords such that high-frequency letters and common letter transitions are assigned to the most ergonomically efficient positions.
 
+The current checked-in baseline is split across two research tracks:
+- the documented 8-section v5 baseline in `vatsal/erick_v5_vectorized.py` with matching output in `vatsal/v5_output.txt`
+- a separate 6-section optimizer in `vatsal/erick_v5_6section.py` with a reproduced baseline summary in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`, although that script still models an older 5-action utility wheel rather than the current shipped 6-section product behavior
+- a Branch 8 benchmark-pack spec in `vatsal/benchmark_pack.md` plus frozen shortform seed packs in `vatsal/benchmark_packs/` for messaging, accessibility, controller, and punctuation-heavy evaluation
+
 Key research goals:
 1. Quantify chord effort using a biomechanical model (direction difficulty, dual-thumb penalties, alternation bonuses)
 2. Optimize character placement across unigram, bigram, and trigram frequency data
@@ -44,6 +49,21 @@ Key research goals:
 
 Most efficient placements: **e** (E+E), **t** (N+N), **a** (NE+NE) - the three most common English letters on the easiest same-direction chords.
 
+## Current Baseline Status
+
+| Track | Current State |
+|---|---|
+| 8-section | `vatsal/erick_v5_vectorized.py` and `vatsal/v5_output.txt` still provide the clearest reproducible baseline: 8 chains, 500k steps per chain, `1.0 / 0.6 / 0.3` unigram-bigram-trigram weighting, and the 44.6% improvement snapshot shown above. |
+| 6-section | `vatsal/erick_v5_6section.py` was reproduced on 2026-04-26 with score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. The checked-in summary lives in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`. This remains a legacy baseline because the script still models an older 5-action utility wheel that omits the shipped Symbols toggle. |
+| 6-section shipped-path run | `vatsal/erick_v5_6section.py` now also supports `ERICK6_UTILITY_MODEL=shipped` plus `ERICK6_CORPUS_PROFILE=mixed_shortform`, which uses the Branch 8 benchmark packs to surface non-space utility costs. A full 2026-04-26 run scored `0.97299`, baseline `1.41998 ± 0.07649`, `31.5%` improvement, and predicted `70.6` WPM. This is a shipped-adjacent run, not an exact shipped baseline, because symbol-heavy text is still approximated through `TOGGLE_SYMBOLS` tokens rather than a re-optimized symbol layer, and the resulting normal-layer map matches only `2 / 36` slots in the current shared placeholder map. See `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`. |
+| Branch 3 symbol-cost comparison | `vatsal/erick_v5_6section.py` now also supports `ERICK6_SYMBOL_COST_MODEL=single_toggle|toggle_pair`. The first full `toggle_pair` rerun scored `0.95350`, baseline `1.39249 ± 0.07509`, `31.5%` improvement, and predicted `71.1` WPM. It changed `9 / 36` normal-layer slots relative to the earlier `single_toggle` shipped-path run while still matching only `2 / 36` placeholder slots in `KeyboardLogic.kt`. See `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`. |
+| Branch 6 learnability probe | `vatsal/branch6_learnability_probe.py` now replays the current `Logical` 6-section map, the shared `efficiencyNormalMap6` placeholder, and the Branch 3 `toggle_pair` winner against the shipped mixed-shortform objective plus first-pass learnability proxies. The measured result is a `No-Go` for a new hybrid shipping family: `Logical` is much easier to teach, but too far behind on raw score, while the Branch 3 winner still dominates the current placeholder map on both speed and the proxy score. See `vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`. |
+| Branch 2 weight sensitivity | Fixed-runtime 100k-step sweeps now exist for both modes. `bigram_up` and `trigram_up` changed the winning layouts materially, especially in 8-section, but none of the tested mixes produced a clear cross-mode reason to replace the default `1.0 / 0.6 / 0.3` weights. All six probes were effectively converged by 50k steps, so shorter screening runs are now justified for future coefficient checks. See `vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`. |
+| Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 8-section layout is clearly derived from the v5 research family, but several punctuation and filler assignments differ from `v5_output.txt`. The 6-section efficiency map is explicitly commented as a placeholder that still needs an optimizer re-run, and the reproduced 6-section script output matches only `4 / 36` placeholder slots. |
+| Branch 8 evaluation pack | `vatsal/benchmark_pack.md` defines the reusable benchmark IDs, source anchors, and normalization rules. Frozen shortform seed files live in `vatsal/benchmark_packs/`, and `vatsal/results_and_logs/experiment_result_template.md` defines the required reporting schema for future ERICK-150 experiment logs. |
+
+Treat the current README metrics as the 8-section v5 baseline, not as a complete summary of both shipped efficiency modes.
+
 ---
 
 ## Directory Structure
@@ -59,6 +79,10 @@ Research/
 │
 └── vatsal/
     ├── erick_v5_vectorized.py       <- Main optimizer (Parallel Tempering, vectorized)
+    ├── erick_v5_6section.py         <- 6-section optimizer (36-position variant)
+    ├── branch6_learnability_probe.py <- Branch 6 proxy replay against shipped mixed-shortform scoring
+    ├── benchmark_pack.md            <- Branch 8 benchmark spec + source anchors
+    ├── benchmark_packs/             <- Frozen ERICK-specific shortform benchmark seeds
     ├── v5_output.txt                <- v5 results (44.6% improvement, 73.2 WPM)
     │
     ├── layout_design/               <- Visual mockups, wireframes, React visualizer
@@ -69,8 +93,12 @@ Research/
     │
     ├── results_and_logs/
     │   ├── erick_keyboard_report.md         <- Literature review + 3 layout variants
+    │   ├── experiment_result_template.md    <- Required report schema for Branch 1-8 runs
     │   ├── optimization_results.md          <- First optimizer run (40% improvement)
     │   ├── optimization_results_2.md        <- SA run (25k corpus + Google N-grams)
+    │   ├── optimization_results_6section_baseline_2026-04-26.md
+    │   ├── optimization_results_6section_shipped_mixed_shortform_2026-04-26.md
+    │   ├── optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md
     │   └── *.txt, *.log                     <- Raw optimizer logs and error traces
     │
     ├── research_papers/             <- 43 academic papers (see below)
@@ -115,6 +143,8 @@ The main optimization script uses Parallel Tempering with 8 concurrent temperatu
 
 ### Running the Optimizer
 
+#### 8-section baseline
+
 ```bash
 pip install numpy wordfreq
 cd docs/documentation/Research/vatsal
@@ -127,6 +157,53 @@ python erick_v5_vectorized.py > v5_output.txt 2>&1
 ```
 
 Expected runtime: ~30 minutes on a modern CPU.
+
+For Branch 2 style sweeps, you can also override:
+
+- `ERICK8_STEPS_PER_CHAIN`
+- `ERICK8_BASELINE_SAMPLES`
+- `ERICK8_SWAP_INTERVAL`
+- `ERICK8_BIGRAM_WEIGHT`
+- `ERICK8_TRIGRAM_WEIGHT`
+
+#### 6-section baseline
+
+```bash
+pip install numpy wordfreq
+cd docs/documentation/Research/vatsal
+python erick_v5_6section.py
+```
+
+The 6-section script prints a Kotlin `efficiencyNormalMap6` / `efficiencyShiftedMap6` snippet for comparison with `KeyboardLogic.kt`, but it should still be treated as a legacy research baseline rather than an exact mirror of the shipped rotated 6-section utility wheel.
+
+Latest reproduced result: score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. See `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`.
+
+The script now also supports two env-selectable research knobs:
+
+- `ERICK6_UTILITY_MODEL=legacy|shipped`
+- `ERICK6_CORPUS_PROFILE=wordfreq|mixed_shortform`
+- `ERICK6_SYMBOL_COST_MODEL=single_toggle|toggle_pair`
+- `ERICK6_EFFORT_PROFILE=shared_derived|touch_strict|controller_relaxed`
+- `ERICK6_BIGRAM_WEIGHT`
+- `ERICK6_TRIGRAM_WEIGHT`
+
+The `mixed_shortform` corpus profile reads the checked-in Branch 8 benchmark packs and can surface utility costs for `TOGGLE_SYMBOLS`, `SPACE`, and `.`. A 2026-04-26 smoke validation for this path is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_smoke_2026-04-26.md`, and the first full shipped-profile run is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`.
+
+The first Branch 3 comparison using `ERICK6_SYMBOL_COST_MODEL=toggle_pair` is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`.
+
+The first Branch 6 learnability replay is recorded in `vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`, with raw output in `vatsal/results_and_logs/branch6_learnability_probe_2026-04-28.txt`.
+
+The first Branch 1 effort-profile probe and Branch 2 weight-sensitivity probe are recorded in `vatsal/results_and_logs/branch1_effort_matrix_probe_2026-04-26.md` and `vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`.
+
+For fast smoke checks, you can also override:
+
+- `ERICK6_STEPS_PER_CHAIN`
+- `ERICK6_BASELINE_SAMPLES`
+- `ERICK6_SWAP_INTERVAL`
+
+### Branch 8 benchmark pack
+
+Use `vatsal/benchmark_pack.md` for the current benchmark IDs, source anchors, and normalization rules. The frozen shortform seed files in `vatsal/benchmark_packs/` are meant for comparison runs, not as a replacement for the main `wordfreq` baseline. New ERICK-150 experiment logs should start from `vatsal/results_and_logs/experiment_result_template.md` so corpus assumptions and utility-model drift are always recorded.
 
 ---
 

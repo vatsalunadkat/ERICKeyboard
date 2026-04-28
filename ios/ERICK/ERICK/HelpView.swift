@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct HelpView: View {
+    @AppStorage(LearningProgressStore.quickstartCompletedKey) private var quickstartCompleted = false
+    @AppStorage(LearningProgressStore.quickstartDismissedKey) private var quickstartDismissed = false
     @State private var expandedSections: Set<HelpSectionID> = [.chords, .utility]
+    @State private var replayQuickstartStep = 0
+    @State private var showQuickstart = false
 
     var body: some View {
         ScrollView {
@@ -12,6 +16,17 @@ struct HelpView: View {
                         HelpBullet(text: "Open Quickstart for the core dial model.")
                         HelpBullet(text: "Use Practice Lessons for guided drills instead of memorizing rules here.")
                         HelpBullet(text: "Open controller diagnostics only when you plan to type with a gamepad.")
+                        Button {
+                            replayQuickstartStep = 0
+                            showQuickstart = true
+                        } label: {
+                            Text("Replay Quickstart")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                        }
+                        .buttonStyle(.borderedProminent)
+
                         NavigationLink(destination: PracticeHubView()) {
                             Text("Open Practice Lessons")
                                 .font(.headline)
@@ -92,6 +107,21 @@ struct HelpView: View {
         }
         .navigationTitle("How to Type")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showQuickstart) {
+            QuickstartView(
+                currentStep: $replayQuickstartStep,
+                onComplete: {
+                    quickstartCompleted = true
+                    quickstartDismissed = false
+                    replayQuickstartStep = 0
+                    showQuickstart = false
+                },
+                onSkip: {
+                    quickstartDismissed = true
+                    showQuickstart = false
+                }
+            )
+        }
     }
 
     private func binding(for section: HelpSectionID) -> Binding<Bool> {
