@@ -86,18 +86,6 @@ struct ContentView: View {
                         }
                     }
 
-                    LearningHubCard(
-                        quickstartCompleted: quickstartCompleted,
-                        quickstartDismissed: quickstartDismissed,
-                        quickstartStep: quickstartStep,
-                        onOpenQuickstart: {
-                            if quickstartCompleted {
-                                quickstartStep = 0
-                            }
-                            showQuickstart = true
-                        }
-                    )
-
                     // Success or Instructions
                     if isStep1Completed {
                         VStack(spacing: 12) {
@@ -240,6 +228,8 @@ struct ContentView: View {
             checkKeyboardStatus()
             ControllerBridge.shared.start()
             if !quickstartCompleted && !quickstartDismissed {
+                quickstartDismissed = true
+                quickstartStep = 0
                 showQuickstart = true
             }
         }

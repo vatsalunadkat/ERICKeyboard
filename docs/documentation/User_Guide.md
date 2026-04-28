@@ -54,7 +54,8 @@ It can also help everyday users who want larger touch targets, controller suppor
 
 - The host app now treats **Quickstart** and **Practice Lessons** as the main learning path, with optional help shown only when you ask for it.
 - The host app now offers a **Quickstart** that teaches the two-dial model, utility swipes, assisted typing, and controller typing.
-- You can **skip** the quickstart, **resume** it later, or **replay** it after finishing.
+- The quickstart opens automatically only on the first launch of the host app, then stays out of the way on later launches.
+- After that first launch, use **How to Type** to open **Replay Quickstart**, which appears above the **Practice Lessons** button.
 - The quickstart keeps its action buttons readable on smaller screens and with larger accessibility text sizes.
 - The new **Practice Lessons** hub includes drills for 8-section basics, 6-section basics, utility swipes, one-handed assisted typing, controller typing, and quote practice.
 - Opening a lesson now applies the recommended keyboard preset for that lesson, including dial mode, layout, and input mode.
