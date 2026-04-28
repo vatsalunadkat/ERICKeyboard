@@ -124,6 +124,7 @@ struct QuickstartView: View {
 struct PracticeHubView: View {
     @AppStorage(LearningProgressStore.attemptedLessonsKey) private var attemptedLessonsRaw = ""
     @AppStorage(LearningProgressStore.completedLessonsKey) private var completedLessonsRaw = ""
+    @AppStorage("keyboard_language", store: learningAppGroupDefaults) private var keyboardLanguage = "english"
     @State private var infoLesson: PracticeLessonData?
 
     private var attemptedLessons: Set<String> {
@@ -190,6 +191,22 @@ struct PracticeHubView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.accentColor.opacity(0.14))
                 .cornerRadius(16)
+
+                if keyboardLanguage != "english" {
+                    let languageLabel = keyboardLanguageDisplayName(keyboardLanguage)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("\(languageLabel) typing tip")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                        Text("In 8-section mode, extra \(languageLabel.lowercased()) characters appear directly in the logical map. In 6-section mode, open Symbols to reach the extra language characters while the shipped utility wheel stays unchanged.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.green.opacity(0.12))
+                    .cornerRadius(16)
+                }
 
                 ForEach(practiceSectionModels) { sectionModel in
                     let sectionLessons = erickPracticeLessons.filter { $0.section == sectionModel.section }
@@ -873,6 +890,31 @@ private let practiceSectionModels: [PracticeSectionModel] = [
         summary: "Open-ended practice for when the guided drills already feel easy."
     )
 ]
+
+private func keyboardLanguageDisplayName(_ keyboardLanguage: String) -> String {
+    switch keyboardLanguage {
+    case "spanish":
+        return "Spanish"
+    case "portuguese":
+        return "Portuguese"
+    case "french":
+        return "French"
+    case "german":
+        return "German"
+    case "italian":
+        return "Italian"
+    case "norwegian_bokmal":
+        return "Norwegian Bokmal"
+    case "danish":
+        return "Danish"
+    case "swedish":
+        return "Swedish"
+    case "finnish":
+        return "Finnish"
+    default:
+        return "English"
+    }
+}
 
 private func nextIncompleteExerciseIndex(
     currentIndex: Int,

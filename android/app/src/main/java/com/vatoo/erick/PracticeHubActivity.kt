@@ -91,6 +91,7 @@ private fun PracticeHubScreen(
     completedLessons: Set<String>,
     onBack: () -> Unit
 ) {
+    val keyboardLanguage by preferencesManager.keyboardLanguage.collectAsState(initial = PreferencesManager.LANGUAGE_ENGLISH)
     var selectedLessonId by rememberSaveable { mutableStateOf<String?>(null) }
     var quotePracticeActive by rememberSaveable { mutableStateOf(false) }
     var infoLessonId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -217,6 +218,20 @@ private fun PracticeHubScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
+                }
+            }
+
+            if (keyboardLanguage != PreferencesManager.LANGUAGE_ENGLISH) {
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val languageLabel = keyboardLanguageDisplayName(keyboardLanguage)
+                        Text(languageLabel + " typing tip", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            "In 8-section mode, extra ${languageLabel.lowercase()} characters appear directly in the logical map. In 6-section mode, open Symbols to reach the extra language characters while the shipped utility wheel stays unchanged.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
                 }
             }
 
@@ -774,6 +789,19 @@ private fun compactLessonSummary(lesson: PracticeLesson): String {
     parts.add(dialLabel)
     parts.add(inputLabel)
     return parts.joinToString(" • ")
+}
+
+private fun keyboardLanguageDisplayName(keyboardLanguage: String): String = when (keyboardLanguage) {
+    PreferencesManager.LANGUAGE_SPANISH -> "Spanish"
+    PreferencesManager.LANGUAGE_PORTUGUESE -> "Portuguese"
+    PreferencesManager.LANGUAGE_FRENCH -> "French"
+    PreferencesManager.LANGUAGE_GERMAN -> "German"
+    PreferencesManager.LANGUAGE_ITALIAN -> "Italian"
+    PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> "Norwegian Bokmal"
+    PreferencesManager.LANGUAGE_DANISH -> "Danish"
+    PreferencesManager.LANGUAGE_SWEDISH -> "Swedish"
+    PreferencesManager.LANGUAGE_FINNISH -> "Finnish"
+    else -> "English"
 }
 
 private fun lessonStatusLabel(attempted: Boolean, completed: Boolean): String = when {
