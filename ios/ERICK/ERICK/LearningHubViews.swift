@@ -134,6 +134,12 @@ struct PracticeHubView: View {
         LearningProgressStore.decodeSet(completedLessonsRaw)
     }
 
+    private var nextRecommendedLesson: PracticeLessonData? {
+        erickPracticeLessons.first { lesson in
+            lesson.recommendedStep != nil && !completedLessons.contains(lesson.id)
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -141,7 +147,7 @@ struct PracticeHubView: View {
                     Text("Pick a lesson")
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text("ERICK applies the lesson setup for you so you can focus on the drill.")
+                    Text("ERICK applies the lesson setup for you so you can focus on one drill at a time.")
                         .foregroundColor(.secondary)
                     Text("Progress: \(completedLessons.count) completed / \(attemptedLessons.count) attempted")
                         .font(.footnote)
@@ -152,54 +158,113 @@ struct PracticeHubView: View {
                 .background(Color(uiColor: .secondarySystemBackground))
                 .cornerRadius(16)
 
-                ForEach(erickPracticeLessons) { lesson in
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(lesson.title)
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                                Text(compactLessonSummary(lesson))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Button {
-                                infoLesson = lesson
-                            } label: {
-                                Image(systemName: "questionmark.circle")
-                                    .font(.title3)
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        HStack(spacing: 8) {
-                            if completedLessons.contains(lesson.id) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                            }
-                            Text(statusText(for: lesson.id))
-                                .font(.caption)
-                                .foregroundColor(statusColor(for: lesson.id))
-                        }
-
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Recommended route")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    Text("Start with the short 6-section lessons, then try the 8-section transition. Assisted and controller drills are follow-up paths.")
+                        .font(.subheadline)
+                    if let nextRecommendedLesson {
+                        Text("Next recommended lesson: Step \(nextRecommendedLesson.recommendedStep ?? 0) - \(nextRecommendedLesson.title)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                         NavigationLink {
                             PracticeLessonView(
-                                lesson: lesson,
-                                startFromBeginning: completedLessons.contains(lesson.id)
+                                lesson: nextRecommendedLesson,
+                                startFromBeginning: false
                             )
                         } label: {
-                            Text(primaryActionLabel(for: lesson.id))
+                            Text("Open Recommended Lesson")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                         }
                         .buttonStyle(.borderedProminent)
+                    } else {
+                        Text("You have finished the guided route. Use the follow-up paths or jump into Quote Practice.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(backgroundColor(for: lesson.id))
-                    .cornerRadius(16)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.accentColor.opacity(0.14))
+                .cornerRadius(16)
+
+                ForEach(practiceSectionModels) { sectionModel in
+                    let sectionLessons = erickPracticeLessons.filter { $0.section == sectionModel.section }
+                    if !sectionLessons.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(sectionModel.title)
+                                .font(.title3)
+                                .fontWeight(.bold)
+                            Text(sectionModel.summary)
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+
+                            ForEach(sectionLessons) { lesson in
+                                let isNextRecommended = nextRecommendedLesson?.id == lesson.id
+                                VStack(alignment: .leading, spacing: 10) {
+                                    HStack(alignment: .top, spacing: 12) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            if let recommendedStep = lesson.recommendedStep {
+                                                Text(isNextRecommended ? "Recommended next · Step \(recommendedStep)" : "Step \(recommendedStep)")
+                                                    .font(.caption)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(isNextRecommended ? .accentColor : .secondary)
+                                            }
+                                            Text(lesson.title)
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+                                            Text(compactLessonSummary(lesson))
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                            if !lesson.setupReason.isEmpty {
+                                                Text("Why this setup: \(lesson.setupReason)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        }
+                                        Spacer()
+                                        Button {
+                                            infoLesson = lesson
+                                        } label: {
+                                            Image(systemName: "questionmark.circle")
+                                                .font(.title3)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+
+                                    HStack(spacing: 8) {
+                                        if completedLessons.contains(lesson.id) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(.green)
+                                        }
+                                        Text(statusText(for: lesson.id))
+                                            .font(.caption)
+                                            .foregroundColor(statusColor(for: lesson.id))
+                                    }
+
+                                    NavigationLink {
+                                        PracticeLessonView(
+                                            lesson: lesson,
+                                            startFromBeginning: completedLessons.contains(lesson.id)
+                                        )
+                                    } label: {
+                                        Text(primaryActionLabel(for: lesson, isNextRecommended: isNextRecommended))
+                                            .font(.headline)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 12)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(backgroundColor(for: lesson.id))
+                                .cornerRadius(16)
+                            }
+                        }
+                    }
                 }
             }
             .padding()
@@ -238,12 +303,19 @@ struct PracticeHubView: View {
         return Color(uiColor: .secondarySystemBackground)
     }
 
-    private func primaryActionLabel(for lessonId: String) -> String {
+    private func primaryActionLabel(for lesson: PracticeLessonData, isNextRecommended: Bool) -> String {
+        let lessonId = lesson.id
         if completedLessons.contains(lessonId) {
             return "Replay Lesson"
         }
         if attemptedLessons.contains(lessonId) {
+            if isNextRecommended {
+                return "Continue Recommended Lesson"
+            }
             return "Continue Lesson"
+        }
+        if isNextRecommended, let step = lesson.recommendedStep {
+            return "Start Step \(step)"
         }
         return "Start Lesson"
     }
@@ -362,7 +434,7 @@ struct PracticeLessonView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(lesson.isFreeform ? "Advanced practice" : "Part \(currentExerciseIndex + 1) of \(lesson.exercises.count)")
+                    Text(lessonHeaderLabel(lesson: lesson, currentExerciseIndex: currentExerciseIndex))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
@@ -374,6 +446,11 @@ struct PracticeLessonView: View {
                         .foregroundColor(.secondary)
                     if let setup = lesson.setup {
                         Text(formatLessonSetup(setup))
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    if !lesson.setupReason.isEmpty {
+                        Text(lesson.setupReason)
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }
@@ -661,6 +738,10 @@ private struct LessonHelpSheet: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
+                    if !lesson.setupReason.isEmpty {
+                        Text("Why this setup: \(lesson.setupReason)")
+                            .font(.subheadline)
+                    }
                     ForEach(Array(lesson.instructions.enumerated()), id: \.offset) { _, instruction in
                         Text("• \(instruction)")
                             .font(.subheadline)
@@ -730,6 +811,11 @@ private func compactLessonSummary(_ lesson: PracticeLessonData) -> String {
         return "\(lesson.exercises.count) parts"
     }
 
+    var parts: [String] = []
+    if let recommendedStep = lesson.recommendedStep {
+        parts.append("Step \(recommendedStep)")
+    }
+    parts.append("\(lesson.exercises.count) parts")
     let dialLabel = setup.sixSectionDial ? "6-section" : "8-section"
     let inputLabel: String
     switch setup.inputMode {
@@ -741,8 +827,52 @@ private func compactLessonSummary(_ lesson: PracticeLessonData) -> String {
         inputLabel = "Quick Type"
     }
 
-    return "\(lesson.exercises.count) parts • \(dialLabel) • \(inputLabel)"
+    parts.append(dialLabel)
+    parts.append(inputLabel)
+    return parts.joined(separator: " • ")
 }
+
+private func lessonHeaderLabel(lesson: PracticeLessonData, currentExerciseIndex: Int) -> String {
+    if lesson.isFreeform {
+        return "Advanced practice"
+    }
+    if let recommendedStep = lesson.recommendedStep {
+        return "Recommended step \(recommendedStep)"
+    }
+    return "Part \(currentExerciseIndex + 1) of \(lesson.exercises.count)"
+}
+
+private struct PracticeSectionModel: Identifiable {
+    let id: PracticeLessonSectionData
+    let section: PracticeLessonSectionData
+    let title: String
+    let summary: String
+
+    init(section: PracticeLessonSectionData, title: String, summary: String) {
+        self.id = section
+        self.section = section
+        self.title = title
+        self.summary = summary
+    }
+}
+
+private let practiceSectionModels: [PracticeSectionModel] = [
+    PracticeSectionModel(
+        section: .startHere,
+        title: "Start Here",
+        summary: "The guided route keeps the dial mode simple first, then adds more surfaces one step at a time."
+    ),
+    PracticeSectionModel(
+        section: .followUp,
+        title: "Mode Follow-Ups",
+        summary: "Use these once the main route feels understandable and you want a specific typing path."
+    ),
+    PracticeSectionModel(
+        section: .advanced,
+        title: "Advanced Practice",
+        summary: "Open-ended practice for when the guided drills already feel easy."
+    )
+]
 
 private func nextIncompleteExerciseIndex(
     currentIndex: Int,

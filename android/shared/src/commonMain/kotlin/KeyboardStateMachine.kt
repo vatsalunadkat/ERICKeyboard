@@ -143,6 +143,11 @@ class KeyboardStateMachine(
         isChordExecuted = false
     }
 
+    fun setPredictionDomain(domain: PredictionDomain) {
+        predictor.setPredictionDomain(domain)
+        updateSuggestions()
+    }
+
     fun getCurrentPalette(): List<ColorEntry> {
         return ColorPalettes.getPalette(currentPaletteType)
     }

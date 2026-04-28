@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -84,6 +85,7 @@ internal fun MainSettingsContent(
     hapticFeedback: Boolean,
     typingSounds: Boolean,
     inputMode: String,
+    predictionDomain: String,
     sixSectionDial: Boolean,
     controllerDeadZone: Float,
     controllerYAxisInverted: Boolean,
@@ -95,6 +97,21 @@ internal fun MainSettingsContent(
     onEditCustomLayout: (CustomLayout) -> Unit,
     onEditCustomPalette: () -> Unit
 ) {
+    var showSetupWizard by remember { mutableStateOf(false) }
+
+    if (showSetupWizard) {
+        SetupWizardDialog(
+            currentColorPalette = colorPalette,
+            onDismiss = { showSetupWizard = false },
+            onApply = { recommendation ->
+                scope.launch {
+                    applySetupWizardRecommendation(preferencesManager, recommendation)
+                }
+                showSetupWizard = false
+            }
+        )
+    }
+
     val layoutSummary = when {
         layoutType == PreferencesManager.LAYOUT_CUSTOM -> {
             customLayouts.firstOrNull { it.id == customLayoutId }?.name ?: "Custom layout"
@@ -137,6 +154,7 @@ internal fun MainSettingsContent(
         PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
         else -> "Quick Type"
     }
+    val predictionSummary = predictionDomainDisplayName(predictionDomain)
 
     Scaffold(
         topBar = {
@@ -183,6 +201,13 @@ internal fun MainSettingsContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Switch Keyboard")
+            }
+
+            OutlinedButton(
+                onClick = { showSetupWizard = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Setup Wizard")
             }
 
             CollapsibleSection(
@@ -552,6 +577,56 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
+                title = "Prediction",
+                summary = predictionSummary,
+                expanded = expandedSection == "prediction",
+                onToggle = { expandedSection = if (expandedSection == "prediction") null else "prediction" }
+            ) {
+                Text(
+                    text = "Predictions stay on-device. Choose a domain pack if you want ERICK to favor a particular vocabulary family.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                LayoutRadioOption(
+                    title = "General",
+                    subtitle = "Balanced everyday English suggestions.",
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_GENERAL,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_GENERAL) } }
+                )
+                LayoutRadioOption(
+                    title = "Conversation",
+                    subtitle = "Favor quick texting and casual chat vocabulary.",
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_CONVERSATION,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_CONVERSATION) } }
+                )
+                LayoutRadioOption(
+                    title = "Productivity",
+                    subtitle = "Favor work, planning, and follow-up vocabulary.",
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY) } }
+                )
+                LayoutRadioOption(
+                    title = "Accessibility",
+                    subtitle = "Favor supportive and assistive-communication vocabulary.",
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY) } }
+                )
+                LayoutRadioOption(
+                    title = "Gaming",
+                    subtitle = "Favor game, party, match, and controller-related terms.",
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_GAMING,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_GAMING) } }
+                )
+            }
+
+            CollapsibleSection(
                 title = "Controller",
                 summary = "Dead zone ${(controllerDeadZone * 100).roundToInt()}%${if (controllerYAxisInverted) " • Y inverted" else ""}",
                 expanded = expandedSection == "controller",
@@ -621,6 +696,270 @@ internal fun MainSettingsContent(
             }
         }
     }
+}
+
+@Composable
+private fun SetupWizardDialog(
+    currentColorPalette: String,
+    onDismiss: () -> Unit,
+    onApply: (SetupWizardRecommendation) -> Unit
+) {
+    var hardware by remember { mutableStateOf(SetupWizardHardware.TOUCH) }
+    var targetPreference by remember { mutableStateOf(SetupWizardTargetPreference.LARGER_TARGETS) }
+    var typingPreference by remember { mutableStateOf(SetupWizardTypingPreference.FASTEST) }
+    var handPreference by remember { mutableStateOf(SetupWizardHandPreference.RIGHT) }
+    var accessibilityPreference by remember { mutableStateOf(SetupWizardAccessibilityPreference.STANDARD) }
+
+    val recommendation = buildSetupWizardRecommendation(
+        hardware = hardware,
+        targetPreference = targetPreference,
+        typingPreference = typingPreference,
+        handPreference = handPreference,
+        accessibilityPreference = accessibilityPreference,
+        currentColorPalette = currentColorPalette
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Setup Wizard") },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    "Answer a few questions and ERICK will apply a recommended starting bundle. You can still adjust every setting manually later.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                SetupWizardQuestion(
+                    title = "Main typing setup",
+                    options = listOf(
+                        SetupWizardOption("Touch first", hardware == SetupWizardHardware.TOUCH) {
+                            hardware = SetupWizardHardware.TOUCH
+                        },
+                        SetupWizardOption("Controller first", hardware == SetupWizardHardware.CONTROLLER) {
+                            hardware = SetupWizardHardware.CONTROLLER
+                        },
+                        SetupWizardOption("Both", hardware == SetupWizardHardware.BOTH) {
+                            hardware = SetupWizardHardware.BOTH
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    title = "Dial preference",
+                    options = listOf(
+                        SetupWizardOption("Larger targets", targetPreference == SetupWizardTargetPreference.LARGER_TARGETS) {
+                            targetPreference = SetupWizardTargetPreference.LARGER_TARGETS
+                        },
+                        SetupWizardOption("Full 8-direction layout", targetPreference == SetupWizardTargetPreference.FULL_EIGHT) {
+                            targetPreference = SetupWizardTargetPreference.FULL_EIGHT
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    title = "Typing style",
+                    options = listOf(
+                        SetupWizardOption("Fastest path", typingPreference == SetupWizardTypingPreference.FASTEST) {
+                            typingPreference = SetupWizardTypingPreference.FASTEST
+                        },
+                        SetupWizardOption("Steadier confirmation", typingPreference == SetupWizardTypingPreference.STEADIEST) {
+                            typingPreference = SetupWizardTypingPreference.STEADIEST
+                        },
+                        SetupWizardOption("One-handed", typingPreference == SetupWizardTypingPreference.ONE_HANDED) {
+                            typingPreference = SetupWizardTypingPreference.ONE_HANDED
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    title = "Handedness",
+                    options = listOf(
+                        SetupWizardOption("Right-handed", handPreference == SetupWizardHandPreference.RIGHT) {
+                            handPreference = SetupWizardHandPreference.RIGHT
+                        },
+                        SetupWizardOption("Left-handed", handPreference == SetupWizardHandPreference.LEFT) {
+                            handPreference = SetupWizardHandPreference.LEFT
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    title = "Accessibility default",
+                    options = listOf(
+                        SetupWizardOption("Standard", accessibilityPreference == SetupWizardAccessibilityPreference.STANDARD) {
+                            accessibilityPreference = SetupWizardAccessibilityPreference.STANDARD
+                        },
+                        SetupWizardOption("Colorblind-safe palette", accessibilityPreference == SetupWizardAccessibilityPreference.COLORBLIND_SAFE) {
+                            accessibilityPreference = SetupWizardAccessibilityPreference.COLORBLIND_SAFE
+                        }
+                    )
+                )
+
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Recommended bundle", style = MaterialTheme.typography.titleSmall)
+                        recommendation.summaryLines.forEach { line ->
+                            Text(line, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onApply(recommendation) }) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+private fun SetupWizardQuestion(
+    title: String,
+    options: List<SetupWizardOption>
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
+        options.forEach { option ->
+            LayoutRadioOption(
+                title = option.title,
+                subtitle = null,
+                selected = option.selected,
+                enabled = true,
+                onClick = option.onSelect
+            )
+        }
+    }
+}
+
+private data class SetupWizardOption(
+    val title: String,
+    val selected: Boolean,
+    val onSelect: () -> Unit
+)
+
+private enum class SetupWizardHardware {
+    TOUCH,
+    CONTROLLER,
+    BOTH
+}
+
+private enum class SetupWizardTargetPreference {
+    LARGER_TARGETS,
+    FULL_EIGHT
+}
+
+private enum class SetupWizardTypingPreference {
+    FASTEST,
+    STEADIEST,
+    ONE_HANDED
+}
+
+private enum class SetupWizardHandPreference {
+    RIGHT,
+    LEFT
+}
+
+private enum class SetupWizardAccessibilityPreference {
+    STANDARD,
+    COLORBLIND_SAFE
+}
+
+private data class SetupWizardRecommendation(
+    val sixSectionDial: Boolean,
+    val inputMode: String,
+    val leftHandedMode: Boolean,
+    val colorblindMode: Boolean,
+    val colorPalette: String,
+    val controllerDeadZone: Float,
+    val controllerYAxisInverted: Boolean,
+    val summaryLines: List<String>
+)
+
+private fun buildSetupWizardRecommendation(
+    hardware: SetupWizardHardware,
+    targetPreference: SetupWizardTargetPreference,
+    typingPreference: SetupWizardTypingPreference,
+    handPreference: SetupWizardHandPreference,
+    accessibilityPreference: SetupWizardAccessibilityPreference,
+    currentColorPalette: String
+): SetupWizardRecommendation {
+    val sixSectionDial = when {
+        hardware == SetupWizardHardware.CONTROLLER -> false
+        typingPreference == SetupWizardTypingPreference.ONE_HANDED -> true
+        targetPreference == SetupWizardTargetPreference.LARGER_TARGETS -> true
+        else -> false
+    }
+    val inputMode = when (typingPreference) {
+        SetupWizardTypingPreference.STEADIEST -> PreferencesManager.INPUT_MODE_CONFIRM
+        SetupWizardTypingPreference.ONE_HANDED -> PreferencesManager.INPUT_MODE_ASSISTED
+        SetupWizardTypingPreference.FASTEST -> PreferencesManager.INPUT_MODE_INSTANT
+    }
+    val leftHandedMode = handPreference == SetupWizardHandPreference.LEFT
+    val colorblindMode = accessibilityPreference == SetupWizardAccessibilityPreference.COLORBLIND_SAFE
+    val colorPalette = when {
+        colorblindMode -> PreferencesManager.PALETTE_OKABE_ITO
+        currentColorPalette == PreferencesManager.PALETTE_CUSTOM -> PreferencesManager.PALETTE_CUSTOM
+        currentColorPalette == PreferencesManager.PALETTE_PASTEL -> PreferencesManager.PALETTE_PASTEL
+        else -> PreferencesManager.PALETTE_OKABE_ITO
+    }
+
+    val summaryLines = buildList {
+        add(if (sixSectionDial) "6-section dial" else "8-section dial")
+        add(
+            when (inputMode) {
+                PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
+                PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
+                else -> "Quick Type"
+            }
+        )
+        add(if (leftHandedMode) "Left-handed mode on" else "Right-handed default")
+        add(if (colorblindMode) "Colorblind-safe palette enabled" else "Standard accessibility palette")
+        if (hardware == SetupWizardHardware.CONTROLLER || hardware == SetupWizardHardware.BOTH) {
+            add("Controller defaults reset for a clean starting point")
+        }
+    }
+
+    return SetupWizardRecommendation(
+        sixSectionDial = sixSectionDial,
+        inputMode = inputMode,
+        leftHandedMode = leftHandedMode,
+        colorblindMode = colorblindMode,
+        colorPalette = colorPalette,
+        controllerDeadZone = PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE,
+        controllerYAxisInverted = false,
+        summaryLines = summaryLines
+    )
+}
+
+private suspend fun applySetupWizardRecommendation(
+    preferencesManager: PreferencesManager,
+    recommendation: SetupWizardRecommendation
+) {
+    preferencesManager.setSixSectionDial(recommendation.sixSectionDial)
+    preferencesManager.setInputMode(recommendation.inputMode)
+    preferencesManager.setLeftHandedMode(recommendation.leftHandedMode)
+    preferencesManager.setColorblindMode(recommendation.colorblindMode)
+    preferencesManager.setColorPalette(recommendation.colorPalette)
+    preferencesManager.setControllerDeadZone(recommendation.controllerDeadZone)
+    preferencesManager.setControllerYAxisInverted(recommendation.controllerYAxisInverted)
+}
+
+private fun predictionDomainDisplayName(predictionDomain: String): String = when (predictionDomain) {
+    PreferencesManager.PREDICTION_DOMAIN_CONVERSATION -> "Conversation"
+    PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY -> "Productivity"
+    PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY -> "Accessibility"
+    PreferencesManager.PREDICTION_DOMAIN_GAMING -> "Gaming"
+    else -> "General"
 }
 
 @Composable

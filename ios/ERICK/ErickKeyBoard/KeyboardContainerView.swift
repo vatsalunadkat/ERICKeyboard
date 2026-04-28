@@ -105,6 +105,7 @@ struct KeyboardContainerView: View {
                         )
                     } else if viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
                         KeyboardSuggestionBar(
+                            suggestionContextLabel: viewModel.suggestionContextLabel,
                             suggestions: viewModel.suggestions,
                             isDarkMode: viewModel.isDarkMode,
                             onTap: onSuggestionTapped
@@ -209,12 +210,25 @@ private struct KeyboardPreviewBar: View {
 }
 
 private struct KeyboardSuggestionBar: View {
+    let suggestionContextLabel: String
     let suggestions: [String]
     var isDarkMode: Bool = false
     var onTap: (Int) -> Void
 
     var body: some View {
         HStack(spacing: 0) {
+            if !suggestionContextLabel.isEmpty {
+                Text(suggestionContextLabel)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(isDarkMode ? .white : Color(hex: "#333333"))
+                    .frame(width: 78, height: 40, alignment: .leading)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+
+                Divider()
+                    .frame(height: 24)
+                    .background(isDarkMode ? Color.gray.opacity(0.5) : Color.gray.opacity(0.3))
+            }
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, word in
                 if index > 0 {
                     Divider()

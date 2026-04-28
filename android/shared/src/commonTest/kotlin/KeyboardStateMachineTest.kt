@@ -135,6 +135,16 @@ class KeyboardStateMachineTest {
     }
 
     @Test
+    fun predictionDomainRefreshesDefaultSuggestions() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.setPredictionDomain(PredictionDomain.GAMING)
+
+        assertTrue(stateMachine.currentSuggestions.contains("Party"))
+    }
+
+    @Test
     fun backspaceHoldStartsRepeatingAfterDelay() = runTest {
         val delegate = RecordingDelegate()
         val stateMachine = KeyboardStateMachine(delegate, this)

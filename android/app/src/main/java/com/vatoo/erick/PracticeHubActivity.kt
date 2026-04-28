@@ -173,11 +173,15 @@ private fun PracticeHubScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            val nextRecommendedLesson = practiceLessons.firstOrNull { lesson ->
+                lesson.recommendedStep != null && !completedLessons.contains(lesson.id)
+            }
+
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Pick a lesson", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        "ERICK applies the lesson setup for you so you can focus on the drill.",
+                        "ERICK applies the lesson setup for you so you can focus on one drill at a time.",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
@@ -188,48 +192,110 @@ private fun PracticeHubScreen(
                 }
             }
 
-            practiceLessons.forEach { lesson ->
-                val attempted = attemptedLessons.contains(lesson.id)
-                val completed = completedLessons.contains(lesson.id)
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (completed) CompletedLessonContainerColor else MaterialTheme.colorScheme.surface
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Recommended route", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Start with the short 6-section lessons, then try the 8-section transition. Assisted and controller drills are follow-up paths.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(lesson.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Text(
-                                    compactLessonSummary(lesson),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            IconButton(onClick = { infoLessonId = lesson.id }) {
-                                Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Lesson help")
-                            }
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            if (completed) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = CompletedLessonAccentColor
-                                )
-                            }
-                            Text(
-                                lessonStatusLabel(attempted = attempted, completed = completed),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = if (completed) CompletedLessonAccentColor else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    nextRecommendedLesson?.let { lesson ->
+                        Text(
+                            "Next recommended lesson: Step ${lesson.recommendedStep} - ${lesson.title}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                         Button(
-                            onClick = { openLesson(lesson.id, completed) },
+                            onClick = { openLesson(lesson.id, replayFromBeginning = false) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(lessonPrimaryButtonLabel(attempted = attempted, completed = completed))
+                            Text("Open Recommended Lesson")
+                        }
+                    } ?: Text(
+                        "You have finished the guided route. Use the follow-up paths or jump into Quote Practice.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            practiceSectionModels.forEach { sectionModel ->
+                val sectionLessons = practiceLessons.filter { it.section == sectionModel.section }
+                if (sectionLessons.isEmpty()) return@forEach
+
+                Text(sectionModel.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    sectionModel.summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                sectionLessons.forEach { lesson ->
+                    val attempted = attemptedLessons.contains(lesson.id)
+                    val completed = completedLessons.contains(lesson.id)
+                    val isNextRecommended = nextRecommendedLesson?.id == lesson.id
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (completed) CompletedLessonContainerColor else MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    lesson.recommendedStep?.let { step ->
+                                        Text(
+                                            if (isNextRecommended) "Recommended next · Step $step" else "Step $step",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = if (isNextRecommended) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+                                        )
+                                    }
+                                    Text(lesson.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        compactLessonSummary(lesson),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    if (lesson.setupReason.isNotBlank()) {
+                                        Text(
+                                            "Why this setup: ${lesson.setupReason}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                IconButton(onClick = { infoLessonId = lesson.id }) {
+                                    Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Lesson help")
+                                }
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (completed) {
+                                    Icon(
+                                        imageVector = Icons.Default.CheckCircle,
+                                        contentDescription = null,
+                                        tint = CompletedLessonAccentColor
+                                    )
+                                }
+                                Text(
+                                    lessonStatusLabel(attempted = attempted, completed = completed),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = if (completed) CompletedLessonAccentColor else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Button(
+                                onClick = { openLesson(lesson.id, completed) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    lessonPrimaryButtonLabel(
+                                        attempted = attempted,
+                                        completed = completed,
+                                        recommendedStep = lesson.recommendedStep,
+                                        isNextRecommended = isNextRecommended
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -377,7 +443,11 @@ private fun PracticeLessonDetailScreen(
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        if (lesson.isFreeform) "Advanced practice" else "Part ${currentExerciseIndex + 1} of ${lesson.exercises.size}",
+                        when {
+                            lesson.isFreeform -> "Advanced practice"
+                            lesson.recommendedStep != null -> "Recommended step ${lesson.recommendedStep}"
+                            else -> "Part ${currentExerciseIndex + 1} of ${lesson.exercises.size}"
+                        },
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -389,6 +459,13 @@ private fun PracticeLessonDetailScreen(
                     Text(completedPartsLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (recommendedSetup != null) {
                         Text(recommendedSetup, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (lesson.setupReason.isNotBlank()) {
+                        Text(
+                            lesson.setupReason,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
@@ -566,6 +643,9 @@ private fun PracticeLessonInfoDialog(
                 if (setupSummary != null) {
                     Text("Setup: $setupSummary", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
                 }
+                if (lesson.setupReason.isNotBlank()) {
+                    Text("Why this setup: ${lesson.setupReason}", style = MaterialTheme.typography.bodySmall)
+                }
                 lesson.instructions.forEach { instruction ->
                     Text("• $instruction", style = MaterialTheme.typography.bodySmall)
                 }
@@ -682,13 +762,18 @@ private fun compactLessonSummary(lesson: PracticeLesson): String {
     }
 
     val setup = lesson.setup ?: return "${lesson.exercises.size} parts"
+    val parts = mutableListOf<String>()
+    lesson.recommendedStep?.let { parts.add("Step $it") }
+    parts.add("${lesson.exercises.size} parts")
     val dialLabel = if (setup.sixSectionDial) "6-section" else "8-section"
     val inputLabel = when (setup.inputMode) {
         PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
         PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
         else -> "Quick Type"
     }
-    return "${lesson.exercises.size} parts • $dialLabel • $inputLabel"
+    parts.add(dialLabel)
+    parts.add(inputLabel)
+    return parts.joinToString(" • ")
 }
 
 private fun lessonStatusLabel(attempted: Boolean, completed: Boolean): String = when {
@@ -697,11 +782,42 @@ private fun lessonStatusLabel(attempted: Boolean, completed: Boolean): String = 
     else -> "Not started"
 }
 
-private fun lessonPrimaryButtonLabel(attempted: Boolean, completed: Boolean): String = when {
+private fun lessonPrimaryButtonLabel(
+    attempted: Boolean,
+    completed: Boolean,
+    recommendedStep: Int?,
+    isNextRecommended: Boolean
+): String = when {
     completed -> "Replay Lesson"
+    attempted && isNextRecommended -> "Continue Recommended Lesson"
     attempted -> "Continue Lesson"
+    isNextRecommended && recommendedStep != null -> "Start Step $recommendedStep"
     else -> "Start Lesson"
 }
+
+private data class PracticeSectionModel(
+    val section: PracticeLessonSection,
+    val title: String,
+    val summary: String
+)
+
+private val practiceSectionModels = listOf(
+    PracticeSectionModel(
+        section = PracticeLessonSection.START_HERE,
+        title = "Start Here",
+        summary = "The guided route keeps the dial mode simple first, then adds more surfaces one step at a time."
+    ),
+    PracticeSectionModel(
+        section = PracticeLessonSection.FOLLOW_UP,
+        title = "Mode Follow-Ups",
+        summary = "Use these once the main route feels understandable and you want a specific typing path."
+    ),
+    PracticeSectionModel(
+        section = PracticeLessonSection.ADVANCED,
+        title = "Advanced Practice",
+        summary = "Open-ended practice for when the guided drills already feel easy."
+    )
+)
 
 private fun findNextIncompleteExerciseIndex(
     currentIndex: Int,

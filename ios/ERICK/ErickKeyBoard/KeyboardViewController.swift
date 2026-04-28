@@ -390,6 +390,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     func onSuggestionsUpdated(suggestions: [String]) {
         DispatchQueue.main.async { [weak self] in
             self?.viewModel.suggestions = suggestions
+            self?.viewModel.suggestionContextLabel = self?.suggestionContextLabel(for: suggestions) ?? ""
         }
     }
 
@@ -547,6 +548,22 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             inputMode = .instant
         }
         stateMachine.setInputMode(mode: inputMode)
+
+        let predictionDomainKey = Self.appGroupDefaults.string(forKey: "prediction_domain") ?? "general"
+        let predictionDomain: PredictionDomain
+        switch predictionDomainKey {
+        case "conversation":
+            predictionDomain = .conversation
+        case "productivity":
+            predictionDomain = .productivity
+        case "accessibility":
+            predictionDomain = .accessibility
+        case "gaming":
+            predictionDomain = .gaming
+        default:
+            predictionDomain = .general
+        }
+        stateMachine.setPredictionDomain(domain: predictionDomain)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -573,7 +590,37 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.colorPaletteKey = currentColorPaletteKey
         viewModel.bothDialsAtHome = stateMachine.areBothDialsAtHome()
         viewModel.lockedLeftDirection = wheelDirection(for: stateMachine.lockedLeftDir)
+        viewModel.suggestionContextLabel = suggestionContextLabel(for: viewModel.suggestions)
         updatePreviewState()
+    }
+
+    private func suggestionContextLabel(for suggestions: [String]) -> String {
+        guard !suggestions.isEmpty else { return "" }
+
+        let baseLabel: String
+        if stateMachine.isNextWordMode {
+            baseLabel = "Next"
+        } else {
+            let prefix = getCurrentWordPrefix().lowercased()
+            let hasCorrection = suggestions.contains { !$0.lowercased().hasPrefix(prefix) }
+            baseLabel = hasCorrection ? "Complete/Correct" : "Complete"
+        }
+
+        let domainLabel: String
+        switch Self.appGroupDefaults.string(forKey: "prediction_domain") ?? "general" {
+        case "conversation":
+            domainLabel = "Chat"
+        case "productivity":
+            domainLabel = "Work"
+        case "accessibility":
+            domainLabel = "Support"
+        case "gaming":
+            domainLabel = "Gaming"
+        default:
+            domainLabel = ""
+        }
+
+        return domainLabel.isEmpty ? baseLabel : "\(baseLabel) • \(domainLabel)"
     }
 
     private func syncVisualState(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {

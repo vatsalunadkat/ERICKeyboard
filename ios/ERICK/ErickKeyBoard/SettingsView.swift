@@ -23,6 +23,7 @@ struct SettingsView: View {
     @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
     @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
+    @AppStorage("prediction_domain", store: SettingsView.appGroupDefaults) private var predictionDomain: String = "general"
     @AppStorage("six_section_dial", store: SettingsView.appGroupDefaults) private var sixSectionDial: Bool = false
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
@@ -31,6 +32,7 @@ struct SettingsView: View {
 
     @State private var showCustomLayoutList = false
     @State private var showCustomPaletteEditor = false
+    @State private var showSetupWizard = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -59,6 +61,18 @@ struct SettingsView: View {
             } else {
                 mainSettingsForm
             }
+        }
+        .sheet(isPresented: $showSetupWizard) {
+            SetupWizardSheet(
+                currentColorPalette: colorPalette,
+                onApply: { recommendation in
+                    applySetupWizardRecommendation(recommendation)
+                    showSetupWizard = false
+                },
+                onDismiss: {
+                    showSetupWizard = false
+                }
+            )
         }
         .onChange(of: layoutType) { _ in
             onSettingsChanged?()
@@ -93,6 +107,9 @@ struct SettingsView: View {
         .onChange(of: inputMode) { _ in
             onSettingsChanged?()
         }
+        .onChange(of: predictionDomain) { _ in
+            onSettingsChanged?()
+        }
         .onChange(of: sixSectionDial) { _ in
             onSettingsChanged?()
         }
@@ -103,6 +120,27 @@ struct SettingsView: View {
     private var mainSettingsForm: some View {
         ScrollView {
             VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Start with the essentials")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text("Most people only need Dial Mode, Input Mode, Prediction, and Accessibility. The rest is optional customization.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .cornerRadius(10)
+
+                Button(action: { showSetupWizard = true }) {
+                    Text("Setup Wizard")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.bordered)
+
                 // Dial Mode Section
                 CollapsibleSettingsSection(
                     title: "Dial Mode",
@@ -354,6 +392,51 @@ struct SettingsView: View {
                     }
                 }
 
+                CollapsibleSettingsSection(
+                    title: "Prediction",
+                    isExpanded: expandedSection == "prediction",
+                    onToggle: { expandedSection = expandedSection == "prediction" ? nil : "prediction" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Predictions stay on-device. Choose a domain pack if you want ERICK to favor a particular vocabulary family.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 4)
+
+                        PredictionDomainRadioOption(
+                            title: "General",
+                            description: "Balanced everyday English suggestions.",
+                            selected: predictionDomain == "general",
+                            action: { predictionDomain = "general" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: "Conversation",
+                            description: "Favor quick texting and casual chat vocabulary.",
+                            selected: predictionDomain == "conversation",
+                            action: { predictionDomain = "conversation" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: "Productivity",
+                            description: "Favor work, planning, and follow-up vocabulary.",
+                            selected: predictionDomain == "productivity",
+                            action: { predictionDomain = "productivity" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: "Accessibility",
+                            description: "Favor supportive and assistive-communication vocabulary.",
+                            selected: predictionDomain == "accessibility",
+                            action: { predictionDomain = "accessibility" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: "Gaming",
+                            description: "Favor game, party, match, and controller-related terms.",
+                            selected: predictionDomain == "gaming",
+                            action: { predictionDomain = "gaming" }
+                        )
+                    }
+                }
+
                 // Privacy & Security Section
                 CollapsibleSettingsSection(
                     title: "Privacy & Security",
@@ -385,6 +468,14 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 8).padding(.vertical, 4)
         }
+    }
+
+    private func applySetupWizardRecommendation(_ recommendation: SetupWizardRecommendation) {
+        sixSectionDial = recommendation.sixSectionDial
+        inputMode = recommendation.inputMode
+        leftHandedMode = recommendation.leftHandedMode
+        colorblindMode = recommendation.colorblindMode
+        colorPalette = recommendation.colorPalette
     }
 
     @ViewBuilder
@@ -473,6 +564,269 @@ private struct InputModeRadioOption: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+private struct PredictionDomainRadioOption: View {
+    let title: String
+    let description: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private enum SetupWizardHardware {
+    case touch
+    case controller
+    case both
+}
+
+private enum SetupWizardTargetPreference {
+    case largerTargets
+    case fullEight
+}
+
+private enum SetupWizardTypingPreference {
+    case fastest
+    case steadiest
+    case oneHanded
+}
+
+private enum SetupWizardHandPreference {
+    case right
+    case left
+}
+
+private enum SetupWizardAccessibilityPreference {
+    case standard
+    case colorblindSafe
+}
+
+private struct SetupWizardRecommendation {
+    let sixSectionDial: Bool
+    let inputMode: String
+    let leftHandedMode: Bool
+    let colorblindMode: Bool
+    let colorPalette: String
+    let summaryLines: [String]
+}
+
+private struct SetupWizardSheet: View {
+    let currentColorPalette: String
+    let onApply: (SetupWizardRecommendation) -> Void
+    let onDismiss: () -> Void
+
+    @State private var hardware: SetupWizardHardware = .touch
+    @State private var targetPreference: SetupWizardTargetPreference = .largerTargets
+    @State private var typingPreference: SetupWizardTypingPreference = .fastest
+    @State private var handPreference: SetupWizardHandPreference = .right
+    @State private var accessibilityPreference: SetupWizardAccessibilityPreference = .standard
+
+    private var recommendation: SetupWizardRecommendation {
+        buildSetupWizardRecommendation(
+            hardware: hardware,
+            targetPreference: targetPreference,
+            typingPreference: typingPreference,
+            handPreference: handPreference,
+            accessibilityPreference: accessibilityPreference,
+            currentColorPalette: currentColorPalette
+        )
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Answer a few questions and ERICK will apply a recommended starting bundle. You can still adjust every setting manually later.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    SetupWizardQuestion(
+                        title: "Main typing setup",
+                        options: [
+                            SetupWizardOption(title: "Touch first", selected: hardware == .touch) { hardware = .touch },
+                            SetupWizardOption(title: "Controller first", selected: hardware == .controller) { hardware = .controller },
+                            SetupWizardOption(title: "Both", selected: hardware == .both) { hardware = .both }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: "Dial preference",
+                        options: [
+                            SetupWizardOption(title: "Larger targets", selected: targetPreference == .largerTargets) { targetPreference = .largerTargets },
+                            SetupWizardOption(title: "Full 8-direction layout", selected: targetPreference == .fullEight) { targetPreference = .fullEight }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: "Typing style",
+                        options: [
+                            SetupWizardOption(title: "Fastest path", selected: typingPreference == .fastest) { typingPreference = .fastest },
+                            SetupWizardOption(title: "Steadier confirmation", selected: typingPreference == .steadiest) { typingPreference = .steadiest },
+                            SetupWizardOption(title: "One-handed", selected: typingPreference == .oneHanded) { typingPreference = .oneHanded }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: "Handedness",
+                        options: [
+                            SetupWizardOption(title: "Right-handed", selected: handPreference == .right) { handPreference = .right },
+                            SetupWizardOption(title: "Left-handed", selected: handPreference == .left) { handPreference = .left }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: "Accessibility default",
+                        options: [
+                            SetupWizardOption(title: "Standard", selected: accessibilityPreference == .standard) { accessibilityPreference = .standard },
+                            SetupWizardOption(title: "Colorblind-safe palette", selected: accessibilityPreference == .colorblindSafe) { accessibilityPreference = .colorblindSafe }
+                        ]
+                    )
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Recommended bundle")
+                            .font(.headline)
+                        ForEach(recommendation.summaryLines, id: \.self) { line in
+                            Text(line)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(12)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .cornerRadius(10)
+                }
+                .padding()
+            }
+            .navigationTitle("Setup Wizard")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onDismiss)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Apply") {
+                        onApply(recommendation)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct SetupWizardOption {
+    let title: String
+    let selected: Bool
+    let onSelect: () -> Void
+}
+
+private struct SetupWizardQuestion: View {
+    let title: String
+    let options: [SetupWizardOption]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.headline)
+            ForEach(Array(options.enumerated()), id: \.offset) { _, option in
+                Button(action: option.onSelect) {
+                    HStack(spacing: 8) {
+                        Image(systemName: option.selected ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(option.selected ? .accentColor : .secondary)
+                        Text(option.title)
+                            .foregroundColor(.primary)
+                        Spacer()
+                    }
+                    .padding(.vertical, 6)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private func buildSetupWizardRecommendation(
+    hardware: SetupWizardHardware,
+    targetPreference: SetupWizardTargetPreference,
+    typingPreference: SetupWizardTypingPreference,
+    handPreference: SetupWizardHandPreference,
+    accessibilityPreference: SetupWizardAccessibilityPreference,
+    currentColorPalette: String
+) -> SetupWizardRecommendation {
+    let sixSectionDial: Bool
+    if hardware == .controller {
+        sixSectionDial = false
+    } else if typingPreference == .oneHanded {
+        sixSectionDial = true
+    } else {
+        sixSectionDial = targetPreference == .largerTargets
+    }
+
+    let inputMode: String
+    switch typingPreference {
+    case .steadiest:
+        inputMode = "confirm"
+    case .oneHanded:
+        inputMode = "assisted"
+    case .fastest:
+        inputMode = "instant"
+    }
+
+    let leftHandedMode = handPreference == .left
+    let colorblindMode = accessibilityPreference == .colorblindSafe
+    let colorPalette: String
+    if colorblindMode {
+        colorPalette = "okabe_ito"
+    } else if currentColorPalette == "custom" {
+        colorPalette = "custom"
+    } else if currentColorPalette == "pastel" {
+        colorPalette = "pastel"
+    } else {
+        colorPalette = "okabe_ito"
+    }
+
+    var summaryLines = [sixSectionDial ? "6-section dial" : "8-section dial"]
+    switch inputMode {
+    case "confirm":
+        summaryLines.append("Steady Type")
+    case "assisted":
+        summaryLines.append("One-Handed")
+    default:
+        summaryLines.append("Quick Type")
+    }
+    summaryLines.append(leftHandedMode ? "Left-handed mode on" : "Right-handed default")
+    summaryLines.append(colorblindMode ? "Colorblind-safe palette enabled" : "Standard accessibility palette")
+    if hardware == .controller || hardware == .both {
+        summaryLines.append("Controller-first starting bundle")
+    }
+
+    return SetupWizardRecommendation(
+        sixSectionDial: sixSectionDial,
+        inputMode: inputMode,
+        leftHandedMode: leftHandedMode,
+        colorblindMode: colorblindMode,
+        colorPalette: colorPalette,
+        summaryLines: summaryLines
+    )
 }
 
 struct SettingsView_Previews: PreviewProvider {

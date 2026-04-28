@@ -27,6 +27,15 @@ enum class InputMode {
     CONFIRM,   // Chord fires only when both dials return to center
     ASSISTED   // Lock left direction for one-handed typing
 }
+
+enum class PredictionDomain {
+    GENERAL,
+    CONVERSATION,
+    PRODUCTIVITY,
+    ACCESSIBILITY,
+    GAMING
+}
+
 enum class ControllerButton {
     A, B, X, Y,
     LEFT_BUMPER, RIGHT_BUMPER,

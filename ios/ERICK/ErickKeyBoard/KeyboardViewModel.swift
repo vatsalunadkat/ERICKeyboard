@@ -25,6 +25,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var customNormalSections: [[String]]? = nil
     @Published var customShiftedSections: [[String]]? = nil
     @Published var suggestions: [String] = []
+    @Published var suggestionContextLabel: String = ""
     @Published var bothDialsAtHome: Bool = true
     @Published var lockedLeftDirection: WheelDirection = .none
     @Published var paletteRefreshToken: Int = 0

@@ -31,6 +31,7 @@ class PreferencesManager(private val context: Context) {
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback")
         private val TYPING_SOUNDS_KEY = booleanPreferencesKey("typing_sounds")
         private val INPUT_MODE_KEY = stringPreferencesKey("input_mode")
+        private val PREDICTION_DOMAIN_KEY = stringPreferencesKey("prediction_domain")
         private val SIX_SECTION_DIAL_KEY = booleanPreferencesKey("six_section_dial")
         private val CONTROLLER_DEAD_ZONE_KEY = floatPreferencesKey("controller_dead_zone")
         private val CONTROLLER_Y_AXIS_INVERTED_KEY = booleanPreferencesKey("controller_y_axis_inverted")
@@ -65,6 +66,12 @@ class PreferencesManager(private val context: Context) {
         const val INPUT_MODE_INSTANT = "instant"
         const val INPUT_MODE_CONFIRM = "confirm"
         const val INPUT_MODE_ASSISTED = "assisted"
+
+        const val PREDICTION_DOMAIN_GENERAL = "general"
+        const val PREDICTION_DOMAIN_CONVERSATION = "conversation"
+        const val PREDICTION_DOMAIN_PRODUCTIVITY = "productivity"
+        const val PREDICTION_DOMAIN_ACCESSIBILITY = "accessibility"
+        const val PREDICTION_DOMAIN_GAMING = "gaming"
 
         const val DEFAULT_CONTROLLER_DEAD_ZONE = 0.25f
     }
@@ -127,6 +134,11 @@ class PreferencesManager(private val context: Context) {
     val inputMode: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[INPUT_MODE_KEY] ?: INPUT_MODE_INSTANT
+        }
+
+    val predictionDomain: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[PREDICTION_DOMAIN_KEY] ?: PREDICTION_DOMAIN_GENERAL
         }
 
     val sixSectionDial: Flow<Boolean> = context.dataStore.data
@@ -238,6 +250,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setInputMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[INPUT_MODE_KEY] = mode
+        }
+    }
+
+    suspend fun setPredictionDomain(domain: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PREDICTION_DOMAIN_KEY] = domain
         }
     }
 

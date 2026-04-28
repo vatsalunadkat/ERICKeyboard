@@ -29,6 +29,7 @@ fun SettingsScreen(
     val hapticFeedback by preferencesManager.hapticFeedback.collectAsState(initial = false)
     val typingSounds by preferencesManager.typingSounds.collectAsState(initial = false)
     val inputMode by preferencesManager.inputMode.collectAsState(initial = PreferencesManager.INPUT_MODE_INSTANT)
+    val predictionDomain by preferencesManager.predictionDomain.collectAsState(initial = PreferencesManager.PREDICTION_DOMAIN_GENERAL)
     val sixSectionDial by preferencesManager.sixSectionDial.collectAsState(initial = false)
     val controllerDeadZone by preferencesManager.controllerDeadZone.collectAsState(initial = PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE)
     val controllerYAxisInverted by preferencesManager.controllerYAxisInverted.collectAsState(initial = false)
@@ -56,6 +57,7 @@ fun SettingsScreen(
             hapticFeedback = hapticFeedback,
             typingSounds = typingSounds,
             inputMode = inputMode,
+            predictionDomain = predictionDomain,
             sixSectionDial = sixSectionDial,
             controllerDeadZone = controllerDeadZone,
             controllerYAxisInverted = controllerYAxisInverted,
