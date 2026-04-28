@@ -215,6 +215,8 @@ object KeyboardLanguageProfiles {
 
     fun profile(language: KeyboardLanguage): KeyboardLanguageProfile = profiles.getValue(language)
 
+    fun localeTag(language: KeyboardLanguage): String = profile(language).languageCode
+
     fun supportsEfficiencyLayout(language: KeyboardLanguage): Boolean {
         return language == KeyboardLanguage.ENGLISH
     }

@@ -59,7 +59,7 @@ enum LearningProgressStore {
 
 let quotePracticeLessonId = "quote_practice"
 
-let erickQuickstartSteps: [QuickstartStepData] = [
+private let erickQuickstartStepTemplates: [QuickstartStepData] = [
     QuickstartStepData(
         id: "dials_and_preview",
         title: "Dials and Preview",
@@ -307,3 +307,15 @@ let erickPracticeLessons: [PracticeLessonData] = [
         setupReason: "Freeform quote practice is the advanced phase after the shorter guided drills stop feeling difficult."
     )
 ]
+
+func erickQuickstartSteps(for languageKey: String) -> [QuickstartStepData] {
+    erickQuickstartStepTemplates.map { step in
+        QuickstartStepData(
+            id: step.id,
+            title: erickText(step.title, languageKey: languageKey),
+            summary: erickText(step.summary, languageKey: languageKey),
+            details: erickText(step.details, languageKey: languageKey),
+            tryNext: erickText(step.tryNext, languageKey: languageKey)
+        )
+    }
+}

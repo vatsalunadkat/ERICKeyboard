@@ -71,6 +71,7 @@ fun MainScreen(
     isKeyboardEnabled: State<Boolean>,
     isKeyboardCurrent: State<Boolean>
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     var showTypingGame by remember { mutableStateOf(false) }
 
     if (showTypingGame) {
@@ -83,6 +84,7 @@ fun MainScreen(
     val onboardingCompleted by preferencesManager.onboardingCompleted.collectAsState(initial = null)
     val onboardingDismissed by preferencesManager.onboardingDismissed.collectAsState(initial = null)
     val onboardingStep by preferencesManager.onboardingStep.collectAsState(initial = 0)
+    val quickstartSteps = remember(appLanguage) { quickstartStepsForLanguage(appLanguage) }
     val quickstartIndex = onboardingStep.coerceIn(0, quickstartSteps.lastIndex)
     val coroutineScope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
@@ -146,15 +148,15 @@ fun MainScreen(
 
     if (showPrivacyDialog) {
         MainScreenInfoDialog(
-            title = "Privacy & Security",
-            message = "ERICKeyboard keeps your typing on your device.",
+            title = erickText(appLanguage, "Privacy & Security"),
+            message = erickText(appLanguage, "ERICKeyboard keeps your typing on your device."),
             bulletPoints = listOf(
-                "No typed text is collected or stored.",
-                "Passwords and personal data stay on your device.",
-                "No text is transmitted from the keyboard.",
-                "Only keyboard preferences are stored locally.",
-                "The app requests no internet access for typing data.",
-                "The project is open source for inspection."
+                erickText(appLanguage, "No typed text is collected or stored."),
+                erickText(appLanguage, "Passwords and personal data stay on your device."),
+                erickText(appLanguage, "No text is transmitted from the keyboard."),
+                erickText(appLanguage, "Only keyboard preferences are stored locally."),
+                erickText(appLanguage, "The app requests no internet access for typing data."),
+                erickText(appLanguage, "The project is open source for inspection.")
             ),
             onDismiss = { showPrivacyDialog = false }
         )
@@ -162,13 +164,13 @@ fun MainScreen(
 
     if (showTryErickHelpDialog) {
         MainScreenInfoDialog(
-            title = "Try ERICK",
-            message = "Use the test field to confirm that the current keyboard and layout feel right.",
+            title = erickText(appLanguage, "Try ERICK"),
+            message = erickText(appLanguage, "Use the test field to confirm that the current keyboard and layout feel right."),
             bulletPoints = listOf(
-                "Tap the field and type a short word or sentence.",
-                "If another keyboard appears, switch back to ERICK from the picker.",
-                "Type start to jump into quote practice.",
-                "Use Practice Lessons for guided drills instead of memorizing everything here."
+                erickText(appLanguage, "Tap the field and type a short word or sentence."),
+                erickText(appLanguage, "If another keyboard appears, switch back to ERICK from the picker."),
+                erickText(appLanguage, "Type start to jump into quote practice."),
+                erickText(appLanguage, "Use Practice Lessons for guided drills instead of memorizing everything here.")
             ),
             onDismiss = { showTryErickHelpDialog = false }
         )
@@ -194,14 +196,14 @@ fun MainScreen(
                     .padding(top = 8.dp, bottom = 12.dp)
             )
             Text(
-                text = "Welcome to ERICKeyboard",
+                text = erickText(appLanguage, "Welcome to ERICKeyboard"),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
-                text = "A radial chorded keyboard for everyone",
+                text = erickText(appLanguage, "A radial chorded keyboard for everyone"),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -226,7 +228,7 @@ fun MainScreen(
                     .weight(1f)
                     .fillMaxHeight()
             ) {
-                Text("\uD83D\uDCD6 How to Type")
+                Text("\uD83D\uDCD6 ${erickText(appLanguage, "How to Type")}")
             }
             OutlinedButton(
                 onClick = {
@@ -238,7 +240,7 @@ fun MainScreen(
             ) {
                 Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Settings")
+                Text(erickText(appLanguage, "Settings"))
             }
         }
 
@@ -264,13 +266,13 @@ fun MainScreen(
                     Spacer(Modifier.width(16.dp))
                     Column {
                         Text(
-                            text = "Keyboard is Enabled!",
+                            text = erickText(appLanguage, "Keyboard is Enabled!"),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "You're ready to use ERICKeyboard",
+                            text = erickText(appLanguage, "You're ready to use ERICKeyboard"),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 4.dp)
                         )
@@ -303,7 +305,7 @@ fun MainScreen(
         ) {
             Icon(Icons.Default.SportsEsports, contentDescription = null)
             Spacer(Modifier.width(8.dp))
-            Text("Controller Diagnostics")
+            Text(erickText(appLanguage, "Controller Diagnostics"))
         }
 
         BenefitsOverviewSection(
@@ -319,8 +321,9 @@ private fun SetupInstructionsSection(
     context: Context,
     onOpenPrivacyInfo: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     Text(
-        text = "Finish setup",
+        text = erickText(appLanguage, "Finish setup"),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -328,14 +331,14 @@ private fun SetupInstructionsSection(
 
     KeyboardSetupStepCard(
         stepNumber = "1",
-        title = "Enable the Keyboard",
-        description = "Open keyboard settings and turn on ERICKeyboard.",
+        title = erickText(appLanguage, "Enable the Keyboard"),
+        description = erickText(appLanguage, "Open keyboard settings and turn on ERICKeyboard."),
         isCompleted = isKeyboardEnabled,
-        buttonLabel = "Open Keyboard Settings",
+        buttonLabel = erickText(appLanguage, "Open Keyboard Settings"),
         buttonContainerColor = MaterialTheme.colorScheme.primary,
         supportingAction = {
             IconButton(onClick = onOpenPrivacyInfo) {
-                Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Privacy details")
+                Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = erickText(appLanguage, "Privacy & Security"))
             }
         },
         onButtonClick = {
@@ -349,10 +352,10 @@ private fun SetupInstructionsSection(
 
     KeyboardSetupStepCard(
         stepNumber = "2",
-        title = "Select as Default",
-        description = "Open the keyboard picker and choose ERICKeyboard.",
+        title = erickText(appLanguage, "Select as Default"),
+        description = erickText(appLanguage, "Open the keyboard picker and choose ERICKeyboard."),
         isCompleted = isKeyboardCurrent,
-        buttonLabel = "Choose Input Method",
+        buttonLabel = erickText(appLanguage, "Choose Input Method"),
         buttonContainerColor = MaterialTheme.colorScheme.secondary,
         onButtonClick = {
             val imeManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -459,6 +462,7 @@ private fun KeyboardTestCard(
     onValueChange: (String) -> Unit,
     onOpenHelp: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -468,20 +472,20 @@ private fun KeyboardTestCard(
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Try ERICK",
+                    text = erickText(appLanguage, "Try ERICK"),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = onOpenHelp) {
-                    Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Typing tips")
+                    Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = erickText(appLanguage, "How to Type"))
                 }
             }
 
             OutlinedTextField(
                 value = text,
                 onValueChange = onValueChange,
-                label = { Text("Type here to test ERICK") },
+                label = { Text(erickText(appLanguage, "Type here to test ERICK")) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(104.dp),
@@ -489,7 +493,7 @@ private fun KeyboardTestCard(
             )
 
             Text(
-                text = "Type 'start' to open quote practice.",
+                text = erickText(appLanguage, "Type start to open quote practice."),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
@@ -517,7 +521,7 @@ private fun MainScreenInfoDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(erickText(LocalAppLanguageKey.current, "Close"))
             }
         }
     )
@@ -527,6 +531,7 @@ private fun MainScreenInfoDialog(
 fun ControllerStatusCard(
     modifier: Modifier = Modifier
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var controllerName by remember { mutableStateOf<String?>(null) }
@@ -592,12 +597,13 @@ fun ControllerStatusCard(
             Spacer(Modifier.width(16.dp))
             Column {
                 Text(
-                    text = "Controller Status",
+                    text = erickText(appLanguage, "Controller Status"),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = controllerName?.let { "Connected: $it" } ?: "No controller detected",
+                    text = controllerName?.let { "${erickText(appLanguage, "Connected")}: $it" }
+                        ?: erickText(appLanguage, "No controller detected"),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (controllerName != null) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)

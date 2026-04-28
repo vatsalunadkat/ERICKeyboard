@@ -103,6 +103,7 @@ fun BenefitsOverviewSection(
     summary: String = "Examples across physical access, cognitive support, and everyday use.",
     initiallyExpanded: Boolean = false
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
 
     Card(
@@ -112,9 +113,9 @@ fun BenefitsOverviewSection(
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(erickText(appLanguage, title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        text = summary,
+                        text = erickText(appLanguage, summary),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -136,9 +137,10 @@ fun BenefitsOverviewSection(
 
 @Composable
 fun BenefitsOverviewContent() {
+    val appLanguage = LocalAppLanguageKey.current
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            text = "These are example situations, not promises or testimonials.",
+            text = erickText(appLanguage, "These are example situations, not promises or testimonials."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -150,19 +152,20 @@ fun BenefitsOverviewContent() {
 
 @Composable
 private fun BenefitAudienceGroupCard(group: BenefitAudienceGroup) {
+    val appLanguage = LocalAppLanguageKey.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(group.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(erickText(appLanguage, group.title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Text(
-                text = group.subtitle,
+                text = erickText(appLanguage, group.subtitle),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = group.intro,
+                text = erickText(appLanguage, group.intro),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -175,14 +178,15 @@ private fun BenefitAudienceGroupCard(group: BenefitAudienceGroup) {
 
 @Composable
 private fun BenefitExampleCard(example: BenefitExample) {
+    val appLanguage = LocalAppLanguageKey.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(example.title, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            Text(erickText(appLanguage, example.title), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             Text(
-                text = example.description,
+                text = erickText(appLanguage, example.description),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

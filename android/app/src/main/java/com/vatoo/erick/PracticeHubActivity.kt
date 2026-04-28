@@ -71,13 +71,15 @@ class PracticeHubActivity : ComponentActivity() {
             val attemptedLessons by preferencesManager.practiceAttemptedLessons.collectAsState(initial = emptySet())
             val completedLessons by preferencesManager.practiceCompletedLessons.collectAsState(initial = emptySet())
 
-            ERICKTheme(themeMode = themeMode) {
-                PracticeHubScreen(
-                    preferencesManager = preferencesManager,
-                    attemptedLessons = attemptedLessons,
-                    completedLessons = completedLessons,
-                    onBack = { finish() }
-                )
+            ProvideAppLanguage(preferencesManager = preferencesManager) {
+                ERICKTheme(themeMode = themeMode) {
+                    PracticeHubScreen(
+                        preferencesManager = preferencesManager,
+                        attemptedLessons = attemptedLessons,
+                        completedLessons = completedLessons,
+                        onBack = { finish() }
+                    )
+                }
             }
         }
     }

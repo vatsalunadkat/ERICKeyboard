@@ -40,6 +40,7 @@ fun QuickstartDialog(
     onFinish: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     var showDetails by rememberSaveable(step.id) { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -51,7 +52,7 @@ fun QuickstartDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Quickstart ${stepIndex + 1} of $totalSteps",
+                    text = "${erickText(appLanguage, "Quickstart")} ${stepIndex + 1} ${erickText(appLanguage, "of")} $totalSteps",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -59,7 +60,7 @@ fun QuickstartDialog(
                 Text(step.summary, style = MaterialTheme.typography.titleMedium)
 
                 TextButton(onClick = { showDetails = !showDetails }) {
-                    ActionButtonText(if (showDetails) "Hide Detail" else "More Detail")
+                    ActionButtonText(erickText(appLanguage, if (showDetails) "Hide Detail" else "More Detail"))
                 }
 
                 if (showDetails) {
@@ -82,35 +83,35 @@ fun QuickstartDialog(
                     if (stackActions) {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             OutlinedButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
-                                ActionButtonText("Skip")
+                                ActionButtonText(erickText(appLanguage, "Skip"))
                             }
                             if (stepIndex > 0) {
                                 OutlinedButton(onClick = onPrevious, modifier = Modifier.fillMaxWidth()) {
-                                    ActionButtonText("Back")
+                                    ActionButtonText(erickText(appLanguage, "Back"))
                                 }
                             }
                             Button(
                                 onClick = if (stepIndex == totalSteps - 1) onFinish else onNext,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                ActionButtonText(if (stepIndex == totalSteps - 1) "Finish" else "Next")
+                                ActionButtonText(erickText(appLanguage, if (stepIndex == totalSteps - 1) "Finish" else "Next"))
                             }
                         }
                     } else {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             OutlinedButton(onClick = onSkip, modifier = Modifier.weight(1f)) {
-                                ActionButtonText("Skip")
+                                ActionButtonText(erickText(appLanguage, "Skip"))
                             }
                             if (stepIndex > 0) {
                                 OutlinedButton(onClick = onPrevious, modifier = Modifier.weight(1f)) {
-                                    ActionButtonText("Back")
+                                    ActionButtonText(erickText(appLanguage, "Back"))
                                 }
                             }
                             Button(
                                 onClick = if (stepIndex == totalSteps - 1) onFinish else onNext,
                                 modifier = Modifier.weight(1f)
                             ) {
-                                ActionButtonText(if (stepIndex == totalSteps - 1) "Finish" else "Next")
+                                ActionButtonText(erickText(appLanguage, if (stepIndex == totalSteps - 1) "Finish" else "Next"))
                             }
                         }
                     }

@@ -43,7 +43,7 @@ enum class PracticeLessonSection {
 
 const val QUOTE_PRACTICE_LESSON_ID = "quote_practice"
 
-val quickstartSteps = listOf(
+private val quickstartStepTemplates = listOf(
     QuickstartStep(
         id = "dials_and_preview",
         title = "Dials and Preview",
@@ -309,3 +309,14 @@ val practiceLessons = listOf(
         setupReason = "Freeform quote practice is the advanced phase after the shorter guided drills stop feeling difficult."
     )
 )
+
+fun quickstartStepsForLanguage(languageKey: String): List<QuickstartStep> {
+    return quickstartStepTemplates.map { step ->
+        step.copy(
+            title = erickText(languageKey, step.title),
+            summary = erickText(languageKey, step.summary),
+            details = erickText(languageKey, step.details),
+            tryNext = erickText(languageKey, step.tryNext)
+        )
+    }
+}

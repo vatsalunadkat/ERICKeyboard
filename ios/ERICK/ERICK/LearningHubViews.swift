@@ -1,24 +1,29 @@
 import SwiftUI
 
 struct QuickstartView: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     @Binding var currentStep: Int
     let onComplete: () -> Void
     let onSkip: () -> Void
     @State private var showDetails = false
 
+    private var quickstartSteps: [QuickstartStepData] {
+        erickQuickstartSteps(for: keyboardLanguage)
+    }
+
     private var boundedStep: Int {
-        min(max(currentStep, 0), erickQuickstartSteps.count - 1)
+        min(max(currentStep, 0), quickstartSteps.count - 1)
     }
 
     private var step: QuickstartStepData {
-        erickQuickstartSteps[boundedStep]
+        quickstartSteps[boundedStep]
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Quickstart \(boundedStep + 1) of \(erickQuickstartSteps.count)")
+                    Text("\(erickText("Quickstart", languageKey: keyboardLanguage)) \(boundedStep + 1) \(erickText("of", languageKey: keyboardLanguage)) \(quickstartSteps.count)")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
@@ -30,7 +35,7 @@ struct QuickstartView: View {
                     Text(step.summary)
                         .font(.title3)
 
-                    DisclosureGroup(showDetails ? "Hide detail" : "More detail", isExpanded: $showDetails) {
+                    DisclosureGroup(showDetails ? erickText("Hide Detail", languageKey: keyboardLanguage) : erickText("More Detail", languageKey: keyboardLanguage), isExpanded: $showDetails) {
                         Text(step.details)
                             .font(.body)
                             .foregroundColor(.secondary)
@@ -48,7 +53,7 @@ struct QuickstartView: View {
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: 12) {
                             Button(action: onSkip) {
-                                adaptiveButtonLabel("Skip", fillWidth: true)
+                                adaptiveButtonLabel(erickText("Skip", languageKey: keyboardLanguage), fillWidth: true)
                             }
                             .buttonStyle(.bordered)
 
@@ -56,26 +61,26 @@ struct QuickstartView: View {
                                 Button {
                                     currentStep = max(0, boundedStep - 1)
                                 } label: {
-                                    adaptiveButtonLabel("Back", fillWidth: true)
+                                    adaptiveButtonLabel(erickText("Back", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
                             }
 
                             Button {
-                                if boundedStep == erickQuickstartSteps.count - 1 {
+                                if boundedStep == quickstartSteps.count - 1 {
                                     onComplete()
                                 } else {
-                                    currentStep = min(erickQuickstartSteps.count - 1, boundedStep + 1)
+                                    currentStep = min(quickstartSteps.count - 1, boundedStep + 1)
                                 }
                             } label: {
-                                adaptiveButtonLabel(boundedStep == erickQuickstartSteps.count - 1 ? "Finish" : "Next", fillWidth: true)
+                                adaptiveButtonLabel(erickText(boundedStep == quickstartSteps.count - 1 ? "Finish" : "Next", languageKey: keyboardLanguage), fillWidth: true)
                             }
                             .buttonStyle(.borderedProminent)
                         }
 
                         VStack(spacing: 12) {
                             Button(action: onSkip) {
-                                adaptiveButtonLabel("Skip", fillWidth: true)
+                                adaptiveButtonLabel(erickText("Skip", languageKey: keyboardLanguage), fillWidth: true)
                             }
                             .buttonStyle(.bordered)
 
@@ -83,19 +88,19 @@ struct QuickstartView: View {
                                 Button {
                                     currentStep = max(0, boundedStep - 1)
                                 } label: {
-                                    adaptiveButtonLabel("Back", fillWidth: true)
+                                    adaptiveButtonLabel(erickText("Back", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
                             }
 
                             Button {
-                                if boundedStep == erickQuickstartSteps.count - 1 {
+                                if boundedStep == quickstartSteps.count - 1 {
                                     onComplete()
                                 } else {
-                                    currentStep = min(erickQuickstartSteps.count - 1, boundedStep + 1)
+                                    currentStep = min(quickstartSteps.count - 1, boundedStep + 1)
                                 }
                             } label: {
-                                adaptiveButtonLabel(boundedStep == erickQuickstartSteps.count - 1 ? "Finish" : "Next", fillWidth: true)
+                                adaptiveButtonLabel(erickText(boundedStep == quickstartSteps.count - 1 ? "Finish" : "Next", languageKey: keyboardLanguage), fillWidth: true)
                             }
                             .buttonStyle(.borderedProminent)
                         }
@@ -103,7 +108,7 @@ struct QuickstartView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Quickstart")
+            .navigationTitle(erickText("Quickstart", languageKey: keyboardLanguage))
             .navigationBarTitleDisplayMode(.inline)
         }
         .onChange(of: boundedStep) { _ in

@@ -2,6 +2,7 @@ import SwiftUI
 import GameController
 
 struct ContentView: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     @Environment(\.scenePhase) var scenePhase
     @AppStorage("hasEnabledKeyboard") private var hasEnabledKeyboard = false
     @AppStorage(LearningProgressStore.quickstartCompletedKey) private var quickstartCompleted = false
@@ -45,12 +46,12 @@ struct ContentView: View {
                             .frame(height: 70)
                             .padding(.top, 10)
                         
-                        Text("Welcome to ERICKeyboard")
+                        Text(erickText("Welcome to ERICKeyboard", languageKey: keyboardLanguage))
                             .font(.title)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
                         
-                        Text("A radial chorded keyboard for everyone")
+                        Text(erickText("A radial chorded keyboard for everyone", languageKey: keyboardLanguage))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -62,7 +63,7 @@ struct ContentView: View {
                         NavigationLink(destination: HelpView()) {
                             HStack {
                                 Text("📖")
-                                Text("How to Type")
+                                Text(erickText("How to Type", languageKey: keyboardLanguage))
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -75,7 +76,7 @@ struct ContentView: View {
                         NavigationLink(destination: SettingsView()) {
                             HStack {
                                 Image(systemName: "gearshape")
-                                Text("Settings")
+                                Text(erickText("Settings", languageKey: keyboardLanguage))
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -94,12 +95,12 @@ struct ContentView: View {
                                 .frame(width: 48, height: 48)
                                 .foregroundColor(.green)
                             
-                            Text("Keyboard is Enabled!")
+                            Text(erickText("Keyboard is Enabled!", languageKey: keyboardLanguage))
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.green)
                             
-                            Text("You're ready to use ERICKeyboard")
+                            Text(erickText("You're ready to use ERICKeyboard", languageKey: keyboardLanguage))
                                 .font(.body)
                                 .foregroundColor(.secondary)
 
@@ -116,7 +117,7 @@ struct ContentView: View {
 
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("Try ERICK")
+                                Text(erickText("Try ERICK", languageKey: keyboardLanguage))
                                     .font(.headline)
                                 Spacer()
                                 Button {
@@ -128,7 +129,7 @@ struct ContentView: View {
                                 .buttonStyle(.plain)
                             }
 
-                            TextField("Type here to test ERICK", text: $testText, axis: .vertical)
+                            TextField(erickText("Type here to test ERICK", languageKey: keyboardLanguage), text: $testText, axis: .vertical)
                                 .lineLimit(4...8)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .onChange(of: testText) { newValue in
@@ -138,7 +139,7 @@ struct ContentView: View {
                                     }
                                 }
 
-                            Text("Type 'start' to open quote practice.")
+                            Text(erickText("Type start to open quote practice.", languageKey: keyboardLanguage))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -147,14 +148,14 @@ struct ContentView: View {
                         .background(Color(uiColor: .secondarySystemBackground))
                         .cornerRadius(16)
                     } else {
-                        Text("Finish setup")
+                        Text(erickText("Finish setup", languageKey: keyboardLanguage))
                             .font(.title2)
                             .fontWeight(.bold)
                             .padding(.bottom, -8)
                         
                         StepCard(
                             stepNumber: "1",
-                            title: "Enable the Keyboard",
+                            title: erickText("Enable the Keyboard", languageKey: keyboardLanguage),
                             isCompleted: isStep1Completed,
                             activeColor: Color(red: 244/255, green: 67/255, blue: 54/255),
                             activeIcon: "xmark",
@@ -169,7 +170,7 @@ struct ContentView: View {
                                 Button {
                                     infoSheet = .privacy
                                 } label: {
-                                    Label("Privacy & Security", systemImage: "questionmark.circle")
+                                    Label(erickText("Privacy & Security", languageKey: keyboardLanguage), systemImage: "questionmark.circle")
                                         .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(.bordered)
@@ -383,14 +384,15 @@ struct TipRow: View {
 }
 
 private struct HomeInfoSheetView: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     let sheet: HomeInfoSheet
 
     private var title: String {
         switch sheet {
         case .privacy:
-            return "Privacy & Security"
+            return erickText("Privacy & Security", languageKey: keyboardLanguage)
         case .tryErick:
-            return "Try ERICK"
+            return erickText("Try ERICK", languageKey: keyboardLanguage)
         }
     }
 
@@ -400,25 +402,25 @@ private struct HomeInfoSheetView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     switch sheet {
                     case .privacy:
-                        Text("ERICKeyboard keeps your typing on your device.")
+                        Text(erickText("ERICKeyboard keeps your typing on your device.", languageKey: keyboardLanguage))
                             .font(.body)
                         VStack(alignment: .leading, spacing: 8) {
-                            PrivacyRequirement(text: "We never collect or store your typed text")
-                            PrivacyRequirement(text: "Passwords and personal data stay on your device")
-                            PrivacyRequirement(text: "No text is transmitted from the keyboard")
-                            PrivacyRequirement(text: "Settings are stored locally on your device only")
-                            PrivacyRequirement(text: "No internet permissions are requested for typing data")
-                            PrivacyRequirement(text: "The project is open source for inspection")
+                            PrivacyRequirement(text: erickText("We never collect or store your typed text", languageKey: keyboardLanguage))
+                            PrivacyRequirement(text: erickText("Passwords and personal data stay on your device", languageKey: keyboardLanguage))
+                            PrivacyRequirement(text: erickText("No text is transmitted from the keyboard", languageKey: keyboardLanguage))
+                            PrivacyRequirement(text: erickText("Settings are stored locally on your device only", languageKey: keyboardLanguage))
+                            PrivacyRequirement(text: erickText("No internet permissions are requested for typing data", languageKey: keyboardLanguage))
+                            PrivacyRequirement(text: erickText("The project is open source for inspection", languageKey: keyboardLanguage))
                         }
 
                     case .tryErick:
-                        Text("Use the test field to make sure the current keyboard and layout feel right.")
+                        Text(erickText("Use the test field to make sure the current keyboard and layout feel right.", languageKey: keyboardLanguage))
                             .font(.body)
                         VStack(alignment: .leading, spacing: 10) {
-                            TipRow(text: "Tap the field and type a short word or sentence")
-                            TipRow(text: "If another keyboard appears, switch back to ERICK with the globe key")
-                            TipRow(text: "Type start to open quote practice")
-                            TipRow(text: "Use Practice Lessons for guided drills instead of memorizing everything here")
+                            TipRow(text: erickText("Tap the field and type a short word or sentence.", languageKey: keyboardLanguage))
+                            TipRow(text: erickText("If another keyboard appears, switch back to ERICK with the globe key", languageKey: keyboardLanguage))
+                            TipRow(text: erickText("Type start to open quote practice.", languageKey: keyboardLanguage))
+                            TipRow(text: erickText("Use Practice Lessons for guided drills instead of memorizing everything here.", languageKey: keyboardLanguage))
                         }
                     }
                 }
@@ -431,6 +433,7 @@ private struct HomeInfoSheetView: View {
 }
 
 struct ControllerStatusCard: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     @State private var controllerName: String?
     
     var body: some View {
@@ -440,14 +443,14 @@ struct ControllerStatusCard: View {
                     .font(.title2)
                     .foregroundColor(.secondary)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Controller Status")
+                    Text(erickText("Controller Status", languageKey: keyboardLanguage))
                         .font(.headline)
                     if let name = controllerName, !name.isEmpty {
-                        Text("✅ Connected: \(name)")
+                        Text("✅ \(erickText("Connected", languageKey: keyboardLanguage)): \(name)")
                             .foregroundColor(.green)
                             .font(.subheadline)
                     } else {
-                        Text("No controller detected")
+                        Text(erickText("No controller detected", languageKey: keyboardLanguage))
                             .foregroundColor(.secondary)
                             .font(.subheadline)
                     }
