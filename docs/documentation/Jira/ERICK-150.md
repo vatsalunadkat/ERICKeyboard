@@ -28,7 +28,8 @@ Current confirmed checkpoint as of 2026-04-28:
 
 - Last fully completed and committed experimental checkpoint: `Branch 2` in commit `db60393`.
 - Branches `0`, `1`, `2`, `3`, and `8` have committed research outputs or infrastructure checkpoints.
-- Branches `4`, `5`, `6`, and `7` have committed proposal-level outputs, but only `Branch 7` currently has uncommitted implementation work in progress (`prediction_aware_benchmark.py`).
+- Branches `4`, `5`, and `6` still have committed proposal-level outputs.
+- Branch `7` now has a completed local benchmark pass and is ready for a checkpoint commit; the current result is a `No-Go` for optimizer-coupled prediction scoring because layout ranking stayed unchanged.
 
 | Branch | Tracker Status | Latest Commit | Current State |
 |---|---|---|---|
@@ -39,14 +40,14 @@ Current confirmed checkpoint as of 2026-04-28:
 | `Branch 4` | `Proposal Committed` | `2d617ca` | Confusion-model proposal is documented, but no local instrumentation spike is checked in yet. |
 | `Branch 5` | `Proposal Committed` | `b421274` | Variant-layout recommendation is documented; no new benchmark implementation work started. |
 | `Branch 6` | `Proposal Committed` | `eec8dda` | Hybrid-objective proposal is documented; no scored proxy pass exists yet. |
-| `Branch 7` | `In Progress` | `2eb53f1` | Prediction-metric proposal is committed, and a local post-hoc benchmark harness has been started but is not committed yet. |
+| `Branch 7` | `Ready To Commit` | `2eb53f1` | Post-hoc prediction benchmark pass completed locally; current result is `No-Go` for coupling prediction into the optimizer because ranking stayed unchanged. |
 | `Branch 8` | `Completed` | `5b09971` | Benchmark-pack adoption and reporting hardening are checked in. |
 
 ### Tracker Notes
 
 - In this ticket, `Completed` means the branch has a committed research result or infrastructure checkpoint, not necessarily a shipped product change.
 - `Proposal Committed` means the branch produced a committed design or measurement proposal, but not a checked-in implementation spike.
-- `In Progress` means there is active local work beyond the last commit and the branch is not ready to call complete yet.
+- `Ready To Commit` means the branch has a completed local result and ticket update, but its next checkpoint commit has not been created yet.
 
 ---
 
@@ -761,12 +762,12 @@ If prediction-aware evaluation materially changes the ranking of layouts, later 
 
 ### Branch Status
 
-- Status: `Researching`
-- Latest finding summary: Branch 7 now has a concrete shipped-behavior model to target. The shared state machine uses prefix completions while `wordBuffer` is non-empty, switches to next-word suggestions when the buffer is empty, and applies punctuation-aware suggestion acceptance plus learned word and bigram boosts on acceptance. That means the first prediction-aware metric should benchmark prefix and next-word savings separately before any optimizer integration attempt.
-- Evidence reviewed: `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt`, `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt`, `android/shared/src/commonMain/kotlin/KeyboardContracts.kt`, `docs/documentation/Jira/ERICK-148.md`, and `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_metric_proposal_2026-04-26.md`.
-- Open blocker: the repo still lacks a benchmark harness that maps corpus words and word pairs to top-3 prediction availability and acceptance opportunities.
-- Next action: implement a post-hoc benchmark pass that measures shortest useful prefix depth, next-word hit rate, and tap-substitution savings on the existing Branch 8 benchmark packs before attempting any optimizer-coupled prediction score.
-- Whether the branch still belongs inside ERICK-150 or is finally ready to split: stays inside ERICK-150 until the first prediction-aware benchmark pass exists.
+- Status: `No-Go`
+- Latest finding summary: Branch 7 now has its first post-hoc benchmark pass against real layout candidates. The new harness scored the Branch 2 `default`, `bigram_up`, and `trigram_up` winners for both dial modes against the shipped predictor dictionary and bigram tables plus the Branch 8 benchmark packs. Prediction reduced measured cost by about `5.8%` to `6.2%`, mostly through prefix completions that became useful after an average of `1.81` typed characters. However, the ranking of the candidate layouts did not change in either mode: 6-section stayed `bigram_up -> trigram_up -> default`, and 8-section stayed `default -> bigram_up -> trigram_up`. Next-word suggestions barely appeared in this benchmark family (`0.45%` hit rate in 8-section, `0.00%` in 6-section) and never beat raw entry under the current tap-cost model.
+- Evidence reviewed: `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt`, `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt`, `android/shared/src/commonMain/kotlin/KeyboardContracts.kt`, `docs/documentation/Jira/ERICK-148.md`, `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_metric_proposal_2026-04-26.md`, `docs/documentation/Research/vatsal/prediction_aware_benchmark.py`, `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.txt`, and `docs/documentation/Research/vatsal/results_and_logs/branch7_prediction_aware_benchmark_2026-04-28.md`.
+- Open blocker: the current pass still uses the shipped built-in predictor state only. It does not replay learned user profiles or domain-specific next-word corpora, so it should not be overread as a universal cap on prediction value.
+- Next action: keep prediction-aware evaluation as a post-hoc reporting layer, and only revisit optimizer-coupled prediction scoring if a later learned-state replay or new benchmark family actually changes layout ranking.
+- Whether the branch still belongs inside ERICK-150 or is finally ready to split: completed inside ERICK-150 for now; no split unless future learned-state or domain-specific prediction work shows a ranking change worth isolating.
 
 ### Branch 8 - Corpora And Evaluation Expansion
 

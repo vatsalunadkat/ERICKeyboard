@@ -1,0 +1,22 @@
+﻿Prediction-aware benchmark assumptions:
+- predictor source: android/shared/src/commonMain/kotlin/WordPredictionEngine.kt
+- suggestion mode: top-3 prefix completions plus top-3 next-word predictions
+- suggestion tap cost: one easiest-chord equivalent tap in the active dial mode
+- prefix acceptance: only counted as safe when the target word is followed by whitespace
+- benchmark packs: accessibility-supportive, controller-tv-query, messaging-shortform, punctuation-mixed
+
+=== 6-section ===
+name | raw_cost | adjusted_cost | savings% | prefix_hit% | prefix_safe% | mean_prefix_depth | next_word_hit% | chosen(raw/prefix/next)
+6_bigram_up | 213.5658 | 201.0226 | 5.87 | 37.72 | 68.60 | 1.81 | 0.00 | 169/59/0
+6_default | 215.4132 | 202.1265 | 6.17 | 37.72 | 68.60 | 1.81 | 0.00 | 169/59/0
+6_trigram_up | 215.3849 | 202.0982 | 6.17 | 37.72 | 68.60 | 1.81 | 0.00 | 169/59/0
+raw ranking: 6_bigram_up, 6_trigram_up, 6_default
+prediction-adjusted ranking: 6_bigram_up, 6_trigram_up, 6_default
+
+=== 8-section ===
+name | raw_cost | adjusted_cost | savings% | prefix_hit% | prefix_safe% | mean_prefix_depth | next_word_hit% | chosen(raw/prefix/next)
+8_bigram_up | 212.4037 | 199.6661 | 6.00 | 37.72 | 68.60 | 1.81 | 0.45 | 169/59/0
+8_default | 211.2581 | 199.0753 | 5.77 | 37.72 | 68.60 | 1.81 | 0.45 | 169/59/0
+8_trigram_up | 213.2215 | 200.9125 | 5.77 | 37.72 | 68.60 | 1.81 | 0.45 | 169/59/0
+raw ranking: 8_default, 8_bigram_up, 8_trigram_up
+prediction-adjusted ranking: 8_default, 8_bigram_up, 8_trigram_up
