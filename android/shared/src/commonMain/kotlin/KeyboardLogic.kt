@@ -121,24 +121,24 @@ class KeyboardLogic {
         Direction.NW to listOf("%", "^", "&", "*", "(", ")")
     )
 
-    // ========== 6-SECTION EFFICIENCY LAYOUT (placeholder — needs optimizer re-run) ==========
-    // Diagonal slots (same direction both dials) get highest-frequency letters: e, t, a, o, i, n
+    // ========== 6-SECTION EFFICIENCY LAYOUT ==========
+    // Updated to the Branch 3 shipped-wheel mixed-shortform winner.
     private val efficiencyNormalMap6 = mapOf(
-        Direction.N  to listOf("e", "s", "g", "7", "k", "4"),
-        Direction.NE to listOf("r", "t", "n", "p", "d", "w"),
-        Direction.SE to listOf("l", "h", "a", "y", "m", "f"),
-        Direction.S  to listOf("c", "u", "b", "o", "q", "x"),
-        Direction.SW to listOf("v", "j", "z", "5", "i", "1"),
-        Direction.NW to listOf("2", "3", "6", "8", "9", "0")
+        Direction.N  to listOf("c", "s", "h", "6", "q", "u"),
+        Direction.NE to listOf("i", "t", "r", "y", "7", "x"),
+        Direction.SE to listOf("v", "a", "e", "p", "j", "8"),
+        Direction.S  to listOf("1", "f", "d", "l", "b", "9"),
+        Direction.SW to listOf("5", "3", "2", "z", "g", "m"),
+        Direction.NW to listOf("n", "k", "4", "0", "w", "o")
     )
 
     private val efficiencyShiftedMap6 = mapOf(
-        Direction.N  to listOf("E", "S", "G", "&", "K", "$"),
-        Direction.NE to listOf("R", "T", "N", "P", "D", "W"),
-        Direction.SE to listOf("L", "H", "A", "Y", "M", "F"),
-        Direction.S  to listOf("C", "U", "B", "O", "Q", "X"),
-        Direction.SW to listOf("V", "J", "Z", "%", "I", "!"),
-        Direction.NW to listOf("@", "#", "^", "*", "(", ")")
+        Direction.N  to listOf("C", "S", "H", "^", "Q", "U"),
+        Direction.NE to listOf("I", "T", "R", "Y", "&", "X"),
+        Direction.SE to listOf("V", "A", "E", "P", "J", "*"),
+        Direction.S  to listOf("!", "F", "D", "L", "B", "("),
+        Direction.SW to listOf("%", "#", "@", "Z", "G", "M"),
+        Direction.NW to listOf("N", "K", "$", ")", "W", "O")
     )
 
     // ========== 6-SECTION SYMBOLS MODE ==========

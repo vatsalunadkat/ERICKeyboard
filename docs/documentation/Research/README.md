@@ -56,10 +56,12 @@ Most efficient placements: **e** (E+E), **t** (N+N), **a** (NE+NE) - the three m
 | 8-section | `vatsal/erick_v5_vectorized.py` and `vatsal/v5_output.txt` still provide the clearest reproducible baseline: 8 chains, 500k steps per chain, `1.0 / 0.6 / 0.3` unigram-bigram-trigram weighting, and the 44.6% improvement snapshot shown above. |
 | 6-section | `vatsal/erick_v5_6section.py` was reproduced on 2026-04-26 with score `0.94132`, baseline `1.34279 ± 0.06476`, `29.9%` improvement, and predicted `72.4` WPM. The checked-in summary lives in `vatsal/results_and_logs/optimization_results_6section_baseline_2026-04-26.md`. This remains a legacy baseline because the script still models an older 5-action utility wheel that omits the shipped Symbols toggle. |
 | 6-section shipped-path run | `vatsal/erick_v5_6section.py` now also supports `ERICK6_UTILITY_MODEL=shipped` plus `ERICK6_CORPUS_PROFILE=mixed_shortform`, which uses the Branch 8 benchmark packs to surface non-space utility costs. A full 2026-04-26 run scored `0.97299`, baseline `1.41998 ± 0.07649`, `31.5%` improvement, and predicted `70.6` WPM. This is a shipped-adjacent run, not an exact shipped baseline, because symbol-heavy text is still approximated through `TOGGLE_SYMBOLS` tokens rather than a re-optimized symbol layer, and the resulting normal-layer map matches only `2 / 36` slots in the current shared placeholder map. See `vatsal/results_and_logs/optimization_results_6section_shipped_mixed_shortform_2026-04-26.md`. |
-| Branch 3 symbol-cost comparison | `vatsal/erick_v5_6section.py` now also supports `ERICK6_SYMBOL_COST_MODEL=single_toggle|toggle_pair`. The first full `toggle_pair` rerun scored `0.95350`, baseline `1.39249 ± 0.07509`, `31.5%` improvement, and predicted `71.1` WPM. It changed `9 / 36` normal-layer slots relative to the earlier `single_toggle` shipped-path run while still matching only `2 / 36` placeholder slots in `KeyboardLogic.kt`. See `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`. |
-| Branch 6 learnability probe | `vatsal/branch6_learnability_probe.py` now replays the current `Logical` 6-section map, the shared `efficiencyNormalMap6` placeholder, and the Branch 3 `toggle_pair` winner against the shipped mixed-shortform objective plus first-pass learnability proxies. The measured result is a `No-Go` for a new hybrid shipping family: `Logical` is much easier to teach, but too far behind on raw score, while the Branch 3 winner still dominates the current placeholder map on both speed and the proxy score. See `vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`. |
+| Branch 3 symbol-cost comparison | `vatsal/erick_v5_6section.py` now also supports `ERICK6_SYMBOL_COST_MODEL=single_toggle|toggle_pair`. The first full `toggle_pair` rerun scored `0.95350`, baseline `1.39249 ± 0.07509`, `31.5%` improvement, and predicted `71.1` WPM. It changed `9 / 36` normal-layer slots relative to the earlier `single_toggle` shipped-path run while the then-current shared 6-section map matched only `2 / 36` slots. See `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`. |
+| Branch 6 learnability probe | `vatsal/branch6_learnability_probe.py` replays the `Logical` 6-section map, the then-current shared `efficiencyNormalMap6` layout, and the Branch 3 `toggle_pair` winner against the shipped mixed-shortform objective plus first-pass learnability proxies. The measured result remained a `No-Go` for a new hybrid shipping family. See `vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`. |
+| ERICK-151 Branch 0 scorecard freeze | `vatsal/results_and_logs/branch0_part2_scorecard_freeze_2026-04-28.md` now freezes the literature map, reusable task IDs, mandatory scorecard fields, and comparability rules for Part 2. Treat this as the common reporting contract for later ERICK-151 work. |
+| ERICK-151 Branch 1 implementation and exact rerun | The shipped 6-section `Efficiency` preset in `KeyboardLogic.kt` now directly matches the Branch 3 mixed-shortform winner, and `vatsal/erick_v5_vectorized.py` now supports `ERICK8_CORPUS_PROFILE=wordfreq|mixed_shortform` plus `ERICK8_SYMBOL_POLICY=legacy_research|shipped_exact`. The first full 8-section shipped-exact mixed-shortform rerun scored `0.90377`, baseline `1.66322 ± 0.12980`, `45.7%` improvement, and predicted `71.7` WPM. Under the same exact settings, the current shipped 8-section map scores `0.95690` and `70.5` WPM, with only `5 / 64` exact slot matches against the optimizer winner. The current decision is `No-Go` for an in-place 8-section replacement because the migration cost is too high for a silent preset swap. See `vatsal/results_and_logs/branch1_exact_8section_rerun_2026-04-28.md` and `vatsal/results_and_logs/branch1_8section_shipment_decision_2026-04-28.md`. |
 | Branch 2 weight sensitivity | Fixed-runtime 100k-step sweeps now exist for both modes. `bigram_up` and `trigram_up` changed the winning layouts materially, especially in 8-section, but none of the tested mixes produced a clear cross-mode reason to replace the default `1.0 / 0.6 / 0.3` weights. All six probes were effectively converged by 50k steps, so shorter screening runs are now justified for future coefficient checks. See `vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`. |
-| Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 8-section layout is clearly derived from the v5 research family, but several punctuation and filler assignments differ from `v5_output.txt`. The 6-section efficiency map is explicitly commented as a placeholder that still needs an optimizer re-run, and the reproduced 6-section script output matches only `4 / 36` placeholder slots. |
+| Shipped maps | `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` contains both shipped efficiency maps. The 6-section map now matches the measured Branch 3 mixed-shortform winner directly. The 8-section map still reflects an older research family, but the first exact shipped-symbol mixed-shortform rerun now differs by `59 / 64` slots and outperforms the current shipped map under the same objective. |
 | Branch 8 evaluation pack | `vatsal/benchmark_pack.md` defines the reusable benchmark IDs, source anchors, and normalization rules. Frozen shortform seed files live in `vatsal/benchmark_packs/`, and `vatsal/results_and_logs/experiment_result_template.md` defines the required reporting schema for future ERICK-150 experiment logs. |
 
 Treat the current README metrics as the 8-section v5 baseline, not as a complete summary of both shipped efficiency modes.
@@ -80,6 +82,7 @@ Research/
 └── vatsal/
     ├── erick_v5_vectorized.py       <- Main optimizer (Parallel Tempering, vectorized)
     ├── erick_v5_6section.py         <- 6-section optimizer (36-position variant)
+    ├── branch1_baseline_probe.py    <- Branch 1 replay script for shipped-map and historical baseline comparisons
     ├── branch6_learnability_probe.py <- Branch 6 proxy replay against shipped mixed-shortform scoring
     ├── benchmark_pack.md            <- Branch 8 benchmark spec + source anchors
     ├── benchmark_packs/             <- Frozen ERICK-specific shortform benchmark seeds
@@ -165,6 +168,10 @@ For Branch 2 style sweeps, you can also override:
 - `ERICK8_SWAP_INTERVAL`
 - `ERICK8_BIGRAM_WEIGHT`
 - `ERICK8_TRIGRAM_WEIGHT`
+- `ERICK8_CORPUS_PROFILE=wordfreq|mixed_shortform`
+- `ERICK8_SYMBOL_POLICY=legacy_research|shipped_exact`
+
+The first full shipped-symbol benchmark-pack rerun is recorded in `vatsal/results_and_logs/optimization_results_8section_shipped_exact_mixed_shortform_full_2026-04-28.txt`, with a summarized Branch 1 note in `vatsal/results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`.
 
 #### 6-section baseline
 
@@ -192,6 +199,10 @@ The `mixed_shortform` corpus profile reads the checked-in Branch 8 benchmark pac
 The first Branch 3 comparison using `ERICK6_SYMBOL_COST_MODEL=toggle_pair` is recorded in `vatsal/results_and_logs/optimization_results_6section_shipped_toggle_pair_2026-04-26.md`.
 
 The first Branch 6 learnability replay is recorded in `vatsal/results_and_logs/branch6_hybrid_proxy_measurement_2026-04-28.md`, with raw output in `vatsal/results_and_logs/branch6_learnability_probe_2026-04-28.txt`.
+
+The first ERICK-151 Branch 1 shipped-baseline replay is recorded in `vatsal/results_and_logs/branch1_baseline_probe_2026-04-28.md`, with raw output in `vatsal/results_and_logs/branch1_baseline_probe_2026-04-28.txt`.
+
+The Branch 1 direct 6-section implementation and exact 8-section shipped-symbol rerun are recorded in `vatsal/results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`, with raw optimizer output in `vatsal/results_and_logs/optimization_results_8section_shipped_exact_mixed_shortform_full_2026-04-28.txt`.
 
 The first Branch 1 effort-profile probe and Branch 2 weight-sensitivity probe are recorded in `vatsal/results_and_logs/branch1_effort_matrix_probe_2026-04-26.md` and `vatsal/results_and_logs/branch2_weight_sensitivity_probe_2026-04-26.md`.
 

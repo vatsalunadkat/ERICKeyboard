@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Backlog |
+| **Status** | In Progress |
 | **Type** | Spike |
 | **Priority** | High |
 | **Story Points** | 13 |
@@ -146,17 +146,16 @@ The most relevant signals for ERICK Part 2 are below.
 
 ## Current Execution Tracker
 
-Initial Part 2 tracker as of 2026-04-28:
+Current Part 2 tracker as of 2026-04-28:
 
-- This ticket starts with all branches at `Not Started`.
-- Branch `0` should happen first so later branches share a comparable scorecard and literature map.
-- Branch `1` is the most direct ERICK-150 carryover because it closes the remaining benchmark and shipped-baseline gaps.
-- Branches `2` through `9` broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
+- Branch `0` is now frozen through the Part 2 literature map and scorecard note in `results_and_logs/branch0_part2_scorecard_freeze_2026-04-28.md`.
+- Branch `1` is now closed through the initial baseline probe plus the direct 6-section implementation and the exact 8-section rerun in `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`.
+- Branches `2` through `9` still broaden the work from layout research into whole-keyboard behavior, trust, and accessibility.
 
 | Branch | Tracker Status | Focus | Why It Exists |
 |---|---|---|---|
-| `Branch 0` | `Not Started` | Literature and scorecard freeze | Makes the rest of Part 2 comparable instead of anecdotal. |
-| `Branch 1` | `Not Started` | Shipped baseline completion | Closes the remaining ERICK-150 benchmark and comparability gaps. |
+| `Branch 0` | `Completed` | Literature and scorecard freeze | Makes the rest of Part 2 comparable instead of anecdotal. |
+| `Branch 1` | `Completed` | Shipped baseline completion | Closes the remaining ERICK-150 benchmark and comparability gaps. |
 | `Branch 2` | `Not Started` | Onboarding and training aids | Tests what actually reduces first-session friction. |
 | `Branch 3` | `Not Started` | Accessibility persona evaluation | Moves from generic accessibility claims to concrete task/persona evidence. |
 | `Branch 4` | `Not Started` | Controller and alternative hardware research | Treats controller typing as a real product path, not only a supported extra. |
@@ -220,11 +219,11 @@ Do not treat later branch results as product-direction evidence until this branc
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: Part 2 does not yet have a comparable whole-keyboard scorecard.
-- Evidence reviewed: ERICK-150, current User Guide, current Quickstart and Practice Lessons, `research_papers/` corpus.
+- Status: `Completed`
+- Latest finding summary: Part 2 now has a frozen literature map, reusable task IDs, and explicit comparability rules for behavioral versus replay results.
+- Evidence reviewed: ERICK-150, current User Guide, current Quickstart and Practice Lessons, `research_papers/` corpus, and `results_and_logs/branch0_part2_scorecard_freeze_2026-04-28.md`.
 - Open blocker: none.
-- Next action: create the shared Part 2 scorecard and literature map before running new experiments.
+- Next action: reuse the frozen scorecard and task IDs in later branch notes instead of redefining them locally.
 - Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151.
 
 ### Branch 1 - Shipped Baseline Completion And Cross-Mode Benchmark Adoption
@@ -266,12 +265,12 @@ If the shipped maps remain close enough to the best measured candidates, keep la
 
 ### Branch Status
 
-- Status: `Not Started`
-- Latest finding summary: ERICK-150 improved the 6-section shipped-path evaluation but did not finish the exact shipped baseline problem or the 8-section benchmark-pack adoption gap.
-- Evidence reviewed: ERICK-150 Branches 0, 3, 8 and the current research README.
+- Status: `Completed`
+- Latest finding summary: the shipped 6-section `Efficiency` map now directly matches the Branch 3 mixed-shortform winner in shared code, while the first exact 8-section benchmark-pack rerun with `ERICK8_SYMBOL_POLICY=shipped_exact` found a materially better winner than the current shipped 8-section map (`0.90377` vs `0.95690`, `71.7` vs `70.5` WPM) with only `5 / 64` exact slot matches. The shipment decision for 8-section is still `No-Go` for an in-place replacement because the continuity and learnability risk is too high for a silent preset swap.
+- Evidence reviewed: ERICK-150 Branches 0, 3, 8, the current research README, `results_and_logs/branch1_baseline_probe_2026-04-28.md`, `results_and_logs/branch1_exact_8section_rerun_2026-04-28.md`, `results_and_logs/branch1_exact_8section_comparison_2026-04-28.txt`, `results_and_logs/branch1_8section_shipment_decision_2026-04-28.md`, and `results_and_logs/optimization_results_8section_shipped_exact_mixed_shortform_full_2026-04-28.txt`.
 - Open blocker: none.
-- Next action: run the exact-or-closest shipped 6-section baseline and the first 8-section benchmark-pack rerun.
-- Whether the branch still belongs inside ERICK-151 or is finally ready to split: belongs inside ERICK-151 until the baseline is clean enough to support later decisions.
+- Next action: none inside Branch 1; any future 8-section layout migration should split into its own focused follow-up.
+- Whether the branch still belongs inside ERICK-151 or is finally ready to split: completed inside ERICK-151; any future 8-section shipping change can split into its own focused ticket if needed.
 
 ### Branch 2 - Onboarding And Training-Aid Effectiveness
 
