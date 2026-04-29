@@ -73,23 +73,24 @@ ERICK is a cross-platform keyboard system for Android and iOS that replaces rows
 ```mermaid
 graph TB
     subgraph Platform["Platform Layer (UI / OS)"]
-        subgraph Android["Android IME"]
+        subgraph Android["Android IME + Host App"]
             A1[MyInputMethodService]
             A2[JoystickView]
-            A3[SettingsScreen / SettingsActivity]
-            A4[MainActivity - Quickstart]
+            A3[SettingsActivity / SettingsScreen / MainSettingsContent]
+            A4[MainActivity]
             A5[PreferencesManager - DataStore]
             A6[PracticeHubActivity]
             A7[ControllerDiagnosticsActivity]
+            A8[HelpActivity]
         end
-        subgraph iOS["iOS Keyboard Extension"]
+        subgraph iOS["iOS Keyboard Extension + Host App"]
             I1[KeyboardViewController]
-            I2[JoystickView - SwiftUI]
+            I2[KeyboardContainerView + JoystickView]
             I3[SettingsView - Extension]
-            I4[ContentView - Quickstart]
+            I4[ContentView + PracticeHubView]
             I5[App Group UserDefaults]
             I6[ControllerBridge]
-            I7[PracticeHubView]
+            I7[HelpView]
         end
     end
 
@@ -102,17 +103,19 @@ graph TB
         S6[CustomLayout + CustomLayoutSerializer]
         S7[KeyboardFactory - iOS Init Helper]
         S8[KeyboardLanguageProfiles + PredictionProfileBundle]
+        S9[ControllerInputProcessor + ErickAppTranslations]
     end
 
     A1 -->|implements KeyboardActionDelegate| S4
     A1 -->|handleTouch| S1
     A1 -->|chord resolution| S2
     A2 -->|touch dx,dy| A1
-    A3 -->|layout/theme/font prefs| A5
+    A3 -->|language/theme/font/controller prefs| A5
     A5 -->|Flow updates| A1
-    A4 -->|opens learning hub| A6
+    A4 -->|opens practice hub| A6
     A4 -->|opens diagnostics| A7
-    A7 -->|reuses controller normalization| S1
+    A4 -->|opens help| A8
+    A7 -->|reuses shared controller normalization| S9
 
     I1 -->|implements KeyboardActionDelegate| S4
     I1 -->|handleTouch| S1
@@ -120,7 +123,8 @@ graph TB
     I2 -->|touch dx,dy| I1
     I3 -->|preferences| I5
     I5 -->|settings read| I1
-    I4 -->|opens practice lessons| I7
+    I4 -->|starts controller bridge| I6
+    I4 -->|opens help| I7
 
     S1 -->|resolveChord| S2
     S1 -->|getSuggestions| S3
@@ -130,6 +134,8 @@ graph TB
     S2 -->|language-aware overlays| S8
     S2 -->|palette colors| S5
     S3 -->|localized base dictionaries| S8
+    A3 -->|shared app translations| S9
+    I3 -->|shared app translations| S9
 ```
 
 ### AI-First Change Routing
@@ -138,13 +144,14 @@ graph TB
 flowchart TD
     Start[Behavior or UX change request] --> Decision{What changed?}
     Decision -->|Chord geometry, preview order, utility mapping| Logic[KeyboardLogic.kt\nKeyboardLogicTest.kt]
-    Decision -->|Controller normalization, assisted lock, suggestion state| StateMachine[KeyboardStateMachine.kt\nKeyboardStateMachineTest.kt]
+    Decision -->|Controller normalization, assisted lock, suggestion state| ControllerFlow[ControllerInputProcessor.kt\nKeyboardStateMachine.kt\nControllerInputProcessorTest.kt\nKeyboardStateMachineTest.kt]
     Decision -->|Prediction ranking, language dictionaries, learning, persistence| Predictor[WordPredictionEngine.kt\nWordPredictionEngineLearningTest.kt]
-    Decision -->|Language selection, diacritics, profile bundling| Language[KeyboardLanguageProfiles.kt\nPredictionProfileBundle.kt]
+    Decision -->|Language selection, diacritics, profile bundling, shared translations| Language[KeyboardLanguageProfiles.kt\nPredictionProfileBundle.kt\nErickAppTranslations.kt]
     Decision -->|Android IME behavior or suggestion taps| AndroidIME[MyInputMethodService.kt]
-    Decision -->|Android host quickstart, practice, diagnostics| AndroidHost[MainScreenContent.kt\nPracticeHubActivity.kt\nHelpActivity.kt\nControllerDiagnosticsActivity.kt]
-    Decision -->|iOS keyboard extension behavior| IosExtension[KeyboardViewController.swift]
-    Decision -->|iOS host quickstart and practice| IosHost[ContentView.swift\nLearningHubViews.swift\nHelpView.swift]
+    Decision -->|Android settings, setup wizard, custom layout, palette| AndroidSettings[MainSettingsContent.kt\nSettingsScreen.kt\nCustomLayoutListScreen.kt\nCustomLayoutEditorScreen.kt\nCustomPaletteEditorScreen.kt]
+    Decision -->|Android host quickstart, help, practice, diagnostics| AndroidHost[MainActivity.kt\nMainScreenContent.kt\nPracticeHubActivity.kt\nHelpActivity.kt\nControllerDiagnosticsActivity.kt]
+    Decision -->|iOS keyboard extension behavior or settings| IosExtension[KeyboardViewController.swift\nSettingsView.swift]
+    Decision -->|iOS host quickstart, practice, help| IosHost[ContentView.swift\nLearningHubViews.swift\nHelpView.swift]
     Decision -->|User-facing docs or architecture drift| Docs[APP_CONTEXT.md\nREADME.md\nUser_Guide.md\nJira tickets]
 ```
 
