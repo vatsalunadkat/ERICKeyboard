@@ -100,12 +100,50 @@ class KeyboardLogicTest {
 
         assertEquals(
             "ñ",
-            logic.getChordResult(Direction.SE, Direction.W, KeyboardMode.NORMAL)
+            logic.getChordResult(Direction.SE, Direction.SW, KeyboardMode.NORMAL)
         )
         assertEquals(
             "Ñ",
-            logic.getChordResult(Direction.SE, Direction.W, KeyboardMode.SHIFTED)
+            logic.getChordResult(Direction.SE, Direction.SW, KeyboardMode.SHIFTED)
         )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+    }
+
+    @Test
+    fun languageAwareLogicalOverlayOnlyUsesEmptyEightSectionSlots() {
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+        val englishRows = KeyboardLogic.directions8.associateWith { direction ->
+            logic.getCharactersForDirection(direction, KeyboardMode.NORMAL)
+        }
+        val nonEnglishLanguages = listOf(
+            KeyboardLanguage.SPANISH,
+            KeyboardLanguage.PORTUGUESE,
+            KeyboardLanguage.FRENCH,
+            KeyboardLanguage.GERMAN,
+            KeyboardLanguage.ITALIAN,
+            KeyboardLanguage.NORWEGIAN_BOKMAL,
+            KeyboardLanguage.DANISH,
+            KeyboardLanguage.SWEDISH,
+            KeyboardLanguage.FINNISH
+        )
+
+        nonEnglishLanguages.forEach { language ->
+            logic.activeLanguage = language
+            KeyboardLogic.directions8.forEach { direction ->
+                val englishRow = englishRows.getValue(direction)
+                val localizedRow = logic.getCharactersForDirection(direction, KeyboardMode.NORMAL)
+                localizedRow.indices.forEach { index ->
+                    if (localizedRow[index] != englishRow[index]) {
+                        assertEquals(
+                            "",
+                            englishRow[index],
+                            "${language.name} replaced a non-empty logical slot at $direction[$index]"
+                        )
+                    }
+                }
+            }
+        }
 
         logic.activeLanguage = KeyboardLanguage.ENGLISH
     }
@@ -116,7 +154,7 @@ class KeyboardLogicTest {
 
         assertEquals(
             "ñ",
-            logic.getChordResult(Direction.SE, Direction.W, KeyboardMode.NORMAL, LayoutType.EFFICIENCY)
+            logic.getChordResult(Direction.SE, Direction.SW, KeyboardMode.NORMAL, LayoutType.EFFICIENCY)
         )
 
         logic.activeLanguage = KeyboardLanguage.ENGLISH

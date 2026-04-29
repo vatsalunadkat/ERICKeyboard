@@ -458,7 +458,7 @@ private fun PracticeLessonDetailScreen(
         else -> erickText(appLanguage, "Switch to ERICK")
     }
     val showKeyboardAction = !keyboardStatus.isCurrent
-    val showSetupAction = !setupMatchesLesson
+    val showSetupAction = !hasMarkedCompleted && !setupMatchesLesson
     val previousLesson = lessons.getOrNull(lessonIndex - 1)
     val nextLesson = lessons.getOrNull(lessonIndex + 1)
     val completedPartsLabel = if (lesson.isFreeform) {

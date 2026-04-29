@@ -849,8 +849,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             suggestionBar.visibility = View.VISIBLE
             val isDark = isEffectiveDarkMode()
             val textColor = if (isDark) Color.WHITE else Color.parseColor("#333333")
-            suggestionLabel.text = suggestionContextLabel()
+            val contextLabel = suggestionContextLabel()
+            suggestionLabel.text = contextLabel
             suggestionLabel.setTextColor(textColor)
+            suggestionLabel.visibility = if (contextLabel.isBlank()) View.GONE else View.VISIBLE
             val views = listOf(suggestion1, suggestion2, suggestion3)
             for (i in views.indices) {
                 if (i < pendingSuggestions.size) {
@@ -867,23 +869,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }
     }
 
-    private fun suggestionContextLabel(): String {
-        val baseLabel = if (stateMachine.isNextWordMode) {
-            erickText(currentLanguageKey, "Next")
-        } else {
-            val prefix = getCurrentWordPrefix().lowercase()
-            val hasCorrection = pendingSuggestions.any { !it.lowercase().startsWith(prefix) }
-            if (hasCorrection) erickText(currentLanguageKey, "Complete/Correct") else erickText(currentLanguageKey, "Complete")
-        }
-        val domainLabel = when (currentPredictionDomain) {
-            PredictionDomain.CONVERSATION -> erickText(currentLanguageKey, "Chat")
-            PredictionDomain.PRODUCTIVITY -> erickText(currentLanguageKey, "Work")
-            PredictionDomain.ACCESSIBILITY -> erickText(currentLanguageKey, "Support")
-            PredictionDomain.GAMING -> erickText(currentLanguageKey, "Gaming")
-            PredictionDomain.GENERAL -> ""
-        }
-        return if (domainLabel.isBlank()) baseLabel else "$baseLabel • $domainLabel"
-    }
+    private fun suggestionContextLabel(): String = ""
 
     private fun updateShiftIndicator(mode: com.vatoo.erick.shared.KeyboardMode) {
         if (!::shiftIndicator.isInitialized) return

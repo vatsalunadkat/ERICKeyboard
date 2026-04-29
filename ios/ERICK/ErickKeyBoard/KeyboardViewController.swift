@@ -621,32 +621,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func suggestionContextLabel(for suggestions: [String]) -> String {
-        guard !suggestions.isEmpty else { return "" }
-
-        let baseLabel: String
-        if stateMachine.isNextWordMode {
-            baseLabel = "Next"
-        } else {
-            let prefix = getCurrentWordPrefix().lowercased()
-            let hasCorrection = suggestions.contains { !$0.lowercased().hasPrefix(prefix) }
-            baseLabel = hasCorrection ? "Complete/Correct" : "Complete"
-        }
-
-        let domainLabel: String
-        switch Self.appGroupDefaults.string(forKey: "prediction_domain") ?? "general" {
-        case "conversation":
-            domainLabel = "Chat"
-        case "productivity":
-            domainLabel = "Work"
-        case "accessibility":
-            domainLabel = "Support"
-        case "gaming":
-            domainLabel = "Gaming"
-        default:
-            domainLabel = ""
-        }
-
-        return domainLabel.isEmpty ? baseLabel : "\(baseLabel) • \(domainLabel)"
+        return ""
     }
 
     private func syncVisualState(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {

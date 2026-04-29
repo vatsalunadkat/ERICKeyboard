@@ -18,19 +18,19 @@ object KeyboardLanguageProfiles {
         Direction.NE to 6,
         Direction.E to 5,
         Direction.E to 6,
+        Direction.SE to 5,
         Direction.SE to 6,
-        Direction.SE to 7,
-        Direction.S to 0,
-        Direction.S to 1,
-        Direction.S to 7,
-        Direction.SW to 0,
-        Direction.SW to 1,
-        Direction.SW to 2,
-        Direction.W to 1,
-        Direction.W to 2,
-        Direction.W to 3,
-        Direction.NW to 3,
-        Direction.NW to 4
+        Direction.S to 5,
+        Direction.S to 6,
+        Direction.SW to 5,
+        Direction.SW to 6,
+        Direction.SW to 7,
+        Direction.W to 5,
+        Direction.W to 6,
+        Direction.W to 7,
+        Direction.NW to 5,
+        Direction.NW to 6,
+        Direction.NW to 7
     )
 
     private val symbols6ExtraSlots = listOf(

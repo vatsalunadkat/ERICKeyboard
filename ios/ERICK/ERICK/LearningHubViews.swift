@@ -428,7 +428,7 @@ struct PracticeLessonView: View {
             )
         }
 
-        if !setupMatchesLesson {
+        if !lessonIsFinished && !setupMatchesLesson {
             actions.append(
                 LessonAction(id: "apply-setup", title: erickText("Apply Setup", languageKey: keyboardLanguage), prominent: false) {
                     applyLessonSetup()
