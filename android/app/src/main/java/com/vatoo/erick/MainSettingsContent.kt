@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,6 +78,7 @@ internal fun MainSettingsContent(
     darkTheme: Boolean,
     themeMode: String,
     fontPreference: String,
+    keyboardLanguage: String,
     colorblindMode: Boolean,
     colorPalette: String,
     customPaletteColors: String,
@@ -84,6 +86,7 @@ internal fun MainSettingsContent(
     hapticFeedback: Boolean,
     typingSounds: Boolean,
     inputMode: String,
+    predictionDomain: String,
     sixSectionDial: Boolean,
     controllerDeadZone: Float,
     controllerYAxisInverted: Boolean,
@@ -95,19 +98,39 @@ internal fun MainSettingsContent(
     onEditCustomLayout: (CustomLayout) -> Unit,
     onEditCustomPalette: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
+    fun t(english: String): String = erickText(appLanguage, english)
+    val languageOptions = keyboardLanguageOptions(appLanguage)
+    var showSetupWizard by remember { mutableStateOf(false) }
+
+    if (showSetupWizard) {
+        SetupWizardDialog(
+            appLanguage = appLanguage,
+            currentColorPalette = colorPalette,
+            onDismiss = { showSetupWizard = false },
+            onApply = { recommendation ->
+                scope.launch {
+                    applySetupWizardRecommendation(preferencesManager, recommendation)
+                }
+                showSetupWizard = false
+            }
+        )
+    }
+
     val layoutSummary = when {
         layoutType == PreferencesManager.LAYOUT_CUSTOM -> {
-            customLayouts.firstOrNull { it.id == customLayoutId }?.name ?: "Custom layout"
+            customLayouts.firstOrNull { it.id == customLayoutId }?.name ?: t("Custom layout")
         }
-        layoutType == PreferencesManager.LAYOUT_EFFICIENCY -> "Efficiency"
-        else -> "Logical (A-Z)"
+        layoutType == PreferencesManager.LAYOUT_EFFICIENCY -> t("Efficiency")
+        else -> t("Logical (A-Z)")
     }
+    val languageSummary = bilingualLanguageDisplayName(keyboardLanguage)
     val appearanceSummary = buildList {
         add(
             when (themeMode) {
-                PreferencesManager.THEME_LIGHT -> "Light"
-                PreferencesManager.THEME_DARK -> "Dark"
-                else -> "System theme"
+                PreferencesManager.THEME_LIGHT -> t("Light")
+                PreferencesManager.THEME_DARK -> t("Dark")
+                else -> t("System theme")
             }
         )
         if (fontPreference != PreferencesManager.FONT_SYSTEM) {
@@ -119,34 +142,35 @@ internal fun MainSettingsContent(
                 }
             )
         }
-        if (colorPalette == PreferencesManager.PALETTE_PASTEL) add("Pastel colors")
-        if (colorPalette == PreferencesManager.PALETTE_CUSTOM) add("Custom colors")
+        if (colorPalette == PreferencesManager.PALETTE_PASTEL) add(t("Pastel colors"))
+        if (colorPalette == PreferencesManager.PALETTE_CUSTOM) add(t("Custom colors"))
     }.joinToString(" • ")
     val accessibilitySummary = buildList {
-        if (colorblindMode) add("Colorblind palette on")
-        if (leftHandedMode) add("Left-handed mode on")
-        if (isEmpty()) add("Standard setup")
+        if (colorblindMode) add(t("Colorblind palette on"))
+        if (leftHandedMode) add(t("Left-handed mode on"))
+        if (isEmpty()) add(t("Standard setup"))
     }.joinToString(" • ")
     val feedbackSummary = buildList {
-        if (hapticFeedback) add("Haptics on")
-        if (typingSounds) add("Sounds on")
-        if (isEmpty()) add("Feedback off")
+        if (hapticFeedback) add(t("Haptics on"))
+        if (typingSounds) add(t("Sounds on"))
+        if (isEmpty()) add(t("Feedback off"))
     }.joinToString(" • ")
     val inputModeSummary = when (inputMode) {
-        PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
-        PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
-        else -> "Quick Type"
+        PreferencesManager.INPUT_MODE_CONFIRM -> t("Steady Type")
+        PreferencesManager.INPUT_MODE_ASSISTED -> t("One-Handed")
+        else -> t("Quick Type")
     }
+    val predictionSummary = predictionDomainDisplayName(predictionDomain, appLanguage)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Keyboard Settings") },
+                title = { Text(recoverableEnglishTitle(appLanguage, "Keyboard Settings")) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = t("Back")
                         )
                     }
                 },
@@ -170,8 +194,8 @@ internal fun MainSettingsContent(
         ) {
             val context = LocalContext.current
             SectionOverviewCard(
-                title = "Start with the essentials",
-                summary = "Most people only need Dial Mode, Input Mode, and Accessibility. The rest is optional customization.",
+                title = t("Start with the essentials"),
+                summary = t("Most people only need Language, Dial Mode, Input Mode, and Accessibility. The rest is optional customization."),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -182,17 +206,48 @@ internal fun MainSettingsContent(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Switch Keyboard")
+                Text(t("Switch Keyboard"))
+            }
+
+            OutlinedButton(
+                onClick = { showSetupWizard = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(t("Setup Wizard"))
             }
 
             CollapsibleSection(
-                title = "Dial Mode",
-                summary = if (sixSectionDial) "6-section dial on" else "8-section dial on",
+                title = recoverableEnglishTitle(appLanguage, "Language"),
+                summary = languageSummary,
+                expanded = expandedSection == "language",
+                onToggle = { expandedSection = if (expandedSection == "language") null else "language" }
+            ) {
+                Text(
+                    text = t("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                languageOptions.forEach { option ->
+                    LayoutRadioOption(
+                        title = option.label,
+                        subtitle = option.subtitle,
+                        selected = keyboardLanguage == option.value,
+                        enabled = true,
+                        onClick = { scope.launch { preferencesManager.setKeyboardLanguage(option.value) } }
+                    )
+                }
+            }
+
+            CollapsibleSection(
+                title = t("Dial Mode"),
+                summary = if (sixSectionDial) t("6-section dial on") else t("8-section dial on"),
                 expanded = expandedSection == "dial_mode",
                 onToggle = { expandedSection = if (expandedSection == "dial_mode") null else "dial_mode" }
             ) {
                 SettingToggle(
-                    title = "6-Section Dial Mode",
+                    title = t("6-Section Dial Mode"),
                     checked = sixSectionDial,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -200,7 +255,7 @@ internal fun MainSettingsContent(
                     }
                 )
                 Text(
-                    text = "Use 6 larger segments instead of 8. Larger targets improve accuracy but change the chord layout. Symbols are accessed via N single-swipe.",
+                    text = t("Use 6 larger segments instead of 8. Larger targets improve accuracy but change the chord layout. Symbols are accessed via N single-swipe."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
@@ -208,13 +263,22 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
-                title = "Keyboard Layout",
+                title = t("Keyboard Layout"),
                 summary = layoutSummary,
                 expanded = expandedSection == "layout",
                 onToggle = { expandedSection = if (expandedSection == "layout") null else "layout" }
             ) {
+                if (keyboardLanguage != PreferencesManager.LANGUAGE_ENGLISH) {
+                    Text(
+                        text = t("Non-English languages currently fall back to the language-aware logical layout even if Efficiency stays selected."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
                 LayoutRadioOption(
-                    title = "Logical (A-Z)",
+                    title = t("Logical (A-Z)"),
                     subtitle = null,
                     selected = layoutType == PreferencesManager.LAYOUT_LOGICAL,
                     enabled = true,
@@ -226,8 +290,8 @@ internal fun MainSettingsContent(
                 )
 
                 LayoutRadioOption(
-                    title = "Efficiency",
-                    subtitle = "Optimized for English letter frequency",
+                    title = t("Efficiency"),
+                    subtitle = t("Optimized for English letter frequency"),
                     selected = layoutType == PreferencesManager.LAYOUT_EFFICIENCY,
                     enabled = true,
                     onClick = {
@@ -240,7 +304,7 @@ internal fun MainSettingsContent(
                 customLayouts.forEach { customLayout ->
                     LayoutRadioOption(
                         title = customLayout.name,
-                        subtitle = "Custom layout",
+                        subtitle = t("Custom layout"),
                         selected = layoutType == PreferencesManager.LAYOUT_CUSTOM && customLayoutId == customLayout.id,
                         enabled = true,
                         onClick = {
@@ -260,18 +324,18 @@ internal fun MainSettingsContent(
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Manage Custom Layouts")
+                    Text(t("Manage Custom Layouts"))
                 }
             }
 
             CollapsibleSection(
-                title = "Appearance",
-                summary = appearanceSummary.ifBlank { "System theme" },
+                title = t("Appearance"),
+                summary = appearanceSummary.ifBlank { t("System theme") },
                 expanded = expandedSection == "appearance",
                 onToggle = { expandedSection = if (expandedSection == "appearance") null else "appearance" }
             ) {
                 Text(
-                    text = "Theme",
+                    text = t("Theme"),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
@@ -280,9 +344,9 @@ internal fun MainSettingsContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     val themeOptions = listOf(
-                        PreferencesManager.THEME_SYSTEM to "System",
-                        PreferencesManager.THEME_LIGHT to "Light",
-                        PreferencesManager.THEME_DARK to "Dark"
+                        PreferencesManager.THEME_SYSTEM to t("System"),
+                        PreferencesManager.THEME_LIGHT to t("Light"),
+                        PreferencesManager.THEME_DARK to t("Dark")
                     )
                     themeOptions.forEachIndexed { index, (key, label) ->
                         SegmentedButton(
@@ -299,7 +363,7 @@ internal fun MainSettingsContent(
 
                 val isCustomFont = fontPreference != PreferencesManager.FONT_SYSTEM
                 SettingToggle(
-                    title = "Custom Font",
+                    title = t("Custom Font"),
                     checked = isCustomFont,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -360,7 +424,7 @@ internal fun MainSettingsContent(
 
                 val isCustomColors = colorPalette == PreferencesManager.PALETTE_PASTEL || colorPalette == PreferencesManager.PALETTE_CUSTOM
                 SettingToggle(
-                    title = "Custom Colors",
+                    title = t("Custom Colors"),
                     checked = isCustomColors,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -377,8 +441,8 @@ internal fun MainSettingsContent(
 
                 if (isCustomColors) {
                     PaletteRadioOption(
-                        title = "Pastel",
-                        subtitle = "Softer colors that are easier on the eyes",
+                        title = t("Pastel"),
+                        subtitle = t("Softer colors that are easier on the eyes"),
                         paletteType = ColorPaletteType.PASTEL,
                         selected = colorPalette == PreferencesManager.PALETTE_PASTEL,
                         onClick = {
@@ -402,13 +466,13 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
-                title = "Accessibility",
+                title = t("Accessibility"),
                 summary = accessibilitySummary,
                 expanded = expandedSection == "accessibility",
                 onToggle = { expandedSection = if (expandedSection == "accessibility") null else "accessibility" }
             ) {
                 SettingToggle(
-                    title = "Enable Colorblind Mode",
+                    title = t("Enable Colorblind Mode"),
                     checked = colorblindMode,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -423,15 +487,15 @@ internal fun MainSettingsContent(
 
                 if (colorblindMode) {
                     Text(
-                        text = "Select the palette that works best for your type of color vision.",
+                        text = t("Select the palette that works best for your type of color vision."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                     )
 
                     PaletteRadioOption(
-                        title = "Okabe-Ito (Universal)",
-                        subtitle = "Recommended for all types of color vision deficiency",
+                        title = t("Okabe-Ito (Universal)"),
+                        subtitle = t("Recommended for all types of color vision deficiency"),
                         paletteType = ColorPaletteType.OKABE_ITO,
                         selected = colorPalette == PreferencesManager.PALETTE_OKABE_ITO,
                         onClick = {
@@ -440,8 +504,8 @@ internal fun MainSettingsContent(
                     )
 
                     PaletteRadioOption(
-                        title = "Deuteranopia (Green-blind)",
-                        subtitle = "Optimized for green-blind users",
+                        title = t("Deuteranopia (Green-blind)"),
+                        subtitle = t("Optimized for green-blind users"),
                         paletteType = ColorPaletteType.DEUTERANOPIA,
                         selected = colorPalette == PreferencesManager.PALETTE_DEUTERANOPIA,
                         onClick = {
@@ -450,8 +514,8 @@ internal fun MainSettingsContent(
                     )
 
                     PaletteRadioOption(
-                        title = "Protanopia (Red-blind)",
-                        subtitle = "Optimized for red-blind users",
+                        title = t("Protanopia (Red-blind)"),
+                        subtitle = t("Optimized for red-blind users"),
                         paletteType = ColorPaletteType.PROTANOPIA,
                         selected = colorPalette == PreferencesManager.PALETTE_PROTANOPIA,
                         onClick = {
@@ -460,8 +524,8 @@ internal fun MainSettingsContent(
                     )
 
                     PaletteRadioOption(
-                        title = "Tritanopia (Blue-blind)",
-                        subtitle = "Optimized for blue-blind users",
+                        title = t("Tritanopia (Blue-blind)"),
+                        subtitle = t("Optimized for blue-blind users"),
                         paletteType = ColorPaletteType.TRITANOPIA,
                         selected = colorPalette == PreferencesManager.PALETTE_TRITANOPIA,
                         onClick = {
@@ -473,7 +537,7 @@ internal fun MainSettingsContent(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 SettingToggle(
-                    title = "Left-Handed Mode",
+                    title = t("Left-Handed Mode"),
                     checked = leftHandedMode,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -483,13 +547,13 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
-                title = "Feedback",
+                title = t("Feedback"),
                 summary = feedbackSummary,
                 expanded = expandedSection == "feedback",
                 onToggle = { expandedSection = if (expandedSection == "feedback") null else "feedback" }
             ) {
                 SettingToggle(
-                    title = "Haptic Feedback",
+                    title = t("Haptic Feedback"),
                     checked = hapticFeedback,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -498,7 +562,7 @@ internal fun MainSettingsContent(
                 )
                 if (hapticFeedback) {
                     Text(
-                        text = "Strong vibration for utility keys, light for letters.",
+                        text = t("Strong vibration for utility keys, light for letters."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
@@ -506,7 +570,7 @@ internal fun MainSettingsContent(
                 }
 
                 SettingToggle(
-                    title = "Typing Sounds",
+                    title = t("Typing Sounds"),
                     checked = typingSounds,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -516,35 +580,35 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
-                title = "Input Mode",
+                title = t("Input Mode"),
                 summary = inputModeSummary,
                 expanded = expandedSection == "input_mode",
                 onToggle = { expandedSection = if (expandedSection == "input_mode") null else "input_mode" }
             ) {
                 Text(
-                    text = "Choose how chords are triggered when using the dials.",
+                    text = t("Choose how chords are triggered when using the dials."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 LayoutRadioOption(
-                    title = "Quick Type",
-                    subtitle = "Type at full speed. Characters appear as soon as you release either dial.",
+                    title = t("Quick Type"),
+                    subtitle = t("Type at full speed. Characters appear as soon as you release either dial."),
                     selected = inputMode == PreferencesManager.INPUT_MODE_INSTANT,
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_INSTANT) } }
                 )
                 LayoutRadioOption(
-                    title = "Steady Type",
-                    subtitle = "Take your time. Characters appear only after both dials return to center.",
+                    title = t("Steady Type"),
+                    subtitle = t("Take your time. Characters appear only after both dials return to center."),
                     selected = inputMode == PreferencesManager.INPUT_MODE_CONFIRM,
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_CONFIRM) } }
                 )
                 LayoutRadioOption(
-                    title = "One-Handed",
-                    subtitle = "Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.",
+                    title = t("One-Handed"),
+                    subtitle = t("Type with one hand. Lock a direction on the left dial, then swipe the right dial to type."),
                     selected = inputMode == PreferencesManager.INPUT_MODE_ASSISTED,
                     enabled = true,
                     onClick = { scope.launch { preferencesManager.setInputMode(PreferencesManager.INPUT_MODE_ASSISTED) } }
@@ -552,20 +616,70 @@ internal fun MainSettingsContent(
             }
 
             CollapsibleSection(
-                title = "Controller",
-                summary = "Dead zone ${(controllerDeadZone * 100).roundToInt()}%${if (controllerYAxisInverted) " • Y inverted" else ""}",
+                title = t("Prediction"),
+                summary = predictionSummary,
+                expanded = expandedSection == "prediction",
+                onToggle = { expandedSection = if (expandedSection == "prediction") null else "prediction" }
+            ) {
+                Text(
+                    text = t("Predictions stay on-device. Choose a domain pack if you want ERICK to favor a particular vocabulary family."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                LayoutRadioOption(
+                    title = t("General"),
+                    subtitle = t("Balanced everyday English suggestions."),
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_GENERAL,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_GENERAL) } }
+                )
+                LayoutRadioOption(
+                    title = t("Conversation"),
+                    subtitle = t("Favor quick texting and casual chat vocabulary."),
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_CONVERSATION,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_CONVERSATION) } }
+                )
+                LayoutRadioOption(
+                    title = t("Productivity"),
+                    subtitle = t("Favor work, planning, and follow-up vocabulary."),
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY) } }
+                )
+                LayoutRadioOption(
+                    title = t("Accessibility"),
+                    subtitle = t("Favor supportive and assistive-communication vocabulary."),
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY) } }
+                )
+                LayoutRadioOption(
+                    title = t("Gaming"),
+                    subtitle = t("Favor game, party, match, and controller-related terms."),
+                    selected = predictionDomain == PreferencesManager.PREDICTION_DOMAIN_GAMING,
+                    enabled = true,
+                    onClick = { scope.launch { preferencesManager.setPredictionDomain(PreferencesManager.PREDICTION_DOMAIN_GAMING) } }
+                )
+            }
+
+            CollapsibleSection(
+                title = t("Controller"),
+                summary = "${t("Dead zone")} ${(controllerDeadZone * 100).roundToInt()}%${if (controllerYAxisInverted) " • ${t("Y inverted")}" else ""}",
                 expanded = expandedSection == "controller",
                 onToggle = { expandedSection = if (expandedSection == "controller") null else "controller" }
             ) {
                 Text(
-                    text = "Use diagnostics to tune controller dead zone, Y-axis inversion, and one-handed behavior with the same shared controller logic the IME uses.",
+                    text = t("Use diagnostics to tune controller dead zone, Y-axis inversion, and one-handed behavior with the same shared controller logic the IME uses."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Text(
-                    text = "Dead zone: ${(controllerDeadZone * 100).roundToInt()}%",
+                    text = "${t("Dead zone")}: ${(controllerDeadZone * 100).roundToInt()}%",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
                 )
@@ -580,7 +694,7 @@ internal fun MainSettingsContent(
                 )
 
                 SettingToggle(
-                    title = "Invert Controller Y-Axis",
+                    title = t("Invert Controller Y-Axis"),
                     checked = controllerYAxisInverted,
                     enabled = true,
                     onCheckedChange = { checked ->
@@ -594,33 +708,343 @@ internal fun MainSettingsContent(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Open Controller Diagnostics")
+                    Text(t("Open Controller Diagnostics"))
                 }
             }
 
             CollapsibleSection(
-                title = "Privacy & Security",
-                summary = "No typing data leaves your device",
+                title = t("Privacy & Security"),
+                summary = t("No typing data leaves your device"),
                 expanded = expandedSection == "privacy",
                 onToggle = { expandedSection = if (expandedSection == "privacy") null else "privacy" }
             ) {
                 Text(
-                    text = "Your privacy is our priority. ERICK:",
+                    text = t("Your privacy is our priority. ERICK:"),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    text = "Does not collect any text you type\n" +
-                        "Does not store passwords or personal data\n" +
-                        "Does not transmit any data from your device\n" +
-                        "Only stores your keyboard preferences locally\n" +
-                        "Has no internet permissions\n" +
-                        "Is source available for transparency",
+                    text = t("Does not collect any text you type") + "\n" +
+                        t("Does not store passwords or personal data") + "\n" +
+                        t("Does not transmit any data from your device") + "\n" +
+                        t("Only stores your keyboard preferences locally") + "\n" +
+                        t("Has no internet permissions") + "\n" +
+                        t("Is source available for transparency"),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
     }
+}
+
+@Composable
+private fun SetupWizardDialog(
+    appLanguage: String,
+    currentColorPalette: String,
+    onDismiss: () -> Unit,
+    onApply: (SetupWizardRecommendation) -> Unit
+) {
+    fun t(english: String): String = erickText(appLanguage, english)
+    var hardware by remember { mutableStateOf(SetupWizardHardware.TOUCH) }
+    var targetPreference by remember { mutableStateOf(SetupWizardTargetPreference.LARGER_TARGETS) }
+    var typingPreference by remember { mutableStateOf(SetupWizardTypingPreference.FASTEST) }
+    var handPreference by remember { mutableStateOf(SetupWizardHandPreference.RIGHT) }
+    var accessibilityPreference by remember { mutableStateOf(SetupWizardAccessibilityPreference.STANDARD) }
+
+    val recommendation = buildSetupWizardRecommendation(
+        hardware = hardware,
+        targetPreference = targetPreference,
+        typingPreference = typingPreference,
+        handPreference = handPreference,
+        accessibilityPreference = accessibilityPreference,
+        currentColorPalette = currentColorPalette
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(t("Setup Wizard")) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    t("Answer a few questions and ERICK will apply a recommended starting bundle. You can still adjust every setting manually later."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                SetupWizardQuestion(
+                    appLanguage = appLanguage,
+                    title = "Main typing setup",
+                    options = listOf(
+                        SetupWizardOption("Touch first", hardware == SetupWizardHardware.TOUCH) {
+                            hardware = SetupWizardHardware.TOUCH
+                        },
+                        SetupWizardOption("Controller first", hardware == SetupWizardHardware.CONTROLLER) {
+                            hardware = SetupWizardHardware.CONTROLLER
+                        },
+                        SetupWizardOption("Both", hardware == SetupWizardHardware.BOTH) {
+                            hardware = SetupWizardHardware.BOTH
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    appLanguage = appLanguage,
+                    title = "Dial preference",
+                    options = listOf(
+                        SetupWizardOption("Larger targets", targetPreference == SetupWizardTargetPreference.LARGER_TARGETS) {
+                            targetPreference = SetupWizardTargetPreference.LARGER_TARGETS
+                        },
+                        SetupWizardOption("Full 8-direction layout", targetPreference == SetupWizardTargetPreference.FULL_EIGHT) {
+                            targetPreference = SetupWizardTargetPreference.FULL_EIGHT
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    appLanguage = appLanguage,
+                    title = "Typing style",
+                    options = listOf(
+                        SetupWizardOption("Fastest path", typingPreference == SetupWizardTypingPreference.FASTEST) {
+                            typingPreference = SetupWizardTypingPreference.FASTEST
+                        },
+                        SetupWizardOption("Steadier confirmation", typingPreference == SetupWizardTypingPreference.STEADIEST) {
+                            typingPreference = SetupWizardTypingPreference.STEADIEST
+                        },
+                        SetupWizardOption("One-handed", typingPreference == SetupWizardTypingPreference.ONE_HANDED) {
+                            typingPreference = SetupWizardTypingPreference.ONE_HANDED
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    appLanguage = appLanguage,
+                    title = "Handedness",
+                    options = listOf(
+                        SetupWizardOption("Right-handed", handPreference == SetupWizardHandPreference.RIGHT) {
+                            handPreference = SetupWizardHandPreference.RIGHT
+                        },
+                        SetupWizardOption("Left-handed", handPreference == SetupWizardHandPreference.LEFT) {
+                            handPreference = SetupWizardHandPreference.LEFT
+                        }
+                    )
+                )
+
+                SetupWizardQuestion(
+                    appLanguage = appLanguage,
+                    title = "Accessibility default",
+                    options = listOf(
+                        SetupWizardOption("Standard", accessibilityPreference == SetupWizardAccessibilityPreference.STANDARD) {
+                            accessibilityPreference = SetupWizardAccessibilityPreference.STANDARD
+                        },
+                        SetupWizardOption("Colorblind-safe palette", accessibilityPreference == SetupWizardAccessibilityPreference.COLORBLIND_SAFE) {
+                            accessibilityPreference = SetupWizardAccessibilityPreference.COLORBLIND_SAFE
+                        }
+                    )
+                )
+
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(t("Recommended bundle"), style = MaterialTheme.typography.titleSmall)
+                        recommendation.summaryLines.forEach { line ->
+                            Text(t(line), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onApply(recommendation) }) {
+                Text(t("Apply"))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(t("Cancel"))
+            }
+        }
+    )
+}
+
+@Composable
+private fun SetupWizardQuestion(
+    appLanguage: String,
+    title: String,
+    options: List<SetupWizardOption>
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(erickText(appLanguage, title), style = MaterialTheme.typography.titleSmall)
+        options.forEach { option ->
+            LayoutRadioOption(
+                title = erickText(appLanguage, option.title),
+                subtitle = null,
+                selected = option.selected,
+                enabled = true,
+                onClick = option.onSelect
+            )
+        }
+    }
+}
+
+private data class SetupWizardOption(
+    val title: String,
+    val selected: Boolean,
+    val onSelect: () -> Unit
+)
+
+private enum class SetupWizardHardware {
+    TOUCH,
+    CONTROLLER,
+    BOTH
+}
+
+private enum class SetupWizardTargetPreference {
+    LARGER_TARGETS,
+    FULL_EIGHT
+}
+
+private enum class SetupWizardTypingPreference {
+    FASTEST,
+    STEADIEST,
+    ONE_HANDED
+}
+
+private enum class SetupWizardHandPreference {
+    RIGHT,
+    LEFT
+}
+
+private enum class SetupWizardAccessibilityPreference {
+    STANDARD,
+    COLORBLIND_SAFE
+}
+
+private data class SetupWizardRecommendation(
+    val sixSectionDial: Boolean,
+    val inputMode: String,
+    val leftHandedMode: Boolean,
+    val colorblindMode: Boolean,
+    val colorPalette: String,
+    val controllerDeadZone: Float,
+    val controllerYAxisInverted: Boolean,
+    val summaryLines: List<String>
+)
+
+private fun buildSetupWizardRecommendation(
+    hardware: SetupWizardHardware,
+    targetPreference: SetupWizardTargetPreference,
+    typingPreference: SetupWizardTypingPreference,
+    handPreference: SetupWizardHandPreference,
+    accessibilityPreference: SetupWizardAccessibilityPreference,
+    currentColorPalette: String
+): SetupWizardRecommendation {
+    val sixSectionDial = when {
+        hardware == SetupWizardHardware.CONTROLLER -> false
+        typingPreference == SetupWizardTypingPreference.ONE_HANDED -> true
+        targetPreference == SetupWizardTargetPreference.LARGER_TARGETS -> true
+        else -> false
+    }
+    val inputMode = when (typingPreference) {
+        SetupWizardTypingPreference.STEADIEST -> PreferencesManager.INPUT_MODE_CONFIRM
+        SetupWizardTypingPreference.ONE_HANDED -> PreferencesManager.INPUT_MODE_ASSISTED
+        SetupWizardTypingPreference.FASTEST -> PreferencesManager.INPUT_MODE_INSTANT
+    }
+    val leftHandedMode = handPreference == SetupWizardHandPreference.LEFT
+    val colorblindMode = accessibilityPreference == SetupWizardAccessibilityPreference.COLORBLIND_SAFE
+    val colorPalette = when {
+        colorblindMode -> PreferencesManager.PALETTE_OKABE_ITO
+        currentColorPalette == PreferencesManager.PALETTE_CUSTOM -> PreferencesManager.PALETTE_CUSTOM
+        currentColorPalette == PreferencesManager.PALETTE_PASTEL -> PreferencesManager.PALETTE_PASTEL
+        else -> PreferencesManager.PALETTE_OKABE_ITO
+    }
+
+    val summaryLines = buildList {
+        add(if (sixSectionDial) "6-section dial" else "8-section dial")
+        add(
+            when (inputMode) {
+                PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
+                PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
+                else -> "Quick Type"
+            }
+        )
+        add(if (leftHandedMode) "Left-handed mode on" else "Right-handed default")
+        add(if (colorblindMode) "Colorblind-safe palette enabled" else "Standard accessibility palette")
+        if (hardware == SetupWizardHardware.CONTROLLER || hardware == SetupWizardHardware.BOTH) {
+            add("Controller defaults reset for a clean starting point")
+        }
+    }
+
+    return SetupWizardRecommendation(
+        sixSectionDial = sixSectionDial,
+        inputMode = inputMode,
+        leftHandedMode = leftHandedMode,
+        colorblindMode = colorblindMode,
+        colorPalette = colorPalette,
+        controllerDeadZone = PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE,
+        controllerYAxisInverted = false,
+        summaryLines = summaryLines
+    )
+}
+
+private suspend fun applySetupWizardRecommendation(
+    preferencesManager: PreferencesManager,
+    recommendation: SetupWizardRecommendation
+) {
+    preferencesManager.setSixSectionDial(recommendation.sixSectionDial)
+    preferencesManager.setInputMode(recommendation.inputMode)
+    preferencesManager.setLeftHandedMode(recommendation.leftHandedMode)
+    preferencesManager.setColorblindMode(recommendation.colorblindMode)
+    preferencesManager.setColorPalette(recommendation.colorPalette)
+    preferencesManager.setControllerDeadZone(recommendation.controllerDeadZone)
+    preferencesManager.setControllerYAxisInverted(recommendation.controllerYAxisInverted)
+}
+
+private fun predictionDomainDisplayName(predictionDomain: String, languageKey: String): String = when (predictionDomain) {
+    PreferencesManager.PREDICTION_DOMAIN_CONVERSATION -> erickText(languageKey, "Conversation")
+    PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY -> erickText(languageKey, "Productivity")
+    PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY -> erickText(languageKey, "Accessibility")
+    PreferencesManager.PREDICTION_DOMAIN_GAMING -> erickText(languageKey, "Gaming")
+    else -> erickText(languageKey, "General")
+}
+
+private data class KeyboardLanguageOption(
+    val value: String,
+    val label: String,
+    val subtitle: String
+)
+
+private fun keyboardLanguageOptions(languageKey: String) = listOf(
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ENGLISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_ENGLISH), erickText(languageKey, "Full logical and efficiency support.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SPANISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_SPANISH), erickText(languageKey, "Includes accented vowels, ü, ñ, and inverted punctuation.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_PORTUGUESE, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_PORTUGUESE), erickText(languageKey, "Includes accented vowels, tilde vowels, and ç.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FRENCH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_FRENCH), erickText(languageKey, "Includes accents, cedilla, and apostrophe-heavy prediction data.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_GERMAN, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_GERMAN), erickText(languageKey, "Includes umlauts and ß.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ITALIAN, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_ITALIAN), erickText(languageKey, "Includes accented vowels and Italian prediction data.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL), erickText(languageKey, "Scandinavian profile with æ, ø, and å.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_DANISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_DANISH), erickText(languageKey, "Scandinavian profile with æ, ø, and å.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SWEDISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_SWEDISH), erickText(languageKey, "Scandinavian profile with å, ä, and ö.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FINNISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_FINNISH), erickText(languageKey, "Includes ä and ö with Finnish prediction data."))
+)
+
+private fun bilingualLanguageDisplayName(keyboardLanguage: String): String {
+    val selfName = keyboardLanguageSelfDisplayName(keyboardLanguage)
+    val englishName = englishLanguageDisplayName(keyboardLanguage)
+    return if (selfName.equals(englishName, ignoreCase = true)) englishName else "$selfName ($englishName)"
+}
+
+private fun keyboardLanguageSelfDisplayName(keyboardLanguage: String): String = when (keyboardLanguage) {
+    PreferencesManager.LANGUAGE_SPANISH -> "Espanol"
+    PreferencesManager.LANGUAGE_PORTUGUESE -> "Portugues"
+    PreferencesManager.LANGUAGE_FRENCH -> "Francais"
+    PreferencesManager.LANGUAGE_GERMAN -> "Deutsch"
+    PreferencesManager.LANGUAGE_ITALIAN -> "Italiano"
+    PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> "Norsk Bokmal"
+    PreferencesManager.LANGUAGE_DANISH -> "Dansk"
+    PreferencesManager.LANGUAGE_SWEDISH -> "Svenska"
+    PreferencesManager.LANGUAGE_FINNISH -> "Suomi"
+    else -> "English"
 }
 
 @Composable
@@ -631,6 +1055,7 @@ internal fun CollapsibleSection(
     onToggle: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     val rotationAngle by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         label = "chevron"
@@ -664,7 +1089,7 @@ internal fun CollapsibleSection(
                 }
                 Icon(
                     imageVector = Icons.Default.ExpandMore,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) erickText(appLanguage, "Collapse") else erickText(appLanguage, "Expand"),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.rotate(rotationAngle)
                 )
@@ -778,6 +1203,7 @@ internal fun PaletteRadioOption(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     val palette = ColorPalettes.getPalette(paletteType)
 
     Column(
@@ -817,7 +1243,7 @@ internal fun PaletteRadioOption(
                             .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
                     )
                     Text(
-                        text = entry.name,
+                        text = erickText(appLanguage, entry.name),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 2.dp)
@@ -843,6 +1269,7 @@ internal fun CustomPaletteRadioOption(
     onSelect: () -> Unit,
     onEditColors: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     val hexList = customPaletteColors.split(",").map { it.trim() }
 
     Column(
@@ -855,15 +1282,15 @@ internal fun CustomPaletteRadioOption(
             RadioButton(selected = selected, onClick = onSelect)
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = "Create Your Own", style = MaterialTheme.typography.bodyLarge)
+                Text(text = erickText(appLanguage, "Create Your Own"), style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    text = "Pick your own 8 colors",
+                    text = erickText(appLanguage, "Pick your own 8 colors"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
             TextButton(onClick = onEditColors) {
-                Text("Edit Colors")
+                Text(erickText(appLanguage, "Edit Colors"))
             }
         }
 

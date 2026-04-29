@@ -58,6 +58,16 @@
                 android:paddingEnd="36dp">
 
                 <TextView
+                    android:id="@+id/suggestion_label"
+                    android:layout_width="72dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:textSize="10sp"
+                    android:textColor="#333333"
+                    android:paddingEnd="8dp"
+                    android:textStyle="bold" />
+
+                <TextView
                     android:id="@+id/suggestion_1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

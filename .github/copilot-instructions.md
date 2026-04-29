@@ -31,6 +31,7 @@
 - Name one cheap falsifiable check before the first edit.
 - Run the narrowest relevant validation command, test, or diagnostic before widening scope.
 - If behavior changes, update the closest tests and docs in the same pass.
+- If Android receives a new user-visible feature, settings change, learning flow update, or predictor behavior change, implement the matching iOS behavior in the same pass unless the user explicitly scopes the work to one platform or a concrete blocker is documented.
 
 ## Project Overview
 ERICK is a dual-joystick keyboard for Android and iOS. Users type by combining left and right directional swipes into character chords. The product supports both touch and physical game controllers.
@@ -77,8 +78,9 @@ Both 8-section and 6-section modes coexist. `DialSectionMode` defaults to `EIGHT
 - Route Android settings work into the extracted settings files before editing the wrappers.
 - Route controller diagnostics through shared `ControllerInputProcessor.kt` instead of duplicating stick parsing on a platform surface.
 - If you change gesture mappings, dial geometry, onboarding flow text, or controller behavior, update the relevant tests and docs in the same pass.
+- Keep Android and iOS user-visible behavior aligned. New Android settings, learning flows, or prediction behavior should ship with the corresponding iOS implementation in the same task unless the user explicitly says otherwise or a concrete blocker is called out.
 - If you change architecture, module ownership, or major flow descriptions, update `APP_CONTEXT.md`, sync `docs/documentation/APP_CONTEXT.md`, and update the relevant diagram source when it would otherwise become inaccurate.
-- If the workflow explicitly allows git writes, prefer small validated commits on the current branch with a clear subject and a short body that records validation.
+- If the workflow explicitly allows git writes, prefer frequent small validated commits on the current branch with a clear subject and a detailed body that records the why and validation.
 - Keep this file aligned with `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/erick-ai-first.mdc` when the shared AI workflow rules change.
 
 ## Validation Commands

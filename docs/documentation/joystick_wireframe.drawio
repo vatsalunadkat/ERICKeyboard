@@ -283,6 +283,24 @@
         <mxCell id="chMNaZQm12NTdoxxiXWT-132" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=35;fillColor=light-dark(#FFFFFF,#000000);" value="" vertex="1">
           <mxGeometry height="60" width="60" x="629" y="120" as="geometry" />
         </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-133" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;" value="ERICK keyboard wireframe" vertex="1">
+          <mxGeometry height="30" width="320" x="253" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-134" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontSize=11;fontColor=#666666;" value="8-section example shown. When both dials are idle, this preview area becomes the 3-word suggestion strip." vertex="1">
+          <mxGeometry height="30" width="760" x="33" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-135" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8f5ef;strokeColor=#b9a36b;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Left dial&lt;/b&gt;&lt;br&gt;Choose the character group or ring for the current chord." vertex="1">
+          <mxGeometry height="58" width="250" x="10" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-136" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8f5ef;strokeColor=#b9a36b;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Right dial&lt;/b&gt;&lt;br&gt;Choose the final character slot, or trigger a single-swipe utility action." vertex="1">
+          <mxGeometry height="58" width="270" x="285" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-137" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#eef6ff;strokeColor=#6b9ed6;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Current 6-section utility wheel&lt;/b&gt;&lt;br&gt;N = Symbols, NE = Shift, SE = Space, S = Period, SW = Enter, NW = Backspace." vertex="1">
+          <mxGeometry height="74" width="305" x="545" y="692" as="geometry" />
+        </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-138" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#eef8f1;strokeColor=#7aa489;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Preview and suggestions&lt;/b&gt;&lt;br&gt;The live strip shows only characters while a dial is active. Status words like Next or Complete are not shown in the strip." vertex="1">
+          <mxGeometry height="70" width="840" x="-7" y="780" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

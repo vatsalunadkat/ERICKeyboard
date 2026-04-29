@@ -390,6 +390,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     func onSuggestionsUpdated(suggestions: [String]) {
         DispatchQueue.main.async { [weak self] in
             self?.viewModel.suggestions = suggestions
+            self?.viewModel.suggestionContextLabel = self?.suggestionContextLabel(for: suggestions) ?? ""
         }
     }
 
@@ -470,6 +471,32 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func applyLayoutPreference() {
+        let languageKey = Self.appGroupDefaults.string(forKey: "keyboard_language") ?? "english"
+        let keyboardLanguage: KeyboardLanguage
+        switch languageKey {
+        case "spanish":
+            keyboardLanguage = .spanish
+        case "portuguese":
+            keyboardLanguage = .portuguese
+        case "french":
+            keyboardLanguage = .french
+        case "german":
+            keyboardLanguage = .german
+        case "italian":
+            keyboardLanguage = .italian
+        case "norwegian_bokmal":
+            keyboardLanguage = .norwegian_bokmal
+        case "danish":
+            keyboardLanguage = .danish
+        case "swedish":
+            keyboardLanguage = .swedish
+        case "finnish":
+            keyboardLanguage = .finnish
+        default:
+            keyboardLanguage = .english
+        }
+        stateMachine.setKeyboardLanguage(language: keyboardLanguage)
+
         let layoutType: LayoutType
         if isCustomLayout {
             layoutType = .custom
@@ -547,6 +574,22 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             inputMode = .instant
         }
         stateMachine.setInputMode(mode: inputMode)
+
+        let predictionDomainKey = Self.appGroupDefaults.string(forKey: "prediction_domain") ?? "general"
+        let predictionDomain: PredictionDomain
+        switch predictionDomainKey {
+        case "conversation":
+            predictionDomain = .conversation
+        case "productivity":
+            predictionDomain = .productivity
+        case "accessibility":
+            predictionDomain = .accessibility
+        case "gaming":
+            predictionDomain = .gaming
+        default:
+            predictionDomain = .general
+        }
+        stateMachine.setPredictionDomain(domain: predictionDomain)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -573,7 +616,12 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.colorPaletteKey = currentColorPaletteKey
         viewModel.bothDialsAtHome = stateMachine.areBothDialsAtHome()
         viewModel.lockedLeftDirection = wheelDirection(for: stateMachine.lockedLeftDir)
+        viewModel.suggestionContextLabel = suggestionContextLabel(for: viewModel.suggestions)
         updatePreviewState()
+    }
+
+    private func suggestionContextLabel(for suggestions: [String]) -> String {
+        return ""
     }
 
     private func syncVisualState(dx: Float, dy: Float, isLeft: Bool, isDown: Bool, isUp: Bool) {

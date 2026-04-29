@@ -87,6 +87,7 @@ let benefitAudienceGroups: [BenefitAudienceGroup] = [
 ]
 
 struct BenefitsOverviewSection: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     var title: String = "Who ERICK Can Help"
     var summary: String = "Examples across physical access, cognitive support, and everyday use."
     var initiallyExpanded: Bool = false
@@ -100,10 +101,10 @@ struct BenefitsOverviewSection: View {
             } label: {
                 HStack(alignment: .top, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(title)
+                        Text(erickText(title, languageKey: keyboardLanguage))
                             .font(.headline)
                             .foregroundColor(.primary)
-                        Text(summary)
+                        Text(erickText(summary, languageKey: keyboardLanguage))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.leading)
@@ -132,9 +133,11 @@ struct BenefitsOverviewSection: View {
 }
 
 struct BenefitsOverviewContent: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("These are example situations, not promises or testimonials.")
+            Text(erickText("These are example situations, not promises or testimonials.", languageKey: keyboardLanguage))
                 .font(.footnote)
                 .foregroundColor(.secondary)
 
@@ -146,17 +149,18 @@ struct BenefitsOverviewContent: View {
 }
 
 private struct BenefitAudienceGroupCard: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     let group: BenefitAudienceGroup
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(group.title)
+            Text(erickText(group.title, languageKey: keyboardLanguage))
                 .font(.headline)
                 .foregroundColor(.primary)
-            Text(group.subtitle)
+            Text(erickText(group.subtitle, languageKey: keyboardLanguage))
                 .font(.subheadline)
                 .foregroundColor(.accentColor)
-            Text(group.intro)
+            Text(erickText(group.intro, languageKey: keyboardLanguage))
                 .font(.footnote)
                 .foregroundColor(.secondary)
 
@@ -172,15 +176,16 @@ private struct BenefitAudienceGroupCard: View {
 }
 
 private struct BenefitExampleCard: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     let example: BenefitExample
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(example.title)
+            Text(erickText(example.title, languageKey: keyboardLanguage))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
-            Text(example.description)
+            Text(erickText(example.description, languageKey: keyboardLanguage))
                 .font(.footnote)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

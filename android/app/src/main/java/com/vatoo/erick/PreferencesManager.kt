@@ -23,6 +23,7 @@ class PreferencesManager(private val context: Context) {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         private val COLORBLIND_MODE_KEY = booleanPreferencesKey("colorblind_mode")
         private val COLOR_PALETTE_KEY = stringPreferencesKey("color_palette")
+        private val KEYBOARD_LANGUAGE_KEY = stringPreferencesKey("keyboard_language")
         private val LEFT_HANDED_MODE_KEY = booleanPreferencesKey("left_handed_mode")
         private val CUSTOM_LAYOUT_ID_KEY = stringPreferencesKey("custom_layout_id")
         private val CUSTOM_LAYOUTS_JSON_KEY = stringPreferencesKey("custom_layouts_json")
@@ -31,6 +32,7 @@ class PreferencesManager(private val context: Context) {
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback")
         private val TYPING_SOUNDS_KEY = booleanPreferencesKey("typing_sounds")
         private val INPUT_MODE_KEY = stringPreferencesKey("input_mode")
+        private val PREDICTION_DOMAIN_KEY = stringPreferencesKey("prediction_domain")
         private val SIX_SECTION_DIAL_KEY = booleanPreferencesKey("six_section_dial")
         private val CONTROLLER_DEAD_ZONE_KEY = floatPreferencesKey("controller_dead_zone")
         private val CONTROLLER_Y_AXIS_INVERTED_KEY = booleanPreferencesKey("controller_y_axis_inverted")
@@ -60,11 +62,28 @@ class PreferencesManager(private val context: Context) {
         const val PALETTE_PASTEL = "pastel"
         const val PALETTE_CUSTOM = "custom"
 
+        const val LANGUAGE_ENGLISH = "english"
+        const val LANGUAGE_SPANISH = "spanish"
+        const val LANGUAGE_PORTUGUESE = "portuguese"
+        const val LANGUAGE_FRENCH = "french"
+        const val LANGUAGE_GERMAN = "german"
+        const val LANGUAGE_ITALIAN = "italian"
+        const val LANGUAGE_NORWEGIAN_BOKMAL = "norwegian_bokmal"
+        const val LANGUAGE_DANISH = "danish"
+        const val LANGUAGE_SWEDISH = "swedish"
+        const val LANGUAGE_FINNISH = "finnish"
+
         const val DEFAULT_CUSTOM_COLORS = "#E60012,#F39800,#FFF100,#009944,#0068B7,#1D2088,#920783,#000000"
 
         const val INPUT_MODE_INSTANT = "instant"
         const val INPUT_MODE_CONFIRM = "confirm"
         const val INPUT_MODE_ASSISTED = "assisted"
+
+        const val PREDICTION_DOMAIN_GENERAL = "general"
+        const val PREDICTION_DOMAIN_CONVERSATION = "conversation"
+        const val PREDICTION_DOMAIN_PRODUCTIVITY = "productivity"
+        const val PREDICTION_DOMAIN_ACCESSIBILITY = "accessibility"
+        const val PREDICTION_DOMAIN_GAMING = "gaming"
 
         const val DEFAULT_CONTROLLER_DEAD_ZONE = 0.25f
     }
@@ -92,6 +111,11 @@ class PreferencesManager(private val context: Context) {
     val colorPalette: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[COLOR_PALETTE_KEY] ?: PALETTE_OKABE_ITO
+        }
+
+    val keyboardLanguage: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[KEYBOARD_LANGUAGE_KEY] ?: LANGUAGE_ENGLISH
         }
 
     val leftHandedMode: Flow<Boolean> = context.dataStore.data
@@ -127,6 +151,11 @@ class PreferencesManager(private val context: Context) {
     val inputMode: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[INPUT_MODE_KEY] ?: INPUT_MODE_INSTANT
+        }
+
+    val predictionDomain: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[PREDICTION_DOMAIN_KEY] ?: PREDICTION_DOMAIN_GENERAL
         }
 
     val sixSectionDial: Flow<Boolean> = context.dataStore.data
@@ -199,6 +228,12 @@ class PreferencesManager(private val context: Context) {
         }
     }
 
+    suspend fun setKeyboardLanguage(language: String) {
+        context.dataStore.edit { preferences ->
+            preferences[KEYBOARD_LANGUAGE_KEY] = language
+        }
+    }
+
     suspend fun setLeftHandedMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[LEFT_HANDED_MODE_KEY] = enabled
@@ -238,6 +273,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setInputMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[INPUT_MODE_KEY] = mode
+        }
+    }
+
+    suspend fun setPredictionDomain(domain: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PREDICTION_DOMAIN_KEY] = domain
         }
     }
 

@@ -17,6 +17,7 @@ class WordPredictionEngine {
     private val learnedBigrams = mutableMapOf<String, MutableMap<String, Int>>()
     // Default suggestions when no context is available
     private var defaultSuggestions = listOf("I", "The", "Hello")
+    private var activeDomain: PredictionDomain = PredictionDomain.GENERAL
 
     // ── Trie data structure ──
 
@@ -66,6 +67,10 @@ class WordPredictionEngine {
         if (previous.isBlank() || next.isBlank()) return
         val map = learnedBigrams.getOrPut(previous) { mutableMapOf() }
         map[next] = (map[next] ?: 0) + count.coerceAtLeast(1)
+    }
+
+    fun setPredictionDomain(domain: PredictionDomain) {
+        activeDomain = domain
     }
 
     fun contains(word: String): Boolean {
@@ -219,6 +224,9 @@ class WordPredictionEngine {
         learnedBigrams[lower]?.forEach { (word, frequency) ->
             combined[word] = (combined[word] ?: 0) + (frequency * 1_000)
         }
+        domainPacks[activeDomain]?.nextWordBoosts?.get(lower)?.forEach { (word, frequency) ->
+            combined[word] = (combined[word] ?: 0) + frequency
+        }
         if (combined.isEmpty()) return getDefaultSuggestions(limit)
         return combined.entries
             .sortedByDescending { it.value }
@@ -231,7 +239,9 @@ class WordPredictionEngine {
      * (e.g., start of input or after punctuation).
      */
     fun getDefaultSuggestions(limit: Int = 3): List<String> {
-        return defaultSuggestions.take(limit)
+        return (domainPacks[activeDomain]?.defaultSuggestions.orEmpty() + defaultSuggestions)
+            .distinct()
+            .take(limit)
     }
 
     fun exportLearnedProfile(): String {
@@ -252,6 +262,8 @@ class WordPredictionEngine {
             }
 
         return buildString {
+            appendLine("[meta]")
+            appendLine("version\t2")
             appendLine("[words]")
             wordLines.forEach { appendLine(it) }
             appendLine("[bigrams]")
@@ -269,8 +281,10 @@ class WordPredictionEngine {
             val line = rawLine.trim()
             when {
                 line.isEmpty() -> Unit
+                line == "[meta]" -> currentSection = "meta"
                 line == "[words]" -> currentSection = "words"
                 line == "[bigrams]" -> currentSection = "bigrams"
+                currentSection == "meta" -> Unit
                 currentSection == "words" -> {
                     val parts = line.split('\t')
                     if (parts.size >= 3) {
@@ -310,7 +324,8 @@ class WordPredictionEngine {
         val learnedFrequency = learnedWordFrequencies[word] ?: 0
         val userBoost = if (word in userDictionaryWords) 50_000 else 0
         val exactBoost = if (exactMatch) 20_000 else 0
-        return exactBoost + userBoost + (learnedFrequency * 1_000) + baseFrequency
+        val domainBoost = domainPacks[activeDomain]?.wordBoosts?.get(word) ?: 0
+        return exactBoost + userBoost + domainBoost + (learnedFrequency * 1_000) + baseFrequency
     }
 
     // ── Edit distance utilities ──
@@ -359,13 +374,110 @@ class WordPredictionEngine {
     // ── Built-in dictionary ──
 
     companion object {
+        private data class DomainPack(
+            val defaultSuggestions: List<String>,
+            val wordBoosts: Map<String, Int>,
+            val nextWordBoosts: Map<String, List<Pair<String, Int>>>
+        )
+
+        private val domainPacks = mapOf(
+            PredictionDomain.GENERAL to DomainPack(
+                defaultSuggestions = emptyList(),
+                wordBoosts = emptyMap(),
+                nextWordBoosts = emptyMap()
+            ),
+            PredictionDomain.CONVERSATION to DomainPack(
+                defaultSuggestions = listOf("Hey", "Thanks", "See"),
+                wordBoosts = mapOf(
+                    "hey" to 8_000,
+                    "thanks" to 8_000,
+                    "yep" to 7_000,
+                    "nope" to 7_000,
+                    "later" to 6_000,
+                    "omw" to 7_500,
+                    "lol" to 7_500,
+                    "text" to 5_500
+                ),
+                nextWordBoosts = mapOf(
+                    "see" to listOf("you" to 3_000),
+                    "talk" to listOf("soon" to 2_800),
+                    "on" to listOf("my" to 2_500),
+                    "be" to listOf("there" to 2_700)
+                )
+            ),
+            PredictionDomain.PRODUCTIVITY to DomainPack(
+                defaultSuggestions = listOf("Project", "Meeting", "Review"),
+                wordBoosts = mapOf(
+                    "agenda" to 8_000,
+                    "meeting" to 9_000,
+                    "schedule" to 8_500,
+                    "deadline" to 8_000,
+                    "project" to 9_000,
+                    "status" to 7_500,
+                    "review" to 8_500,
+                    "followup" to 7_500
+                ),
+                nextWordBoosts = mapOf(
+                    "follow" to listOf("up" to 3_200),
+                    "project" to listOf("update" to 3_000),
+                    "meeting" to listOf("notes" to 3_100),
+                    "send" to listOf("review" to 2_900)
+                )
+            ),
+            PredictionDomain.ACCESSIBILITY to DomainPack(
+                defaultSuggestions = listOf("Please", "Support", "Access"),
+                wordBoosts = mapOf(
+                    "access" to 9_000,
+                    "support" to 8_500,
+                    "assistive" to 8_000,
+                    "device" to 7_000,
+                    "therapy" to 7_500,
+                    "caregiver" to 8_000,
+                    "fatigue" to 6_500,
+                    "mobility" to 7_000
+                ),
+                nextWordBoosts = mapOf(
+                    "need" to listOf("support" to 3_200),
+                    "please" to listOf("help" to 3_100),
+                    "access" to listOf("needs" to 2_900),
+                    "assistive" to listOf("device" to 3_000)
+                )
+            ),
+            PredictionDomain.GAMING to DomainPack(
+                defaultSuggestions = listOf("Party", "Match", "Quest"),
+                wordBoosts = mapOf(
+                    "quest" to 8_000,
+                    "raid" to 8_500,
+                    "party" to 8_500,
+                    "build" to 7_500,
+                    "craft" to 7_000,
+                    "spawn" to 7_500,
+                    "match" to 8_000,
+                    "boss" to 7_500,
+                    "heal" to 7_000,
+                    "ping" to 6_500,
+                    "fps" to 7_000
+                ),
+                nextWordBoosts = mapOf(
+                    "good" to listOf("game" to 3_200),
+                    "party" to listOf("up" to 3_000),
+                    "need" to listOf("heal" to 3_100),
+                    "boss" to listOf("fight" to 3_000)
+                )
+            )
+        )
+
         /**
          * Creates a WordPredictionEngine pre-loaded with a common English dictionary.
          * Words are assigned frequency tiers so common words rank higher.
          */
-        fun createWithDefaultDictionary(): WordPredictionEngine {
+        fun createWithDefaultDictionary(language: KeyboardLanguage = KeyboardLanguage.ENGLISH): WordPredictionEngine {
             val engine = WordPredictionEngine()
-            loadDefaultDictionary(engine)
+            if (language == KeyboardLanguage.ENGLISH) {
+                loadDefaultDictionary(engine)
+            } else {
+                loadLanguageResources(engine, KeyboardLanguageProfiles.profile(language))
+            }
             return engine
         }
 
@@ -512,9 +624,38 @@ class WordPredictionEngine {
 
             // ── Bigram data (next-word predictions) ──
             loadBigrams(engine)
+            loadDomainVocabulary(engine)
 
             // Default suggestions for start of input
             engine.defaultSuggestions = listOf("I", "The", "Hello")
+        }
+
+        private fun loadLanguageResources(engine: WordPredictionEngine, profile: KeyboardLanguageProfile) {
+            profile.dictionaryWords.forEach { (word, frequency) ->
+                engine.insert(word, frequency)
+            }
+            profile.bigrams.forEach { (word, nextWords) ->
+                nextWords.forEach { (nextWord, frequency) ->
+                    engine.insertBigram(word, nextWord, frequency)
+                }
+            }
+            engine.defaultSuggestions = profile.defaultSuggestions
+        }
+
+        private fun loadDomainVocabulary(engine: WordPredictionEngine) {
+            val extraWords = buildSet {
+                domainPacks.values.forEach { pack ->
+                    addAll(pack.defaultSuggestions.map { it.lowercase() })
+                    addAll(pack.wordBoosts.keys)
+                    addAll(pack.nextWordBoosts.keys)
+                    pack.nextWordBoosts.values.forEach { boostedWords ->
+                        addAll(boostedWords.map { it.first })
+                    }
+                }
+            }
+            extraWords.forEach { word ->
+                engine.insert(word, frequency = 80)
+            }
         }
 
         private fun loadBigrams(engine: WordPredictionEngine) {

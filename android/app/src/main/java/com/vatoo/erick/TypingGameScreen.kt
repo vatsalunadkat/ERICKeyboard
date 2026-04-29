@@ -30,114 +30,26 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
-private val quotes = listOf(
-    // Motivational
+private val quoteTemplates = listOf(
     "Be yourself; everyone else is already taken.",
-    "It's not the load that breaks you down, it's the way you carry it.",
-    "For every minute you are angry, you lose sixty seconds of happiness.",
-    "The only way to do great work is to love what you do.",
-    "In the middle of difficulty lies opportunity.",
     "Believe you can and you're halfway there.",
-    "The best time to plant a tree was twenty years ago. The second best time is now.",
-    "You are never too old to set another goal or to dream a new dream.",
-    "Happiness is not something ready made. It comes from your own actions.",
-    "Every moment is a fresh beginning.",
-    "Good decisions come from experience. Experience comes from making bad decisions.",
-    "Somewhere, something incredible is waiting to be known.",
-    "Never memorize something you can look up.",
-    "Reality is broken. Game designers can probably fix it.",
     "The secret of getting ahead is getting started.",
-    "It always seems impossible until it's done.",
-    "Do what you can, with what you have, where you are.",
-    "Everything you can imagine is real.",
-    "If you want to lift yourself up, lift up someone else.",
-    "What we achieve inwardly will change outer reality.",
-    // Relaxing / Calm
     "Breathe in deeply to bring your mind home to your body.",
-    "Almost everything will work again if you unplug it for a few minutes, including you.",
-    "The quieter you become, the more you can hear.",
-    "Nature does not hurry, yet everything is accomplished.",
-    "Slow down and everything you are chasing will come around and catch you.",
-    "The greatest weapon against stress is our ability to choose one thought over another.",
-    "Your calm mind is the ultimate weapon against your challenges.",
-    "Calm mind brings inner strength and self-confidence.",
-    "Life is ten percent what happens to you and ninety percent how you respond to it.",
-    "I think I'm supposed to be sleeping right now.",
     "Sometimes the most productive thing you can do is relax.",
-    "You don't always need a plan. Sometimes you just need to breathe and let go.",
-    "Not all storms come to disrupt your life. Some come to clear your path.",
     "Be gentle with yourself. You're doing the best you can.",
-    // Humorous / Witty
     "Call your parents once in a while.",
     "The road to success is always under construction.",
-    "If at first you don't succeed, redefine success.",
-    "Sure, honey, let's buy 86 throw pillows.",
-    "Adulting is soup, and I'm a fork.",
-    "I've got 99 problems and 86 of them are completely made up in my head.",
-    "I don't stalk people on Instagram. I deeply research their lives.",
-    "You can't rush perfection, especially when you're avoiding it.",
-    "I don't always have patience, but when I do, it's very short-lived.",
-    "I invented a new word today: Plagiarism.",
-    "Age is an issue of mind over matter. If you don't mind, it doesn't matter.",
-    "If you can't convince them, confuse them.",
-    "The best way to remember your wife's birthday is to forget it once.",
-    "Being an adult is like folding a fitted sheet. No one really knows how.",
-    "Some things are better left unsaid. Which I generally realize right after I have said them.",
-    "The odds of going to the store for a loaf of bread and coming out with only a loaf of bread are three billion to one.",
-    "A giraffe's coffee would be cold by the time it reached the bottom of its throat. Ever think about that? No. You only think about yourself.",
-    "I never make the same mistake twice. I make it five or six times, you know, just to be sure.",
-    "The worst part about online shopping is having to get up and get your card out of your handbag.",
-    "If you read a lot of books, you're considered well-read. But if you watch a lot of TV, you're not considered well-viewed.",
-    "When I say I won't tell anyone, my sister doesn't count.",
-    "Always forgive your enemies; nothing annoys them so much.",
     "Life is short. Smile while you still have teeth.",
-    "I used to think I was indecisive, but now I'm not so sure.",
-    "Age is of no importance, unless you are cheese.",
-    "A clear conscience is usually the sign of a bad memory.",
-    "My wallet is like an onion. Opening it makes me cry.",
-    "My bed is a magical place where I suddenly remember everything I forgot to do.",
-    "I followed my heart, and it led me to the fridge.",
-    "I don't have a bucket list, but my to-do list is long enough to qualify.",
-    "The elevator to success is out of order. You'll have to take the stairs.",
-    "People say nothing is impossible, but I do nothing every day.",
-    "Life is too short to remove the USB safely.",
-    "If we shouldn't eat at night, why is there a light in the fridge?",
-    "My favorite exercise is a cross between a lunge and a crunch. I call it lunch.",
-    "I need six months of vacation, twice a year.",
-    // Positive / Uplifting
     "You are enough just as you are.",
-    "Every day may not be good, but there is something good in every day.",
-    "Stars can't shine without darkness.",
-    "You are braver than you believe, stronger than you seem, and smarter than you think.",
-    "Difficult roads often lead to beautiful destinations.",
-    "Be the reason someone smiles today.",
-    "The sun will rise and we will try again.",
-    "You make the world a better place just by being in it.",
-    "One small positive thought can change your whole day.",
-    "You don't have to be perfect to be amazing.",
-    "You are capable of amazing things.",
-    "Your only limit is your mind.",
-    "Fall seven times, stand up eight.",
-    "What lies behind us and what lies before us are tiny matters compared to what lies within us.",
-    "The best is yet to come.",
-    "You were born to be real, not to be perfect.",
-    "In a world where you can be anything, be kind.",
     "Small steps in the right direction can turn out to be the biggest step of your life.",
-    // Short & Sweet
-    "Keep going...",
-    "This too shall pass.",
-    "You've got this.",
-    "Dream big.",
-    "Stay curious.",
-    "Be kind.",
     "Just breathe.",
-    "Choose joy.",
-    "Progress, not perfection.",
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypingGameScreen(onBack: () -> Unit) {
+    val appLanguage = LocalAppLanguageKey.current
+    val quotes = remember(appLanguage) { quoteTemplates.map { erickText(appLanguage, it) } }
     var currentQuoteIndex by remember { mutableIntStateOf(0) }
     var typedText by remember { mutableStateOf("") }
     var totalKeystrokes by remember { mutableIntStateOf(0) }
@@ -147,7 +59,7 @@ fun TypingGameScreen(onBack: () -> Unit) {
     var startTimeMs by remember { mutableLongStateOf(0L) }
     var totalCharsTyped by remember { mutableIntStateOf(0) }
     var wpm by remember { mutableDoubleStateOf(0.0) }
-    var quoteOrder by remember { mutableStateOf(quotes.indices.shuffled()) }
+    var quoteOrder by remember(appLanguage) { mutableStateOf(quotes.indices.shuffled()) }
     var showHelpDialog by remember { mutableStateOf(false) }
 
     val currentQuote = quotes[quoteOrder[currentQuoteIndex % quotes.size]]
@@ -190,15 +102,15 @@ fun TypingGameScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Typing Practice") },
+                title = { Text(erickText(appLanguage, "Typing Practice")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = erickText(appLanguage, "Close"))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showHelpDialog = true }) {
-                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Practice help")
+                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = erickText(appLanguage, "How quote practice works"))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -211,17 +123,17 @@ fun TypingGameScreen(onBack: () -> Unit) {
         if (showHelpDialog) {
             AlertDialog(
                 onDismissRequest = { showHelpDialog = false },
-                title = { Text("How quote practice works") },
+                title = { Text(erickText(appLanguage, "How quote practice works")) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Type the highlighted character next.")
-                        Text("Tap the quote card or anywhere on the screen if you need to refocus the hidden input field.")
-                        Text("Skip a quote if it is not useful, or restart the session to clear the running stats.")
+                        Text(erickText(appLanguage, "Type the highlighted character next."))
+                        Text(erickText(appLanguage, "Tap the quote card or anywhere on the screen if you need to refocus the hidden input field."))
+                        Text(erickText(appLanguage, "Skip a quote if it is not useful, or restart the session to clear the running stats."))
                     }
                 },
                 confirmButton = {
                     TextButton(onClick = { showHelpDialog = false }) {
-                        Text("Close")
+                        Text(erickText(appLanguage, "Close"))
                     }
                 }
             )
@@ -248,6 +160,7 @@ fun TypingGameScreen(onBack: () -> Unit) {
             ) {
                 // Stats Bar
                 StatsBar(
+                    appLanguage = appLanguage,
                     wpm = wpm,
                     accuracy = if (totalKeystrokes > 0) (correctKeystrokes.toDouble() / totalKeystrokes * 100) else 100.0,
                     streak = streak
@@ -359,18 +272,18 @@ fun TypingGameScreen(onBack: () -> Unit) {
                             currentQuoteHasError = false
                         }
                     ) {
-                        Text("Skip Quote")
+                        Text(erickText(appLanguage, "Skip Quote"))
                     }
 
                     OutlinedButton(onClick = ::restartSession) {
-                        Text("Restart Session")
+                        Text(erickText(appLanguage, "Restart Session"))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "Start typing when you are ready.",
+                    text = erickText(appLanguage, "Start typing when you are ready."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -470,7 +383,7 @@ private fun QuoteDisplay(quote: String, typedText: String) {
 }
 
 @Composable
-private fun StatsBar(wpm: Double, accuracy: Double, streak: Int) {
+private fun StatsBar(appLanguage: String, wpm: Double, accuracy: Double, streak: Int) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -483,9 +396,9 @@ private fun StatsBar(wpm: Double, accuracy: Double, streak: Int) {
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem(label = "WPM", value = wpm.roundToInt().toString())
-            StatItem(label = "Accuracy", value = "${accuracy.roundToInt()}%")
-            StatItem(label = "Streak", value = streak.toString())
+            StatItem(label = erickText(appLanguage, "WPM"), value = wpm.roundToInt().toString())
+            StatItem(label = erickText(appLanguage, "Accuracy"), value = "${accuracy.roundToInt()}%")
+            StatItem(label = erickText(appLanguage, "Streak"), value = streak.toString())
         }
     }
 }

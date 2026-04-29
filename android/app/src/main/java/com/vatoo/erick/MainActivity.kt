@@ -26,13 +26,15 @@ class MainActivity : ComponentActivity() {
         preferencesManager = PreferencesManager(this)
         setContent {
             val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.THEME_SYSTEM)
-            ERICKTheme(themeMode = themeMode) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        isKeyboardEnabled = isKeyboardEnabledState,
-                        isKeyboardCurrent = isKeyboardCurrentState
-                    )
+            ProvideAppLanguage(preferencesManager = preferencesManager) {
+                ERICKTheme(themeMode = themeMode) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        MainScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            isKeyboardEnabled = isKeyboardEnabledState,
+                            isKeyboardCurrent = isKeyboardCurrentState
+                        )
+                    }
                 }
             }
         }

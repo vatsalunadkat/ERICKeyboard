@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct KeyboardContainerView: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     @ObservedObject var viewModel: KeyboardViewModel
     var onTouch: (Float, Float, Bool, Bool, Bool) -> Void
     var onSettingsChanged: () -> Void
@@ -74,22 +75,22 @@ struct KeyboardContainerView: View {
                         Text("↑")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(viewModel.isDarkMode ? .white : Color(hex: "#333333"))
-                            .accessibilityLabel("Shift mode active")
+                            .accessibilityLabel(erickText("Shift mode active", languageKey: keyboardLanguage))
                     } else if viewModel.keyboardMode == .capsLocked {
                         Text("↑↑")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color(hex: "#D32F2F"))
-                            .accessibilityLabel("Caps Lock active")
+                            .accessibilityLabel(erickText("Caps Lock active", languageKey: keyboardLanguage))
                     } else if viewModel.keyboardMode == .symbols {
                         Text("#")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color(hex: "#FF9800"))
-                            .accessibilityLabel("Symbols mode active")
+                            .accessibilityLabel(erickText("Symbols mode active", languageKey: keyboardLanguage))
                     } else if viewModel.keyboardMode == .symbolsShifted {
                         Text("#↑")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color(hex: "#FF9800"))
-                            .accessibilityLabel("Symbols shifted mode active")
+                            .accessibilityLabel(erickText("Symbols shifted mode active", languageKey: keyboardLanguage))
                     }
                 }
                 .frame(width: 36, alignment: .center)
@@ -105,6 +106,7 @@ struct KeyboardContainerView: View {
                         )
                     } else if viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
                         KeyboardSuggestionBar(
+                            suggestionContextLabel: viewModel.suggestionContextLabel,
                             suggestions: viewModel.suggestions,
                             isDarkMode: viewModel.isDarkMode,
                             onTap: onSuggestionTapped
@@ -209,12 +211,25 @@ private struct KeyboardPreviewBar: View {
 }
 
 private struct KeyboardSuggestionBar: View {
+    let suggestionContextLabel: String
     let suggestions: [String]
     var isDarkMode: Bool = false
     var onTap: (Int) -> Void
 
     var body: some View {
         HStack(spacing: 0) {
+            if !suggestionContextLabel.isEmpty {
+                Text(suggestionContextLabel)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(isDarkMode ? .white : Color(hex: "#333333"))
+                    .frame(width: 78, height: 40, alignment: .leading)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+
+                Divider()
+                    .frame(height: 24)
+                    .background(isDarkMode ? Color.gray.opacity(0.5) : Color.gray.opacity(0.3))
+            }
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, word in
                 if index > 0 {
                     Divider()

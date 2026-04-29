@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HelpView: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     @AppStorage(LearningProgressStore.quickstartCompletedKey) private var quickstartCompleted = false
     @AppStorage(LearningProgressStore.quickstartDismissedKey) private var quickstartDismissed = false
     @State private var expandedSections: Set<HelpSectionID> = [.chords, .utility]
@@ -10,17 +11,17 @@ struct HelpView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                helpSection(title: "Start Here") {
+                helpSection(title: erickText("Start Here", languageKey: keyboardLanguage)) {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Use this order so you only learn the next thing you need.")
-                        HelpBullet(text: "Open Quickstart for the core dial model.")
-                        HelpBullet(text: "Use Practice Lessons for guided drills instead of memorizing rules here.")
-                        HelpBullet(text: "Open controller diagnostics only when you plan to type with a gamepad.")
+                        Text(erickText("Use this order so you only learn the next thing you need.", languageKey: keyboardLanguage))
+                        HelpBullet(text: erickText("Open Quickstart for the core dial model.", languageKey: keyboardLanguage))
+                        HelpBullet(text: erickText("Use Practice Lessons for guided drills instead of memorizing rules here.", languageKey: keyboardLanguage))
+                        HelpBullet(text: erickText("Open Controller Diagnostics only when you plan to type with a gamepad.", languageKey: keyboardLanguage))
                         Button {
                             replayQuickstartStep = 0
                             showQuickstart = true
                         } label: {
-                            Text("Replay Quickstart")
+                            Text(erickText("Replay Quickstart", languageKey: keyboardLanguage))
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
@@ -28,7 +29,7 @@ struct HelpView: View {
                         .buttonStyle(.borderedProminent)
 
                         NavigationLink(destination: PracticeHubView()) {
-                            Text("Open Practice Lessons")
+                            Text(erickText("Open Practice Lessons", languageKey: keyboardLanguage))
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
@@ -38,74 +39,74 @@ struct HelpView: View {
                 }
 
                 ExpandableHelpSection(
-                    title: "Who ERICK Can Help",
-                    summary: "Examples across physical access, cognitive support, and everyday use.",
+                    title: erickText("Who ERICK Can Help", languageKey: keyboardLanguage),
+                    summary: erickText("Examples across physical access, cognitive support, and everyday use.", languageKey: keyboardLanguage),
                     isExpanded: binding(for: .benefits)
                 ) {
                     BenefitsOverviewContent()
                 }
 
                 ExpandableHelpSection(
-                    title: "Chord Mechanics",
-                    summary: "Left picks the row. Right picks the letter. Release both to type.",
+                    title: erickText("Chord Mechanics", languageKey: keyboardLanguage),
+                    summary: erickText("Left picks the row. Right picks the letter. Release both to type.", languageKey: keyboardLanguage),
                     isExpanded: binding(for: .chords)
                 ) {
-                    HelpBullet(text: "Move the left dial first to reveal a row.")
-                    HelpBullet(text: "Move the right dial to the character you want.")
-                    HelpBullet(text: "Release both dials to commit the chord.")
-                    HelpBullet(text: "Watch the preview bar instead of trying to memorize every row.")
+                    HelpBullet(text: erickText("Move the left dial first to reveal a row.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Move the right dial to the character you want.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Release both dials to commit the chord.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Watch the preview bar instead of trying to memorize every row.", languageKey: keyboardLanguage))
                 }
 
                 ExpandableHelpSection(
-                    title: "6-Section Utility Wheel",
-                    summary: "N Symbols, NE Shift, SE Space, S Period, SW Enter, NW Backspace.",
+                    title: erickText("6-Section Utility Wheel", languageKey: keyboardLanguage),
+                    summary: erickText("N Symbols, NE Shift, SE Space, S Period, SW Enter, NW Backspace.", languageKey: keyboardLanguage),
                     isExpanded: binding(for: .utility)
                 ) {
-                    HelpMappingRow(direction: "N", action: "Symbols")
-                    HelpMappingRow(direction: "NE", action: "Shift")
-                    HelpMappingRow(direction: "SE", action: "Space")
-                    HelpMappingRow(direction: "S", action: "Period")
-                    HelpMappingRow(direction: "SW", action: "Enter")
-                    HelpMappingRow(direction: "NW", action: "Backspace")
-                    Text("In 8-section mode, the right dial exposes the full 8-direction utility wheel.")
+                    HelpMappingRow(direction: "N", action: erickText("Symbols", languageKey: keyboardLanguage))
+                    HelpMappingRow(direction: "NE", action: erickText("Shift", languageKey: keyboardLanguage))
+                    HelpMappingRow(direction: "SE", action: erickText("Space", languageKey: keyboardLanguage))
+                    HelpMappingRow(direction: "S", action: erickText("Period", languageKey: keyboardLanguage))
+                    HelpMappingRow(direction: "SW", action: erickText("Enter", languageKey: keyboardLanguage))
+                    HelpMappingRow(direction: "NW", action: erickText("Backspace", languageKey: keyboardLanguage))
+                    Text(erickText("In 8-section mode, the right dial exposes the full 8-direction utility wheel.", languageKey: keyboardLanguage))
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
 
                 ExpandableHelpSection(
-                    title: "Input Modes",
-                    summary: "Instant is fastest. Confirm is cautious. Assisted is the one-handed path.",
+                    title: erickText("Input Modes", languageKey: keyboardLanguage),
+                    summary: erickText("Instant is fastest. Confirm is cautious. Assisted is the one-handed path.", languageKey: keyboardLanguage),
                     isExpanded: binding(for: .modes)
                 ) {
-                    HelpBullet(text: "Instant commits as soon as both dials release.")
-                    HelpBullet(text: "Confirm lets you preview before committing.")
-                    HelpBullet(text: "Assisted keeps the left-side row locked so you can finish from the letter side.")
+                    HelpBullet(text: erickText("Instant commits as soon as both dials release.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Confirm lets you preview before committing.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Assisted keeps the left-side row locked so you can finish from the letter side.", languageKey: keyboardLanguage))
                 }
 
                 ExpandableHelpSection(
-                    title: "Layouts and Predictions",
-                    summary: "Logical is easiest to learn. Efficiency is faster later. Predictions appear at rest.",
+                    title: erickText("Layouts and Predictions", languageKey: keyboardLanguage),
+                    summary: erickText("Logical is easiest to learn. Efficiency is faster later. Predictions appear at rest.", languageKey: keyboardLanguage),
                     isExpanded: binding(for: .layouts)
                 ) {
-                    HelpBullet(text: "Logical keeps the alphabet easy to learn.")
-                    HelpBullet(text: "Efficiency optimizes common English letters.")
-                    HelpBullet(text: "Custom layouts stay available in 8-section mode.")
-                    HelpBullet(text: "When both dials rest at center, ERICK shows up to three predictions.")
+                    HelpBullet(text: erickText("Logical keeps the alphabet easy to learn.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Efficiency optimizes common English letters.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Custom layouts stay available in 8-section mode.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("When both dials rest at center, ERICK shows up to three predictions.", languageKey: keyboardLanguage))
                 }
 
                 ExpandableHelpSection(
-                    title: "Controller Typing",
-                    summary: "A controller mirrors the two dials with both analog sticks.",
+                    title: erickText("Controller Typing", languageKey: keyboardLanguage),
+                    summary: erickText("A controller mirrors the two dials with both analog sticks.", languageKey: keyboardLanguage),
                     isExpanded: binding(for: .controller)
                 ) {
-                    HelpBullet(text: "Use both analog sticks the same way you use the touch dials.")
-                    HelpBullet(text: "Calibrate dead zone and Y-axis inversion in Controller Diagnostics before drills.")
-                    HelpBullet(text: "Start controller drills only after the touch version feels comfortable.")
+                    HelpBullet(text: erickText("Use both analog sticks the same way you use the touch dials.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Calibrate dead zone and Y-axis inversion in Controller Diagnostics before drills.", languageKey: keyboardLanguage))
+                    HelpBullet(text: erickText("Start controller drills only after the touch version feels comfortable.", languageKey: keyboardLanguage))
                 }
             }
             .padding()
         }
-        .navigationTitle("How to Type")
+        .navigationTitle(erickText("How to Type", languageKey: keyboardLanguage))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showQuickstart) {
             QuickstartView(

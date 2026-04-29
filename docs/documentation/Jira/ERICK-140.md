@@ -246,4 +246,13 @@ Later languages should follow the same shared-profile path instead of inventing 
 
 Phase 2 follow-up work should be split separately if Spanish efficiency optimization becomes justified.
 
+Current expansion follow-ups:
+
+- ERICK-155: Portuguese language support
+- ERICK-156: French language support
+- ERICK-157: German language support
+- ERICK-158: Italian language support
+- ERICK-159: Scandinavian language pack (Norwegian Bokmal, Danish, Swedish)
+- ERICK-160: Finnish language support
+
 **Total**: ~13 story points

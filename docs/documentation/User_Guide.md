@@ -1,7 +1,7 @@
 # ERICK User Guide
 
-**Version**: 1.0  
-**Last Updated**: April 28, 2026
+**Version**: 2.0.0  
+**Last Updated**: April 29, 2026
 
 ---
 
@@ -62,7 +62,7 @@ It can also help everyday users who want larger touch targets, controller suppor
 - Practice lessons now keep the default screen compact and move the longer explanation behind the question-mark help action.
 - Each guided lesson now covers the basics in sequence: letters first, then numbers, then punctuation or symbols.
 - Lesson actions now appear only when they are useful, such as when ERICK is not active yet or the lesson preset needs to be reapplied.
-- Guided lessons include **Previous Part**, **Next Part**, **Previous Lesson**, and **Next Lesson** actions so you can move through the sequence without returning to the hub.
+- Guided lessons include compact **Previous Part** and **Next Part** arrow controls plus **Previous Lesson**. **Next Lesson** appears after the current lesson is complete.
 - Completed lessons are highlighted as complete in the hub and reopen with **Replay Lesson** instead of **Resume Lesson**.
 - On Android, the lesson can open the keyboard picker directly. On iOS, the lesson can focus the practice field and open Settings, but you still use the globe key to switch to ERICK because iOS does not allow apps to change the active keyboard directly.
 - Quote Practice remains the advanced freeform step and is launched from within the lesson flow after the guided drills.
@@ -173,6 +173,8 @@ A layout designed around character frequency so common English letters (e, t, a,
 
 In 6-section mode, the built-in Efficiency preset now uses the current mixed-shortform research winner rather than the older placeholder arrangement.
 
+English currently keeps the dedicated built-in Efficiency map. When another keyboard language is active, ERICK falls back to the language-aware Logical layout even if Efficiency stays selected in settings.
+
 ### Custom
 
 Your own saved layout. You can create and switch between custom layouts in settings.
@@ -183,6 +185,24 @@ Your own saved layout. You can create and switch between custom layouts in setti
 2. Navigate to the **Layout** section.
 3. Select **Logical**, **Efficiency**, or any saved custom layout.
 4. The keyboard updates immediately.
+
+## Language Profiles
+
+ERICK currently ships shared keyboard-language profiles for **English**, **Spanish**, **Portuguese**, **French**, **German**, **Italian**, **Norwegian Bokmal**, **Danish**, **Swedish**, and **Finnish**.
+
+1. Open the ERICK app or keyboard settings.
+2. Navigate to the **Language** section.
+3. Select the language you want to type with.
+4. The keyboard updates immediately on both Android and iOS.
+
+Current behavior:
+
+- English keeps the dedicated Efficiency layout.
+- The other supported languages use language-aware Logical maps plus extra symbol slots.
+- In **8-section** mode, extra language characters appear directly in the language-aware logical map.
+- In **6-section** mode, extra language characters live in the **Symbols** layer so the shipped utility wheel stays unchanged.
+- Learned predictions are stored separately per language, so switching languages does not overwrite your English history.
+- The host app, settings, quickstart, practice lessons, help, and quote-practice UI follow the selected keyboard language on both Android and iOS.
 
 ---
 
@@ -276,7 +296,8 @@ A **suggestion bar** displays up to 3 word suggestions above the dials. Suggesti
 - **Tap a suggestion** to insert it. The partial word is replaced with the full suggestion.
 - Suggestion acceptance now adds spacing more intelligently around punctuation and next-word predictions.
 - Frequently used words rise in rank over time and are stored locally on your device.
-- **Default suggestions** (when starting fresh): "I", "The", "Hello".
+- **Default suggestions** vary by the active keyboard language and the active prediction trust profile.
+- Learned words and learned bigrams are stored separately per keyboard language.
 - All predictions run fully offline with zero data collection.
 
 ---
@@ -312,7 +333,14 @@ Settings are organized into collapsible sections with short summaries so you can
 
 ### Start Here
 
-- The settings screen begins with a short overview that points most users toward **Dial Mode**, **Input Mode**, and **Accessibility** first.
+- On Android, the settings screen begins with a short overview that points most users toward **Language**, **Dial Mode**, **Input Mode**, and **Accessibility** first.
+
+### Language
+
+- Switch between English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish
+- Language entries and key settings titles keep the English name in parentheses so you can recover from an accidental language switch
+- Non-English languages currently use logical-first maps with extra characters routed through language-aware logical or symbols slots
+- Learned predictions stay isolated per language
 
 ### Dial Mode
 
@@ -322,6 +350,7 @@ Settings are organized into collapsible sections with short summaries so you can
 ### Layout
 
 - Logical (A–Z), Efficiency, or any saved custom layout
+- English keeps the dedicated Efficiency map; other languages currently fall back to the language-aware Logical map
 - Manage Custom Layouts - open the layout editor
 
 ### Appearance

@@ -15,8 +15,10 @@ import com.vatoo.erick.shared.DialSectionMode
 import com.vatoo.erick.shared.InputAction
 import com.vatoo.erick.shared.InputMode
 import com.vatoo.erick.shared.KeyboardActionDelegate
+import com.vatoo.erick.shared.KeyboardLanguage
 import com.vatoo.erick.shared.KeyboardStateMachine
 import com.vatoo.erick.shared.LayoutType
+import com.vatoo.erick.shared.PredictionDomain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -55,11 +57,14 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private lateinit var previewCapsule: LinearLayout
     private lateinit var shiftIndicator: TextView
     private lateinit var suggestionBar: LinearLayout
+    private lateinit var suggestionLabel: TextView
     private lateinit var suggestion1: TextView
     private lateinit var suggestion2: TextView
     private lateinit var suggestion3: TextView
     private var lastHighlightedIndex: Int = -1
     private var pendingSuggestions: List<String> = emptyList()
+    private var currentPredictionDomain: PredictionDomain = PredictionDomain.GENERAL
+    private var currentLanguageKey: String = PreferencesManager.LANGUAGE_ENGLISH
 
     // --- Coroutine lifecycle management ---
     // Must provide a scope to the state machine; cancel all timer tasks when the IME is destroyed to prevent memory leaks
@@ -240,6 +245,36 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             stateMachine.setInputMode(inputMode)
         }.launchIn(serviceScope)
 
+        preferencesManager.keyboardLanguage.onEach { languageKey ->
+            currentLanguageKey = languageKey
+            val keyboardLanguage = when (languageKey) {
+                PreferencesManager.LANGUAGE_SPANISH -> KeyboardLanguage.SPANISH
+                PreferencesManager.LANGUAGE_PORTUGUESE -> KeyboardLanguage.PORTUGUESE
+                PreferencesManager.LANGUAGE_FRENCH -> KeyboardLanguage.FRENCH
+                PreferencesManager.LANGUAGE_GERMAN -> KeyboardLanguage.GERMAN
+                PreferencesManager.LANGUAGE_ITALIAN -> KeyboardLanguage.ITALIAN
+                PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> KeyboardLanguage.NORWEGIAN_BOKMAL
+                PreferencesManager.LANGUAGE_DANISH -> KeyboardLanguage.DANISH
+                PreferencesManager.LANGUAGE_SWEDISH -> KeyboardLanguage.SWEDISH
+                PreferencesManager.LANGUAGE_FINNISH -> KeyboardLanguage.FINNISH
+                else -> KeyboardLanguage.ENGLISH
+            }
+            stateMachine.setKeyboardLanguage(keyboardLanguage)
+            if (::suggestionBar.isInitialized) updateSuggestionBar()
+        }.launchIn(serviceScope)
+
+        preferencesManager.predictionDomain.onEach { domainKey ->
+            currentPredictionDomain = when (domainKey) {
+                PreferencesManager.PREDICTION_DOMAIN_CONVERSATION -> PredictionDomain.CONVERSATION
+                PreferencesManager.PREDICTION_DOMAIN_PRODUCTIVITY -> PredictionDomain.PRODUCTIVITY
+                PreferencesManager.PREDICTION_DOMAIN_ACCESSIBILITY -> PredictionDomain.ACCESSIBILITY
+                PreferencesManager.PREDICTION_DOMAIN_GAMING -> PredictionDomain.GAMING
+                else -> PredictionDomain.GENERAL
+            }
+            stateMachine.setPredictionDomain(currentPredictionDomain)
+            if (::suggestionBar.isInitialized) updateSuggestionBar()
+        }.launchIn(serviceScope)
+
         preferencesManager.controllerDeadZone.onEach { deadZone ->
             controllerDeadZone = deadZone
             stateMachine.setControllerDeadZone(deadZone)
@@ -296,6 +331,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         previewCapsule = view.findViewById(R.id.live_preview_capsule)
         shiftIndicator = view.findViewById(R.id.shift_indicator)
         suggestionBar = view.findViewById(R.id.suggestion_bar)
+        suggestionLabel = view.findViewById(R.id.suggestion_label)
         suggestion1 = view.findViewById(R.id.suggestion_1)
         suggestion2 = view.findViewById(R.id.suggestion_2)
         suggestion3 = view.findViewById(R.id.suggestion_3)
@@ -813,6 +849,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             suggestionBar.visibility = View.VISIBLE
             val isDark = isEffectiveDarkMode()
             val textColor = if (isDark) Color.WHITE else Color.parseColor("#333333")
+            val contextLabel = suggestionContextLabel()
+            suggestionLabel.text = contextLabel
+            suggestionLabel.setTextColor(textColor)
+            suggestionLabel.visibility = if (contextLabel.isBlank()) View.GONE else View.VISIBLE
             val views = listOf(suggestion1, suggestion2, suggestion3)
             for (i in views.indices) {
                 if (i < pendingSuggestions.size) {
@@ -829,6 +869,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }
     }
 
+    private fun suggestionContextLabel(): String = ""
+
     private fun updateShiftIndicator(mode: com.vatoo.erick.shared.KeyboardMode) {
         if (!::shiftIndicator.isInitialized) return
         val isDark = isEffectiveDarkMode()
@@ -838,28 +880,28 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 shiftIndicator.setTextColor(if (isDark) Color.WHITE else Color.DKGRAY)
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Shift mode active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Shift mode active")
             }
             com.vatoo.erick.shared.KeyboardMode.CAPS_LOCKED -> {
                 shiftIndicator.text = "↑↑"
                 shiftIndicator.setTextColor(Color.parseColor("#D32F2F"))
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Caps Lock active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Caps Lock active")
             }
             com.vatoo.erick.shared.KeyboardMode.SYMBOLS -> {
                 shiftIndicator.text = "#"
                 shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Symbols mode active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Symbols mode active")
             }
             com.vatoo.erick.shared.KeyboardMode.SYMBOLS_SHIFTED -> {
                 shiftIndicator.text = "#↑"
                 shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Symbols shifted mode active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Symbols shifted mode active")
             }
             else -> {
                 shiftIndicator.visibility = View.GONE

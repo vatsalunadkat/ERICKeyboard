@@ -23,6 +23,8 @@ struct SettingsView: View {
     @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
     @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
+    @AppStorage("prediction_domain", store: SettingsView.appGroupDefaults) private var predictionDomain: String = "general"
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     @AppStorage("six_section_dial", store: SettingsView.appGroupDefaults) private var sixSectionDial: Bool = false
     
     // Action closure when the user wants to dismiss settings from Keyboard Extension
@@ -31,6 +33,7 @@ struct SettingsView: View {
 
     @State private var showCustomLayoutList = false
     @State private var showCustomPaletteEditor = false
+    @State private var showSetupWizard = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,7 +46,7 @@ struct SettingsView: View {
                         .font(.title3)
                         .padding()
                 }
-                Text("Keyboard Settings")
+                Text(recoverableEnglishTitle(for: keyboardLanguage, english: "Keyboard Settings"))
                     .font(.headline)
                 Spacer()
             }
@@ -59,6 +62,18 @@ struct SettingsView: View {
             } else {
                 mainSettingsForm
             }
+        }
+        .sheet(isPresented: $showSetupWizard) {
+            SetupWizardSheet(
+                currentColorPalette: colorPalette,
+                onApply: { recommendation in
+                    applySetupWizardRecommendation(recommendation)
+                    showSetupWizard = false
+                },
+                onDismiss: {
+                    showSetupWizard = false
+                }
+            )
         }
         .onChange(of: layoutType) { _ in
             onSettingsChanged?()
@@ -93,9 +108,19 @@ struct SettingsView: View {
         .onChange(of: inputMode) { _ in
             onSettingsChanged?()
         }
+        .onChange(of: predictionDomain) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: keyboardLanguage) { _ in
+            onSettingsChanged?()
+        }
         .onChange(of: sixSectionDial) { _ in
             onSettingsChanged?()
         }
+    }
+
+    private func t(_ english: String) -> String {
+        erickText(english, languageKey: keyboardLanguage)
     }
 
     @State private var expandedSection: String? = nil
@@ -103,33 +128,85 @@ struct SettingsView: View {
     private var mainSettingsForm: some View {
         ScrollView {
             VStack(spacing: 8) {
-                // Dial Mode Section
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(t("Start with the essentials"))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(t("Most people only need Language, Dial Mode, Input Mode, Prediction, and Accessibility. The rest is optional customization."))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .cornerRadius(10)
+
+                Button(action: { showSetupWizard = true }) {
+                    Text(t("Setup Wizard"))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.bordered)
+
                 CollapsibleSettingsSection(
-                    title: "Dial Mode",
+                    title: recoverableEnglishTitle(for: keyboardLanguage, english: "Language"),
+                    isExpanded: expandedSection == "language",
+                    onToggle: { expandedSection = expandedSection == "language" ? nil : "language" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(t("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays."))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 4)
+
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "english"), selected: keyboardLanguage == "english") { keyboardLanguage = "english" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "spanish"), selected: keyboardLanguage == "spanish") { keyboardLanguage = "spanish" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "portuguese"), selected: keyboardLanguage == "portuguese") { keyboardLanguage = "portuguese" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "french"), selected: keyboardLanguage == "french") { keyboardLanguage = "french" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "german"), selected: keyboardLanguage == "german") { keyboardLanguage = "german" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "italian"), selected: keyboardLanguage == "italian") { keyboardLanguage = "italian" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "norwegian_bokmal"), selected: keyboardLanguage == "norwegian_bokmal") { keyboardLanguage = "norwegian_bokmal" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "danish"), selected: keyboardLanguage == "danish") { keyboardLanguage = "danish" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "swedish"), selected: keyboardLanguage == "swedish") { keyboardLanguage = "swedish" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "finnish"), selected: keyboardLanguage == "finnish") { keyboardLanguage = "finnish" }
+                    }
+                }
+
+                CollapsibleSettingsSection(
+                    title: t("Dial Mode"),
                     isExpanded: expandedSection == "dial_mode",
                     onToggle: { expandedSection = expandedSection == "dial_mode" ? nil : "dial_mode" }
                 ) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
+                        Toggle(t("6-Section Dial Mode"), isOn: $sixSectionDial)
                             .padding(.horizontal, 12).padding(.vertical, 4)
-                        Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
+                        Text(t("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe."))
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12)
                     }
                 }
 
-                // Layout Section
                 CollapsibleSettingsSection(
-                    title: "Keyboard Layout",
+                    title: t("Keyboard Layout"),
                     isExpanded: expandedSection == "layout",
                     onToggle: { expandedSection = expandedSection == "layout" ? nil : "layout" }
                 ) {
                     VStack(spacing: 0) {
-                        settingsRadioRow(label: "Logical (A–Z)", selected: layoutType == "logical") {
+                        if keyboardLanguage != "english" {
+                            Text(t("Non-English languages currently fall back to the language-aware logical layout even if Efficiency stays selected."))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 12)
+                                .padding(.bottom, 4)
+                        }
+
+                        settingsRadioRow(label: t("Logical (A-Z)"), selected: layoutType == "logical") {
                             layoutType = "logical"
                         }
-                        settingsRadioRow(label: "Efficiency", selected: layoutType == "efficiency") {
+                        settingsRadioRow(label: t("Efficiency"), selected: layoutType == "efficiency") {
                             layoutType = "efficiency"
                         }
 
@@ -150,7 +227,7 @@ struct SettingsView: View {
                         Button(action: { showCustomLayoutList = true }) {
                             HStack {
                                 Image(systemName: "pencil.circle")
-                                Text("Manage Custom Layouts")
+                                Text(t("Manage Custom Layouts"))
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 12).padding(.vertical, 8)
@@ -160,20 +237,20 @@ struct SettingsView: View {
 
                 // Appearance Section
                 CollapsibleSettingsSection(
-                    title: "Appearance",
+                    title: t("Appearance"),
                     isExpanded: expandedSection == "appearance",
                     onToggle: { expandedSection = expandedSection == "appearance" ? nil : "appearance" }
                 ) {
                     VStack(spacing: 0) {
                         // Theme toggle
-                        Text("Theme").font(.subheadline).fontWeight(.medium)
+                        Text(t("Theme")).font(.subheadline).fontWeight(.medium)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 12).padding(.bottom, 4)
 
-                        Picker("Theme", selection: $themeMode) {
-                            Text("System").tag("system")
-                            Text("Light").tag("light")
-                            Text("Dark").tag("dark")
+                        Picker(t("Theme"), selection: $themeMode) {
+                            Text(t("System Default")).tag("system")
+                            Text(t("Light")).tag("light")
+                            Text(t("Dark")).tag("dark")
                         }
                         .pickerStyle(.segmented)
                         .padding(.horizontal, 12).padding(.vertical, 4)
@@ -181,7 +258,7 @@ struct SettingsView: View {
                         Divider().padding(.vertical, 4)
 
                         // Custom Font toggle
-                        Toggle("Custom Font", isOn: Binding(
+                        Toggle(t("Custom Font"), isOn: Binding(
                             get: { fontPreference != "system" },
                             set: { newValue in
                                 fontPreference = newValue ? "verdana" : "system"
@@ -198,7 +275,7 @@ struct SettingsView: View {
                         Divider().padding(.vertical, 4)
 
                         // Custom Colors toggle
-                        Toggle("Custom Colors", isOn: Binding(
+                        Toggle(t("Custom Colors"), isOn: Binding(
                             get: { colorPalette == "pastel" || colorPalette == "custom" },
                             set: { newValue in
                                 if newValue {
@@ -213,8 +290,8 @@ struct SettingsView: View {
 
                         if colorPalette == "pastel" || colorPalette == "custom" {
                             ColorPaletteOption(
-                                title: "Pastel",
-                                subtitle: "Softer colors that are easier on the eyes",
+                                title: t("Pastel"),
+                                subtitle: t("Softer colors that are easier on the eyes"),
                                 palette: ColorPaletteDefinitions.pastel,
                                 selected: colorPalette == "pastel",
                                 onSelect: { colorPalette = "pastel" }
@@ -232,12 +309,12 @@ struct SettingsView: View {
 
                 // Accessibility Section
                 CollapsibleSettingsSection(
-                    title: "Accessibility",
+                    title: t("Accessibility"),
                     isExpanded: expandedSection == "accessibility",
                     onToggle: { expandedSection = expandedSection == "accessibility" ? nil : "accessibility" }
                 ) {
                     VStack(spacing: 4) {
-                        Toggle("Enable Colorblind Mode", isOn: Binding(
+                        Toggle(t("Enable Colorblind Mode"), isOn: Binding(
                             get: { colorblindMode },
                             set: { newValue in
                                 colorblindMode = newValue
@@ -250,71 +327,71 @@ struct SettingsView: View {
 
                         if colorblindMode {
                             ColorPaletteOption(
-                                title: "Okabe-Ito (Universal)",
-                                subtitle: "Recommended for all types",
+                                title: t("Okabe-Ito (Universal)"),
+                                subtitle: t("Recommended for all types"),
                                 palette: ColorPaletteDefinitions.okabeIto,
                                 selected: colorPalette == "okabe_ito",
                                 onSelect: { colorPalette = "okabe_ito" }
                             )
                             ColorPaletteOption(
-                                title: "Deuteranopia (Green-blind)",
-                                subtitle: "Optimized for green-blind users",
+                                title: t("Deuteranopia (Green-blind)"),
+                                subtitle: t("Optimized for green-blind users"),
                                 palette: ColorPaletteDefinitions.deuteranopia,
                                 selected: colorPalette == "deuteranopia",
                                 onSelect: { colorPalette = "deuteranopia" }
                             )
                             ColorPaletteOption(
-                                title: "Protanopia (Red-blind)",
-                                subtitle: "Optimized for red-blind users",
+                                title: t("Protanopia (Red-blind)"),
+                                subtitle: t("Optimized for red-blind users"),
                                 palette: ColorPaletteDefinitions.protanopia,
                                 selected: colorPalette == "protanopia",
                                 onSelect: { colorPalette = "protanopia" }
                             )
                             ColorPaletteOption(
-                                title: "Tritanopia (Blue-blind)",
-                                subtitle: "Optimized for blue-blind users",
+                                title: t("Tritanopia (Blue-blind)"),
+                                subtitle: t("Optimized for blue-blind users"),
                                 palette: ColorPaletteDefinitions.tritanopia,
                                 selected: colorPalette == "tritanopia",
                                 onSelect: { colorPalette = "tritanopia" }
                             )
                         }
 
-                        Toggle("Left-Handed Mode", isOn: $leftHandedMode)
+                        Toggle(t("Left-Handed Mode"), isOn: $leftHandedMode)
                             .padding(.horizontal, 12).padding(.vertical, 4)
                     }
                 }
 
                 // Feedback Section
                 CollapsibleSettingsSection(
-                    title: "Feedback",
+                    title: t("Feedback"),
                     isExpanded: expandedSection == "feedback",
                     onToggle: { expandedSection = expandedSection == "feedback" ? nil : "feedback" }
                 ) {
                     VStack(spacing: 4) {
-                        Toggle("Haptic Feedback", isOn: $hapticFeedback)
+                        Toggle(t("Haptic Feedback"), isOn: $hapticFeedback)
                             .padding(.horizontal, 12).padding(.vertical, 4)
                         if hapticFeedback {
-                            Text("Strong vibration for utility keys, light for letters.")
+                            Text(t("Strong vibration for utility keys, light for letters."))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 12)
                         }
 
-                        Toggle("Typing Sounds", isOn: $typingSounds)
+                        Toggle(t("Typing Sounds"), isOn: $typingSounds)
                             .padding(.horizontal, 12).padding(.vertical, 4)
                     }
                 }
 
                 // Dial Mode Section
                 CollapsibleSettingsSection(
-                    title: "Dial Mode",
+                    title: t("Dial Mode"),
                     isExpanded: expandedSection == "dial_mode",
                     onToggle: { expandedSection = expandedSection == "dial_mode" ? nil : "dial_mode" }
                 ) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Toggle("6-Section Dial Mode", isOn: $sixSectionDial)
+                        Toggle(t("6-Section Dial Mode"), isOn: $sixSectionDial)
                             .padding(.horizontal, 12).padding(.vertical, 4)
-                        Text("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe.")
+                        Text(t("Switches both dials from 8 segments (45° each) to 6 segments (60° each). Includes a dedicated Symbols layer via the NW single-swipe."))
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12)
@@ -323,51 +400,96 @@ struct SettingsView: View {
 
                 // Input Mode Section
                 CollapsibleSettingsSection(
-                    title: "Input Mode",
+                    title: t("Input Mode"),
                     isExpanded: expandedSection == "input_mode",
                     onToggle: { expandedSection = expandedSection == "input_mode" ? nil : "input_mode" }
                 ) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Choose how chords are triggered when using the dials.")
+                        Text(t("Choose how chords are triggered when using the dials."))
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12).padding(.bottom, 4)
 
                         InputModeRadioOption(
-                            title: "Quick Type",
-                            description: "Type at full speed. Characters appear as soon as you release either dial.",
+                            title: t("Quick Type"),
+                            description: t("Type at full speed. Characters appear as soon as you release either dial."),
                             selected: inputMode == "instant",
                             action: { inputMode = "instant" }
                         )
                         InputModeRadioOption(
-                            title: "Steady Type",
-                            description: "Take your time. Characters appear only after both dials return to center.",
+                            title: t("Steady Type"),
+                            description: t("Take your time. Characters appear only after both dials return to center."),
                             selected: inputMode == "confirm",
                             action: { inputMode = "confirm" }
                         )
                         InputModeRadioOption(
-                            title: "One-Handed",
-                            description: "Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.",
+                            title: t("One-Handed"),
+                            description: t("Type with one hand. Lock a direction on the left dial, then swipe the right dial to type."),
                             selected: inputMode == "assisted",
                             action: { inputMode = "assisted" }
                         )
                     }
                 }
 
+                CollapsibleSettingsSection(
+                    title: t("Prediction"),
+                    isExpanded: expandedSection == "prediction",
+                    onToggle: { expandedSection = expandedSection == "prediction" ? nil : "prediction" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(t("Predictions stay on-device. Choose a domain pack if you want ERICK to favor a particular vocabulary family."))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 4)
+
+                        PredictionDomainRadioOption(
+                            title: t("General"),
+                            description: t("Balanced everyday English suggestions."),
+                            selected: predictionDomain == "general",
+                            action: { predictionDomain = "general" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: t("Conversation"),
+                            description: t("Favor quick texting and casual chat vocabulary."),
+                            selected: predictionDomain == "conversation",
+                            action: { predictionDomain = "conversation" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: t("Productivity"),
+                            description: t("Favor work, planning, and follow-up vocabulary."),
+                            selected: predictionDomain == "productivity",
+                            action: { predictionDomain = "productivity" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: t("Accessibility"),
+                            description: t("Favor supportive and assistive-communication vocabulary."),
+                            selected: predictionDomain == "accessibility",
+                            action: { predictionDomain = "accessibility" }
+                        )
+                        PredictionDomainRadioOption(
+                            title: t("Gaming"),
+                            description: t("Favor game, party, match, and controller-related terms."),
+                            selected: predictionDomain == "gaming",
+                            action: { predictionDomain = "gaming" }
+                        )
+                    }
+                }
+
                 // Privacy & Security Section
                 CollapsibleSettingsSection(
-                    title: "Privacy & Security",
+                    title: t("Privacy & Security"),
                     isExpanded: expandedSection == "privacy",
                     onToggle: { expandedSection = expandedSection == "privacy" ? nil : "privacy" }
                 ) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("🔒 Your privacy is our priority. ERICKeyboard:")
+                        Text(t("Your privacy is our priority. ERICKeyboard:"))
                             .font(.caption).fontWeight(.semibold)
-                        Text("✓ Does NOT collect any text you type\n✓ Does NOT store passwords\n✓ Only stores preferences locally")
+                        Text(t("Does NOT collect any text you type\nDoes NOT store passwords\nOnly stores preferences locally"))
                             .font(.caption2).foregroundColor(.secondary)
                         Link(destination: URL(string: "https://github.com/vatsalunadkat/ERICKeyboard")!) {
                             HStack {
-                                Text("\u{1F4BB} View on GitHub")
+                                Text("\u{1F4BB} \(t("View on GitHub"))")
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
@@ -385,6 +507,14 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 8).padding(.vertical, 4)
         }
+    }
+
+    private func applySetupWizardRecommendation(_ recommendation: SetupWizardRecommendation) {
+        sixSectionDial = recommendation.sixSectionDial
+        inputMode = recommendation.inputMode
+        leftHandedMode = recommendation.leftHandedMode
+        colorblindMode = recommendation.colorblindMode
+        colorPalette = recommendation.colorPalette
     }
 
     @ViewBuilder
@@ -473,6 +603,272 @@ private struct InputModeRadioOption: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+private struct PredictionDomainRadioOption: View {
+    let title: String
+    let description: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 6)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private enum SetupWizardHardware {
+    case touch
+    case controller
+    case both
+}
+
+private enum SetupWizardTargetPreference {
+    case largerTargets
+    case fullEight
+}
+
+private enum SetupWizardTypingPreference {
+    case fastest
+    case steadiest
+    case oneHanded
+}
+
+private enum SetupWizardHandPreference {
+    case right
+    case left
+}
+
+private enum SetupWizardAccessibilityPreference {
+    case standard
+    case colorblindSafe
+}
+
+private struct SetupWizardRecommendation {
+    let sixSectionDial: Bool
+    let inputMode: String
+    let leftHandedMode: Bool
+    let colorblindMode: Bool
+    let colorPalette: String
+    let summaryLines: [String]
+}
+
+private struct SetupWizardSheet: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
+    let currentColorPalette: String
+    let onApply: (SetupWizardRecommendation) -> Void
+    let onDismiss: () -> Void
+
+    @State private var hardware: SetupWizardHardware = .touch
+    @State private var targetPreference: SetupWizardTargetPreference = .largerTargets
+    @State private var typingPreference: SetupWizardTypingPreference = .fastest
+    @State private var handPreference: SetupWizardHandPreference = .right
+    @State private var accessibilityPreference: SetupWizardAccessibilityPreference = .standard
+
+    private var recommendation: SetupWizardRecommendation {
+        buildSetupWizardRecommendation(
+            hardware: hardware,
+            targetPreference: targetPreference,
+            typingPreference: typingPreference,
+            handPreference: handPreference,
+            accessibilityPreference: accessibilityPreference,
+            currentColorPalette: currentColorPalette,
+            languageKey: keyboardLanguage
+        )
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(erickText("Answer a few questions and ERICK will apply a recommended starting bundle. You can still adjust every setting manually later.", languageKey: keyboardLanguage))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    SetupWizardQuestion(
+                        title: erickText("Main typing setup", languageKey: keyboardLanguage),
+                        options: [
+                            SetupWizardOption(title: erickText("Touch first", languageKey: keyboardLanguage), selected: hardware == .touch) { hardware = .touch },
+                            SetupWizardOption(title: erickText("Controller first", languageKey: keyboardLanguage), selected: hardware == .controller) { hardware = .controller },
+                            SetupWizardOption(title: erickText("Both", languageKey: keyboardLanguage), selected: hardware == .both) { hardware = .both }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: erickText("Dial preference", languageKey: keyboardLanguage),
+                        options: [
+                            SetupWizardOption(title: erickText("Larger targets", languageKey: keyboardLanguage), selected: targetPreference == .largerTargets) { targetPreference = .largerTargets },
+                            SetupWizardOption(title: erickText("Full 8-direction layout", languageKey: keyboardLanguage), selected: targetPreference == .fullEight) { targetPreference = .fullEight }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: erickText("Typing style", languageKey: keyboardLanguage),
+                        options: [
+                            SetupWizardOption(title: erickText("Fastest path", languageKey: keyboardLanguage), selected: typingPreference == .fastest) { typingPreference = .fastest },
+                            SetupWizardOption(title: erickText("Steadier confirmation", languageKey: keyboardLanguage), selected: typingPreference == .steadiest) { typingPreference = .steadiest },
+                            SetupWizardOption(title: erickText("One-handed", languageKey: keyboardLanguage), selected: typingPreference == .oneHanded) { typingPreference = .oneHanded }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: erickText("Handedness", languageKey: keyboardLanguage),
+                        options: [
+                            SetupWizardOption(title: erickText("Right-handed", languageKey: keyboardLanguage), selected: handPreference == .right) { handPreference = .right },
+                            SetupWizardOption(title: erickText("Left-handed", languageKey: keyboardLanguage), selected: handPreference == .left) { handPreference = .left }
+                        ]
+                    )
+
+                    SetupWizardQuestion(
+                        title: erickText("Accessibility default", languageKey: keyboardLanguage),
+                        options: [
+                            SetupWizardOption(title: erickText("Standard", languageKey: keyboardLanguage), selected: accessibilityPreference == .standard) { accessibilityPreference = .standard },
+                            SetupWizardOption(title: erickText("Colorblind-safe palette", languageKey: keyboardLanguage), selected: accessibilityPreference == .colorblindSafe) { accessibilityPreference = .colorblindSafe }
+                        ]
+                    )
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(erickText("Recommended bundle", languageKey: keyboardLanguage))
+                            .font(.headline)
+                        ForEach(recommendation.summaryLines, id: \.self) { line in
+                            Text(line)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(12)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .cornerRadius(10)
+                }
+                .padding()
+            }
+            .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Setup Wizard"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(erickText("Cancel", languageKey: keyboardLanguage), action: onDismiss)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(erickText("Apply", languageKey: keyboardLanguage)) {
+                        onApply(recommendation)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct SetupWizardOption {
+    let title: String
+    let selected: Bool
+    let onSelect: () -> Void
+}
+
+private struct SetupWizardQuestion: View {
+    let title: String
+    let options: [SetupWizardOption]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.headline)
+            ForEach(Array(options.enumerated()), id: \.offset) { _, option in
+                Button(action: option.onSelect) {
+                    HStack(spacing: 8) {
+                        Image(systemName: option.selected ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(option.selected ? .accentColor : .secondary)
+                        Text(option.title)
+                            .foregroundColor(.primary)
+                        Spacer()
+                    }
+                    .padding(.vertical, 6)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private func buildSetupWizardRecommendation(
+    hardware: SetupWizardHardware,
+    targetPreference: SetupWizardTargetPreference,
+    typingPreference: SetupWizardTypingPreference,
+    handPreference: SetupWizardHandPreference,
+    accessibilityPreference: SetupWizardAccessibilityPreference,
+    currentColorPalette: String,
+    languageKey: String
+) -> SetupWizardRecommendation {
+    let sixSectionDial: Bool
+    if hardware == .controller {
+        sixSectionDial = false
+    } else if typingPreference == .oneHanded {
+        sixSectionDial = true
+    } else {
+        sixSectionDial = targetPreference == .largerTargets
+    }
+
+    let inputMode: String
+    switch typingPreference {
+    case .steadiest:
+        inputMode = "confirm"
+    case .oneHanded:
+        inputMode = "assisted"
+    case .fastest:
+        inputMode = "instant"
+    }
+
+    let leftHandedMode = handPreference == .left
+    let colorblindMode = accessibilityPreference == .colorblindSafe
+    let colorPalette: String
+    if colorblindMode {
+        colorPalette = "okabe_ito"
+    } else if currentColorPalette == "custom" {
+        colorPalette = "custom"
+    } else if currentColorPalette == "pastel" {
+        colorPalette = "pastel"
+    } else {
+        colorPalette = "okabe_ito"
+    }
+
+    var summaryLines = [sixSectionDial ? erickText("6-section dial", languageKey: languageKey) : erickText("8-section dial", languageKey: languageKey)]
+    switch inputMode {
+    case "confirm":
+        summaryLines.append(erickText("Steady Type", languageKey: languageKey))
+    case "assisted":
+        summaryLines.append(erickText("One-Handed", languageKey: languageKey))
+    default:
+        summaryLines.append(erickText("Quick Type", languageKey: languageKey))
+    }
+    summaryLines.append(leftHandedMode ? erickText("Left-handed mode on", languageKey: languageKey) : erickText("Right-handed default", languageKey: languageKey))
+    summaryLines.append(colorblindMode ? erickText("Colorblind-safe palette enabled", languageKey: languageKey) : erickText("Standard accessibility palette", languageKey: languageKey))
+    if hardware == .controller || hardware == .both {
+        summaryLines.append(erickText("Controller-first starting bundle", languageKey: languageKey))
+    }
+
+    return SetupWizardRecommendation(
+        sixSectionDial: sixSectionDial,
+        inputMode: inputMode,
+        leftHandedMode: leftHandedMode,
+        colorblindMode: colorblindMode,
+        colorPalette: colorPalette,
+        summaryLines: summaryLines
+    )
 }
 
 struct SettingsView_Previews: PreviewProvider {

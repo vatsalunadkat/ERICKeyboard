@@ -33,8 +33,10 @@ class HelpActivity : ComponentActivity() {
         val preferencesManager = PreferencesManager(this)
         setContent {
             val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.THEME_SYSTEM)
-            ERICKTheme(themeMode = themeMode) {
-                HelpScreen(onBack = { finish() })
+            ProvideAppLanguage(preferencesManager = preferencesManager) {
+                ERICKTheme(themeMode = themeMode) {
+                    HelpScreen(onBack = { finish() })
+                }
             }
         }
     }
@@ -44,7 +46,9 @@ class HelpActivity : ComponentActivity() {
 @Composable
 fun HelpScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val appLanguage = LocalAppLanguageKey.current
     val preferencesManager = androidx.compose.runtime.remember(context) { PreferencesManager(context) }
+    val quickstartSteps = androidx.compose.runtime.remember(appLanguage) { quickstartStepsForLanguage(appLanguage) }
     val coroutineScope = rememberCoroutineScope()
     var expandedSections by rememberSaveable {
         mutableStateOf(setOf<HelpSectionId>(HelpSectionId.CHORDS, HelpSectionId.UTILITY))
@@ -96,10 +100,10 @@ fun HelpScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("How to Type") },
+                title = { Text(erickText(appLanguage, "How to Type")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = erickText(appLanguage, "Close"))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -117,15 +121,15 @@ fun HelpScreen(onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SectionCard("Start Here") {
+            SectionCard(erickText(appLanguage, "Start Here")) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "Use this order so you only learn the next thing you need.",
+                        erickText(appLanguage, "Use this order so you only learn the next thing you need."),
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    HelpBullet("Open Quickstart for the core dial model.")
-                    HelpBullet("Use Practice Lessons for guided drills instead of memorizing rules here.")
-                    HelpBullet("Open Controller Diagnostics only when you plan to type with a gamepad.")
+                    HelpBullet(erickText(appLanguage, "Open Quickstart for the core dial model."))
+                    HelpBullet(erickText(appLanguage, "Use Practice Lessons for guided drills instead of memorizing rules here."))
+                    HelpBullet(erickText(appLanguage, "Open Controller Diagnostics only when you plan to type with a gamepad."))
                     Button(
                         onClick = {
                             quickstartStep = 0
@@ -133,7 +137,7 @@ fun HelpScreen(onBack: () -> Unit) {
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Replay Quickstart")
+                        Text(erickText(appLanguage, "Replay Quickstart"))
                     }
                     Button(
                         onClick = {
@@ -141,14 +145,14 @@ fun HelpScreen(onBack: () -> Unit) {
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Open Practice Hub")
+                        Text(erickText(appLanguage, "Open Practice Hub"))
                     }
                 }
             }
 
             ExpandableHelpCard(
-                title = "Who ERICK Can Help",
-                summary = "Examples across physical access, cognitive support, and everyday use.",
+                title = erickText(appLanguage, "Who ERICK Can Help"),
+                summary = erickText(appLanguage, "Examples across physical access, cognitive support, and everyday use."),
                 expanded = expandedSections.contains(HelpSectionId.BENEFITS),
                 onToggle = { toggleSection(HelpSectionId.BENEFITS) }
             ) {
@@ -156,69 +160,69 @@ fun HelpScreen(onBack: () -> Unit) {
             }
 
             ExpandableHelpCard(
-                title = "Chord Mechanics",
-                summary = "Left picks the row. Right picks the letter. Release both to type.",
+                title = erickText(appLanguage, "Chord Mechanics"),
+                summary = erickText(appLanguage, "Left picks the row. Right picks the letter. Release both to type."),
                 expanded = expandedSections.contains(HelpSectionId.CHORDS),
                 onToggle = { toggleSection(HelpSectionId.CHORDS) }
             ) {
-                HelpBullet("Move the left dial first to reveal a row.")
-                HelpBullet("Move the right dial to the character you want.")
-                HelpBullet("Release both dials to commit the chord.")
-                HelpBullet("Watch the preview bar instead of trying to memorize every row.")
+                HelpBullet(erickText(appLanguage, "Move the left dial first to reveal a row."))
+                HelpBullet(erickText(appLanguage, "Move the right dial to the character you want."))
+                HelpBullet(erickText(appLanguage, "Release both dials to commit the chord."))
+                HelpBullet(erickText(appLanguage, "Watch the preview bar instead of trying to memorize every row."))
             }
 
             ExpandableHelpCard(
-                title = "6-Section Utility Wheel",
-                summary = "N Symbols, NE Shift, SE Space, S Period, SW Enter, NW Backspace.",
+                title = erickText(appLanguage, "6-Section Utility Wheel"),
+                summary = erickText(appLanguage, "N Symbols, NE Shift, SE Space, S Period, SW Enter, NW Backspace."),
                 expanded = expandedSections.contains(HelpSectionId.UTILITY),
                 onToggle = { toggleSection(HelpSectionId.UTILITY) }
             ) {
-                HelpMappingRow("N", "Symbols")
-                HelpMappingRow("NE", "Shift")
-                HelpMappingRow("SE", "Space")
-                HelpMappingRow("S", "Period")
-                HelpMappingRow("SW", "Enter")
-                HelpMappingRow("NW", "Backspace")
+                HelpMappingRow("N", erickText(appLanguage, "Symbols"))
+                HelpMappingRow("NE", erickText(appLanguage, "Shift"))
+                HelpMappingRow("SE", erickText(appLanguage, "Space"))
+                HelpMappingRow("S", erickText(appLanguage, "Period"))
+                HelpMappingRow("SW", erickText(appLanguage, "Enter"))
+                HelpMappingRow("NW", erickText(appLanguage, "Backspace"))
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "In 8-section mode, the right dial exposes the full 8-direction utility wheel.",
+                    erickText(appLanguage, "In 8-section mode, the right dial exposes the full 8-direction utility wheel."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             ExpandableHelpCard(
-                title = "Input Modes",
-                summary = "Instant is fastest. Confirm is cautious. Assisted is the one-handed path.",
+                title = erickText(appLanguage, "Input Modes"),
+                summary = erickText(appLanguage, "Instant is fastest. Confirm is cautious. Assisted is the one-handed path."),
                 expanded = expandedSections.contains(HelpSectionId.MODES),
                 onToggle = { toggleSection(HelpSectionId.MODES) }
             ) {
-                HelpBullet("Instant commits as soon as both dials release.")
-                HelpBullet("Confirm lets you preview before committing.")
-                HelpBullet("Assisted keeps the left-side row locked so you can finish from the letter side.")
+                HelpBullet(erickText(appLanguage, "Instant commits as soon as both dials release."))
+                HelpBullet(erickText(appLanguage, "Confirm lets you preview before committing."))
+                HelpBullet(erickText(appLanguage, "Assisted keeps the left-side row locked so you can finish from the letter side."))
             }
 
             ExpandableHelpCard(
-                title = "Layouts and Predictions",
-                summary = "Logical is easiest to learn. Efficiency is faster later. Predictions appear at rest.",
+                title = erickText(appLanguage, "Layouts and Predictions"),
+                summary = erickText(appLanguage, "Logical is easiest to learn. Efficiency is faster later. Predictions appear at rest."),
                 expanded = expandedSections.contains(HelpSectionId.LAYOUTS),
                 onToggle = { toggleSection(HelpSectionId.LAYOUTS) }
             ) {
-                HelpBullet("Logical keeps the alphabet easy to learn.")
-                HelpBullet("Efficiency optimizes common English letters.")
-                HelpBullet("Custom layouts stay available in 8-section mode.")
-                HelpBullet("When both dials rest at center, ERICK shows up to three predictions.")
+                HelpBullet(erickText(appLanguage, "Logical keeps the alphabet easy to learn."))
+                HelpBullet(erickText(appLanguage, "Efficiency optimizes common English letters."))
+                HelpBullet(erickText(appLanguage, "Custom layouts stay available in 8-section mode."))
+                HelpBullet(erickText(appLanguage, "When both dials rest at center, ERICK shows up to three predictions."))
             }
 
             ExpandableHelpCard(
-                title = "Controller Typing",
-                summary = "A controller mirrors the two dials with both analog sticks.",
+                title = erickText(appLanguage, "Controller Typing"),
+                summary = erickText(appLanguage, "A controller mirrors the two dials with both analog sticks."),
                 expanded = expandedSections.contains(HelpSectionId.CONTROLLER),
                 onToggle = { toggleSection(HelpSectionId.CONTROLLER) }
             ) {
-                HelpBullet("Use both analog sticks the same way you use the touch dials.")
-                HelpBullet("Calibrate dead zone and Y-axis inversion in Controller Diagnostics before drills.")
-                HelpBullet("Start controller drills only after the touch version feels comfortable.")
+                HelpBullet(erickText(appLanguage, "Use both analog sticks the same way you use the touch dials."))
+                HelpBullet(erickText(appLanguage, "Calibrate dead zone and Y-axis inversion in Controller Diagnostics before drills."))
+                HelpBullet(erickText(appLanguage, "Start controller drills only after the touch version feels comfortable."))
             }
         }
     }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class KeyboardLogicTest {
 
@@ -94,6 +95,72 @@ class KeyboardLogicTest {
     }
 
     @Test
+    fun spanishLogicalOverlayAddsNWithTildeInEightSection() {
+        logic.activeLanguage = KeyboardLanguage.SPANISH
+
+        assertEquals(
+            "ñ",
+            logic.getChordResult(Direction.SE, Direction.SW, KeyboardMode.NORMAL)
+        )
+        assertEquals(
+            "Ñ",
+            logic.getChordResult(Direction.SE, Direction.SW, KeyboardMode.SHIFTED)
+        )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+    }
+
+    @Test
+    fun languageAwareLogicalOverlayOnlyUsesEmptyEightSectionSlots() {
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+        val englishRows = KeyboardLogic.directions8.associateWith { direction ->
+            logic.getCharactersForDirection(direction, KeyboardMode.NORMAL)
+        }
+        val nonEnglishLanguages = listOf(
+            KeyboardLanguage.SPANISH,
+            KeyboardLanguage.PORTUGUESE,
+            KeyboardLanguage.FRENCH,
+            KeyboardLanguage.GERMAN,
+            KeyboardLanguage.ITALIAN,
+            KeyboardLanguage.NORWEGIAN_BOKMAL,
+            KeyboardLanguage.DANISH,
+            KeyboardLanguage.SWEDISH,
+            KeyboardLanguage.FINNISH
+        )
+
+        nonEnglishLanguages.forEach { language ->
+            logic.activeLanguage = language
+            KeyboardLogic.directions8.forEach { direction ->
+                val englishRow = englishRows.getValue(direction)
+                val localizedRow = logic.getCharactersForDirection(direction, KeyboardMode.NORMAL)
+                localizedRow.indices.forEach { index ->
+                    if (localizedRow[index] != englishRow[index]) {
+                        assertEquals(
+                            "",
+                            englishRow[index],
+                            "${language.name} replaced a non-empty logical slot at $direction[$index]"
+                        )
+                    }
+                }
+            }
+        }
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+    }
+
+    @Test
+    fun nonEnglishEfficiencyFallsBackToLogicalOverlay() {
+        logic.activeLanguage = KeyboardLanguage.SPANISH
+
+        assertEquals(
+            "ñ",
+            logic.getChordResult(Direction.SE, Direction.SW, KeyboardMode.NORMAL, LayoutType.EFFICIENCY)
+        )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
+    }
+
+    @Test
     fun sixSection_symbolsLayoutUsesOptimizedWinner() {
         logic.dialSectionMode = DialSectionMode.SIX_SECTION
         assertEquals(
@@ -104,6 +171,24 @@ class KeyboardLogicTest {
             "\u2260",
             logic.getChordResult(Direction.NW, Direction.N, KeyboardMode.SYMBOLS_SHIFTED)
         )
+        logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
+    }
+
+    @Test
+    fun sixSectionSymbolsOverlayAddsGermanUmlauts() {
+        logic.dialSectionMode = DialSectionMode.SIX_SECTION
+        logic.activeLanguage = KeyboardLanguage.GERMAN
+
+        assertEquals(
+            "ä",
+            logic.getChordResult(Direction.N, Direction.N, KeyboardMode.SYMBOLS)
+        )
+        assertEquals(
+            "Ä",
+            logic.getChordResult(Direction.N, Direction.N, KeyboardMode.SYMBOLS_SHIFTED)
+        )
+
+        logic.activeLanguage = KeyboardLanguage.ENGLISH
         logic.dialSectionMode = DialSectionMode.EIGHT_SECTION
     }
 

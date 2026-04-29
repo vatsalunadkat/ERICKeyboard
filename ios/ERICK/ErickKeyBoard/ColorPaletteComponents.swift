@@ -177,6 +177,7 @@ struct ColorPaletteDefinitions {
 }
 
 struct ColorPaletteOption: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     let title: String
     let subtitle: String
     let palette: [ColorPaletteEntry]
@@ -208,7 +209,7 @@ struct ColorPaletteOption: View {
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
                                     )
-                                Text(entry.name)
+                                Text(erickText(entry.name, languageKey: keyboardLanguage))
                                     .font(.system(size: 8))
                                     .foregroundColor(.secondary)
                             }
@@ -223,6 +224,7 @@ struct ColorPaletteOption: View {
 }
 
 struct CustomPaletteOption: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     let customColors: String
     let selected: Bool
     let onSelect: () -> Void
@@ -239,13 +241,13 @@ struct CustomPaletteOption: View {
                     Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                         .foregroundColor(selected ? .accentColor : .secondary)
                     VStack(alignment: .leading) {
-                        Text("Create Your Own").foregroundColor(.primary)
-                        Text("Pick your own 8 colors")
+                        Text(erickText("Create Your Own", languageKey: keyboardLanguage)).foregroundColor(.primary)
+                        Text(erickText("Pick your own 8 colors", languageKey: keyboardLanguage))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    Button("Edit") { onEditColors() }
+                    Button(erickText("Edit", languageKey: keyboardLanguage)) { onEditColors() }
                         .font(.caption)
                         .buttonStyle(.bordered)
                 }

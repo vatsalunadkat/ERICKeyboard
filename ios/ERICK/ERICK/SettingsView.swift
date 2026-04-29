@@ -1,146 +1,133 @@
-//
-//  SettingsView.swift
-//  ERICK
-//
-//  Created by ERICK on 2026/3/9.
-//
-
 import SwiftUI
 import SharedKeyboard
 
-            Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Start here")
-                        .font(.headline)
-                    Text("Create a blank layout for full control, or duplicate a built-in layout if you only want to tweak a few chords.")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+struct SettingsView: View {
+    static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
 
-                    Button("Create Blank") {
-                        newLayoutName = ""
-                        showCreateBlank = true
-                    }
+    @Environment(\.dismiss) private var dismiss
 
-                    Button("Duplicate Built-in") {
-                        newLayoutName = ""
-                        showDuplicate = true
-                    }
-                }
-                .padding(.vertical, 4)
+    @AppStorage("layout_type", store: SettingsView.appGroupDefaults) private var layoutType: String = "logical"
+    @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
+    @AppStorage("theme_mode", store: SettingsView.appGroupDefaults) private var themeMode: String = "system"
+    @AppStorage("colorblind_mode", store: SettingsView.appGroupDefaults) private var colorblindMode: Bool = false
+    @AppStorage("color_palette", store: SettingsView.appGroupDefaults) private var colorPalette: String = "okabe_ito"
+    @AppStorage("left_handed_mode", store: SettingsView.appGroupDefaults) private var leftHandedMode: Bool = false
+    @AppStorage("custom_layout_id", store: SettingsView.appGroupDefaults) private var customLayoutId: String = ""
+    @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
+    @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
+
+    @State private var customLayouts: [CustomLayout] = []
+    @State private var infoSheet: SettingsInfoSheet?
+
+    var body: some View {
+        Form {
+            Section(header: Text(erickText("Start Here", languageKey: keyboardLanguage))) {
+                SettingsBulletRow(text: erickText("Most people only need Dial Mode, Input Mode, and Accessibility.", languageKey: keyboardLanguage))
             }
 
-struct SettingsView: View {
-                Text("No custom layouts yet.")
-                    .foregroundColor(.secondary)
-                    .padding(.vertical, 8)
-    @AppStorage("dark_theme", store: SettingsView.appGroupDefaults) private var darkTheme: Bool = false
-            if !layouts.isEmpty {
-                Section(header: Text("Your Layouts")) {
-                    ForEach(Array(layouts.enumerated()), id: \.element.id) { _, cl in
-                        NavigationLink {
-                            AppCustomLayoutEditorView(layout: cl, onSave: { updated in
-                                let m = manager()
-                                let _ = m.save(layout: updated)
-                                reloadLayouts()
-                            })
-                        } label: {
-                            VStack(alignment: .leading) {
-                                Text(cl.name).font(.body)
-                                let count = cl.normalChordMap.values.flatMap { ($0 as! [String]) }.filter { !$0.isEmpty }.count
-                                Text("\(count) characters mapped")
+            Section(
+                header: Text(recoverableEnglishTitle(for: keyboardLanguage, english: "Language")),
+                footer: Text(erickText("English keeps the dedicated efficiency layout. The other supported languages currently use language-aware logical maps and symbol overlays.", languageKey: keyboardLanguage))
+            ) {
+                Picker(erickText("Language", languageKey: keyboardLanguage), selection: $keyboardLanguage) {
+                    Text(bilingualSettingsLanguageDisplayName(for: "english")).tag("english")
+                    Text(bilingualSettingsLanguageDisplayName(for: "spanish")).tag("spanish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "portuguese")).tag("portuguese")
+                    Text(bilingualSettingsLanguageDisplayName(for: "french")).tag("french")
+                    Text(bilingualSettingsLanguageDisplayName(for: "german")).tag("german")
+                    Text(bilingualSettingsLanguageDisplayName(for: "italian")).tag("italian")
+                    Text(bilingualSettingsLanguageDisplayName(for: "norwegian_bokmal")).tag("norwegian_bokmal")
+                    Text(bilingualSettingsLanguageDisplayName(for: "danish")).tag("danish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "swedish")).tag("swedish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "finnish")).tag("finnish")
+                }
+            }
+
+            Section(
+                header: Text(erickText("Keyboard Layout", languageKey: keyboardLanguage)),
+                footer: Text(erickText("Logical is easiest to learn. Efficiency is tuned for common English letters, and other languages currently fall back to the language-aware logical layout.", languageKey: keyboardLanguage))
+            ) {
+                Picker(erickText("Layout Type", languageKey: keyboardLanguage), selection: $layoutType) {
+                    Text(erickText("Logical (A-Z)", languageKey: keyboardLanguage)).tag("logical")
+                    Text(erickText("Efficiency", languageKey: keyboardLanguage)).tag("efficiency")
+                }
+                .pickerStyle(.inline)
+
+                ForEach(Array(customLayouts.enumerated()), id: \.element.id) { _, layout in
+                    Button(action: {
+                        customLayoutId = layout.id
+                        layoutType = "custom"
+                    }) {
+                        HStack {
+                            Image(systemName: layoutType == "custom" && customLayoutId == layout.id ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(layoutType == "custom" && customLayoutId == layout.id ? .accentColor : .secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(layout.name)
+                                    .foregroundColor(.primary)
+                                Text(erickText("Custom layout", languageKey: keyboardLanguage))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
-    private func reloadCustomLayouts() {
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) { deleteTarget = cl } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-        let m = CustomLayoutManager(storage: IOSCustomLayoutStorage())
-        NavigationView {
-            Form {
-                Section(header: Text("Start Here")) {
-                    SettingsBulletRow(text: "Most people only need Dial Mode, Input Mode, and Accessibility.")
-
-                Section(
-                    header: Text("Keyboard Layout"),
-                    footer: Text("Logical is easiest to learn. Efficiency is tuned for common English letters.")
-                ) {
-                    Picker("Layout Type", selection: $layoutType) {
-                        Text("Logical (A–Z)").tag("logical")
-                        Text("Efficiency").tag("efficiency")
-                    }
-                    .pickerStyle(.inline)
-
-                    // Custom layouts
-                    ForEach(Array(customLayouts.enumerated()), id: \.element.id) { _, cl in
-                        Button(action: {
-                            customLayoutId = cl.id
-                            layoutType = "custom"
-                        }) {
-                            HStack {
-                                Image(systemName: layoutType == "custom" && customLayoutId == cl.id
-                                      ? "largecircle.fill.circle" : "circle")
-                                    .foregroundColor(layoutType == "custom" && customLayoutId == cl.id ? .accentColor : .secondary)
-                                VStack(alignment: .leading) {
-                                    Text(cl.name).foregroundColor(.primary)
-                                    Text("Custom layout").font(.caption).foregroundColor(.secondary)
-                                }
-                            }
+                            Spacer()
                         }
                     }
+                }
 
-                    NavigationLink("Manage Custom Layouts") {
-                        AppCustomLayoutListView(onLayoutsChanged: { reloadCustomLayouts() })
+                NavigationLink(erickText("Manage Custom Layouts", languageKey: keyboardLanguage)) {
+                    AppCustomLayoutListView(onLayoutsChanged: reloadCustomLayouts)
+                }
+            }
+
+            Section(header: Text(erickText("Appearance", languageKey: keyboardLanguage))) {
+                Picker(erickText("Theme", languageKey: keyboardLanguage), selection: $themeMode) {
+                    Text(erickText("System Default", languageKey: keyboardLanguage)).tag("system")
+                    Text(erickText("Light", languageKey: keyboardLanguage)).tag("light")
+                    Text(erickText("Dark", languageKey: keyboardLanguage)).tag("dark")
+                }
+                .pickerStyle(.segmented)
+            }
+
+            Section(
+                header: Text(erickText("Font", languageKey: keyboardLanguage)),
+                footer: Text(erickText("Use a custom font only if readability improves for you.", languageKey: keyboardLanguage))
+            ) {
+                appFontOption(key: "system", label: erickText("System Default", languageKey: keyboardLanguage), font: .body)
+                appFontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
+                appFontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
+                appFontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
+            }
+
+            Section(
+                header: Text(erickText("Custom Colors", languageKey: keyboardLanguage)),
+                footer: Text(erickText("Pastel and custom palettes disable the colorblind presets.", languageKey: keyboardLanguage))
+            ) {
+                Button(action: { colorPalette = "okabe_ito" }) {
+                    HStack {
+                        Image(systemName: (colorPalette != "pastel" && colorPalette != "custom") ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor((colorPalette != "pastel" && colorPalette != "custom") ? .accentColor : .secondary)
+                        Text(erickText("None", languageKey: keyboardLanguage))
+                            .foregroundColor(.primary)
                     }
                 }
-                
-                Section(header: Text("Appearance")) {
-                    Picker("Theme", selection: $themeMode) {
-                        Text("System Default").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
-                    }
-                    .pickerStyle(.segmented)
-                }
-
-                Section(
-                    header: Text("Font"),
-                    footer: Text("Use a custom font only if readability improves for you.")
-                ) {
-                    appFontOption(key: "system", label: "System Default", font: .body)
-                    appFontOption(key: "verdana", label: "Verdana", font: .custom("Verdana", size: 17))
-                    appFontOption(key: "georgia", label: "Georgia", font: .custom("Georgia", size: 17))
-                    appFontOption(key: "opendyslexic", label: "OpenDyslexic", font: .custom("OpenDyslexic", size: 17))
-                }
-
-                Section(
-                    header: Text("Custom Colors"),
-                    footer: Text("Pastel and custom palettes disable the colorblind presets.")
-                ) {
-                    Button(action: { colorPalette = "okabe_ito" }) {
-                        HStack {
-                            Image(systemName: (colorPalette != "pastel" && colorPalette != "custom") ? "largecircle.fill.circle" : "circle")
-                                .foregroundColor((colorPalette != "pastel" && colorPalette != "custom") ? .accentColor : .secondary)
-                            Text("None").foregroundColor(.primary)
+                AppColorPaletteOption(
+                    title: erickText("Pastel", languageKey: keyboardLanguage),
+                    subtitle: erickText("Softer colors that are easier on the eyes", languageKey: keyboardLanguage),
+                    palette: AppColorPaletteDefinitions.pastel,
+                    selected: colorPalette == "pastel",
+                    onSelect: {
+                        colorPalette = "pastel"
+                        if colorblindMode {
+                            colorblindMode = false
                         }
                     }
-                    AppColorPaletteOption(
-                        title: "Pastel",
-                        subtitle: "Softer colors that are easier on the eyes",
-                        palette: AppColorPaletteDefinitions.pastel,
-                        selected: colorPalette == "pastel",
-                        onSelect: {
-                            colorPalette = "pastel"
-                            if colorblindMode { colorblindMode = false }
-                        }
-                    )
-                }
+                )
+            }
 
-                // Accessibility Section
-                Section(header: Text("Accessibility")) {
-                    Toggle("Enable Colorblind Mode", isOn: Binding(
+            Section(header: Text(erickText("Accessibility", languageKey: keyboardLanguage))) {
+                Toggle(
+                    erickText("Enable Colorblind Mode", languageKey: keyboardLanguage),
+                    isOn: Binding(
                         get: { colorblindMode },
                         set: { newValue in
                             colorblindMode = newValue
@@ -148,107 +135,133 @@ struct SettingsView: View {
                                 colorPalette = "okabe_ito"
                             }
                         }
-                    ))
+                    )
+                )
 
-                    if colorblindMode {
-                        AppColorPaletteOption(
-                            title: "Okabe-Ito (Universal)",
-                            subtitle: "Recommended for all types of color vision deficiency",
-                            palette: AppColorPaletteDefinitions.okabeIto,
-                            selected: colorPalette == "okabe_ito",
-                            onSelect: { colorPalette = "okabe_ito" }
-                        )
-                        AppColorPaletteOption(
-                            title: "Deuteranopia (Green-blind)",
-                            subtitle: "Optimized for green-blind users",
-                            palette: AppColorPaletteDefinitions.deuteranopia,
-                            selected: colorPalette == "deuteranopia",
-                            onSelect: { colorPalette = "deuteranopia" }
-                        )
-                        AppColorPaletteOption(
-                            title: "Protanopia (Red-blind)",
-                            subtitle: "Optimized for red-blind users",
-                            palette: AppColorPaletteDefinitions.protanopia,
-                            selected: colorPalette == "protanopia",
-                            onSelect: { colorPalette = "protanopia" }
-                        )
-                        AppColorPaletteOption(
-                            title: "Tritanopia (Blue-blind)",
-                            subtitle: "Optimized for blue-blind users",
-                            palette: AppColorPaletteDefinitions.tritanopia,
-                            selected: colorPalette == "tritanopia",
-                            onSelect: { colorPalette = "tritanopia" }
-                        )
-                    }
-
-                    Toggle("Left-Handed Mode", isOn: $leftHandedMode)
+                if colorblindMode {
+                    AppColorPaletteOption(
+                        title: erickText("Okabe-Ito (Universal)", languageKey: keyboardLanguage),
+                        subtitle: erickText("Recommended for all types of color vision deficiency", languageKey: keyboardLanguage),
+                        palette: AppColorPaletteDefinitions.okabeIto,
+                        selected: colorPalette == "okabe_ito",
+                        onSelect: { colorPalette = "okabe_ito" }
+                    )
+                    AppColorPaletteOption(
+                        title: erickText("Deuteranopia (Green-blind)", languageKey: keyboardLanguage),
+                        subtitle: erickText("Optimized for green-blind users", languageKey: keyboardLanguage),
+                        palette: AppColorPaletteDefinitions.deuteranopia,
+                        selected: colorPalette == "deuteranopia",
+                        onSelect: { colorPalette = "deuteranopia" }
+                    )
+                    AppColorPaletteOption(
+                        title: erickText("Protanopia (Red-blind)", languageKey: keyboardLanguage),
+                        subtitle: erickText("Optimized for red-blind users", languageKey: keyboardLanguage),
+                        palette: AppColorPaletteDefinitions.protanopia,
+                        selected: colorPalette == "protanopia",
+                        onSelect: { colorPalette = "protanopia" }
+                    )
+                    AppColorPaletteOption(
+                        title: erickText("Tritanopia (Blue-blind)", languageKey: keyboardLanguage),
+                        subtitle: erickText("Optimized for blue-blind users", languageKey: keyboardLanguage),
+                        palette: AppColorPaletteDefinitions.tritanopia,
+                        selected: colorPalette == "tritanopia",
+                        onSelect: { colorPalette = "tritanopia" }
+                    )
                 }
 
-                Section(
-                    header: Text("Input Mode"),
-                    footer: Text("Quick Type is fastest. Steady Type is more deliberate. One-Handed locks the left-side row.")
-                ) {
-                    Button(action: { inputMode = "instant" }) {
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: inputMode == "instant" ? "largecircle.fill.circle" : "circle")
-                                .foregroundColor(inputMode == "instant" ? .accentColor : .secondary)
-                                .padding(.top, 2)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Quick Type").foregroundColor(.primary)
-                                Text("Type at full speed. Characters appear as soon as you release either dial.")
-                                    .font(.caption).foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                    Button(action: { inputMode = "confirm" }) {
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: inputMode == "confirm" ? "largecircle.fill.circle" : "circle")
-                                .foregroundColor(inputMode == "confirm" ? .accentColor : .secondary)
-                                .padding(.top, 2)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Steady Type").foregroundColor(.primary)
-                                Text("Take your time. Characters appear only after both dials return to center.")
-                                    .font(.caption).foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                    Button(action: { inputMode = "assisted" }) {
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: inputMode == "assisted" ? "largecircle.fill.circle" : "circle")
-                                .foregroundColor(inputMode == "assisted" ? .accentColor : .secondary)
-                                .padding(.top, 2)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("One-Handed").foregroundColor(.primary)
-                                Text("Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.")
-                                    .font(.caption).foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-                
-                Section(header: Text("Privacy & Security")) {
-                    Button {
-                        infoSheet = .privacy
-                    } label: {
-                        HStack {
-                            Text("View Privacy Details")
-                            Spacer()
-                            Image(systemName: "chevron.right")
+                Toggle(erickText("Left-Handed Mode", languageKey: keyboardLanguage), isOn: $leftHandedMode)
+            }
+
+            Section(
+                header: Text(erickText("Input Mode", languageKey: keyboardLanguage)),
+                footer: Text(erickText("Quick Type is fastest. Steady Type is more deliberate. One-Handed locks the left-side row.", languageKey: keyboardLanguage))
+            ) {
+                Button(action: { inputMode = "instant" }) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: inputMode == "instant" ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(inputMode == "instant" ? .accentColor : .secondary)
+                            .padding(.top, 2)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(erickText("Quick Type", languageKey: keyboardLanguage))
+                                .foregroundColor(.primary)
+                            Text(erickText("Type at full speed. Characters appear as soon as you release either dial.", languageKey: keyboardLanguage))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
+                        Spacer()
+                    }
+                }
+                Button(action: { inputMode = "confirm" }) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: inputMode == "confirm" ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(inputMode == "confirm" ? .accentColor : .secondary)
+                            .padding(.top, 2)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(erickText("Steady Type", languageKey: keyboardLanguage))
+                                .foregroundColor(.primary)
+                            Text(erickText("Take your time. Characters appear only after both dials return to center.", languageKey: keyboardLanguage))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                    }
+                }
+                Button(action: { inputMode = "assisted" }) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: inputMode == "assisted" ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(inputMode == "assisted" ? .accentColor : .secondary)
+                            .padding(.top, 2)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(erickText("One-Handed", languageKey: keyboardLanguage))
+                                .foregroundColor(.primary)
+                            Text(erickText("Type with one hand. Lock a direction on the left dial, then swipe the right dial to type.", languageKey: keyboardLanguage))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
                     }
                 }
             }
-            .navigationTitle("Keyboard Settings")
-            .navigationBarItems(leading: Button("Back", action: {
-                dismiss()
-            }))
-            .onAppear { reloadCustomLayouts() }
-            .sheet(item: $infoSheet) { sheet in
-                SettingsInfoSheetView(sheet: sheet)
+
+            Section(header: Text(erickText("Privacy & Security", languageKey: keyboardLanguage))) {
+                Button {
+                    infoSheet = .privacy
+                } label: {
+                    HStack {
+                        Text(erickText("View Privacy Details", languageKey: keyboardLanguage))
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
         }
+        .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Keyboard Settings"))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(erickText("Back", languageKey: keyboardLanguage)) {
+                    dismiss()
+                }
+            }
+        }
+        .onAppear {
+            reloadCustomLayouts()
+            darkTheme = themeMode == "dark"
+        }
+        .onChange(of: themeMode) { newValue in
+            darkTheme = newValue == "dark"
+        }
+        .sheet(item: $infoSheet) { sheet in
+            SettingsInfoSheetView(sheet: sheet, languageKey: keyboardLanguage)
+        }
+    }
+
+    private func reloadCustomLayouts() {
+        let manager = CustomLayoutManager(storage: IOSCustomLayoutStorage())
+        manager.loadAll()
+        customLayouts = manager.getAll()
     }
 
     @ViewBuilder
@@ -258,8 +271,11 @@ struct SettingsView: View {
                 Image(systemName: fontPreference == key ? "largecircle.fill.circle" : "circle")
                     .foregroundColor(fontPreference == key ? .accentColor : .secondary)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(label).foregroundColor(.primary)
-                    Text("The quick brown fox").font(font).foregroundColor(.secondary)
+                    Text(label)
+                        .foregroundColor(.primary)
+                    Text(erickText("The quick brown fox", languageKey: keyboardLanguage))
+                        .font(font)
+                        .foregroundColor(.secondary)
                 }
             }
         }
@@ -288,6 +304,7 @@ private struct SettingsBulletRow: View {
 
 private struct SettingsInfoSheetView: View {
     let sheet: SettingsInfoSheet
+    let languageKey: String
 
     var body: some View {
         NavigationStack {
@@ -295,19 +312,19 @@ private struct SettingsInfoSheetView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     switch sheet {
                     case .privacy:
-                        Text("ERICKeyboard keeps your typing on your device.")
+                        Text(erickText("ERICKeyboard keeps your typing on your device.", languageKey: languageKey))
                             .font(.body)
-                        SettingsBulletRow(text: "It does not collect the text you type")
-                        SettingsBulletRow(text: "It does not store passwords or personal data")
-                        SettingsBulletRow(text: "It does not transmit typing data from your device")
-                        SettingsBulletRow(text: "It stores only keyboard preferences locally")
-                        SettingsBulletRow(text: "It requests no internet permission for typing data")
-                        SettingsBulletRow(text: "The project is open source for inspection")
+                        SettingsBulletRow(text: erickText("It does not collect the text you type", languageKey: languageKey))
+                        SettingsBulletRow(text: erickText("It does not store passwords or personal data", languageKey: languageKey))
+                        SettingsBulletRow(text: erickText("It does not transmit typing data from your device", languageKey: languageKey))
+                        SettingsBulletRow(text: erickText("It stores only keyboard preferences locally", languageKey: languageKey))
+                        SettingsBulletRow(text: erickText("It requests no internet permission for typing data", languageKey: languageKey))
+                        SettingsBulletRow(text: erickText("The project is open source for inspection", languageKey: languageKey))
                     }
                 }
                 .padding()
             }
-            .navigationTitle("Privacy & Security")
+            .navigationTitle(recoverableEnglishTitle(for: languageKey, english: "Privacy & Security"))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -318,8 +335,6 @@ struct AppSettingsView_Previews: PreviewProvider {
         SettingsView()
     }
 }
-
-// MARK: - Color Palette Definitions & UI Components (Main App)
 
 private struct AppColorPaletteEntry {
     let name: String
@@ -337,6 +352,7 @@ private struct AppColorPaletteDefinitions {
         .init(name: "Violet", hex: "#920783"),
         .init(name: "Black", hex: "#000000")
     ]
+
     static let okabeIto: [AppColorPaletteEntry] = [
         .init(name: "Orange", hex: "#E69F00"),
         .init(name: "Sky Blue", hex: "#56B4E9"),
@@ -347,6 +363,7 @@ private struct AppColorPaletteDefinitions {
         .init(name: "Reddish Purple", hex: "#CC79A7"),
         .init(name: "Black", hex: "#000000")
     ]
+
     static let deuteranopia: [AppColorPaletteEntry] = [
         .init(name: "Blue", hex: "#0072B2"),
         .init(name: "Orange", hex: "#E69F00"),
@@ -357,6 +374,7 @@ private struct AppColorPaletteDefinitions {
         .init(name: "Pink", hex: "#EE7733"),
         .init(name: "Black", hex: "#000000")
     ]
+
     static let protanopia: [AppColorPaletteEntry] = [
         .init(name: "Blue", hex: "#0077BB"),
         .init(name: "Cyan", hex: "#33BBEE"),
@@ -367,6 +385,7 @@ private struct AppColorPaletteDefinitions {
         .init(name: "Grey", hex: "#BBBBBB"),
         .init(name: "Black", hex: "#000000")
     ]
+
     static let tritanopia: [AppColorPaletteEntry] = [
         .init(name: "Red", hex: "#CC3311"),
         .init(name: "Blue", hex: "#0077BB"),
@@ -377,6 +396,7 @@ private struct AppColorPaletteDefinitions {
         .init(name: "Grey", hex: "#BBBBBB"),
         .init(name: "Black", hex: "#000000")
     ]
+
     static let pastel: [AppColorPaletteEntry] = [
         .init(name: "Rose", hex: "#F4A6B0"),
         .init(name: "Peach", hex: "#F6C9A0"),
@@ -390,17 +410,25 @@ private struct AppColorPaletteDefinitions {
 
     static func palette(for key: String) -> [AppColorPaletteEntry] {
         switch key {
-        case "okabe_ito": return okabeIto
-        case "deuteranopia": return deuteranopia
-        case "protanopia": return protanopia
-        case "tritanopia": return tritanopia
-        case "pastel": return pastel
-        default: return defaultPalette
+        case "okabe_ito":
+            return okabeIto
+        case "deuteranopia":
+            return deuteranopia
+        case "protanopia":
+            return protanopia
+        case "tritanopia":
+            return tritanopia
+        case "pastel":
+            return pastel
+        default:
+            return defaultPalette
         }
     }
 }
 
 private struct AppColorPaletteOption: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
+
     let title: String
     let subtitle: String
     let palette: [AppColorPaletteEntry]
@@ -414,7 +442,8 @@ private struct AppColorPaletteOption: View {
                     Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                         .foregroundColor(selected ? .accentColor : .secondary)
                     VStack(alignment: .leading) {
-                        Text(title).foregroundColor(.primary)
+                        Text(title)
+                            .foregroundColor(.primary)
                         Text(subtitle)
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -432,7 +461,7 @@ private struct AppColorPaletteOption: View {
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
                                     )
-                                Text(entry.name)
+                                Text(erickText(entry.name, languageKey: keyboardLanguage))
                                     .font(.system(size: 8))
                                     .foregroundColor(.secondary)
                             }
@@ -442,12 +471,13 @@ private struct AppColorPaletteOption: View {
                 }
             }
         }
+        .buttonStyle(.plain)
     }
 }
 
-// MARK: - App Custom Layout List View
-
 struct AppCustomLayoutListView: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
+
     var onLayoutsChanged: () -> Void
 
     @State private var layouts: [CustomLayout] = []
@@ -457,9 +487,9 @@ struct AppCustomLayoutListView: View {
     @State private var deleteTarget: CustomLayout? = nil
 
     private func manager() -> CustomLayoutManager {
-        let m = CustomLayoutManager(storage: IOSCustomLayoutStorage())
-        m.loadAll()
-        return m
+        let manager = CustomLayoutManager(storage: IOSCustomLayoutStorage())
+        manager.loadAll()
+        return manager
     }
 
     private func reloadLayouts() {
@@ -470,98 +500,107 @@ struct AppCustomLayoutListView: View {
     var body: some View {
         List {
             if layouts.isEmpty {
-                Text("No custom layouts yet.\nTap + to create one.")
+                Text(erickText("No custom layouts yet.\nTap + to create one.", languageKey: keyboardLanguage))
                     .foregroundColor(.secondary)
                     .padding()
             }
-            ForEach(Array(layouts.enumerated()), id: \.element.id) { _, cl in
+
+            ForEach(Array(layouts.enumerated()), id: \.element.id) { _, layout in
                 NavigationLink {
-                    AppCustomLayoutEditorView(layout: cl, onSave: { updated in
-                        let m = manager()
-                        let _ = m.save(layout: updated)
+                    AppCustomLayoutEditorView(layout: layout, onSave: { updated in
+                        let manager = manager()
+                        let _ = manager.save(layout: updated)
                         reloadLayouts()
                     })
                 } label: {
                     VStack(alignment: .leading) {
-                        Text(cl.name).font(.body)
-                        let count = cl.normalChordMap.values.flatMap { ($0 as! [String]) }.filter { !$0.isEmpty }.count
-                        Text("\(count) characters mapped")
+                        Text(layout.name)
+                            .font(.body)
+                        let count = layout.normalChordMap.values.flatMap { ($0 as! [String]) }.filter { !$0.isEmpty }.count
+                        Text("\(count) \(erickText("characters mapped", languageKey: keyboardLanguage))")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
                 .swipeActions(edge: .trailing) {
-                    Button(role: .destructive) { deleteTarget = cl } label: {
-                        Label("Delete", systemImage: "trash")
+                    Button(role: .destructive) { deleteTarget = layout } label: {
+                        Label(erickText("Delete", languageKey: keyboardLanguage), systemImage: "trash")
                     }
                 }
             }
         }
-        .navigationTitle("Custom Layouts")
+        .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Custom Layouts"))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    Button("Create Blank") { newLayoutName = ""; showCreateBlank = true }
-                    Button("Duplicate Built-in") { newLayoutName = ""; showDuplicate = true }
+                    Button(erickText("Create Blank", languageKey: keyboardLanguage)) {
+                        newLayoutName = ""
+                        showCreateBlank = true
+                    }
+                    Button(erickText("Duplicate Built-in", languageKey: keyboardLanguage)) {
+                        newLayoutName = ""
+                        showDuplicate = true
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
             }
         }
         .onAppear { reloadLayouts() }
-        .alert("New Blank Layout", isPresented: $showCreateBlank) {
-            TextField("Layout Name", text: $newLayoutName)
-            Button("Create") {
-                let m = manager()
-                let layout = m.createBlank(name: newLayoutName)
-                let _ = m.save(layout: layout)
+        .alert(erickText("New Blank Layout", languageKey: keyboardLanguage), isPresented: $showCreateBlank) {
+            TextField(erickText("Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
+            Button(erickText("Create", languageKey: keyboardLanguage)) {
+                let manager = manager()
+                let layout = manager.createBlank(name: newLayoutName)
+                let _ = manager.save(layout: layout)
                 reloadLayouts()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(erickText("Cancel", languageKey: keyboardLanguage), role: .cancel) {}
         }
-        .alert("Duplicate Built-in", isPresented: $showDuplicate) {
-            TextField("New Layout Name", text: $newLayoutName)
-            Button("Logical") {
-                let m = manager()
-                let layout = m.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName)
-                let _ = m.save(layout: layout)
+        .alert(erickText("Duplicate Built-in", languageKey: keyboardLanguage), isPresented: $showDuplicate) {
+            TextField(erickText("New Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
+            Button(erickText("Logical", languageKey: keyboardLanguage)) {
+                let manager = manager()
+                let layout = manager.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName)
+                let _ = manager.save(layout: layout)
                 reloadLayouts()
             }
-            Button("Efficiency") {
-                let m = manager()
-                let layout = m.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName)
-                let _ = m.save(layout: layout)
+            Button(erickText("Efficiency", languageKey: keyboardLanguage)) {
+                let manager = manager()
+                let layout = manager.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName)
+                let _ = manager.save(layout: layout)
                 reloadLayouts()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(erickText("Cancel", languageKey: keyboardLanguage), role: .cancel) {}
         }
-        .alert("Delete Layout?", isPresented: Binding(
+        .alert(erickText("Delete Layout?", languageKey: keyboardLanguage), isPresented: Binding(
             get: { deleteTarget != nil },
             set: { if !$0 { deleteTarget = nil } }
         )) {
-            Button("Delete", role: .destructive) {
-                if let t = deleteTarget {
-                    let m = manager()
-                    m.delete(id: t.id)
+            Button(erickText("Delete", languageKey: keyboardLanguage), role: .destructive) {
+                if let target = deleteTarget {
+                    let manager = manager()
+                    manager.delete(id: target.id)
                     reloadLayouts()
                     deleteTarget = nil
                 }
             }
-            Button("Cancel", role: .cancel) { deleteTarget = nil }
+            Button(erickText("Cancel", languageKey: keyboardLanguage), role: .cancel) {
+                deleteTarget = nil
+            }
         } message: {
-            Text("Delete \"\(deleteTarget?.name ?? "")\"? This cannot be undone.")
+            Text("\(erickText("Delete", languageKey: keyboardLanguage)) \"\(deleteTarget?.name ?? "")\"? \(erickText("This cannot be undone.", languageKey: keyboardLanguage))")
         }
     }
 }
 
-// MARK: - App Custom Layout Editor View
-
 struct AppCustomLayoutEditorView: View {
-    let layout: CustomLayout
-    var onSave: (CustomLayout) -> Void
-
     @AppStorage("colorblind_mode", store: SettingsView.appGroupDefaults) private var colorblindMode: Bool = false
     @AppStorage("color_palette", store: SettingsView.appGroupDefaults) private var colorPalette: String = "okabe_ito"
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
+
+    let layout: CustomLayout
+    var onSave: (CustomLayout) -> Void
 
     @State private var name: String = ""
     @State private var selectedTab = 0
@@ -569,27 +608,35 @@ struct AppCustomLayoutEditorView: View {
     @State private var shiftedChords: [String: [String]] = [:]
 
     private var currentPalette: [AppColorPaletteEntry] {
-        if colorblindMode {
-            return AppColorPaletteDefinitions.palette(for: colorPalette)
-        } else {
-            return AppColorPaletteDefinitions.defaultPalette
-        }
+        colorblindMode ? AppColorPaletteDefinitions.palette(for: colorPalette) : AppColorPaletteDefinitions.defaultPalette
     }
 
     private let allDirections = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-    private let dirLabels = ["N (Up)", "NE", "E (Right)", "SE", "S (Down)", "SW", "W (Left)", "NW"]
+
+    private var directionLabels: [String] {
+        [
+            "N (\(erickText("Up", languageKey: keyboardLanguage)))",
+            "NE",
+            "E (\(erickText("Right", languageKey: keyboardLanguage)))",
+            "SE",
+            "S (\(erickText("Down", languageKey: keyboardLanguage)))",
+            "SW",
+            "W (\(erickText("Left", languageKey: keyboardLanguage)))",
+            "NW"
+        ]
+    }
 
     var body: some View {
         VStack(spacing: 0) {
-            TextField("Layout Name", text: $name)
+            TextField(erickText("Layout Name", languageKey: keyboardLanguage), text: $name)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
                 .padding(.vertical, 8)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Edit one layer at a time")
+                Text(erickText("Edit one layer at a time", languageKey: keyboardLanguage))
                     .font(.headline)
-                Text(selectedTab == 0 ? "Normal is the everyday map. Start here first." : "Shifted is only for shifted typing. Change it after the normal layer feels right.")
+                Text(selectedTab == 0 ? erickText("Normal is the everyday map. Start here first.", languageKey: keyboardLanguage) : erickText("Shifted is only for shifted typing. Change it after the normal layer feels right.", languageKey: keyboardLanguage))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -600,23 +647,28 @@ struct AppCustomLayoutEditorView: View {
             .padding(.horizontal)
             .padding(.bottom, 8)
 
-            Picker("Map", selection: $selectedTab) {
-                Text("Normal").tag(0)
-                Text("Shifted").tag(1)
+            Picker(erickText("Map", languageKey: keyboardLanguage), selection: $selectedTab) {
+                Text(erickText("Normal", languageKey: keyboardLanguage)).tag(0)
+                Text(erickText("Shifted", languageKey: keyboardLanguage)).tag(1)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
 
             switch selectedTab {
-            case 0: appChordEditor(chords: $normalChords)
-            case 1: appChordEditor(chords: $shiftedChords)
-            default: EmptyView()
+            case 0:
+                appChordEditor(chords: $normalChords)
+            case 1:
+                appChordEditor(chords: $shiftedChords)
+            default:
+                EmptyView()
             }
         }
-        .navigationTitle("Edit Layout")
+        .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Edit Layout"))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Save") { saveLayout() }
+                Button(erickText("Save", languageKey: keyboardLanguage)) {
+                    saveLayout()
+                }
             }
         }
         .onAppear { loadFromLayout() }
@@ -624,10 +676,10 @@ struct AppCustomLayoutEditorView: View {
 
     private func loadFromLayout() {
         name = layout.name
-        for dirStr in allDirections {
-            let dir = kmpDirection(from: dirStr)
-            normalChords[dirStr] = (layout.normalChordMap[dir] as? [String]) ?? Array(repeating: "", count: 8)
-            shiftedChords[dirStr] = (layout.shiftedChordMap[dir] as? [String]) ?? Array(repeating: "", count: 8)
+        for direction in allDirections {
+            let mappedDirection = kmpDirection(from: direction)
+            normalChords[direction] = (layout.normalChordMap[mappedDirection] as? [String]) ?? Array(repeating: "", count: 8)
+            shiftedChords[direction] = (layout.shiftedChordMap[mappedDirection] as? [String]) ?? Array(repeating: "", count: 8)
         }
     }
 
@@ -635,56 +687,66 @@ struct AppCustomLayoutEditorView: View {
         let normalMap = NSMutableDictionary()
         let shiftedMap = NSMutableDictionary()
 
-        for dirStr in allDirections {
-            let dir = kmpDirection(from: dirStr)
-            normalMap[dir] = normalChords[dirStr] ?? Array(repeating: "", count: 8)
-            shiftedMap[dir] = shiftedChords[dirStr] ?? Array(repeating: "", count: 8)
+        for direction in allDirections {
+            let mappedDirection = kmpDirection(from: direction)
+            normalMap[mappedDirection] = normalChords[direction] ?? Array(repeating: "", count: 8)
+            shiftedMap[mappedDirection] = shiftedChords[direction] ?? Array(repeating: "", count: 8)
         }
 
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let updated = CustomLayout(
             id: layout.id,
-            name: name.trimmingCharacters(in: .whitespaces).isEmpty ? "Custom Layout" : name.trimmingCharacters(in: .whitespaces),
-            normalChordMap: normalMap as! [Direction : [String]],
-            shiftedChordMap: shiftedMap as! [Direction : [String]],
+            name: trimmedName.isEmpty ? erickText("Custom Layout", languageKey: keyboardLanguage) : trimmedName,
+            normalChordMap: normalMap as! [Direction: [String]],
+            shiftedChordMap: shiftedMap as! [Direction: [String]],
             singleSwipeNormalMap: layout.singleSwipeNormalMap,
             singleSwipeShiftedMap: layout.singleSwipeShiftedMap
         )
         onSave(updated)
     }
 
-    private func kmpDirection(from str: String) -> Direction {
-        switch str {
-        case "N": return .n
-        case "NE": return .ne
-        case "E": return .e
-        case "SE": return .se
-        case "S": return .s
-        case "SW": return .sw
-        case "W": return .w
-        case "NW": return .nw
-        default: return .none
+    private func kmpDirection(from direction: String) -> Direction {
+        switch direction {
+        case "N":
+            return .n
+        case "NE":
+            return .ne
+        case "E":
+            return .e
+        case "SE":
+            return .se
+        case "S":
+            return .s
+        case "SW":
+            return .sw
+        case "W":
+            return .w
+        case "NW":
+            return .nw
+        default:
+            return .none
         }
     }
 
     private func appChordEditor(chords: Binding<[String: [String]]>) -> some View {
-        let pal = currentPalette
+        let palette = currentPalette
         return List {
-            ForEach(Array(allDirections.enumerated()), id: \.offset) { idx, dirStr in
+            ForEach(Array(allDirections.enumerated()), id: \.offset) { index, direction in
                 DisclosureGroup {
-                    ForEach(0..<8, id: \.self) { i in
+                    ForEach(0..<8, id: \.self) { entryIndex in
                         HStack {
                             Circle()
-                                .fill(i < pal.count ? Color(hex: pal[i].hex) : Color.gray)
+                                .fill(entryIndex < palette.count ? Color(hex: palette[entryIndex].hex) : Color.gray)
                                 .frame(width: 14, height: 14)
-                            Text("\(allDirections[i]) (\(i < pal.count ? pal[i].name : ""))")
+                            Text("\(allDirections[entryIndex]) (\(entryIndex < palette.count ? erickText(palette[entryIndex].name, languageKey: keyboardLanguage) : ""))")
                                 .frame(width: 100, alignment: .leading)
                                 .font(.caption)
                             TextField("", text: Binding(
-                                get: { chords.wrappedValue[dirStr]?[i] ?? "" },
-                                set: { newVal in
-                                    var arr = chords.wrappedValue[dirStr] ?? Array(repeating: "", count: 8)
-                                    arr[i] = String(newVal.prefix(1))
-                                    chords.wrappedValue[dirStr] = arr
+                                get: { chords.wrappedValue[direction]?[entryIndex] ?? "" },
+                                set: { newValue in
+                                    var values = chords.wrappedValue[direction] ?? Array(repeating: "", count: 8)
+                                    values[entryIndex] = String(newValue.prefix(1))
+                                    chords.wrappedValue[direction] = values
                                 }
                             ))
                             .textFieldStyle(.roundedBorder)
@@ -692,25 +754,62 @@ struct AppCustomLayoutEditorView: View {
                     }
                 } label: {
                     HStack {
-                        Text(dirLabels[idx]).font(.body)
+                        Text(directionLabels[index])
+                            .font(.body)
                         Spacer()
-                        let chars = (chords.wrappedValue[dirStr] ?? []).filter { !$0.isEmpty }.joined(separator: " ")
-                        Text(chars).font(.caption).foregroundColor(.secondary)
+                        let characters = (chords.wrappedValue[direction] ?? []).filter { !$0.isEmpty }.joined(separator: " ")
+                        Text(characters)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
             }
         }
     }
+}
 
+private func settingsLanguageSelfDisplayName(for keyboardLanguage: String) -> String {
+    switch keyboardLanguage {
+    case "spanish":
+        return "Espanol"
+    case "portuguese":
+        return "Portugues"
+    case "french":
+        return "Francais"
+    case "german":
+        return "Deutsch"
+    case "italian":
+        return "Italiano"
+    case "norwegian_bokmal":
+        return "Norsk Bokmal"
+    case "danish":
+        return "Dansk"
+    case "swedish":
+        return "Svenska"
+    case "finnish":
+        return "Suomi"
+    default:
+        return "English"
+    }
+}
+
+private func bilingualSettingsLanguageDisplayName(for keyboardLanguage: String) -> String {
+    let selfName = settingsLanguageSelfDisplayName(for: keyboardLanguage)
+    let englishName = englishLanguageDisplayName(for: keyboardLanguage)
+    return selfName.caseInsensitiveCompare(englishName) == .orderedSame ? englishName : "\(selfName) (\(englishName))"
 }
 
 extension Color {
     init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let hexValue = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
+        Scanner(string: hexValue).scanHexInt64(&int)
+        let a: UInt64
+        let r: UInt64
+        let g: UInt64
+        let b: UInt64
+
+        switch hexValue.count {
         case 3:
             (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
         case 6:
@@ -720,6 +819,7 @@ extension Color {
         default:
             (a, r, g, b) = (1, 1, 1, 0)
         }
+
         self.init(
             .sRGB,
             red: Double(r) / 255,

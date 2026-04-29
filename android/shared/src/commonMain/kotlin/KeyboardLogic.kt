@@ -7,6 +7,7 @@ class KeyboardLogic {
 
     // Current dial section mode (set by the state machine based on user preference)
     var dialSectionMode: DialSectionMode = DialSectionMode.EIGHT_SECTION
+    var activeLanguage: KeyboardLanguage = KeyboardLanguage.ENGLISH
 
     // --- Part 1: Pure math — convert coordinates to direction ---
     fun getDirectionFromXY(x: Float, y: Float): Direction {
@@ -221,18 +222,28 @@ class KeyboardLogic {
     }
 
     private fun resolveChordMap(mode: KeyboardMode, layout: LayoutType, customLayout: CustomLayout?): Map<Direction, List<String>> {
+        val effectiveLayout = if (layout == LayoutType.EFFICIENCY && !KeyboardLanguageProfiles.supportsEfficiencyLayout(activeLanguage)) {
+            LayoutType.LOGICAL
+        } else {
+            layout
+        }
+
         // Symbols mode (6-section only)
-        if (mode == KeyboardMode.SYMBOLS) return symbolsNormalMap6
-        if (mode == KeyboardMode.SYMBOLS_SHIFTED) return symbolsShiftedMap6
+        if (mode == KeyboardMode.SYMBOLS) {
+            return applyOverlay(symbolsNormalMap6, KeyboardLanguageProfiles.symbols6NormalOverlay(activeLanguage))
+        }
+        if (mode == KeyboardMode.SYMBOLS_SHIFTED) {
+            return applyOverlay(symbolsShiftedMap6, KeyboardLanguageProfiles.symbols6ShiftedOverlay(activeLanguage))
+        }
 
         if (dialSectionMode == DialSectionMode.SIX_SECTION) {
             return when {
-                layout == LayoutType.CUSTOM && customLayout != null -> {
+                effectiveLayout == LayoutType.CUSTOM && customLayout != null -> {
                     if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
                     else customLayout.shiftedChordMap
                 }
-                layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap6
-                layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap6
+                effectiveLayout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap6
+                effectiveLayout == LayoutType.EFFICIENCY -> efficiencyShiftedMap6
                 mode == KeyboardMode.NORMAL -> normalMap6
                 else -> shiftedMap6
             }
@@ -240,14 +251,30 @@ class KeyboardLogic {
 
         // 8-section (original)
         return when {
-            layout == LayoutType.CUSTOM && customLayout != null -> {
+            effectiveLayout == LayoutType.CUSTOM && customLayout != null -> {
                 if (mode == KeyboardMode.NORMAL) customLayout.normalChordMap
                 else customLayout.shiftedChordMap
             }
-            layout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
-            layout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
-            mode == KeyboardMode.NORMAL -> normalMap
-            else -> shiftedMap
+            effectiveLayout == LayoutType.EFFICIENCY && mode == KeyboardMode.NORMAL -> efficiencyNormalMap
+            effectiveLayout == LayoutType.EFFICIENCY -> efficiencyShiftedMap
+            mode == KeyboardMode.NORMAL -> applyOverlay(normalMap, KeyboardLanguageProfiles.logical8NormalOverlay(activeLanguage))
+            else -> applyOverlay(shiftedMap, KeyboardLanguageProfiles.logical8ShiftedOverlay(activeLanguage))
+        }
+    }
+
+    private fun applyOverlay(
+        baseMap: Map<Direction, List<String>>,
+        overlay: Map<Direction, Map<Int, String>>
+    ): Map<Direction, List<String>> {
+        if (overlay.isEmpty()) return baseMap
+
+        return baseMap.mapValues { (direction, values) ->
+            val rowOverlay = overlay[direction].orEmpty()
+            if (rowOverlay.isEmpty()) {
+                values
+            } else {
+                values.mapIndexed { index, value -> rowOverlay[index] ?: value }
+            }
         }
     }
 

@@ -20,12 +20,14 @@ class SettingsActivity : ComponentActivity() {
 
         setContent {
             val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.THEME_SYSTEM)
-            ERICKTheme(themeMode = themeMode) {
-                SettingsScreen(
-                    preferencesManager = preferencesManager,
-                    layoutPreferences = layoutPreferences,
-                    onClose = { finish() }
-                )
+            ProvideAppLanguage(preferencesManager = preferencesManager) {
+                ERICKTheme(themeMode = themeMode) {
+                    SettingsScreen(
+                        preferencesManager = preferencesManager,
+                        layoutPreferences = layoutPreferences,
+                        onClose = { finish() }
+                    )
+                }
             }
         }
     }
