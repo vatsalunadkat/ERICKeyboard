@@ -2,6 +2,7 @@ import SwiftUI
 import SharedKeyboard
 
 struct CustomLayoutListView: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     var onBack: () -> Void
 
     @State private var layouts: [CustomLayout] = []
@@ -30,12 +31,12 @@ struct CustomLayoutListView: View {
                         .font(.title3)
                         .padding()
                 }
-                Text("Custom Layouts")
+                Text(erickText("Custom Layouts", languageKey: keyboardLanguage))
                     .font(.headline)
                 Spacer()
                 Menu {
-                    Button("Create Blank") { newLayoutName = ""; showCreateBlank = true }
-                    Button("Duplicate Built-in") { newLayoutName = ""; showDuplicate = true }
+                    Button(erickText("Create Blank", languageKey: keyboardLanguage)) { newLayoutName = ""; showCreateBlank = true }
+                    Button(erickText("Duplicate Built-in", languageKey: keyboardLanguage)) { newLayoutName = ""; showDuplicate = true }
                 } label: {
                     Image(systemName: "plus.circle")
                         .font(.title3)
@@ -57,7 +58,7 @@ struct CustomLayoutListView: View {
                 )
             } else if layouts.isEmpty {
                 Spacer()
-                Text("No custom layouts yet.\nTap + to create one.")
+                Text(erickText("No custom layouts yet.\nTap + to create one.", languageKey: keyboardLanguage))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
                 Spacer()
@@ -68,14 +69,14 @@ struct CustomLayoutListView: View {
                             VStack(alignment: .leading) {
                                 Text(layout.name).font(.body)
                                 let count = layout.normalChordMap.values.flatMap { ($0 as! [String]) }.filter { !$0.isEmpty }.count
-                                Text("\(count) characters mapped")
+                                Text("\(count) \(erickText("characters mapped", languageKey: keyboardLanguage))")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                         }
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) { deleteTarget = layout } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label(erickText("Delete", languageKey: keyboardLanguage), systemImage: "trash")
                             }
                         }
                     }
@@ -83,40 +84,40 @@ struct CustomLayoutListView: View {
             }
         }
         .onAppear { reloadLayouts() }
-        .alert("New Blank Layout", isPresented: $showCreateBlank) {
-            TextField("Layout Name", text: $newLayoutName)
-            Button("Create") {
+        .alert(erickText("New Blank Layout", languageKey: keyboardLanguage), isPresented: $showCreateBlank) {
+            TextField(erickText("Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
+            Button(erickText("Create", languageKey: keyboardLanguage)) {
                 let manager = manager()
                 let layout = manager.createBlank(name: newLayoutName)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
                 editingLayout = layout
             }
-            Button("Cancel", role: .cancel) {}
+            Button(erickText("Cancel", languageKey: keyboardLanguage), role: .cancel) {}
         }
-        .alert("Duplicate Built-in", isPresented: $showDuplicate) {
-            TextField("New Layout Name", text: $newLayoutName)
-            Button("Logical") {
+        .alert(erickText("Duplicate Built-in", languageKey: keyboardLanguage), isPresented: $showDuplicate) {
+            TextField(erickText("New Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
+            Button(erickText("Logical", languageKey: keyboardLanguage)) {
                 let manager = manager()
                 let layout = manager.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
                 editingLayout = layout
             }
-            Button("Efficiency") {
+            Button(erickText("Efficiency", languageKey: keyboardLanguage)) {
                 let manager = manager()
                 let layout = manager.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
                 editingLayout = layout
             }
-            Button("Cancel", role: .cancel) {}
+            Button(erickText("Cancel", languageKey: keyboardLanguage), role: .cancel) {}
         }
-        .alert("Delete Layout?", isPresented: Binding(
+        .alert(erickText("Delete Layout?", languageKey: keyboardLanguage), isPresented: Binding(
             get: { deleteTarget != nil },
             set: { if !$0 { deleteTarget = nil } }
         )) {
-            Button("Delete", role: .destructive) {
+            Button(erickText("Delete", languageKey: keyboardLanguage), role: .destructive) {
                 if let target = deleteTarget {
                     let manager = manager()
                     manager.delete(id: target.id)
@@ -124,9 +125,9 @@ struct CustomLayoutListView: View {
                     deleteTarget = nil
                 }
             }
-            Button("Cancel", role: .cancel) { deleteTarget = nil }
+            Button(erickText("Cancel", languageKey: keyboardLanguage), role: .cancel) { deleteTarget = nil }
         } message: {
-            Text("Delete \"\(deleteTarget?.name ?? "")\"? This cannot be undone.")
+            Text("\(erickText("Delete", languageKey: keyboardLanguage)) \"\(deleteTarget?.name ?? "")\"? \(erickText("This cannot be undone.", languageKey: keyboardLanguage))")
         }
     }
 }
@@ -138,6 +139,7 @@ struct CustomLayoutEditorView: View {
 
     @AppStorage("colorblind_mode", store: SettingsView.appGroupDefaults) private var colorblindMode: Bool = false
     @AppStorage("color_palette", store: SettingsView.appGroupDefaults) private var colorPalette: String = "okabe_ito"
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
 
     @State private var name: String = ""
     @State private var selectedTab = 0
@@ -154,7 +156,19 @@ struct CustomLayoutEditorView: View {
     }
 
     private let allDirections = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-    private let dirLabels = ["N (Up)", "NE", "E (Right)", "SE", "S (Down)", "SW", "W (Left)", "NW"]
+
+    private var directionLabels: [String] {
+        [
+            "N (\(erickText("Up", languageKey: keyboardLanguage)))",
+            "NE",
+            "E (\(erickText("Right", languageKey: keyboardLanguage)))",
+            "SE",
+            "S (\(erickText("Down", languageKey: keyboardLanguage)))",
+            "SW",
+            "W (\(erickText("Left", languageKey: keyboardLanguage)))",
+            "NW"
+        ]
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -164,23 +178,23 @@ struct CustomLayoutEditorView: View {
                         .font(.title3)
                         .padding()
                 }
-                Text("Edit Layout")
+                Text(erickText("Edit Layout", languageKey: keyboardLanguage))
                     .font(.headline)
                 Spacer()
-                Button("Save") { saveLayout() }
+                Button(erickText("Save", languageKey: keyboardLanguage)) { saveLayout() }
                     .padding()
             }
             .background(Color(UIColor.systemGray6))
 
-            TextField("Layout Name", text: $name)
+            TextField(erickText("Layout Name", languageKey: keyboardLanguage), text: $name)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
                 .padding(.vertical, 8)
 
-            Picker("Section", selection: $selectedTab) {
-                Text("Normal").tag(0)
-                Text("Shifted").tag(1)
-                Text("Single Swipe").tag(2)
+            Picker(erickText("Section", languageKey: keyboardLanguage), selection: $selectedTab) {
+                Text(erickText("Normal", languageKey: keyboardLanguage)).tag(0)
+                Text(erickText("Shifted", languageKey: keyboardLanguage)).tag(1)
+                Text(erickText("Single Swipe", languageKey: keyboardLanguage)).tag(2)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
@@ -233,7 +247,7 @@ struct CustomLayoutEditorView: View {
 
         let updated = CustomLayout(
             id: layout.id,
-            name: name.trimmingCharacters(in: .whitespaces).isEmpty ? "Custom Layout" : name.trimmingCharacters(in: .whitespaces),
+            name: name.trimmingCharacters(in: .whitespaces).isEmpty ? erickText("Custom Layout", languageKey: keyboardLanguage) : name.trimmingCharacters(in: .whitespaces),
             normalChordMap: normalMap as! [Direction: [String]],
             shiftedChordMap: shiftedMap as! [Direction: [String]],
             singleSwipeNormalMap: singleNormalMap as! [Direction: SingleSwipeBinding],
@@ -274,7 +288,7 @@ struct CustomLayoutEditorView: View {
                             Circle()
                                 .fill(i < palette.count ? Color(hex: palette[i].hex) : Color.gray)
                                 .frame(width: 14, height: 14)
-                            Text("\(allDirections[i]) (\(i < palette.count ? palette[i].name : ""))")
+                            Text("\(allDirections[i]) (\(i < palette.count ? erickText(palette[i].name, languageKey: keyboardLanguage) : ""))")
                                 .frame(width: 100, alignment: .leading)
                                 .font(.caption)
                             TextField("", text: Binding(
@@ -290,7 +304,7 @@ struct CustomLayoutEditorView: View {
                     }
                 } label: {
                     HStack {
-                        Text(dirLabels[idx]).font(.body)
+                        Text(directionLabels[idx]).font(.body)
                         Spacer()
                         let chars = (chords.wrappedValue[dirStr] ?? []).filter { !$0.isEmpty }.joined(separator: " ")
                         Text(chars).font(.caption).foregroundColor(.secondary)
@@ -302,20 +316,20 @@ struct CustomLayoutEditorView: View {
 
     private var singleSwipeEditor: some View {
         List {
-            Section("Normal Mode") {
+            Section(erickText("Normal Mode", languageKey: keyboardLanguage)) {
                 ForEach(Array(allDirections.enumerated()), id: \.offset) { idx, dirStr in
                     HStack {
-                        Text(dirLabels[idx]).frame(width: 80, alignment: .leading)
-                        Text(singleSwipeNormal[dirStr] ?? "(none)")
+                        Text(directionLabels[idx]).frame(width: 80, alignment: .leading)
+                        Text(singleSwipeNormal[dirStr] ?? erickText("(none)", languageKey: keyboardLanguage))
                             .foregroundColor(.secondary)
                     }
                 }
             }
-            Section("Shifted Mode") {
+            Section(erickText("Shifted Mode", languageKey: keyboardLanguage)) {
                 ForEach(Array(allDirections.enumerated()), id: \.offset) { idx, dirStr in
                     HStack {
-                        Text(dirLabels[idx]).frame(width: 80, alignment: .leading)
-                        Text(singleSwipeShifted[dirStr] ?? "(none)")
+                        Text(directionLabels[idx]).frame(width: 80, alignment: .leading)
+                        Text(singleSwipeShifted[dirStr] ?? erickText("(none)", languageKey: keyboardLanguage))
                             .foregroundColor(.secondary)
                     }
                 }

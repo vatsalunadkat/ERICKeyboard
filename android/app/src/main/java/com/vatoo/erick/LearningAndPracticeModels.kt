@@ -320,3 +320,22 @@ fun quickstartStepsForLanguage(languageKey: String): List<QuickstartStep> {
         )
     }
 }
+
+fun practiceLessonsForLanguage(languageKey: String): List<PracticeLesson> {
+    return practiceLessons.map { lesson ->
+        lesson.copy(
+            title = erickText(languageKey, lesson.title),
+            focus = erickText(languageKey, lesson.focus),
+            instructions = lesson.instructions.map { instruction -> erickText(languageKey, instruction) },
+            exercises = lesson.exercises.map { exercise ->
+                exercise.copy(
+                    title = erickText(languageKey, exercise.title),
+                    coaching = erickText(languageKey, exercise.coaching),
+                    targetText = erickText(languageKey, exercise.targetText)
+                )
+            },
+            successHint = erickText(languageKey, lesson.successHint),
+            setupReason = erickText(languageKey, lesson.setupReason)
+        )
+    }
+}

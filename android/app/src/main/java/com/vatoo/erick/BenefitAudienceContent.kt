@@ -123,7 +123,11 @@ fun BenefitsOverviewSection(
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) "Collapse $title" else "Expand $title"
+                        contentDescription = if (expanded) {
+                            "${erickText(appLanguage, "Collapse")} ${erickText(appLanguage, title)}"
+                        } else {
+                            "${erickText(appLanguage, "Expand")} ${erickText(appLanguage, title)}"
+                        }
                     )
                 }
             }

@@ -57,6 +57,8 @@ fun CustomLayoutListScreen(
     onEditLayout: (CustomLayout) -> Unit,
     onBack: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
+    fun t(english: String): String = erickText(appLanguage, english)
     var showCreateDialog by remember { mutableStateOf(false) }
     var showDuplicateDialog by remember { mutableStateOf(false) }
     var deleteTarget by remember { mutableStateOf<CustomLayout?>(null) }
@@ -64,10 +66,10 @@ fun CustomLayoutListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Custom Layouts") },
+                title = { Text(t("Custom Layouts")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
                     }
                 }
             )
@@ -84,9 +86,9 @@ fun CustomLayoutListScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("Start here", style = MaterialTheme.typography.titleMedium)
+                        Text(t("Start here"), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "Create a blank layout if you want full control, or duplicate a built-in layout if you only want to adjust a few chords.",
+                            t("Create a blank layout if you want full control, or duplicate a built-in layout if you only want to adjust a few chords."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -94,12 +96,12 @@ fun CustomLayoutListScreen(
                             Button(onClick = { showCreateDialog = true }, modifier = Modifier.weight(1f)) {
                                 Icon(Icons.Default.Add, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Create Blank")
+                                Text(t("Create Blank"))
                             }
                             OutlinedButton(onClick = { showDuplicateDialog = true }, modifier = Modifier.weight(1f)) {
                                 Icon(Icons.Default.ContentCopy, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Duplicate Built-in")
+                                Text(t("Duplicate Built-in"))
                             }
                         }
                     }
@@ -115,7 +117,7 @@ fun CustomLayoutListScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "No custom layouts yet.",
+                            t("No custom layouts yet."),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -134,18 +136,18 @@ fun CustomLayoutListScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(layout.name, style = MaterialTheme.typography.titleSmall)
                                 Text(
-                                    "${layout.normalChordMap.values.flatten().count { it.isNotBlank() }} characters mapped",
+                                    "${layout.normalChordMap.values.flatten().count { it.isNotBlank() }} ${t("characters mapped")}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             IconButton(onClick = { onEditLayout(layout) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit")
+                                Icon(Icons.Default.Edit, contentDescription = t("Edit"))
                             }
                             IconButton(onClick = { deleteTarget = layout }) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = t("Delete"),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -160,12 +162,12 @@ fun CustomLayoutListScreen(
         var name by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text("New Blank Layout") },
+            title = { Text(t("New Blank Layout")) },
             text = {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { if (it.length <= 30) name = it },
-                    label = { Text("Layout Name") },
+                    label = { Text(t("Layout Name")) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
                 )
@@ -180,10 +182,10 @@ fun CustomLayoutListScreen(
                         onEditLayout(layout)
                     },
                     enabled = name.isNotBlank()
-                ) { Text("Create") }
+                ) { Text(t("Create")) }
             },
             dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showCreateDialog = false }) { Text(t("Cancel")) }
             }
         )
     }
@@ -193,35 +195,35 @@ fun CustomLayoutListScreen(
         var sourceLayout by remember { mutableStateOf(LayoutType.LOGICAL) }
         AlertDialog(
             onDismissRequest = { showDuplicateDialog = false },
-            title = { Text("Duplicate Built-in Layout") },
+            title = { Text(t("Duplicate Built-in Layout")) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "Start from a built-in layout when you only want to tweak a few chords.",
+                        t("Start from a built-in layout when you only want to tweak a few chords."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = name,
                         onValueChange = { if (it.length <= 30) name = it },
-                        label = { Text("New Layout Name") },
+                        label = { Text(t("New Layout Name")) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("Source:", style = MaterialTheme.typography.labelMedium)
+                    Text(t("Source:"), style = MaterialTheme.typography.labelMedium)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
                             selected = sourceLayout == LayoutType.LOGICAL,
                             onClick = { sourceLayout = LayoutType.LOGICAL }
                         )
-                        Text("Logical (A–Z)")
+                        Text(t("Logical (A-Z)"))
                         Spacer(modifier = Modifier.width(16.dp))
                         RadioButton(
                             selected = sourceLayout == LayoutType.EFFICIENCY,
                             onClick = { sourceLayout = LayoutType.EFFICIENCY }
                         )
-                        Text("Efficiency")
+                        Text(t("Efficiency"))
                     }
                 }
             },
@@ -235,10 +237,10 @@ fun CustomLayoutListScreen(
                         onEditLayout(layout)
                     },
                     enabled = name.isNotBlank()
-                ) { Text("Duplicate") }
+                ) { Text(t("Duplicate")) }
             },
             dismissButton = {
-                TextButton(onClick = { showDuplicateDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDuplicateDialog = false }) { Text(t("Cancel")) }
             }
         )
     }
@@ -246,17 +248,17 @@ fun CustomLayoutListScreen(
     deleteTarget?.let { layout ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
-            title = { Text("Delete Layout") },
-            text = { Text("Delete \"${layout.name}\"? This cannot be undone.") },
+            title = { Text(t("Delete Layout")) },
+            text = { Text("${t("Delete")} \"${layout.name}\"? ${t("This cannot be undone.")}") },
             confirmButton = {
                 TextButton(onClick = {
                     customLayoutManager.delete(layout.id)
                     onLayoutsChanged()
                     deleteTarget = null
-                }) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+                }) { Text(t("Delete"), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { deleteTarget = null }) { Text("Cancel") }
+                TextButton(onClick = { deleteTarget = null }) { Text(t("Cancel")) }
             }
         )
     }

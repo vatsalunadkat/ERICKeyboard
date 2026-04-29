@@ -75,6 +75,8 @@ fun CustomLayoutEditorScreen(
     onSave: (CustomLayout) -> Unit,
     onBack: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
+    fun t(english: String): String = erickText(appLanguage, english)
     val paletteType = if (colorblindMode) {
         when (colorPalette) {
             PreferencesManager.PALETTE_DEUTERANOPIA -> ColorPaletteType.DEUTERANOPIA
@@ -113,7 +115,7 @@ fun CustomLayoutEditorScreen(
     }
 
     fun buildLayout(): CustomLayout = layout.copy(
-        name = name.trim().ifEmpty { "Custom Layout" },
+        name = name.trim().ifEmpty { t("Custom Layout") },
         normalChordMap = normalChords.toMap(),
         shiftedChordMap = shiftedChords.toMap(),
         singleSwipeNormalMap = singleSwipeNormal.toMap(),
@@ -123,15 +125,15 @@ fun CustomLayoutEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Layout") },
+                title = { Text(t("Edit Layout")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
                     }
                 },
                 actions = {
                     TextButton(onClick = { onSave(buildLayout()) }) {
-                        Text("Save")
+                        Text(t("Save"))
                     }
                 }
             )
@@ -145,7 +147,7 @@ fun CustomLayoutEditorScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { if (it.length <= 30) name = it },
-                label = { Text("Layout Name") },
+                label = { Text(t("Layout Name")) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,12 +161,12 @@ fun CustomLayoutEditorScreen(
                     .padding(horizontal = 16.dp, vertical = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
-                    Text("Edit one layer at a time", style = MaterialTheme.typography.titleSmall)
+                    Text(t("Edit one layer at a time"), style = MaterialTheme.typography.titleSmall)
                     Text(
                         text = when (selectedTab) {
-                            0 -> "Normal is the everyday map. Start here first."
-                            1 -> "Shifted is only for shifted typing. Change it after the normal layer feels right."
-                            else -> "Swipe actions are optional utility shortcuts for the right dial alone."
+                            0 -> t("Normal is the everyday map. Start here first.")
+                            1 -> t("Shifted is only for shifted typing. Change it after the normal layer feels right.")
+                            else -> t("Swipe actions are optional utility shortcuts for the right dial alone.")
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -177,15 +179,15 @@ fun CustomLayoutEditorScreen(
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title) }
+                        text = { Text(t(title)) }
                     )
                 }
             }
 
             when (selectedTab) {
-                0 -> ChordMapEditor(normalChords, "Normal", palette)
-                1 -> ChordMapEditor(shiftedChords, "Shifted", palette)
-                2 -> SingleSwipeEditor(singleSwipeNormal, singleSwipeShifted)
+                0 -> ChordMapEditor(normalChords, "Normal", palette, appLanguage)
+                1 -> ChordMapEditor(shiftedChords, "Shifted", palette, appLanguage)
+                2 -> SingleSwipeEditor(singleSwipeNormal, singleSwipeShifted, appLanguage)
             }
         }
     }
@@ -195,7 +197,8 @@ fun CustomLayoutEditorScreen(
 private fun ChordMapEditor(
     chords: MutableMap<Direction, List<String>>,
     label: String,
-    palette: List<com.vatoo.erick.shared.ColorEntry>
+    palette: List<com.vatoo.erick.shared.ColorEntry>,
+    appLanguage: String
 ) {
     var expandedDir by remember { mutableStateOf<Direction?>(null) }
 
@@ -206,7 +209,7 @@ private fun ChordMapEditor(
             .padding(16.dp)
     ) {
         Text(
-            "$label map. Open one direction at a time and fill only the slots you want to change.",
+            "${erickText(appLanguage, label)} ${erickText(appLanguage, "map. Open one direction at a time and fill only the slots you want to change.")}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -226,7 +229,7 @@ private fun ChordMapEditor(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            DIRECTION_LABELS[dir] ?: dir.name,
+                            directionLabel(dir, appLanguage),
                             style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier.weight(1f)
                         )
@@ -254,7 +257,7 @@ private fun ChordMapEditor(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    "${rightLabels[i]} ($colorName)",
+                                    "${rightLabels[i]} (${erickText(appLanguage, colorName)})",
                                     style = MaterialTheme.typography.labelMedium,
                                     modifier = Modifier.width(100.dp)
                                 )
@@ -281,7 +284,8 @@ private fun ChordMapEditor(
 @Composable
 private fun SingleSwipeEditor(
     normalMap: MutableMap<Direction, SingleSwipeBinding>,
-    shiftedMap: MutableMap<Direction, SingleSwipeBinding>
+    shiftedMap: MutableMap<Direction, SingleSwipeBinding>,
+    appLanguage: String
 ) {
     Column(
         modifier = Modifier
@@ -290,19 +294,19 @@ private fun SingleSwipeEditor(
             .padding(16.dp)
     ) {
         Text(
-            "Optional right-dial shortcuts. Leave a direction empty if you do not want a swipe action there.",
+            erickText(appLanguage, "Optional right-dial shortcuts. Leave a direction empty if you do not want a swipe action there."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        Text("Normal Mode", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(vertical = 8.dp))
+        Text(erickText(appLanguage, "Normal Mode"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(vertical = 8.dp))
         ALL_DIRECTIONS.forEach { dir ->
-            SwipeBindingRow(dir, normalMap[dir], onChanged = { normalMap[dir] = it })
+            SwipeBindingRow(dir, normalMap[dir], appLanguage, onChanged = { normalMap[dir] = it })
         }
         HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-        Text("Shifted Mode", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(vertical = 8.dp))
+        Text(erickText(appLanguage, "Shifted Mode"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(vertical = 8.dp))
         ALL_DIRECTIONS.forEach { dir ->
-            SwipeBindingRow(dir, shiftedMap[dir], onChanged = { shiftedMap[dir] = it })
+            SwipeBindingRow(dir, shiftedMap[dir], appLanguage, onChanged = { shiftedMap[dir] = it })
         }
     }
 }
@@ -311,15 +315,12 @@ private fun SingleSwipeEditor(
 private fun SwipeBindingRow(
     dir: Direction,
     binding: SingleSwipeBinding?,
+    appLanguage: String,
     onChanged: (SingleSwipeBinding) -> Unit
 ) {
     var showPicker by remember { mutableStateOf(false) }
 
-    val displayText = when (binding) {
-        is SingleSwipeBinding.Character -> "\"${binding.char}\""
-        is SingleSwipeBinding.Action -> binding.action.name
-        null -> "(none)"
-    }
+    val displayText = singleSwipeBindingDisplayText(binding, appLanguage)
 
     Row(
         modifier = Modifier
@@ -329,7 +330,7 @@ private fun SwipeBindingRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            DIRECTION_LABELS[dir] ?: dir.name,
+            directionLabel(dir, appLanguage),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.width(80.dp)
         )
@@ -339,6 +340,7 @@ private fun SwipeBindingRow(
     if (showPicker) {
         SwipeBindingPickerDialog(
             current = binding,
+            appLanguage = appLanguage,
             onDismiss = { showPicker = false },
             onSelected = {
                 onChanged(it)
@@ -351,6 +353,7 @@ private fun SwipeBindingRow(
 @Composable
 private fun SwipeBindingPickerDialog(
     current: SingleSwipeBinding?,
+    appLanguage: String,
     onDismiss: () -> Unit,
     onSelected: (SingleSwipeBinding) -> Unit
 ) {
@@ -362,10 +365,10 @@ private fun SwipeBindingPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Set Binding") },
+        title = { Text(erickText(appLanguage, "Set Binding")) },
         text = {
             Column {
-                Text("Type a character:", style = MaterialTheme.typography.labelMedium)
+                Text(erickText(appLanguage, "Type a character:"), style = MaterialTheme.typography.labelMedium)
                 OutlinedTextField(
                     value = charInput,
                     onValueChange = { charInput = it.take(1) },
@@ -373,7 +376,7 @@ private fun SwipeBindingPickerDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("Or select an action:", style = MaterialTheme.typography.labelMedium)
+                Text(erickText(appLanguage, "Or select an action:"), style = MaterialTheme.typography.labelMedium)
                 Spacer(modifier = Modifier.height(4.dp))
                 val actions = listOf(
                     InputAction.SPACE, InputAction.ENTER, InputAction.BACKSPACE,
@@ -385,7 +388,7 @@ private fun SwipeBindingPickerDialog(
                         onClick = { onSelected(SingleSwipeBinding.Action(action)) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(action.name, modifier = Modifier.fillMaxWidth())
+                        Text(inputActionDisplayName(action, appLanguage), modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -398,10 +401,44 @@ private fun SwipeBindingPickerDialog(
                     }
                 },
                 enabled = charInput.isNotEmpty()
-            ) { Text("Set Character") }
+            ) { Text(erickText(appLanguage, "Set Character")) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(erickText(appLanguage, "Cancel")) }
         }
     )
+}
+
+private fun directionLabel(direction: Direction, languageKey: String): String = when (direction) {
+    Direction.N -> "N (${erickText(languageKey, "Up")})"
+    Direction.E -> "E (${erickText(languageKey, "Right")})"
+    Direction.S -> "S (${erickText(languageKey, "Down")})"
+    Direction.W -> "W (${erickText(languageKey, "Left")})"
+    else -> DIRECTION_LABELS[direction] ?: direction.name
+}
+
+private fun singleSwipeBindingDisplayText(binding: SingleSwipeBinding?, languageKey: String): String = when (binding) {
+    is SingleSwipeBinding.Character -> "\"${binding.char}\""
+    is SingleSwipeBinding.Action -> inputActionDisplayName(binding.action, languageKey)
+    null -> erickText(languageKey, "None")
+}
+
+private fun inputActionDisplayName(action: InputAction, languageKey: String): String = when (action) {
+    InputAction.SPACE -> erickText(languageKey, "Space")
+    InputAction.ENTER -> erickText(languageKey, "Enter")
+    InputAction.BACKSPACE -> erickText(languageKey, "Backspace")
+    InputAction.DELETE_FORWARD -> erickText(languageKey, "Delete Forward")
+    InputAction.DELETE_WORD -> erickText(languageKey, "Delete Word")
+    InputAction.TOGGLE_SHIFT -> erickText(languageKey, "Toggle Shift")
+    InputAction.TOGGLE_CAPS -> erickText(languageKey, "Toggle Caps")
+    InputAction.TOGGLE_SYMBOLS -> erickText(languageKey, "Toggle Symbols")
+    InputAction.MOVE_HOME -> erickText(languageKey, "Move Home")
+    InputAction.MOVE_END -> erickText(languageKey, "Move End")
+    InputAction.DPAD_UP -> erickText(languageKey, "Move Up")
+    InputAction.DPAD_DOWN -> erickText(languageKey, "Move Down")
+    InputAction.DPAD_LEFT -> erickText(languageKey, "Move Left")
+    InputAction.DPAD_RIGHT -> erickText(languageKey, "Move Right")
+    InputAction.PAGE_UP -> erickText(languageKey, "Page Up")
+    InputAction.PAGE_DOWN -> erickText(languageKey, "Page Down")
+    InputAction.TAB -> erickText(languageKey, "Tab")
 }

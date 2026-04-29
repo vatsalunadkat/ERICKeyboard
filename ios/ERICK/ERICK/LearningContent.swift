@@ -319,3 +319,28 @@ func erickQuickstartSteps(for languageKey: String) -> [QuickstartStepData] {
         )
     }
 }
+
+func erickPracticeLessons(for languageKey: String) -> [PracticeLessonData] {
+    erickPracticeLessons.map { lesson in
+        PracticeLessonData(
+            id: lesson.id,
+            title: erickText(lesson.title, languageKey: languageKey),
+            focus: erickText(lesson.focus, languageKey: languageKey),
+            instructions: lesson.instructions.map { erickText($0, languageKey: languageKey) },
+            exercises: lesson.exercises.map { exercise in
+                PracticeExerciseData(
+                    id: exercise.id,
+                    title: erickText(exercise.title, languageKey: languageKey),
+                    coaching: erickText(exercise.coaching, languageKey: languageKey),
+                    targetText: erickText(exercise.targetText, languageKey: languageKey)
+                )
+            },
+            successHint: erickText(lesson.successHint, languageKey: languageKey),
+            setup: lesson.setup,
+            isFreeform: lesson.isFreeform,
+            section: lesson.section,
+            recommendedStep: lesson.recommendedStep,
+            setupReason: erickText(lesson.setupReason, languageKey: languageKey)
+        )
+    }
+}

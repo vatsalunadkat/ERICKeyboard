@@ -93,17 +93,21 @@ private fun PracticeHubScreen(
     completedLessons: Set<String>,
     onBack: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
     val keyboardLanguage by preferencesManager.keyboardLanguage.collectAsState(initial = PreferencesManager.LANGUAGE_ENGLISH)
+    val localizedLessons = remember(appLanguage) { practiceLessonsForLanguage(appLanguage) }
+    val localizedSectionModels = remember(appLanguage) { practiceSectionModelsForLanguage(appLanguage) }
     var selectedLessonId by rememberSaveable { mutableStateOf<String?>(null) }
     var quotePracticeActive by rememberSaveable { mutableStateOf(false) }
     var infoLessonId by rememberSaveable { mutableStateOf<String?>(null) }
     var startLessonFromBeginning by rememberSaveable { mutableStateOf(false) }
 
     infoLessonId?.let { lessonId ->
-        practiceLessons.firstOrNull { it.id == lessonId }?.let { lesson ->
+        localizedLessons.firstOrNull { it.id == lessonId }?.let { lesson ->
             PracticeLessonInfoDialog(
                 lesson = lesson,
-                setupSummary = lesson.setup?.let(::formatLessonSetup),
+                appLanguage = appLanguage,
+                setupSummary = lesson.setup?.let { formatLessonSetup(it, appLanguage) },
                 onDismiss = { infoLessonId = null }
             )
         }
@@ -118,16 +122,18 @@ private fun PracticeHubScreen(
     when (selectedLessonId) {
         null -> Unit
         else -> {
-            val lesson = practiceLessons.firstOrNull { it.id == selectedLessonId }
+            val lesson = localizedLessons.firstOrNull { it.id == selectedLessonId }
             if (lesson != null) {
-                val lessonIndex = practiceLessons.indexOfFirst { it.id == lesson.id }
+                val lessonIndex = localizedLessons.indexOfFirst { it.id == lesson.id }
                 if (lesson.id == QUOTE_PRACTICE_LESSON_ID && quotePracticeActive) {
                     TypingGameScreen(onBack = { quotePracticeActive = false })
                     return
                 }
                 PracticeLessonDetailScreen(
                     preferencesManager = preferencesManager,
+                    appLanguage = appLanguage,
                     lesson = lesson,
+                    lessons = localizedLessons,
                     lessonIndex = lessonIndex,
                     completedLessonIds = completedLessons,
                     isCompleted = completedLessons.contains(lesson.id),
@@ -154,10 +160,13 @@ private fun PracticeHubScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Practice Lessons") },
+                title = { Text(erickText(appLanguage, "Practice Lessons")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = erickText(appLanguage, "Back")
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -176,19 +185,23 @@ private fun PracticeHubScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            val nextRecommendedLesson = practiceLessons.firstOrNull { lesson ->
+            val nextRecommendedLesson = localizedLessons.firstOrNull { lesson ->
                 lesson.recommendedStep != null && !completedLessons.contains(lesson.id)
             }
 
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Pick a lesson", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        "ERICK applies the lesson setup for you so you can focus on one drill at a time.",
+                        erickText(appLanguage, "Pick a lesson"),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        erickText(appLanguage, "ERICK applies the lesson setup for you so you can focus on one drill at a time."),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        "Progress: ${completedLessons.size} completed / ${attemptedLessons.size} attempted",
+                        "${erickText(appLanguage, "Progress")}: ${completedLessons.size} ${erickText(appLanguage, "completed")} / ${attemptedLessons.size} ${erickText(appLanguage, "attempted")}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -197,15 +210,19 @@ private fun PracticeHubScreen(
 
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Recommended route", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        "Start with the short 6-section lessons, then try the 8-section transition. Assisted and controller drills are follow-up paths.",
+                        erickText(appLanguage, "Recommended route"),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        erickText(appLanguage, "Start with the short 6-section lessons, then try the 8-section transition. Assisted and controller drills are follow-up paths."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     nextRecommendedLesson?.let { lesson ->
                         Text(
-                            "Next recommended lesson: Step ${lesson.recommendedStep} - ${lesson.title}",
+                            "${erickText(appLanguage, "Next recommended lesson")}: ${erickText(appLanguage, "Step")} ${lesson.recommendedStep} - ${lesson.title}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -213,10 +230,10 @@ private fun PracticeHubScreen(
                             onClick = { openLesson(lesson.id, replayFromBeginning = false) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Open Recommended Lesson")
+                            Text(erickText(appLanguage, "Open Recommended Lesson"))
                         }
                     } ?: Text(
-                        "You have finished the guided route. Use the follow-up paths or jump into Quote Practice.",
+                        erickText(appLanguage, "You have finished the guided route. Use the follow-up paths or jump into Quote Practice."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -226,10 +243,14 @@ private fun PracticeHubScreen(
             if (keyboardLanguage != PreferencesManager.LANGUAGE_ENGLISH) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        val languageLabel = keyboardLanguageDisplayName(keyboardLanguage)
-                        Text(languageLabel + " typing tip", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        val languageLabel = keyboardLanguageSelfDisplayName(keyboardLanguage)
                         Text(
-                            "In 8-section mode, extra ${languageLabel.lowercase()} characters appear directly in the logical map. In 6-section mode, open Symbols to reach the extra language characters while the shipped utility wheel stays unchanged.",
+                            "$languageLabel ${erickText(appLanguage, "typing tip")}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            erickText(appLanguage, "In 8-section mode, extra language characters appear directly in the logical map. In 6-section mode, open Symbols to reach the extra language characters while the shipped utility wheel stays unchanged."),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -237,8 +258,8 @@ private fun PracticeHubScreen(
                 }
             }
 
-            practiceSectionModels.forEach { sectionModel ->
-                val sectionLessons = practiceLessons.filter { it.section == sectionModel.section }
+            localizedSectionModels.forEach { sectionModel ->
+                val sectionLessons = localizedLessons.filter { it.section == sectionModel.section }
                 if (sectionLessons.isEmpty()) return@forEach
 
                 Text(sectionModel.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -263,27 +284,34 @@ private fun PracticeHubScreen(
                                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     lesson.recommendedStep?.let { step ->
                                         Text(
-                                            if (isNextRecommended) "Recommended next · Step $step" else "Step $step",
+                                            if (isNextRecommended) {
+                                                "${erickText(appLanguage, "Recommended next")} · ${erickText(appLanguage, "Step")} $step"
+                                            } else {
+                                                "${erickText(appLanguage, "Step")} $step"
+                                            },
                                             style = MaterialTheme.typography.labelMedium,
                                             color = if (isNextRecommended) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
                                         )
                                     }
                                     Text(lesson.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                     Text(
-                                        compactLessonSummary(lesson),
+                                        compactLessonSummary(lesson, appLanguage),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     if (lesson.setupReason.isNotBlank()) {
                                         Text(
-                                            "Why this setup: ${lesson.setupReason}",
+                                            "${erickText(appLanguage, "Why this setup")}: ${lesson.setupReason}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 }
                                 IconButton(onClick = { infoLessonId = lesson.id }) {
-                                    Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Lesson help")
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.HelpOutline,
+                                        contentDescription = erickText(appLanguage, "Lesson help")
+                                    )
                                 }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -295,7 +323,7 @@ private fun PracticeHubScreen(
                                     )
                                 }
                                 Text(
-                                    lessonStatusLabel(attempted = attempted, completed = completed),
+                                    lessonStatusLabel(appLanguage, attempted, completed),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = if (completed) CompletedLessonAccentColor else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -306,6 +334,7 @@ private fun PracticeHubScreen(
                             ) {
                                 Text(
                                     lessonPrimaryButtonLabel(
+                                        languageKey = appLanguage,
                                         attempted = attempted,
                                         completed = completed,
                                         recommendedStep = lesson.recommendedStep,
@@ -325,7 +354,9 @@ private fun PracticeHubScreen(
 @Composable
 private fun PracticeLessonDetailScreen(
     preferencesManager: PreferencesManager,
+    appLanguage: String,
     lesson: PracticeLesson,
+    lessons: List<PracticeLesson>,
     lessonIndex: Int,
     completedLessonIds: Set<String>,
     isCompleted: Boolean,
@@ -353,7 +384,8 @@ private fun PracticeLessonDetailScreen(
     if (showInfoDialog) {
         PracticeLessonInfoDialog(
             lesson = lesson,
-            setupSummary = lesson.setup?.let(::formatLessonSetup),
+            appLanguage = appLanguage,
+            setupSummary = lesson.setup?.let { formatLessonSetup(it, appLanguage) },
             onDismiss = { showInfoDialog = false }
         )
     }
@@ -404,22 +436,22 @@ private fun PracticeLessonDetailScreen(
 
     val currentExercise = lesson.exercises.getOrNull(currentExerciseIndex)
     val lessonSetup = lesson.setup
-    val recommendedSetup = lessonSetup?.let(::formatLessonSetup)
+    val recommendedSetup = lessonSetup?.let { formatLessonSetup(it, appLanguage) }
     val setupMatchesLesson = lessonSetup?.let {
         it.sixSectionDial == sixSectionDial && it.layoutType == layoutType && it.inputMode == inputMode
     } ?: true
     val keyboardActionLabel = when {
-        !keyboardStatus.isEnabled -> "Enable ERICK"
-        else -> "Switch to ERICK"
+        !keyboardStatus.isEnabled -> erickText(appLanguage, "Enable ERICK")
+        else -> erickText(appLanguage, "Switch to ERICK")
     }
     val showKeyboardAction = !keyboardStatus.isCurrent
     val showSetupAction = !setupMatchesLesson
-    val previousLesson = practiceLessons.getOrNull(lessonIndex - 1)
-    val nextLesson = practiceLessons.getOrNull(lessonIndex + 1)
+    val previousLesson = lessons.getOrNull(lessonIndex - 1)
+    val nextLesson = lessons.getOrNull(lessonIndex + 1)
     val completedPartsLabel = if (lesson.isFreeform) {
-        "Freeform practice"
+        erickText(appLanguage, "Freeform practice")
     } else {
-        "${completedExerciseIds.size} of ${lesson.exercises.size} parts done"
+        "${completedExerciseIds.size} ${erickText(appLanguage, "of")} ${lesson.exercises.size} ${erickText(appLanguage, "parts done")}"
     }
 
     Scaffold(
@@ -428,17 +460,23 @@ private fun PracticeLessonDetailScreen(
                 title = { Text(lesson.title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = erickText(appLanguage, "Back")
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = {
                         context.startActivity(Intent(context, SettingsActivity::class.java))
                     }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = erickText(appLanguage, "Settings"))
                     }
                     IconButton(onClick = { showInfoDialog = true }) {
-                        Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = "Lesson help")
+                        Icon(
+                            Icons.AutoMirrored.Filled.HelpOutline,
+                            contentDescription = erickText(appLanguage, "Lesson help")
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -460,11 +498,7 @@ private fun PracticeLessonDetailScreen(
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        when {
-                            lesson.isFreeform -> "Advanced practice"
-                            lesson.recommendedStep != null -> "Recommended step ${lesson.recommendedStep}"
-                            else -> "Part ${currentExerciseIndex + 1} of ${lesson.exercises.size}"
-                        },
+                        lessonHeaderLabel(lesson, currentExerciseIndex, appLanguage),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -479,7 +513,7 @@ private fun PracticeLessonDetailScreen(
                     }
                     if (lesson.setupReason.isNotBlank()) {
                         Text(
-                            lesson.setupReason,
+                            "${erickText(appLanguage, "Why this setup")}: ${lesson.setupReason}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -497,7 +531,7 @@ private fun PracticeLessonDetailScreen(
                         OutlinedTextField(
                             value = typedText,
                             onValueChange = { typedText = it },
-                            label = { Text("Type here") },
+                            label = { Text(erickText(appLanguage, "Type the drill target here")) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -506,10 +540,13 @@ private fun PracticeLessonDetailScreen(
             } else {
                 Card {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Launch longer freeform quote practice when you are ready.", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            erickText(appLanguage, "Launch longer freeform quote practice when you are ready."),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                         if (onLaunchFreeform != null) {
                             Button(onClick = onLaunchFreeform, modifier = Modifier.fillMaxWidth()) {
-                                Text("Launch Quote Practice")
+                                Text(erickText(appLanguage, "Launch Quote Practice"))
                             }
                         }
                     }
@@ -536,7 +573,7 @@ private fun PracticeLessonDetailScreen(
                     if (showSetupAction) {
                         add(
                             PracticeActionButton(
-                                label = "Apply Setup",
+                                label = erickText(appLanguage, "Apply Setup"),
                                 emphasized = false,
                                 onClick = {
                                     scope.launch {
@@ -555,7 +592,7 @@ private fun PracticeLessonDetailScreen(
                     if (currentExerciseIndex > 0) {
                         add(
                             PracticeActionButton(
-                                label = "Previous Part",
+                                label = erickText(appLanguage, "Previous Part"),
                                 emphasized = false,
                                 onClick = {
                                     currentExerciseIndex -= 1
@@ -567,7 +604,7 @@ private fun PracticeLessonDetailScreen(
                     if (currentExerciseIndex < lesson.exercises.lastIndex) {
                         add(
                             PracticeActionButton(
-                                label = "Next Part",
+                                label = erickText(appLanguage, "Next Part"),
                                 emphasized = true,
                                 onClick = {
                                     currentExerciseIndex += 1
@@ -585,11 +622,16 @@ private fun PracticeLessonDetailScreen(
             if (hasMarkedCompleted) {
                 Card(colors = CardDefaults.cardColors(containerColor = CompletedLessonContainerColor)) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("Lesson complete", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = CompletedLessonAccentColor)
+                        Text(
+                            erickText(appLanguage, "Lesson complete"),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = CompletedLessonAccentColor
+                        )
                         val completionButtons = buildList {
                             add(
                                 PracticeActionButton(
-                                    label = "Replay Lesson",
+                                    label = erickText(appLanguage, "Replay Lesson"),
                                     emphasized = false,
                                     onClick = {
                                         typedText = ""
@@ -602,7 +644,7 @@ private fun PracticeLessonDetailScreen(
                             nextLesson?.let { targetLesson ->
                                 add(
                                     PracticeActionButton(
-                                        label = "Next Lesson",
+                                        label = erickText(appLanguage, "Next Lesson"),
                                         emphasized = true,
                                         onClick = {
                                             onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id))
@@ -620,7 +662,7 @@ private fun PracticeLessonDetailScreen(
                 previousLesson?.let { targetLesson ->
                     add(
                         PracticeActionButton(
-                            label = "Previous Lesson",
+                            label = erickText(appLanguage, "Previous Lesson"),
                             emphasized = false,
                             onClick = { onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id)) }
                         )
@@ -630,7 +672,7 @@ private fun PracticeLessonDetailScreen(
                     nextLesson?.let { targetLesson ->
                         add(
                             PracticeActionButton(
-                                label = "Next Lesson",
+                                label = erickText(appLanguage, "Next Lesson"),
                                 emphasized = true,
                                 onClick = { onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id)) }
                             )
@@ -648,6 +690,7 @@ private fun PracticeLessonDetailScreen(
 @Composable
 private fun PracticeLessonInfoDialog(
     lesson: PracticeLesson,
+    appLanguage: String,
     setupSummary: String?,
     onDismiss: () -> Unit
 ) {
@@ -658,10 +701,17 @@ private fun PracticeLessonInfoDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(lesson.focus, style = MaterialTheme.typography.bodyMedium)
                 if (setupSummary != null) {
-                    Text("Setup: $setupSummary", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "${erickText(appLanguage, "Setup")}: $setupSummary",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
                 if (lesson.setupReason.isNotBlank()) {
-                    Text("Why this setup: ${lesson.setupReason}", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "${erickText(appLanguage, "Why this setup")}: ${lesson.setupReason}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 lesson.instructions.forEach { instruction ->
                     Text("• $instruction", style = MaterialTheme.typography.bodySmall)
@@ -671,7 +721,7 @@ private fun PracticeLessonInfoDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(erickText(appLanguage, "Close"))
             }
         }
     )
@@ -758,71 +808,76 @@ private suspend fun applyPracticeLessonSetup(
     preferencesManager.setInputMode(setup.inputMode)
 }
 
-private fun formatLessonSetup(setup: PracticeLessonSetup): String {
-    val dialLabel = if (setup.sixSectionDial) "6-section" else "8-section"
+private fun formatLessonSetup(setup: PracticeLessonSetup, languageKey: String): String {
+    val dialLabel = if (setup.sixSectionDial) {
+        erickText(languageKey, "6-section")
+    } else {
+        erickText(languageKey, "8-section")
+    }
     val layoutLabel = when (setup.layoutType) {
-        PreferencesManager.LAYOUT_EFFICIENCY -> "Efficiency"
-        PreferencesManager.LAYOUT_CUSTOM -> "Custom"
-        else -> "Logical"
+        PreferencesManager.LAYOUT_EFFICIENCY -> erickText(languageKey, "Efficiency")
+        PreferencesManager.LAYOUT_CUSTOM -> erickText(languageKey, "Custom")
+        else -> erickText(languageKey, "Logical")
     }
     val inputLabel = when (setup.inputMode) {
-        PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
-        PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
-        else -> "Quick Type"
+        PreferencesManager.INPUT_MODE_CONFIRM -> erickText(languageKey, "Steady Type")
+        PreferencesManager.INPUT_MODE_ASSISTED -> erickText(languageKey, "One-Handed")
+        else -> erickText(languageKey, "Quick Type")
     }
     return "$dialLabel • $layoutLabel • $inputLabel"
 }
 
-private fun compactLessonSummary(lesson: PracticeLesson): String {
+private fun compactLessonSummary(lesson: PracticeLesson, languageKey: String): String {
     if (lesson.isFreeform) {
-        return "Freeform quote practice"
+        return erickText(languageKey, "Freeform quote practice")
     }
 
-    val setup = lesson.setup ?: return "${lesson.exercises.size} parts"
+    val setup = lesson.setup ?: return "${lesson.exercises.size} ${erickText(languageKey, "parts")}" 
     val parts = mutableListOf<String>()
-    lesson.recommendedStep?.let { parts.add("Step $it") }
-    parts.add("${lesson.exercises.size} parts")
-    val dialLabel = if (setup.sixSectionDial) "6-section" else "8-section"
+    lesson.recommendedStep?.let { parts.add("${erickText(languageKey, "Step")} $it") }
+    parts.add("${lesson.exercises.size} ${erickText(languageKey, "parts")}")
+    val dialLabel = if (setup.sixSectionDial) erickText(languageKey, "6-section") else erickText(languageKey, "8-section")
     val inputLabel = when (setup.inputMode) {
-        PreferencesManager.INPUT_MODE_CONFIRM -> "Steady Type"
-        PreferencesManager.INPUT_MODE_ASSISTED -> "One-Handed"
-        else -> "Quick Type"
+        PreferencesManager.INPUT_MODE_CONFIRM -> erickText(languageKey, "Steady Type")
+        PreferencesManager.INPUT_MODE_ASSISTED -> erickText(languageKey, "One-Handed")
+        else -> erickText(languageKey, "Quick Type")
     }
     parts.add(dialLabel)
     parts.add(inputLabel)
     return parts.joinToString(" • ")
 }
 
-private fun keyboardLanguageDisplayName(keyboardLanguage: String): String = when (keyboardLanguage) {
-    PreferencesManager.LANGUAGE_SPANISH -> "Spanish"
-    PreferencesManager.LANGUAGE_PORTUGUESE -> "Portuguese"
-    PreferencesManager.LANGUAGE_FRENCH -> "French"
-    PreferencesManager.LANGUAGE_GERMAN -> "German"
-    PreferencesManager.LANGUAGE_ITALIAN -> "Italian"
-    PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> "Norwegian Bokmal"
-    PreferencesManager.LANGUAGE_DANISH -> "Danish"
-    PreferencesManager.LANGUAGE_SWEDISH -> "Swedish"
-    PreferencesManager.LANGUAGE_FINNISH -> "Finnish"
+private fun keyboardLanguageSelfDisplayName(keyboardLanguage: String): String = when (keyboardLanguage) {
+    PreferencesManager.LANGUAGE_SPANISH -> "Espanol"
+    PreferencesManager.LANGUAGE_PORTUGUESE -> "Portugues"
+    PreferencesManager.LANGUAGE_FRENCH -> "Francais"
+    PreferencesManager.LANGUAGE_GERMAN -> "Deutsch"
+    PreferencesManager.LANGUAGE_ITALIAN -> "Italiano"
+    PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL -> "Norsk Bokmal"
+    PreferencesManager.LANGUAGE_DANISH -> "Dansk"
+    PreferencesManager.LANGUAGE_SWEDISH -> "Svenska"
+    PreferencesManager.LANGUAGE_FINNISH -> "Suomi"
     else -> "English"
 }
 
-private fun lessonStatusLabel(attempted: Boolean, completed: Boolean): String = when {
-    completed -> "Completed"
-    attempted -> "In progress"
-    else -> "Not started"
+private fun lessonStatusLabel(languageKey: String, attempted: Boolean, completed: Boolean): String = when {
+    completed -> erickText(languageKey, "Completed")
+    attempted -> erickText(languageKey, "In progress")
+    else -> erickText(languageKey, "Not started")
 }
 
 private fun lessonPrimaryButtonLabel(
+    languageKey: String,
     attempted: Boolean,
     completed: Boolean,
     recommendedStep: Int?,
     isNextRecommended: Boolean
 ): String = when {
-    completed -> "Replay Lesson"
-    attempted && isNextRecommended -> "Continue Recommended Lesson"
-    attempted -> "Continue Lesson"
-    isNextRecommended && recommendedStep != null -> "Start Step $recommendedStep"
-    else -> "Start Lesson"
+    completed -> erickText(languageKey, "Replay Lesson")
+    attempted && isNextRecommended -> erickText(languageKey, "Continue Recommended Lesson")
+    attempted -> erickText(languageKey, "Continue Lesson")
+    isNextRecommended && recommendedStep != null -> "${erickText(languageKey, "Start Step")} $recommendedStep"
+    else -> erickText(languageKey, "Start Lesson")
 }
 
 private data class PracticeSectionModel(
@@ -831,23 +886,33 @@ private data class PracticeSectionModel(
     val summary: String
 )
 
-private val practiceSectionModels = listOf(
+private fun practiceSectionModelsForLanguage(languageKey: String) = listOf(
     PracticeSectionModel(
         section = PracticeLessonSection.START_HERE,
-        title = "Start Here",
-        summary = "The guided route keeps the dial mode simple first, then adds more surfaces one step at a time."
+        title = erickText(languageKey, "Start Here"),
+        summary = erickText(languageKey, "The guided route keeps the dial mode simple first, then adds more surfaces one step at a time.")
     ),
     PracticeSectionModel(
         section = PracticeLessonSection.FOLLOW_UP,
-        title = "Mode Follow-Ups",
-        summary = "Use these once the main route feels understandable and you want a specific typing path."
+        title = erickText(languageKey, "Mode Follow-Ups"),
+        summary = erickText(languageKey, "Use these once the main route feels understandable and you want a specific typing path.")
     ),
     PracticeSectionModel(
         section = PracticeLessonSection.ADVANCED,
-        title = "Advanced Practice",
-        summary = "Open-ended practice for when the guided drills already feel easy."
+        title = erickText(languageKey, "Advanced Practice"),
+        summary = erickText(languageKey, "Open-ended practice for when the guided drills already feel easy.")
     )
 )
+
+private fun lessonHeaderLabel(
+    lesson: PracticeLesson,
+    currentExerciseIndex: Int,
+    languageKey: String
+): String = when {
+    lesson.isFreeform -> erickText(languageKey, "Advanced practice")
+    lesson.recommendedStep != null -> "${erickText(languageKey, "Recommended step")} ${lesson.recommendedStep}"
+    else -> "${erickText(languageKey, "Part")} ${currentExerciseIndex + 1} ${erickText(languageKey, "of")} ${lesson.exercises.size}"
+}
 
 private fun findNextIncompleteExerciseIndex(
     currentIndex: Int,

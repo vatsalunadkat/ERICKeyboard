@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CustomPaletteEditorView: View {
+    @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     @Binding var customColors: String
     var onBack: () -> Void
 
@@ -18,10 +19,10 @@ struct CustomPaletteEditorView: View {
                         .font(.title3)
                         .padding()
                 }
-                Text("Custom Palette")
+                Text(erickText("Custom Palette", languageKey: keyboardLanguage))
                     .font(.headline)
                 Spacer()
-                Button("Save") {
+                Button(erickText("Save", languageKey: keyboardLanguage)) {
                     customColors = colors.joined(separator: ",")
                     onBack()
                 }
@@ -31,7 +32,7 @@ struct CustomPaletteEditorView: View {
 
             ScrollView {
                 VStack(spacing: 16) {
-                    Text("Tap a slot to edit its color:")
+                    Text(erickText("Tap a slot to edit its color:", languageKey: keyboardLanguage))
                         .font(.subheadline)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -69,7 +70,7 @@ struct CustomPaletteEditorView: View {
                                 .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
                         )
 
-                    ColorPicker("Pick Color", selection: $pickerColor, supportsOpacity: false)
+                    ColorPicker(erickText("Pick Color", languageKey: keyboardLanguage), selection: $pickerColor, supportsOpacity: false)
                         .onChange(of: pickerColor) { newColor in
                             if selectedIndex < colors.count {
                                 colors[selectedIndex] = newColor.toHexString()
@@ -78,7 +79,7 @@ struct CustomPaletteEditorView: View {
 
                     HStack {
                         Text("#")
-                        TextField("Hex", text: Binding(
+                        TextField(erickText("Hex", languageKey: keyboardLanguage), text: Binding(
                             get: {
                                 if selectedIndex < colors.count {
                                     return colors[selectedIndex].trimmingCharacters(in: CharacterSet(charactersIn: "#"))

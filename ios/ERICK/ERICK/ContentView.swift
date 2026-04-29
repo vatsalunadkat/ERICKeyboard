@@ -104,7 +104,7 @@ struct ContentView: View {
                                 .font(.body)
                                 .foregroundColor(.secondary)
 
-                            Text("Use the globe key in any text field if iOS shows another keyboard first.")
+                            Text(erickText("Use the globe key in any text field if iOS shows another keyboard first.", languageKey: keyboardLanguage))
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -162,7 +162,7 @@ struct ContentView: View {
                             activeContainerColor: Color(red: 255/255, green: 235/255, blue: 238/255)
                         ) {
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("Open Settings and add ERICKeyboard under General → Keyboard → Keyboards.")
+                                Text(erickText("Open Settings and add ERICKeyboard under General → Keyboard → Keyboards.", languageKey: keyboardLanguage))
                                     .font(.body)
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -182,7 +182,7 @@ struct ContentView: View {
                                 }) {
                                     HStack {
                                         Image(systemName: "gearshape.fill")
-                                        Text("Open Settings")
+                                        Text(erickText("Open Settings", languageKey: keyboardLanguage))
                                     }
                                     .font(.headline)
                                     .frame(maxWidth: .infinity)
@@ -192,7 +192,7 @@ struct ContentView: View {
                                     .cornerRadius(12)
                                 }
 
-                                Text("Return here after enabling it. ERICK will check again automatically.")
+                                Text(erickText("Return here after enabling it. ERICK will check again automatically.", languageKey: keyboardLanguage))
                                     .font(.footnote)
                                     .foregroundColor(.secondary)
                             }
@@ -200,13 +200,13 @@ struct ContentView: View {
 
                         StepCard(
                             stepNumber: "2",
-                            title: "Switch with Globe",
+                            title: erickText("Switch with Globe", languageKey: keyboardLanguage),
                             isCompleted: false,
                             activeColor: Color(red: 244/255, green: 67/255, blue: 54/255),
                             activeIcon: "exclamationmark.triangle.fill",
                             activeContainerColor: Color(red: 255/255, green: 235/255, blue: 238/255)
                         ) {
-                            Text("When you start typing, use the globe key to choose ERICK.")
+                            Text(erickText("When you start typing, use the globe key to choose ERICK.", languageKey: keyboardLanguage))
                                 .font(.body)
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)

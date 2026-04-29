@@ -132,6 +132,10 @@ struct PracticeHubView: View {
     @AppStorage("keyboard_language", store: learningAppGroupDefaults) private var keyboardLanguage = "english"
     @State private var infoLesson: PracticeLessonData?
 
+    private var lessons: [PracticeLessonData] {
+        erickPracticeLessons(for: keyboardLanguage)
+    }
+
     private var attemptedLessons: Set<String> {
         LearningProgressStore.decodeSet(attemptedLessonsRaw)
     }
@@ -141,7 +145,7 @@ struct PracticeHubView: View {
     }
 
     private var nextRecommendedLesson: PracticeLessonData? {
-        erickPracticeLessons.first { lesson in
+        lessons.first { lesson in
             lesson.recommendedStep != nil && !completedLessons.contains(lesson.id)
         }
     }
@@ -150,12 +154,12 @@ struct PracticeHubView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Pick a lesson")
+                    Text(erickText("Pick a lesson", languageKey: keyboardLanguage))
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text("ERICK applies the lesson setup for you so you can focus on one drill at a time.")
+                    Text(erickText("ERICK applies the lesson setup for you so you can focus on one drill at a time.", languageKey: keyboardLanguage))
                         .foregroundColor(.secondary)
-                    Text("Progress: \(completedLessons.count) completed / \(attemptedLessons.count) attempted")
+                    Text("\(erickText("Progress", languageKey: keyboardLanguage)): \(completedLessons.count) \(erickText("completed", languageKey: keyboardLanguage)) / \(attemptedLessons.count) \(erickText("attempted", languageKey: keyboardLanguage))")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
@@ -165,13 +169,13 @@ struct PracticeHubView: View {
                 .cornerRadius(16)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Recommended route")
+                    Text(erickText("Recommended route", languageKey: keyboardLanguage))
                         .font(.headline)
                         .fontWeight(.bold)
-                    Text("Start with the short 6-section lessons, then try the 8-section transition. Assisted and controller drills are follow-up paths.")
+                    Text(erickText("Start with the short 6-section lessons, then try the 8-section transition. Assisted and controller drills are follow-up paths.", languageKey: keyboardLanguage))
                         .font(.subheadline)
                     if let nextRecommendedLesson {
-                        Text("Next recommended lesson: Step \(nextRecommendedLesson.recommendedStep ?? 0) - \(nextRecommendedLesson.title)")
+                        Text("\(erickText("Next recommended lesson", languageKey: keyboardLanguage)): \(erickText("Step", languageKey: keyboardLanguage)) \(nextRecommendedLesson.recommendedStep ?? 0) - \(nextRecommendedLesson.title)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         NavigationLink {
@@ -180,14 +184,14 @@ struct PracticeHubView: View {
                                 startFromBeginning: false
                             )
                         } label: {
-                            Text("Open Recommended Lesson")
+                            Text(erickText("Open Recommended Lesson", languageKey: keyboardLanguage))
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                         }
                         .buttonStyle(.borderedProminent)
                     } else {
-                        Text("You have finished the guided route. Use the follow-up paths or jump into Quote Practice.")
+                        Text(erickText("You have finished the guided route. Use the follow-up paths or jump into Quote Practice.", languageKey: keyboardLanguage))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -198,12 +202,12 @@ struct PracticeHubView: View {
                 .cornerRadius(16)
 
                 if keyboardLanguage != "english" {
-                    let languageLabel = keyboardLanguageDisplayName(keyboardLanguage)
+                    let languageLabel = keyboardLanguageSelfDisplayName(keyboardLanguage)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("\(languageLabel) typing tip")
+                        Text("\(languageLabel) \(erickText("typing tip", languageKey: keyboardLanguage))")
                             .font(.headline)
                             .fontWeight(.bold)
-                        Text("In 8-section mode, extra \(languageLabel.lowercased()) characters appear directly in the logical map. In 6-section mode, open Symbols to reach the extra language characters while the shipped utility wheel stays unchanged.")
+                        Text(erickText("In 8-section mode, extra language characters appear directly in the logical map. In 6-section mode, open Symbols to reach the extra language characters while the shipped utility wheel stays unchanged.", languageKey: keyboardLanguage))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -213,8 +217,8 @@ struct PracticeHubView: View {
                     .cornerRadius(16)
                 }
 
-                ForEach(practiceSectionModels) { sectionModel in
-                    let sectionLessons = erickPracticeLessons.filter { $0.section == sectionModel.section }
+                ForEach(practiceSectionModels(for: keyboardLanguage)) { sectionModel in
+                    let sectionLessons = lessons.filter { $0.section == sectionModel.section }
                     if !sectionLessons.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(sectionModel.title)
@@ -230,7 +234,7 @@ struct PracticeHubView: View {
                                     HStack(alignment: .top, spacing: 12) {
                                         VStack(alignment: .leading, spacing: 4) {
                                             if let recommendedStep = lesson.recommendedStep {
-                                                Text(isNextRecommended ? "Recommended next · Step \(recommendedStep)" : "Step \(recommendedStep)")
+                                                Text(isNextRecommended ? "\(erickText("Recommended next", languageKey: keyboardLanguage)) · \(erickText("Step", languageKey: keyboardLanguage)) \(recommendedStep)" : "\(erickText("Step", languageKey: keyboardLanguage)) \(recommendedStep)")
                                                     .font(.caption)
                                                     .fontWeight(.semibold)
                                                     .foregroundColor(isNextRecommended ? .accentColor : .secondary)
@@ -238,11 +242,11 @@ struct PracticeHubView: View {
                                             Text(lesson.title)
                                                 .font(.headline)
                                                 .foregroundColor(.primary)
-                                            Text(compactLessonSummary(lesson))
+                                            Text(compactLessonSummary(lesson, languageKey: keyboardLanguage))
                                                 .font(.caption)
                                                 .foregroundColor(.secondary)
                                             if !lesson.setupReason.isEmpty {
-                                                Text("Why this setup: \(lesson.setupReason)")
+                                                Text("\(erickText("Why this setup", languageKey: keyboardLanguage)): \(lesson.setupReason)")
                                                     .font(.caption)
                                                     .foregroundColor(.secondary)
                                             }
@@ -262,7 +266,7 @@ struct PracticeHubView: View {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundColor(.green)
                                         }
-                                        Text(statusText(for: lesson.id))
+                                        Text(statusText(for: lesson.id, languageKey: keyboardLanguage))
                                             .font(.caption)
                                             .foregroundColor(statusColor(for: lesson.id))
                                     }
@@ -273,7 +277,7 @@ struct PracticeHubView: View {
                                             startFromBeginning: completedLessons.contains(lesson.id)
                                         )
                                     } label: {
-                                        Text(primaryActionLabel(for: lesson, isNextRecommended: isNextRecommended))
+                                        Text(primaryActionLabel(for: lesson, isNextRecommended: isNextRecommended, languageKey: keyboardLanguage))
                                             .font(.headline)
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 12)
@@ -291,24 +295,24 @@ struct PracticeHubView: View {
             }
             .padding()
         }
-        .navigationTitle("Practice Lessons")
+        .navigationTitle(erickText("Practice Lessons", languageKey: keyboardLanguage))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $infoLesson) { lesson in
             LessonHelpSheet(
                 lesson: lesson,
-                setupSummary: lesson.setup.map(formatLessonSetup)
+                setupSummary: lesson.setup.map { formatLessonSetup($0, languageKey: keyboardLanguage) }
             )
         }
     }
 
-    private func statusText(for lessonId: String) -> String {
+    private func statusText(for lessonId: String, languageKey: String) -> String {
         if completedLessons.contains(lessonId) {
-            return "Completed"
+            return erickText("Completed", languageKey: languageKey)
         }
         if attemptedLessons.contains(lessonId) {
-            return "In progress"
+            return erickText("In progress", languageKey: languageKey)
         }
-        return "Not started"
+        return erickText("Not started", languageKey: languageKey)
     }
 
     private func statusColor(for lessonId: String) -> Color {
@@ -325,21 +329,21 @@ struct PracticeHubView: View {
         return Color(uiColor: .secondarySystemBackground)
     }
 
-    private func primaryActionLabel(for lesson: PracticeLessonData, isNextRecommended: Bool) -> String {
+    private func primaryActionLabel(for lesson: PracticeLessonData, isNextRecommended: Bool, languageKey: String) -> String {
         let lessonId = lesson.id
         if completedLessons.contains(lessonId) {
-            return "Replay Lesson"
+            return erickText("Replay Lesson", languageKey: languageKey)
         }
         if attemptedLessons.contains(lessonId) {
             if isNextRecommended {
-                return "Continue Recommended Lesson"
+                return erickText("Continue Recommended Lesson", languageKey: languageKey)
             }
-            return "Continue Lesson"
+            return erickText("Continue Lesson", languageKey: languageKey)
         }
         if isNextRecommended, let step = lesson.recommendedStep {
-            return "Start Step \(step)"
+            return "\(erickText("Start Step", languageKey: languageKey)) \(step)"
         }
-        return "Start Lesson"
+        return erickText("Start Lesson", languageKey: languageKey)
     }
 }
 
@@ -347,6 +351,7 @@ struct PracticeLessonView: View {
     let lesson: PracticeLessonData
     let startFromBeginning: Bool
 
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(LearningProgressStore.attemptedLessonsKey) private var attemptedLessonsRaw = ""
     @AppStorage(LearningProgressStore.completedLessonsKey) private var completedLessonsRaw = ""
@@ -387,16 +392,20 @@ struct PracticeLessonView: View {
         return setup.sixSectionDial == sixSectionDial && setup.layoutType == layoutType && setup.inputMode == inputMode
     }
 
+    private var localizedLessons: [PracticeLessonData] {
+        erickPracticeLessons(for: keyboardLanguage)
+    }
+
     private var previousLesson: PracticeLessonData? {
-        let currentIndex = erickPracticeLessons.firstIndex { $0.id == lesson.id } ?? 0
+        let currentIndex = localizedLessons.firstIndex { $0.id == lesson.id } ?? 0
         guard currentIndex > 0 else { return nil }
-        return erickPracticeLessons[currentIndex - 1]
+        return localizedLessons[currentIndex - 1]
     }
 
     private var nextLesson: PracticeLessonData? {
-        let currentIndex = erickPracticeLessons.firstIndex { $0.id == lesson.id } ?? 0
-        guard currentIndex < erickPracticeLessons.count - 1 else { return nil }
-        return erickPracticeLessons[currentIndex + 1]
+        let currentIndex = localizedLessons.firstIndex { $0.id == lesson.id } ?? 0
+        guard currentIndex < localizedLessons.count - 1 else { return nil }
+        return localizedLessons[currentIndex + 1]
     }
 
     private var contextActions: [LessonAction] {
@@ -404,7 +413,7 @@ struct PracticeLessonView: View {
 
         if !isKeyboardEnabled {
             actions.append(
-                LessonAction(id: "enable-keyboard", title: "Open iOS Settings", prominent: true) {
+                LessonAction(id: "enable-keyboard", title: erickText("Open iOS Settings", languageKey: keyboardLanguage), prominent: true) {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(url)
                     }
@@ -412,7 +421,7 @@ struct PracticeLessonView: View {
             )
         } else if !lesson.isFreeform && !practiceFieldFocused {
             actions.append(
-                LessonAction(id: "focus-field", title: "Focus Typing Field", prominent: true) {
+                LessonAction(id: "focus-field", title: erickText("Focus Typing Field", languageKey: keyboardLanguage), prominent: true) {
                     practiceFieldFocused = true
                 }
             )
@@ -420,7 +429,7 @@ struct PracticeLessonView: View {
 
         if !setupMatchesLesson {
             actions.append(
-                LessonAction(id: "apply-setup", title: "Apply Setup", prominent: false) {
+                LessonAction(id: "apply-setup", title: erickText("Apply Setup", languageKey: keyboardLanguage), prominent: false) {
                     applyLessonSetup()
                 }
             )
@@ -435,7 +444,7 @@ struct PracticeLessonView: View {
         var actions: [LessonAction] = []
         if currentExerciseIndex > 0 {
             actions.append(
-                LessonAction(id: "previous-part", title: "Previous Part", prominent: false) {
+                LessonAction(id: "previous-part", title: erickText("Previous Part", languageKey: keyboardLanguage), prominent: false) {
                     currentExerciseIndex -= 1
                     typedText = ""
                 }
@@ -443,7 +452,7 @@ struct PracticeLessonView: View {
         }
         if currentExerciseIndex < lesson.exercises.count - 1 {
             actions.append(
-                LessonAction(id: "next-part", title: "Next Part", prominent: true) {
+                LessonAction(id: "next-part", title: erickText("Next Part", languageKey: keyboardLanguage), prominent: true) {
                     currentExerciseIndex += 1
                     typedText = ""
                 }
@@ -456,23 +465,23 @@ struct PracticeLessonView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(lessonHeaderLabel(lesson: lesson, currentExerciseIndex: currentExerciseIndex))
+                    Text(lessonHeaderLabel(lesson: lesson, currentExerciseIndex: currentExerciseIndex, languageKey: keyboardLanguage))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
                     Text(currentExercise?.title ?? lesson.focus)
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text(lesson.isFreeform ? "Freeform practice" : "\(completedExerciseIds.count) of \(lesson.exercises.count) parts done")
+                    Text(lesson.isFreeform ? erickText("Freeform practice", languageKey: keyboardLanguage) : "\(completedExerciseIds.count) \(erickText("of", languageKey: keyboardLanguage)) \(lesson.exercises.count) \(erickText("parts done", languageKey: keyboardLanguage))")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                     if let setup = lesson.setup {
-                        Text(formatLessonSetup(setup))
+                        Text(formatLessonSetup(setup, languageKey: keyboardLanguage))
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }
                     if !lesson.setupReason.isEmpty {
-                        Text(lesson.setupReason)
+                        Text("\(erickText("Why this setup", languageKey: keyboardLanguage)): \(lesson.setupReason)")
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }
@@ -484,15 +493,15 @@ struct PracticeLessonView: View {
 
                 if lesson.isFreeform {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Advanced Freeform Mode")
+                        Text(erickText("Advanced Freeform Mode", languageKey: keyboardLanguage))
                             .font(.headline)
-                        Text("Launch the quote practice screen when you want a longer freeform session with the current lesson preset.")
+                        Text(erickText("Launch the quote practice screen when you want a longer freeform session with the current lesson preset.", languageKey: keyboardLanguage))
                             .foregroundColor(.secondary)
 
                         NavigationLink {
                             TypingGameView()
                         } label: {
-                            Text("Launch Quote Practice")
+                            Text(erickText("Launch Quote Practice", languageKey: keyboardLanguage))
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
@@ -513,7 +522,7 @@ struct PracticeLessonView: View {
                                 .fontWeight(.bold)
                         }
 
-                        TextField("Type the drill target here", text: $typedText)
+                        TextField(erickText("Type the drill target here", languageKey: keyboardLanguage), text: $typedText)
                             .textFieldStyle(.roundedBorder)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -535,24 +544,24 @@ struct PracticeLessonView: View {
 
                 if lessonIsFinished {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Lesson complete")
+                        Text(erickText("Lesson complete", languageKey: keyboardLanguage))
                             .font(.headline)
                             .foregroundColor(.green)
                         ViewThatFits(in: .horizontal) {
                             HStack(spacing: 12) {
                                 Button(action: resetLessonProgress) {
-                                    lessonActionLabel("Replay Lesson", fillWidth: true)
+                                    lessonActionLabel(erickText("Replay Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
 
                                 if let nextLesson {
                                     NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
-                                        lessonActionLabel("Next Lesson", fillWidth: true)
+                                        lessonActionLabel(erickText("Next Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                     }
                                     .buttonStyle(.borderedProminent)
                                 } else if let previousLesson {
                                     NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
-                                        lessonActionLabel("Previous Lesson", fillWidth: true)
+                                        lessonActionLabel(erickText("Previous Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                     }
                                     .buttonStyle(.bordered)
                                 }
@@ -560,18 +569,18 @@ struct PracticeLessonView: View {
 
                             VStack(spacing: 12) {
                                 Button(action: resetLessonProgress) {
-                                    lessonActionLabel("Replay Lesson", fillWidth: true)
+                                    lessonActionLabel(erickText("Replay Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
 
                                 if let nextLesson {
                                     NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
-                                        lessonActionLabel("Next Lesson", fillWidth: true)
+                                        lessonActionLabel(erickText("Next Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                     }
                                     .buttonStyle(.borderedProminent)
                                 } else if let previousLesson {
                                     NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
-                                        lessonActionLabel("Previous Lesson", fillWidth: true)
+                                        lessonActionLabel(erickText("Previous Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                     }
                                     .buttonStyle(.bordered)
                                 }
@@ -587,13 +596,13 @@ struct PracticeLessonView: View {
                         HStack(spacing: 12) {
                             if let previousLesson {
                                 NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
-                                    lessonActionLabel("Previous Lesson", fillWidth: true)
+                                    lessonActionLabel(erickText("Previous Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
                             }
                             if let nextLesson {
                                 NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
-                                    lessonActionLabel("Next Lesson", fillWidth: true)
+                                    lessonActionLabel(erickText("Next Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.borderedProminent)
                             }
@@ -602,13 +611,13 @@ struct PracticeLessonView: View {
                         VStack(spacing: 12) {
                             if let previousLesson {
                                 NavigationLink(destination: PracticeLessonView(lesson: previousLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(previousLesson.id))) {
-                                    lessonActionLabel("Previous Lesson", fillWidth: true)
+                                    lessonActionLabel(erickText("Previous Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
                             }
                             if let nextLesson {
                                 NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
-                                    lessonActionLabel("Next Lesson", fillWidth: true)
+                                    lessonActionLabel(erickText("Next Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.borderedProminent)
                             }
@@ -637,7 +646,7 @@ struct PracticeLessonView: View {
         .sheet(isPresented: $showHelpSheet) {
             LessonHelpSheet(
                 lesson: lesson,
-                setupSummary: lesson.setup.map(formatLessonSetup)
+                setupSummary: lesson.setup.map { formatLessonSetup($0, languageKey: keyboardLanguage) }
             )
         }
         .onAppear {
@@ -719,26 +728,26 @@ struct PracticeLessonView: View {
             .padding(.vertical, 12)
     }
 
-    private func formatLessonSetup(_ setup: PracticeLessonSetupData) -> String {
-        let dialLabel = setup.sixSectionDial ? "6-section" : "8-section"
+    private func formatLessonSetup(_ setup: PracticeLessonSetupData, languageKey: String) -> String {
+        let dialLabel = setup.sixSectionDial ? erickText("6-section", languageKey: languageKey) : erickText("8-section", languageKey: languageKey)
         let layoutLabel: String
         switch setup.layoutType {
         case "efficiency":
-            layoutLabel = "Efficiency"
+            layoutLabel = erickText("Efficiency", languageKey: languageKey)
         case "custom":
-            layoutLabel = "Custom"
+            layoutLabel = erickText("Custom", languageKey: languageKey)
         default:
-            layoutLabel = "Logical"
+            layoutLabel = erickText("Logical", languageKey: languageKey)
         }
 
         let inputLabel: String
         switch setup.inputMode {
         case "confirm":
-            inputLabel = "Steady Type"
+            inputLabel = erickText("Steady Type", languageKey: languageKey)
         case "assisted":
-            inputLabel = "One-Handed"
+            inputLabel = erickText("One-Handed", languageKey: languageKey)
         default:
-            inputLabel = "Quick Type"
+            inputLabel = erickText("Quick Type", languageKey: languageKey)
         }
 
         return "\(dialLabel) • \(layoutLabel) • \(inputLabel)"
@@ -746,6 +755,7 @@ struct PracticeLessonView: View {
 }
 
 private struct LessonHelpSheet: View {
+    @Environment(\.erickLanguageKey) private var keyboardLanguage
     let lesson: PracticeLessonData
     let setupSummary: String?
 
@@ -756,12 +766,12 @@ private struct LessonHelpSheet: View {
                     Text(lesson.focus)
                         .font(.body)
                     if let setupSummary {
-                        Text("Setup: \(setupSummary)")
+                        Text("\(erickText("Setup", languageKey: keyboardLanguage)): \(setupSummary)")
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }
                     if !lesson.setupReason.isEmpty {
-                        Text("Why this setup: \(lesson.setupReason)")
+                        Text("\(erickText("Why this setup", languageKey: keyboardLanguage)): \(lesson.setupReason)")
                             .font(.subheadline)
                     }
                     ForEach(Array(lesson.instructions.enumerated()), id: \.offset) { _, instruction in
@@ -824,29 +834,29 @@ private struct LessonActionButton: View {
     }
 }
 
-private func compactLessonSummary(_ lesson: PracticeLessonData) -> String {
+private func compactLessonSummary(_ lesson: PracticeLessonData, languageKey: String) -> String {
     if lesson.isFreeform {
-        return "Freeform quote practice"
+        return erickText("Freeform quote practice", languageKey: languageKey)
     }
 
     guard let setup = lesson.setup else {
-        return "\(lesson.exercises.count) parts"
+        return "\(lesson.exercises.count) \(erickText("parts", languageKey: languageKey))"
     }
 
     var parts: [String] = []
     if let recommendedStep = lesson.recommendedStep {
-        parts.append("Step \(recommendedStep)")
+        parts.append("\(erickText("Step", languageKey: languageKey)) \(recommendedStep)")
     }
-    parts.append("\(lesson.exercises.count) parts")
-    let dialLabel = setup.sixSectionDial ? "6-section" : "8-section"
+    parts.append("\(lesson.exercises.count) \(erickText("parts", languageKey: languageKey))")
+    let dialLabel = setup.sixSectionDial ? erickText("6-section", languageKey: languageKey) : erickText("8-section", languageKey: languageKey)
     let inputLabel: String
     switch setup.inputMode {
     case "confirm":
-        inputLabel = "Steady Type"
+        inputLabel = erickText("Steady Type", languageKey: languageKey)
     case "assisted":
-        inputLabel = "One-Handed"
+        inputLabel = erickText("One-Handed", languageKey: languageKey)
     default:
-        inputLabel = "Quick Type"
+        inputLabel = erickText("Quick Type", languageKey: languageKey)
     }
 
     parts.append(dialLabel)
@@ -854,14 +864,14 @@ private func compactLessonSummary(_ lesson: PracticeLessonData) -> String {
     return parts.joined(separator: " • ")
 }
 
-private func lessonHeaderLabel(lesson: PracticeLessonData, currentExerciseIndex: Int) -> String {
+private func lessonHeaderLabel(lesson: PracticeLessonData, currentExerciseIndex: Int, languageKey: String) -> String {
     if lesson.isFreeform {
-        return "Advanced practice"
+        return erickText("Advanced practice", languageKey: languageKey)
     }
     if let recommendedStep = lesson.recommendedStep {
-        return "Recommended step \(recommendedStep)"
+        return "\(erickText("Recommended step", languageKey: languageKey)) \(recommendedStep)"
     }
-    return "Part \(currentExerciseIndex + 1) of \(lesson.exercises.count)"
+    return "\(erickText("Part", languageKey: languageKey)) \(currentExerciseIndex + 1) \(erickText("of", languageKey: languageKey)) \(lesson.exercises.count)"
 }
 
 private struct PracticeSectionModel: Identifiable {
@@ -878,44 +888,46 @@ private struct PracticeSectionModel: Identifiable {
     }
 }
 
-private let practiceSectionModels: [PracticeSectionModel] = [
-    PracticeSectionModel(
-        section: .startHere,
-        title: "Start Here",
-        summary: "The guided route keeps the dial mode simple first, then adds more surfaces one step at a time."
-    ),
-    PracticeSectionModel(
-        section: .followUp,
-        title: "Mode Follow-Ups",
-        summary: "Use these once the main route feels understandable and you want a specific typing path."
-    ),
-    PracticeSectionModel(
-        section: .advanced,
-        title: "Advanced Practice",
-        summary: "Open-ended practice for when the guided drills already feel easy."
-    )
-]
+private func practiceSectionModels(for languageKey: String) -> [PracticeSectionModel] {
+    [
+        PracticeSectionModel(
+            section: .startHere,
+            title: erickText("Start Here", languageKey: languageKey),
+            summary: erickText("The guided route keeps the dial mode simple first, then adds more surfaces one step at a time.", languageKey: languageKey)
+        ),
+        PracticeSectionModel(
+            section: .followUp,
+            title: erickText("Mode Follow-Ups", languageKey: languageKey),
+            summary: erickText("Use these once the main route feels understandable and you want a specific typing path.", languageKey: languageKey)
+        ),
+        PracticeSectionModel(
+            section: .advanced,
+            title: erickText("Advanced Practice", languageKey: languageKey),
+            summary: erickText("Open-ended practice for when the guided drills already feel easy.", languageKey: languageKey)
+        )
+    ]
+}
 
-private func keyboardLanguageDisplayName(_ keyboardLanguage: String) -> String {
+private func keyboardLanguageSelfDisplayName(_ keyboardLanguage: String) -> String {
     switch keyboardLanguage {
     case "spanish":
-        return "Spanish"
+        return "Espanol"
     case "portuguese":
-        return "Portuguese"
+        return "Portugues"
     case "french":
-        return "French"
+        return "Francais"
     case "german":
-        return "German"
+        return "Deutsch"
     case "italian":
-        return "Italian"
+        return "Italiano"
     case "norwegian_bokmal":
-        return "Norwegian Bokmal"
+        return "Norsk Bokmal"
     case "danish":
-        return "Danish"
+        return "Dansk"
     case "swedish":
-        return "Swedish"
+        return "Svenska"
     case "finnish":
-        return "Finnish"
+        return "Suomi"
     default:
         return "English"
     }

@@ -153,34 +153,36 @@ class ControllerDiagnosticsActivity : ComponentActivity() {
             val controllerDeadZone by preferencesManager.controllerDeadZone.collectAsState(initial = PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE)
             val controllerYAxisInverted by preferencesManager.controllerYAxisInverted.collectAsState(initial = false)
 
-            ERICKTheme(themeMode = themeMode) {
-                ControllerDiagnosticsScreen(
-                    controllerName = controllerNameState.value,
-                    leftRawX = leftRawXState.floatValue,
-                    leftRawY = leftRawYState.floatValue,
-                    rightRawX = rightRawXState.floatValue,
-                    rightRawY = rightRawYState.floatValue,
-                    controllerDeadZone = controllerDeadZone,
-                    controllerYAxisInverted = controllerYAxisInverted,
-                    leftHandedMode = leftHandedModeState.value,
-                    inputMode = inputModeState.value,
-                    dialSectionMode = dialSectionModeState.value,
-                    lockedLeftDirection = lockedDirectionState.value,
-                    onBack = { finish() },
-                    onDeadZoneChanged = { value ->
-                        lifecycleScope.launch { preferencesManager.setControllerDeadZone(value) }
-                    },
-                    onYAxisInvertedChanged = { enabled ->
-                        lifecycleScope.launch { preferencesManager.setControllerYAxisInverted(enabled) }
-                    },
-                    onResetCalibration = {
-                        lifecycleScope.launch {
-                            preferencesManager.setControllerDeadZone(PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE)
-                            preferencesManager.setControllerYAxisInverted(false)
+            ProvideAppLanguage(preferencesManager = preferencesManager) {
+                ERICKTheme(themeMode = themeMode) {
+                    ControllerDiagnosticsScreen(
+                        controllerName = controllerNameState.value,
+                        leftRawX = leftRawXState.floatValue,
+                        leftRawY = leftRawYState.floatValue,
+                        rightRawX = rightRawXState.floatValue,
+                        rightRawY = rightRawYState.floatValue,
+                        controllerDeadZone = controllerDeadZone,
+                        controllerYAxisInverted = controllerYAxisInverted,
+                        leftHandedMode = leftHandedModeState.value,
+                        inputMode = inputModeState.value,
+                        dialSectionMode = dialSectionModeState.value,
+                        lockedLeftDirection = lockedDirectionState.value,
+                        onBack = { finish() },
+                        onDeadZoneChanged = { value ->
+                            lifecycleScope.launch { preferencesManager.setControllerDeadZone(value) }
+                        },
+                        onYAxisInvertedChanged = { enabled ->
+                            lifecycleScope.launch { preferencesManager.setControllerYAxisInverted(enabled) }
+                        },
+                        onResetCalibration = {
+                            lifecycleScope.launch {
+                                preferencesManager.setControllerDeadZone(PreferencesManager.DEFAULT_CONTROLLER_DEAD_ZONE)
+                                preferencesManager.setControllerYAxisInverted(false)
+                            }
+                            clearControllerInput()
                         }
-                        clearControllerInput()
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -255,6 +257,8 @@ private fun ControllerDiagnosticsScreen(
     onYAxisInvertedChanged: (Boolean) -> Unit,
     onResetCalibration: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
+    fun t(english: String): String = erickText(appLanguage, english)
     val leftSnapshot = ControllerInputProcessor.resolveStick(
         x = leftRawX,
         y = leftRawY,
@@ -282,10 +286,10 @@ private fun ControllerDiagnosticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Controller Diagnostics") },
+                title = { Text(t("Controller Diagnostics")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -310,9 +314,10 @@ private fun ControllerDiagnosticsScreen(
                         Icon(Icons.Default.SportsEsports, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text("Live Controller Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text(t("Live Controller Status"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Text(
-                                text = controllerName?.let { "Connected: $it" } ?: "No controller detected. Connect a controller and move the sticks on this screen.",
+                                text = controllerName?.let { "${t("Connected")}: $it" }
+                                    ?: t("No controller detected. Connect a controller and move the sticks on this screen."),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -320,7 +325,7 @@ private fun ControllerDiagnosticsScreen(
                     }
 
                     Text(
-                        text = "This screen uses the same shared controller normalization and direction resolution logic as the keyboard state machine.",
+                        text = t("This screen uses the same shared controller normalization and direction resolution logic as the keyboard state machine."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -329,9 +334,9 @@ private fun ControllerDiagnosticsScreen(
 
             Card {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Calibration", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(t("Calibration"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        text = "Dead zone: ${(controllerDeadZone * 100).roundToInt()}%",
+                        text = "${t("Dead zone")}: ${(controllerDeadZone * 100).roundToInt()}%",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Slider(
@@ -346,9 +351,9 @@ private fun ControllerDiagnosticsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Invert Controller Y-Axis", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                            Text(t("Invert Controller Y-Axis"), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                             Text(
-                                text = "Use this if pushing up feels reversed on your controller.",
+                                text = t("Use this if pushing up feels reversed on your controller."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -359,29 +364,29 @@ private fun ControllerDiagnosticsScreen(
                     OutlinedButton(onClick = onResetCalibration, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Refresh, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Reset Calibration")
+                        Text(t("Reset Calibration"))
                     }
                 }
             }
 
             Card {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Shared State", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("Input mode: ${inputMode.name}", style = MaterialTheme.typography.bodyMedium)
-                    Text("Dial mode: ${dialSectionMode.name}", style = MaterialTheme.typography.bodyMedium)
+                    Text(t("Shared State"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("${t("Input mode")}: ${inputModeLabel(inputMode, appLanguage)}", style = MaterialTheme.typography.bodyMedium)
+                    Text("${t("Dial mode")}: ${dialSectionModeLabel(dialSectionMode, appLanguage)}", style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        "Effective sides: ${if (leftHandedMode) "Physical right = letter dial, physical left = action dial" else "Physical left = letter dial, physical right = action dial"}",
+                        "${t("Effective sides")}: ${effectiveSidesLabel(leftHandedMode, appLanguage)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Text("Assisted lock: ${lockedLeftDirection.name}", style = MaterialTheme.typography.bodyMedium)
+                    Text("${t("Assisted lock")}: ${localizedDirection(lockedLeftDirection, appLanguage)}", style = MaterialTheme.typography.bodyMedium)
                 }
             }
 
             Card {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Local Confusion Drill", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(t("Local Confusion Drill"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        text = "Record expected-versus-resolved direction buckets locally on this device. ERICK stores only aggregate counts here: no typed text and no raw stick traces.",
+                        text = t("Record expected-versus-resolved direction buckets locally on this device. ERICK stores only aggregate counts here: no typed text and no raw stick traces."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -392,24 +397,24 @@ private fun ControllerDiagnosticsScreen(
                             modifier = Modifier.weight(1f),
                             enabled = selectedStickState.value != DiagnosticsStick.LEFT
                         ) {
-                            Text("Track Left Stick")
+                            Text(t("Track Left Stick"))
                         }
                         Button(
                             onClick = { selectedStickState.value = DiagnosticsStick.RIGHT },
                             modifier = Modifier.weight(1f),
                             enabled = selectedStickState.value != DiagnosticsStick.RIGHT
                         ) {
-                            Text("Track Right Stick")
+                            Text(t("Track Right Stick"))
                         }
                     }
 
-                    Text("Target direction: ${currentTargetDirection.name}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Text("${t("Target direction")}: ${localizedDirection(currentTargetDirection, appLanguage)}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     Text(
-                        text = "Current resolved direction on ${selectedStickState.value.label}: ${selectedSnapshot.direction.name}",
+                        text = "${t("Current resolved direction on")} ${t(selectedStickState.value.label)}: ${localizedDirection(selectedSnapshot.direction, appLanguage)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "Current dead-zone band: ${ControllerConfusionAnalyzer.deadZoneBand(controllerDeadZone)}",
+                        text = "${t("Current dead-zone band")}: ${ControllerConfusionAnalyzer.deadZoneBand(controllerDeadZone)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -429,7 +434,7 @@ private fun ControllerDiagnosticsScreen(
                             modifier = Modifier.weight(1f),
                             enabled = controllerName != null
                         ) {
-                            Text("Record Sample")
+                            Text(t("Record Sample"))
                         }
                         OutlinedButton(
                             onClick = {
@@ -437,7 +442,7 @@ private fun ControllerDiagnosticsScreen(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Next Target")
+                            Text(t("Next Target"))
                         }
                     }
 
@@ -445,40 +450,42 @@ private fun ControllerDiagnosticsScreen(
                         onClick = { confusionSummaryState.value = ControllerConfusionUiSummary() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Reset Drill Counts")
+                        Text(t("Reset Drill Counts"))
                     }
 
-                    StickMetricRow("Total samples", confusionSummaryState.value.totalSamples.toString())
+                    StickMetricRow(t("Total samples"), confusionSummaryState.value.totalSamples.toString())
                     StickMetricRow(
-                        "Samples L/R",
+                        t("Samples L/R"),
                         "${confusionSummaryState.value.leftStickSamples} / ${confusionSummaryState.value.rightStickSamples}"
                     )
-                    StickMetricRow("Exact matches", confusionSummaryState.value.exactMatches.toString())
-                    StickMetricRow("Adjacent slips", confusionSummaryState.value.adjacentSlips.toString())
-                    StickMetricRow("Mirror slips", confusionSummaryState.value.mirrorSlips.toString())
-                    StickMetricRow("Dead-zone jitter", confusionSummaryState.value.deadZoneJitters.toString())
-                    StickMetricRow("Other mismatches", confusionSummaryState.value.otherMismatches.toString())
-                    StickMetricRow("Snap-back releases", confusionSummaryState.value.snapBackReversals.toString())
+                    StickMetricRow(t("Exact matches"), confusionSummaryState.value.exactMatches.toString())
+                    StickMetricRow(t("Adjacent slips"), confusionSummaryState.value.adjacentSlips.toString())
+                    StickMetricRow(t("Mirror slips"), confusionSummaryState.value.mirrorSlips.toString())
+                    StickMetricRow(t("Dead-zone jitter"), confusionSummaryState.value.deadZoneJitters.toString())
+                    StickMetricRow(t("Other mismatches"), confusionSummaryState.value.otherMismatches.toString())
+                    StickMetricRow(t("Snap-back releases"), confusionSummaryState.value.snapBackReversals.toString())
 
                     confusionSummaryState.value.topPairs().forEach { (pair, count) ->
-                        StickMetricRow("Hot pair", "$pair ×$count")
+                        StickMetricRow(t("Hot pair"), "${localizedHotPair(pair, appLanguage)} ×$count")
                     }
                 }
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 ControllerStickCard(
-                    title = "Left Stick",
-                    subtitle = if (leftHandedMode) "Action dial on left-handed mode" else "Letter dial on default mode",
+                    title = t("Left Stick"),
+                    subtitle = if (leftHandedMode) t("Action dial on left-handed mode") else t("Letter dial on default mode"),
                     snapshot = leftSnapshot,
                     deadZone = controllerDeadZone,
+                    appLanguage = appLanguage,
                     modifier = Modifier.weight(1f)
                 )
                 ControllerStickCard(
-                    title = "Right Stick",
-                    subtitle = if (leftHandedMode) "Letter dial on left-handed mode" else "Action dial on default mode",
+                    title = t("Right Stick"),
+                    subtitle = if (leftHandedMode) t("Letter dial on left-handed mode") else t("Action dial on default mode"),
                     snapshot = rightSnapshot,
                     deadZone = controllerDeadZone,
+                    appLanguage = appLanguage,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -492,6 +499,7 @@ private fun ControllerStickCard(
     subtitle: String,
     snapshot: ControllerStickSnapshot,
     deadZone: Float,
+    appLanguage: String,
     modifier: Modifier = Modifier
 ) {
     Card(modifier = modifier) {
@@ -499,11 +507,11 @@ private fun ControllerStickCard(
             Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             ControllerStickPreview(snapshot = snapshot, deadZone = deadZone)
-            StickMetricRow("Raw", formatPair(snapshot.rawX, snapshot.rawY))
-            StickMetricRow("Adjusted", formatPair(snapshot.adjustedX, snapshot.adjustedY))
-            StickMetricRow("Magnitude", formatValue(snapshot.magnitude))
-            StickMetricRow("Direction", snapshot.direction.name)
-            StickMetricRow("Active", if (snapshot.isActive) "Yes" else "No")
+            StickMetricRow(erickText(appLanguage, "Raw"), formatPair(snapshot.rawX, snapshot.rawY))
+            StickMetricRow(erickText(appLanguage, "Adjusted"), formatPair(snapshot.adjustedX, snapshot.adjustedY))
+            StickMetricRow(erickText(appLanguage, "Magnitude"), formatValue(snapshot.magnitude))
+            StickMetricRow(erickText(appLanguage, "Direction"), localizedDirection(snapshot.direction, appLanguage))
+            StickMetricRow(erickText(appLanguage, "Active"), if (snapshot.isActive) erickText(appLanguage, "Yes") else erickText(appLanguage, "No"))
         }
     }
 }
@@ -591,6 +599,39 @@ private fun TrackPassiveSnapBackSignal(
 private enum class DiagnosticsStick(val label: String) {
     LEFT("left stick"),
     RIGHT("right stick"),
+}
+
+private fun inputModeLabel(inputMode: InputMode, languageKey: String): String = when (inputMode) {
+    InputMode.CONFIRM -> erickText(languageKey, "Steady Type")
+    InputMode.ASSISTED -> erickText(languageKey, "One-Handed")
+    else -> erickText(languageKey, "Quick Type")
+}
+
+private fun dialSectionModeLabel(dialSectionMode: DialSectionMode, languageKey: String): String = when (dialSectionMode) {
+    DialSectionMode.SIX_SECTION -> erickText(languageKey, "6-section")
+    else -> erickText(languageKey, "8-section")
+}
+
+private fun effectiveSidesLabel(leftHandedMode: Boolean, languageKey: String): String {
+    return if (leftHandedMode) {
+        erickText(languageKey, "Physical right = letter dial, physical left = action dial")
+    } else {
+        erickText(languageKey, "Physical left = letter dial, physical right = action dial")
+    }
+}
+
+private fun localizedHotPair(pair: String, languageKey: String): String {
+    return pair
+        .replace("LEFT", erickText(languageKey, "Left"))
+        .replace("RIGHT", erickText(languageKey, "Right"))
+        .replace("NONE", erickText(languageKey, "None"))
+}
+
+private fun localizedDirection(direction: Direction, languageKey: String): String {
+    return when (direction) {
+        Direction.NONE -> erickText(languageKey, "None")
+        else -> direction.name
+    }
 }
 
 private data class ControllerConfusionUiSummary(

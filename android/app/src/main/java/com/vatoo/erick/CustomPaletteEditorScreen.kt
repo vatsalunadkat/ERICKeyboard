@@ -51,6 +51,8 @@ fun CustomPaletteEditorScreen(
     onSave: (String) -> Unit,
     onBack: () -> Unit
 ) {
+    val appLanguage = LocalAppLanguageKey.current
+    fun t(english: String): String = erickText(appLanguage, english)
     val directionLabels = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
     val initialHexList = initialColors.split(",").map { it.trim() }
     var colors by remember { mutableStateOf(initialHexList.toMutableList().also { while (it.size < 8) it.add("#CCCCCC") }) }
@@ -112,15 +114,15 @@ fun CustomPaletteEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Custom Palette") },
+                title = { Text(t("Custom Palette")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
                     }
                 },
                 actions = {
                     TextButton(onClick = { onSave(colors.joinToString(",")) }) {
-                        Text("Save")
+                        Text(t("Save"))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -144,16 +146,16 @@ fun CustomPaletteEditorScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Edit one slot at a time", style = MaterialTheme.typography.titleSmall)
+                    Text(t("Edit one slot at a time"), style = MaterialTheme.typography.titleSmall)
                     Text(
-                        text = "Pick a direction, adjust the color with the sliders, and only open hex or RGB if you need precise values.",
+                        text = t("Pick a direction, adjust the color with the sliders, and only open hex or RGB if you need precise values."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            Text("Tap a slot to edit its color:", style = MaterialTheme.typography.bodyMedium)
+            Text(t("Tap a slot to edit its color:"), style = MaterialTheme.typography.bodyMedium)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -198,11 +200,11 @@ fun CustomPaletteEditorScreen(
             )
 
             Text(
-                text = "Editing ${directionLabels[selectedIndex]}",
+                text = "${t("Editing")} ${directionLabels[selectedIndex]}",
                 style = MaterialTheme.typography.titleSmall
             )
 
-            Text("Hue", style = MaterialTheme.typography.labelMedium)
+            Text(t("Hue"), style = MaterialTheme.typography.labelMedium)
             Slider(
                 value = hue,
                 onValueChange = { hue = it; updateFromHSV() },
@@ -210,7 +212,7 @@ fun CustomPaletteEditorScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Text("Saturation", style = MaterialTheme.typography.labelMedium)
+            Text(t("Saturation"), style = MaterialTheme.typography.labelMedium)
             Slider(
                 value = saturation,
                 onValueChange = { saturation = it; updateFromHSV() },
@@ -218,7 +220,7 @@ fun CustomPaletteEditorScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Text("Brightness", style = MaterialTheme.typography.labelMedium)
+            Text(t("Brightness"), style = MaterialTheme.typography.labelMedium)
             Slider(
                 value = brightness,
                 onValueChange = { brightness = it; updateFromHSV() },
@@ -227,7 +229,7 @@ fun CustomPaletteEditorScreen(
             )
 
             TextButton(onClick = { showAdvancedInputs = !showAdvancedInputs }) {
-                Text(if (showAdvancedInputs) "Hide Hex and RGB" else "Show Hex and RGB")
+                Text(if (showAdvancedInputs) t("Hide Hex and RGB") else t("Show Hex and RGB"))
             }
 
             if (showAdvancedInputs) {
@@ -244,7 +246,7 @@ fun CustomPaletteEditorScreen(
                             syncFromHex(hex)
                         }
                     },
-                    label = { Text("Hex Color") },
+                    label = { Text(t("Hex Color")) },
                     prefix = { Text("#") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()

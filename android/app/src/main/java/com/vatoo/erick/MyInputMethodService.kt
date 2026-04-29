@@ -64,6 +64,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private var lastHighlightedIndex: Int = -1
     private var pendingSuggestions: List<String> = emptyList()
     private var currentPredictionDomain: PredictionDomain = PredictionDomain.GENERAL
+    private var currentLanguageKey: String = PreferencesManager.LANGUAGE_ENGLISH
 
     // --- Coroutine lifecycle management ---
     // Must provide a scope to the state machine; cancel all timer tasks when the IME is destroyed to prevent memory leaks
@@ -245,6 +246,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }.launchIn(serviceScope)
 
         preferencesManager.keyboardLanguage.onEach { languageKey ->
+            currentLanguageKey = languageKey
             val keyboardLanguage = when (languageKey) {
                 PreferencesManager.LANGUAGE_SPANISH -> KeyboardLanguage.SPANISH
                 PreferencesManager.LANGUAGE_PORTUGUESE -> KeyboardLanguage.PORTUGUESE
@@ -867,17 +869,17 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     private fun suggestionContextLabel(): String {
         val baseLabel = if (stateMachine.isNextWordMode) {
-            "Next"
+            erickText(currentLanguageKey, "Next")
         } else {
             val prefix = getCurrentWordPrefix().lowercase()
             val hasCorrection = pendingSuggestions.any { !it.lowercase().startsWith(prefix) }
-            if (hasCorrection) "Complete/Correct" else "Complete"
+            if (hasCorrection) erickText(currentLanguageKey, "Complete/Correct") else erickText(currentLanguageKey, "Complete")
         }
         val domainLabel = when (currentPredictionDomain) {
-            PredictionDomain.CONVERSATION -> "Chat"
-            PredictionDomain.PRODUCTIVITY -> "Work"
-            PredictionDomain.ACCESSIBILITY -> "Support"
-            PredictionDomain.GAMING -> "Gaming"
+            PredictionDomain.CONVERSATION -> erickText(currentLanguageKey, "Chat")
+            PredictionDomain.PRODUCTIVITY -> erickText(currentLanguageKey, "Work")
+            PredictionDomain.ACCESSIBILITY -> erickText(currentLanguageKey, "Support")
+            PredictionDomain.GAMING -> erickText(currentLanguageKey, "Gaming")
             PredictionDomain.GENERAL -> ""
         }
         return if (domainLabel.isBlank()) baseLabel else "$baseLabel • $domainLabel"
@@ -892,28 +894,28 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
                 shiftIndicator.setTextColor(if (isDark) Color.WHITE else Color.DKGRAY)
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Shift mode active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Shift mode active")
             }
             com.vatoo.erick.shared.KeyboardMode.CAPS_LOCKED -> {
                 shiftIndicator.text = "↑↑"
                 shiftIndicator.setTextColor(Color.parseColor("#D32F2F"))
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Caps Lock active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Caps Lock active")
             }
             com.vatoo.erick.shared.KeyboardMode.SYMBOLS -> {
                 shiftIndicator.text = "#"
                 shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Symbols mode active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Symbols mode active")
             }
             com.vatoo.erick.shared.KeyboardMode.SYMBOLS_SHIFTED -> {
                 shiftIndicator.text = "#↑"
                 shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
                 shiftIndicator.background = null
                 shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = "Symbols shifted mode active"
+                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Symbols shifted mode active")
             }
             else -> {
                 shiftIndicator.visibility = View.GONE

@@ -190,7 +190,7 @@ fun MainScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.erick_logo),
-                contentDescription = "ERICK logo",
+                contentDescription = erickText(appLanguage, "ERICK logo"),
                 modifier = Modifier
                     .size(92.dp)
                     .padding(top = 8.dp, bottom = 12.dp)
