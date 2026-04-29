@@ -7,7 +7,7 @@
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
     <br />
-    Type with touch or a physical game controller, learn with guided quickstart and practice lessons, switch the product UI across 10 supported keyboard languages, get offline learned word prediction, and keep every keystroke on your own device.
+    Type with touch or a physical game controller, learn with guided quickstart and practice lessons, switch across 10 supported keyboard languages, get offline learned word prediction, and keep every keystroke on your own device.
     <br />
     <br />
     <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-v2.0.0-34A853?logo=google-play&logoColor=white" alt="Get ERICK v2.0.0 on Google Play" /></a>
@@ -200,7 +200,7 @@ Please read the platform-specific setup guides before contributing:
   <a href="https://github.com/bisensamiksha"><img src="https://github.com/bisensamiksha.png?size=64" width="48" height="48" alt="Samiksha Bisen" /></a>
   <a href="https://github.com/xingxingyxx"><img src="https://github.com/xingxingyxx.png?size=64" width="48" height="48" alt="xingxingyxx" /></a>
   <a href="https://github.com/aditursynn"><img src="https://github.com/aditursynn.png?size=64" width="48" height="48" alt="Adilet Tursynn" /></a>
-  <a href="https://github.com/agpaneri-98"><img src="https://github.com/agpaneri-98?size=64" width="48" height="48" alt="Angeliki Paneri" /></a>
+  <a href="https://github.com/agpaneri-98"><img src="https://github.com/agpaneri-98.png?size=64" width="48" height="48" alt="Angeliki Paneri" /></a>
   <a href="https://github.com/nazgulengvall"><img src="https://github.com/nazgulengvall.png?size=64" width="48" height="48" alt="Nazgul Engvall" /></a>
   <a href="https://github.com/VilgotM"><img src="https://github.com/VilgotM.png?size=64" width="48" height="48" alt="VilgotM" /></a>
 </p>

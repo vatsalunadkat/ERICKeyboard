@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.4">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" version="29.6.5">
   <diagram name="ERICK Architecture" id="laRXi_bMolFYRAEcd-fE">
-    <mxGraphModel dx="2560" dy="2175" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3253" dy="2415" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -59,10 +59,10 @@
           <mxGeometry height="65" width="345" x="8" y="-772" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a3a2a;strokeColor=#34d399;strokeWidth=1.5;fontColor=#6ee7b7;fontSize=10;align=left;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;MainActivity&lt;/b&gt;&lt;br&gt;&lt;i&gt;Onboarding&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;Quickstart entry · Practice hub launch · IME status checks&lt;/font&gt;" vertex="1">
-          <mxGeometry height="55" width="225" x="-342" y="-697" as="geometry" />
+          <mxGeometry height="57" width="252" x="-342" y="-697" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a3a2a;strokeColor=#34d399;strokeWidth=1.5;fontColor=#6ee7b7;fontSize=10;align=left;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;PracticeHubActivity&lt;/b&gt;&lt;br&gt;&lt;i&gt;Android host app&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;Guided lessons · Quote practice · Language tips&lt;/font&gt;" vertex="1">
-          <mxGeometry height="55" width="225" x="-107" y="-697" as="geometry" />
+          <mxGeometry height="57" width="198" x="-80" y="-697" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a3a2a;strokeColor=#34d399;strokeWidth=1.5;fontColor=#6ee7b7;fontSize=10;align=left;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;ControllerDiagnosticsActivity&lt;/b&gt;&lt;br&gt;&lt;i&gt;Android diagnostics&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;Raw and normalized sticks · Resolved directions · Confusion drill&lt;/font&gt;" vertex="1">
           <mxGeometry height="55" width="225" x="128" y="-697" as="geometry" />
@@ -92,10 +92,10 @@
           <mxGeometry height="55" width="230" x="448" y="-697" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-24" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a2a3a;strokeColor=#60a5fa;strokeWidth=1.5;fontColor=#93c5fd;fontSize=10;align=right;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;ContentView&lt;/b&gt;&lt;br&gt;&lt;i&gt;Host root + PracticeHubView&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;Quickstart · Practice hub · Privacy and controller setup&lt;/font&gt;" vertex="1">
-          <mxGeometry height="55" width="230" x="688" y="-697" as="geometry" />
+          <mxGeometry height="55" width="242" x="688" y="-697" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a2a3a;strokeColor=#60a5fa;strokeWidth=1.5;fontColor=#93c5fd;fontSize=10;align=right;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;ERICKApp&lt;/b&gt;&lt;br&gt;&lt;i&gt;App entry point&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;WindowGroup scene · Theme AppStorage&lt;/font&gt;" vertex="1">
-          <mxGeometry height="55" width="225" x="928" y="-697" as="geometry" />
+          <mxGeometry height="55" width="213" x="940" y="-697" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a2a3a;strokeColor=#60a5fa;strokeWidth=1.5;fontColor=#93c5fd;fontSize=10;align=right;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;IOSCustomLayoutStorage&lt;/b&gt;&lt;br&gt;&lt;i&gt;Host App&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;App Group UserDefaults · loadAll / saveAll JSON&lt;/font&gt;" vertex="1">
           <mxGeometry height="50" width="345" x="448" y="-632" as="geometry" />
@@ -180,10 +180,10 @@
             <mxPoint x="218" y="-490" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="zgJBZne3iQorEuaxyE0d-57" edge="1" parent="1" source="zgJBZne3iQorEuaxyE0d-11" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;rounded=1;strokeColor=#34d399;strokeWidth=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;fontSize=8;fontColor=#6b7280;labelBackgroundColor=#0d1117;exitX=0.675;exitY=1.008;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;" target="zgJBZne3iQorEuaxyE0d-29" value="implements">
+        <mxCell id="zgJBZne3iQorEuaxyE0d-57" edge="1" parent="1" source="zgJBZne3iQorEuaxyE0d-11" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;rounded=1;strokeColor=#34d399;strokeWidth=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;fontSize=8;fontColor=#6b7280;labelBackgroundColor=#0d1117;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;" target="zgJBZne3iQorEuaxyE0d-29" value="implements">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-112" y="-563" />
+              <mxPoint x="-87" y="-563" />
               <mxPoint x="40" y="-563" />
             </Array>
           </mxGeometry>
