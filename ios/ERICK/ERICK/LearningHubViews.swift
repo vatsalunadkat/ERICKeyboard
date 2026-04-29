@@ -363,6 +363,7 @@ struct PracticeLessonView: View {
     @State private var typedText = ""
     @State private var currentExerciseIndex = 0
     @State private var completedExerciseIds: Set<String> = []
+    @State private var recentCompletionLabel: String?
     @State private var isKeyboardActuallyEnabled = false
     @State private var showHelpSheet = false
     @FocusState private var practiceFieldFocused: Bool
@@ -447,6 +448,7 @@ struct PracticeLessonView: View {
                 LessonAction(id: "previous-part", title: erickText("Previous Part", languageKey: keyboardLanguage), prominent: false) {
                     currentExerciseIndex -= 1
                     typedText = ""
+                    recentCompletionLabel = nil
                 }
             )
         }
@@ -455,6 +457,7 @@ struct PracticeLessonView: View {
                 LessonAction(id: "next-part", title: erickText("Next Part", languageKey: keyboardLanguage), prominent: true) {
                     currentExerciseIndex += 1
                     typedText = ""
+                    recentCompletionLabel = nil
                 }
             )
         }
@@ -527,6 +530,22 @@ struct PracticeLessonView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .focused($practiceFieldFocused)
+
+                        if let recentCompletionLabel {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text(recentCompletionLabel)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.green)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.green.opacity(0.12))
+                            .cornerRadius(12)
+                        }
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -663,6 +682,7 @@ struct PracticeLessonView: View {
                 guard let exercise = currentExercise else { return }
                 let updatedCompleted = completedExerciseIds.union([exercise.id])
                 completedExerciseIds = updatedCompleted
+                recentCompletionLabel = "\(erickText("Correct", languageKey: keyboardLanguage)): \(exercise.targetText)"
                 if updatedCompleted.count == lesson.exercises.count {
                     markCompleted()
                 } else {
@@ -674,6 +694,11 @@ struct PracticeLessonView: View {
                 }
                 typedText = ""
             }
+        }
+        .task(id: recentCompletionLabel) {
+            guard recentCompletionLabel != nil else { return }
+            try? await Task.sleep(nanoseconds: 1_400_000_000)
+            recentCompletionLabel = nil
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
@@ -709,6 +734,7 @@ struct PracticeLessonView: View {
         typedText = ""
         currentExerciseIndex = 0
         completedExerciseIds = []
+        recentCompletionLabel = nil
     }
 
     private func checkKeyboardStatus() {

@@ -8,6 +8,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -59,6 +61,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.vatoo.erick.ui.theme.ERICKTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PracticeHubActivity : ComponentActivity() {
@@ -379,6 +382,7 @@ private fun PracticeLessonDetailScreen(
     var hasMarkedCompleted by remember(lesson.id, isCompleted) { mutableStateOf(isCompleted) }
     var currentExerciseIndex by rememberSaveable(lesson.id) { mutableStateOf(0) }
     var completedExerciseIds by rememberSaveable(lesson.id) { mutableStateOf(emptySet<String>()) }
+    var recentCompletionLabel by remember(lesson.id) { mutableStateOf<String?>(null) }
     var showInfoDialog by remember { mutableStateOf(false) }
 
     if (showInfoDialog) {
@@ -411,6 +415,14 @@ private fun PracticeLessonDetailScreen(
             hasMarkedCompleted = false
             currentExerciseIndex = 0
             completedExerciseIds = emptySet()
+            recentCompletionLabel = null
+        }
+    }
+
+    LaunchedEffect(recentCompletionLabel) {
+        if (recentCompletionLabel != null) {
+            delay(1400)
+            recentCompletionLabel = null
         }
     }
 
@@ -420,6 +432,7 @@ private fun PracticeLessonDetailScreen(
             val completedExercise = lesson.exercises[currentExerciseIndex]
             val updatedCompletedExercises = completedExerciseIds + completedExercise.id
             completedExerciseIds = updatedCompletedExercises
+            recentCompletionLabel = "${erickText(appLanguage, "Correct")}: ${completedExercise.targetText}"
             typedText = ""
             if (updatedCompletedExercises.size == lesson.exercises.size) {
                 onMarkCompleted()
@@ -535,6 +548,29 @@ private fun PracticeLessonDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
+                        recentCompletionLabel?.let { completionLabel ->
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = CompletedLessonContainerColor),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Filled.CheckCircle,
+                                        contentDescription = null,
+                                        tint = CompletedLessonAccentColor
+                                    )
+                                    Text(
+                                        completionLabel,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = CompletedLessonAccentColor
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             } else {
@@ -597,6 +633,7 @@ private fun PracticeLessonDetailScreen(
                                 onClick = {
                                     currentExerciseIndex -= 1
                                     typedText = ""
+                                    recentCompletionLabel = null
                                 }
                             )
                         )
@@ -609,6 +646,7 @@ private fun PracticeLessonDetailScreen(
                                 onClick = {
                                     currentExerciseIndex += 1
                                     typedText = ""
+                                    recentCompletionLabel = null
                                 }
                             )
                         )
@@ -638,6 +676,7 @@ private fun PracticeLessonDetailScreen(
                                         hasMarkedCompleted = false
                                         currentExerciseIndex = 0
                                         completedExerciseIds = emptySet()
+                                        recentCompletionLabel = null
                                     }
                                 )
                             )

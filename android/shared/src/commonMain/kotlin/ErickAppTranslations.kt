@@ -1202,6 +1202,7 @@ object ErickAppTranslations {
         "Continue Recommended Lesson" to all("Continuar leccion recomendada", "Continuar licao recomendada", "Continuer la lecon recommandee", "Empfohlene Lektion fortsetzen", "Continua la lezione consigliata", "Fortsett anbefalt leksjon", "Fortsat anbefalet lektion", "Fortsatt rekommenderad lektion", "Jatka suositeltua oppituntia"),
         "Controller first" to all("Primero mando", "Controle primeiro", "Manette d'abord", "Controller zuerst", "Prima controller", "Kontroller forst", "Controller forst", "Kontroll forst", "Ohjain ensin"),
         "Controller-first starting bundle" to all("paquete inicial orientado a mando", "pacote inicial voltado ao controle", "ensemble de depart axe manette", "Controller-orientiertes Startpaket", "pacchetto iniziale orientato al controller", "kontroller-forst startpakke", "controller-forst startpakke", "kontroll-forst startpaket", "ohjainpainotteinen aloituspaketti"),
+        "Correct" to all("Correcto", "Correto", "Correct", "Richtig", "Corretto", "Riktig", "Korrekt", "Ratt", "Oikein"),
         "Create" to all("Crear", "Criar", "Creer", "Erstellen", "Crea", "Opprett", "Opret", "Skapa", "Luo"),
         "Create Blank" to all("Crear en blanco", "Criar em branco", "Creer vide", "Leer erstellen", "Crea vuoto", "Opprett tom", "Opret tom", "Skapa tom", "Luo tyhja"),
         "Create Your Own" to all("Crea la tuya", "Crie a sua", "Creez la votre", "Erstelle deine eigene", "Crea la tua", "Lag din egen", "Lav din egen", "Skapa din egen", "Luo oma"),
