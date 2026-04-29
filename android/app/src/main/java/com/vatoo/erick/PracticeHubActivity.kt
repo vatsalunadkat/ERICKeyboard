@@ -13,13 +13,18 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -52,9 +57,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
@@ -381,9 +389,10 @@ private fun PracticeLessonDetailScreen(
     val sixSectionDial by preferencesManager.sixSectionDial.collectAsState(initial = false)
 
     var typedText by rememberSaveable(lesson.id) { mutableStateOf("") }
-    var hasMarkedCompleted by remember(lesson.id, isCompleted) { mutableStateOf(isCompleted) }
+    var hasMarkedCompleted by rememberSaveable(lesson.id) { mutableStateOf(false) }
     var currentExerciseIndex by rememberSaveable(lesson.id) { mutableStateOf(0) }
     var completedExerciseIds by rememberSaveable(lesson.id) { mutableStateOf(emptySet<String>()) }
+    var replayingCompletedLesson by rememberSaveable(lesson.id) { mutableStateOf(false) }
     var recentCompletionLabel by remember(lesson.id) { mutableStateOf<String?>(null) }
     var showInfoDialog by remember { mutableStateOf(false) }
 
@@ -408,13 +417,15 @@ private fun PracticeLessonDetailScreen(
         }
     }
 
-    LaunchedEffect(lesson.id, startFromBeginning) {
+    LaunchedEffect(lesson.id, isCompleted, startFromBeginning) {
         onMarkAttempted()
         applyPracticeLessonSetup(preferencesManager, lesson.setup)
         keyboardStatus.refresh()
-        if (startFromBeginning) {
+        val shouldReplayCompletedLesson = startFromBeginning && isCompleted
+        replayingCompletedLesson = shouldReplayCompletedLesson
+        hasMarkedCompleted = isCompleted && !shouldReplayCompletedLesson
+        if (shouldReplayCompletedLesson) {
             typedText = ""
-            hasMarkedCompleted = false
             currentExerciseIndex = 0
             completedExerciseIds = emptySet()
             recentCompletionLabel = null
@@ -428,9 +439,11 @@ private fun PracticeLessonDetailScreen(
         }
     }
 
-    LaunchedEffect(typedText, currentExerciseIndex, lesson.id) {
+    val lessonIsFinished = hasMarkedCompleted && !replayingCompletedLesson
+
+    LaunchedEffect(typedText, currentExerciseIndex, lesson.id, lessonIsFinished) {
         val target = lesson.exercises.getOrNull(currentExerciseIndex)?.targetText
-        if (!lesson.isFreeform && !hasMarkedCompleted && target != null && typedText.trim().equals(target, ignoreCase = true)) {
+        if (!lesson.isFreeform && !lessonIsFinished && target != null && typedText.trim().equals(target, ignoreCase = true)) {
             val completedExercise = lesson.exercises[currentExerciseIndex]
             val updatedCompletedExercises = completedExerciseIds + completedExercise.id
             completedExerciseIds = updatedCompletedExercises
@@ -439,6 +452,7 @@ private fun PracticeLessonDetailScreen(
             if (updatedCompletedExercises.size == lesson.exercises.size) {
                 onMarkCompleted()
                 hasMarkedCompleted = true
+                replayingCompletedLesson = false
             } else {
                 currentExerciseIndex = findNextIncompleteExerciseIndex(
                     currentIndex = currentExerciseIndex,
@@ -460,7 +474,7 @@ private fun PracticeLessonDetailScreen(
         else -> erickText(appLanguage, "Switch to ERICK")
     }
     val showKeyboardAction = !keyboardStatus.isCurrent
-    val showSetupAction = !hasMarkedCompleted && !setupMatchesLesson
+    val showSetupAction = !lessonIsFinished && !setupMatchesLesson
     val previousLesson = lessons.getOrNull(lessonIndex - 1)
     val nextLesson = lessons.getOrNull(lessonIndex + 1)
     val completedPartsLabel = if (lesson.isFreeform) {
@@ -625,41 +639,34 @@ private fun PracticeLessonDetailScreen(
                 PracticeActionRow(actionButtons)
             }
 
-            if (!hasMarkedCompleted && !lesson.isFreeform && lesson.exercises.size > 1) {
-                val drillButtons = buildList {
-                    if (currentExerciseIndex > 0) {
-                        add(
-                            PracticeActionButton(
-                                label = erickText(appLanguage, "Previous Part"),
-                                emphasized = false,
-                                onClick = {
-                                    currentExerciseIndex -= 1
-                                    typedText = ""
-                                    recentCompletionLabel = null
-                                }
-                            )
-                        )
+            if (!lessonIsFinished && !lesson.isFreeform && lesson.exercises.size > 1) {
+                PracticePartNavigationRow(
+                    currentPart = currentExerciseIndex + 1,
+                    totalParts = lesson.exercises.size,
+                    previousLabel = erickText(appLanguage, "Previous Part"),
+                    nextLabel = erickText(appLanguage, "Next Part"),
+                    onPrevious = if (currentExerciseIndex > 0) {
+                        {
+                            currentExerciseIndex -= 1
+                            typedText = ""
+                            recentCompletionLabel = null
+                        }
+                    } else {
+                        null
+                    },
+                    onNext = if (currentExerciseIndex < lesson.exercises.lastIndex) {
+                        {
+                            currentExerciseIndex += 1
+                            typedText = ""
+                            recentCompletionLabel = null
+                        }
+                    } else {
+                        null
                     }
-                    if (currentExerciseIndex < lesson.exercises.lastIndex) {
-                        add(
-                            PracticeActionButton(
-                                label = erickText(appLanguage, "Next Part"),
-                                emphasized = true,
-                                onClick = {
-                                    currentExerciseIndex += 1
-                                    typedText = ""
-                                    recentCompletionLabel = null
-                                }
-                            )
-                        )
-                    }
-                }
-                if (drillButtons.isNotEmpty()) {
-                    PracticeActionRow(drillButtons)
-                }
+                )
             }
 
-            if (hasMarkedCompleted) {
+            if (lessonIsFinished) {
                 Card(colors = CardDefaults.cardColors(containerColor = CompletedLessonContainerColor)) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(
@@ -678,6 +685,7 @@ private fun PracticeLessonDetailScreen(
                                         hasMarkedCompleted = false
                                         currentExerciseIndex = 0
                                         completedExerciseIds = emptySet()
+                                        replayingCompletedLesson = true
                                         recentCompletionLabel = null
                                     }
                                 )
@@ -708,17 +716,6 @@ private fun PracticeLessonDetailScreen(
                             onClick = { onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id)) }
                         )
                     )
-                }
-                if (!hasMarkedCompleted) {
-                    nextLesson?.let { targetLesson ->
-                        add(
-                            PracticeActionButton(
-                                label = erickText(appLanguage, "Next Lesson"),
-                                emphasized = true,
-                                onClick = { onOpenLesson(targetLesson.id, completedLessonIds.contains(targetLesson.id)) }
-                            )
-                        )
-                    }
                 }
             }
             if (lessonButtons.isNotEmpty()) {
@@ -785,6 +782,82 @@ private fun PracticeActionRow(buttons: List<PracticeActionButton>) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PracticePartNavigationRow(
+    currentPart: Int,
+    totalParts: Int,
+    previousLabel: String,
+    nextLabel: String,
+    onPrevious: (() -> Unit)?,
+    onNext: (() -> Unit)?
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PracticePartNavigationButton(
+            icon = Icons.AutoMirrored.Filled.ArrowBack,
+            label = previousLabel,
+            emphasized = false,
+            onClick = onPrevious
+        )
+        Text(
+            text = "$currentPart / $totalParts",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f)
+        )
+        PracticePartNavigationButton(
+            icon = Icons.AutoMirrored.Filled.ArrowForward,
+            label = nextLabel,
+            emphasized = true,
+            onClick = onNext
+        )
+    }
+}
+
+@Composable
+private fun PracticePartNavigationButton(
+    icon: ImageVector,
+    label: String,
+    emphasized: Boolean,
+    onClick: (() -> Unit)?
+) {
+    if (onClick == null) {
+        Spacer(modifier = Modifier.size(40.dp))
+        return
+    }
+
+    val containerColor = if (emphasized) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val iconTint = if (emphasized) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+    val borderColor = if (emphasized) {
+        Color.Transparent
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(containerColor)
+            .border(1.dp, borderColor, CircleShape)
+    ) {
+        Icon(icon, contentDescription = label, tint = iconTint)
     }
 }
 

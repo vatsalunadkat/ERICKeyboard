@@ -62,7 +62,7 @@ It can also help everyday users who want larger touch targets, controller suppor
 - Practice lessons now keep the default screen compact and move the longer explanation behind the question-mark help action.
 - Each guided lesson now covers the basics in sequence: letters first, then numbers, then punctuation or symbols.
 - Lesson actions now appear only when they are useful, such as when ERICK is not active yet or the lesson preset needs to be reapplied.
-- Guided lessons include **Previous Part**, **Next Part**, **Previous Lesson**, and **Next Lesson** actions so you can move through the sequence without returning to the hub.
+- Guided lessons include compact **Previous Part** and **Next Part** arrow controls plus **Previous Lesson**. **Next Lesson** appears after the current lesson is complete.
 - Completed lessons are highlighted as complete in the hub and reopen with **Replay Lesson** instead of **Resume Lesson**.
 - On Android, the lesson can open the keyboard picker directly. On iOS, the lesson can focus the practice field and open Settings, but you still use the globe key to switch to ERICK because iOS does not allow apps to change the active keyboard directly.
 - Quote Practice remains the advanced freeform step and is launched from within the lesson flow after the guided drills.

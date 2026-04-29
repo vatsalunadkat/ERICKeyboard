@@ -364,6 +364,7 @@ struct PracticeLessonView: View {
     @State private var currentExerciseIndex = 0
     @State private var completedExerciseIds: Set<String> = []
     @State private var recentCompletionLabel: String?
+    @State private var replayingCompletedLesson = false
     @State private var isKeyboardActuallyEnabled = false
     @State private var showHelpSheet = false
     @FocusState private var practiceFieldFocused: Bool
@@ -374,9 +375,9 @@ struct PracticeLessonView: View {
 
     private var lessonIsFinished: Bool {
         if lesson.isFreeform {
-            return isCompleted
+            return isCompleted && !replayingCompletedLesson
         }
-        return isCompleted || completedExerciseIds.count == lesson.exercises.count
+        return completedExerciseIds.count == lesson.exercises.count || (isCompleted && !replayingCompletedLesson)
     }
 
     private var isKeyboardEnabled: Bool {
@@ -436,31 +437,6 @@ struct PracticeLessonView: View {
             )
         }
 
-        return actions
-    }
-
-    private var partActions: [LessonAction] {
-        guard !lesson.isFreeform, lesson.exercises.count > 1 else { return [] }
-
-        var actions: [LessonAction] = []
-        if currentExerciseIndex > 0 {
-            actions.append(
-                LessonAction(id: "previous-part", title: erickText("Previous Part", languageKey: keyboardLanguage), prominent: false) {
-                    currentExerciseIndex -= 1
-                    typedText = ""
-                    recentCompletionLabel = nil
-                }
-            )
-        }
-        if currentExerciseIndex < lesson.exercises.count - 1 {
-            actions.append(
-                LessonAction(id: "next-part", title: erickText("Next Part", languageKey: keyboardLanguage), prominent: true) {
-                    currentExerciseIndex += 1
-                    typedText = ""
-                    recentCompletionLabel = nil
-                }
-            )
-        }
         return actions
     }
 
@@ -557,8 +533,23 @@ struct PracticeLessonView: View {
                     ActionButtonGroup(actions: contextActions)
                 }
 
-                if !lessonIsFinished && !partActions.isEmpty {
-                    ActionButtonGroup(actions: partActions)
+                if !lessonIsFinished && !lesson.isFreeform && lesson.exercises.count > 1 {
+                    LessonPartNavigationBar(
+                        currentPart: currentExerciseIndex + 1,
+                        totalParts: lesson.exercises.count,
+                        previousLabel: erickText("Previous Part", languageKey: keyboardLanguage),
+                        nextLabel: erickText("Next Part", languageKey: keyboardLanguage),
+                        onPrevious: currentExerciseIndex > 0 ? {
+                            currentExerciseIndex -= 1
+                            typedText = ""
+                            recentCompletionLabel = nil
+                        } : nil,
+                        onNext: currentExerciseIndex < lesson.exercises.count - 1 ? {
+                            currentExerciseIndex += 1
+                            typedText = ""
+                            recentCompletionLabel = nil
+                        } : nil
+                    )
                 }
 
                 if lessonIsFinished {
@@ -610,7 +601,7 @@ struct PracticeLessonView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.green.opacity(0.12))
                     .cornerRadius(16)
-                } else if previousLesson != nil || nextLesson != nil {
+                } else if previousLesson != nil {
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: 12) {
                             if let previousLesson {
@@ -618,12 +609,6 @@ struct PracticeLessonView: View {
                                     lessonActionLabel(erickText("Previous Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
-                            }
-                            if let nextLesson {
-                                NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
-                                    lessonActionLabel(erickText("Next Lesson", languageKey: keyboardLanguage), fillWidth: true)
-                                }
-                                .buttonStyle(.borderedProminent)
                             }
                         }
 
@@ -633,12 +618,6 @@ struct PracticeLessonView: View {
                                     lessonActionLabel(erickText("Previous Lesson", languageKey: keyboardLanguage), fillWidth: true)
                                 }
                                 .buttonStyle(.bordered)
-                            }
-                            if let nextLesson {
-                                NavigationLink(destination: PracticeLessonView(lesson: nextLesson, startFromBeginning: LearningProgressStore.decodeSet(completedLessonsRaw).contains(nextLesson.id))) {
-                                    lessonActionLabel(erickText("Next Lesson", languageKey: keyboardLanguage), fillWidth: true)
-                                }
-                                .buttonStyle(.borderedProminent)
                             }
                         }
                     }
@@ -721,6 +700,7 @@ struct PracticeLessonView: View {
         var completed = LearningProgressStore.decodeSet(completedLessonsRaw)
         completed.insert(lesson.id)
         completedLessonsRaw = LearningProgressStore.encodeSet(completed)
+        replayingCompletedLesson = false
     }
 
     private func applyLessonSetup() {
@@ -735,6 +715,7 @@ struct PracticeLessonView: View {
         currentExerciseIndex = 0
         completedExerciseIds = []
         recentCompletionLabel = nil
+        replayingCompletedLesson = isCompleted
     }
 
     private func checkKeyboardStatus() {
@@ -839,6 +820,59 @@ private struct ActionButtonGroup: View {
                     LessonActionButton(action: action, fillWidth: true)
                 }
             }
+        }
+    }
+}
+
+private struct LessonPartNavigationBar: View {
+    let currentPart: Int
+    let totalParts: Int
+    let previousLabel: String
+    let nextLabel: String
+    let onPrevious: (() -> Void)?
+    let onNext: (() -> Void)?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            LessonPartNavigationButton(
+                systemName: "chevron.left",
+                accessibilityLabel: previousLabel,
+                prominent: false,
+                action: onPrevious
+            )
+            Text("\(currentPart) / \(totalParts)")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity)
+            LessonPartNavigationButton(
+                systemName: "chevron.right",
+                accessibilityLabel: nextLabel,
+                prominent: true,
+                action: onNext
+            )
+        }
+    }
+}
+
+private struct LessonPartNavigationButton: View {
+    let systemName: String
+    let accessibilityLabel: String
+    let prominent: Bool
+    let action: (() -> Void)?
+
+    var body: some View {
+        if let action {
+            Button(action: action) {
+                Image(systemName: systemName)
+                    .font(.headline.weight(.semibold))
+                    .frame(width: 36, height: 36)
+            }
+            .buttonStyle(prominent ? .borderedProminent : .bordered)
+            .accessibilityLabel(accessibilityLabel)
+        } else {
+            Color.clear
+                .frame(width: 36, height: 36)
         }
     }
 }
