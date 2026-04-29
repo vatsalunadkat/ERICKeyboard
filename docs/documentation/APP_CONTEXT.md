@@ -2,8 +2,8 @@
 
 Canonical source note: the repo-root `APP_CONTEXT.md` is authoritative, and `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation. Update the root file first and sync the docs copy intentionally.
 
-**Version**: 1.0  
-**Last Updated**: April 23, 2026  
+**Version**: 2.0.0  
+**Last Updated**: April 29, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 **Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.
 
@@ -880,10 +880,10 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 
 ## Future Architecture Considerations
 
-### Multi-Language Support
-- Extend `WordPredictionEngine` with language-specific dictionaries and bigram tables
-- Support character sets beyond ASCII (accented Latin, CJK exploration)
-- Language detection or manual language switching in settings
+### Language Expansion And Localized Product Surfaces
+- Add dedicated Efficiency layouts and benchmark packs for non-English languages beyond the current logical-first fallback
+- Extend the shared translation catalog and language resources as new host-app, help, and practice surfaces ship
+- Explore broader script support beyond the current Latin-based profiles once the shared multilingual foundation is stable
 
 ### Typing Speed Analytics
 - Persistent WPM and accuracy tracking with personal bests

@@ -1,7 +1,7 @@
 # ERICK User Guide
 
-**Version**: 1.0  
-**Last Updated**: April 28, 2026
+**Version**: 2.0.0  
+**Last Updated**: April 29, 2026
 
 ---
 
@@ -202,6 +202,7 @@ Current behavior:
 - In **8-section** mode, extra language characters appear directly in the language-aware logical map.
 - In **6-section** mode, extra language characters live in the **Symbols** layer so the shipped utility wheel stays unchanged.
 - Learned predictions are stored separately per language, so switching languages does not overwrite your English history.
+- The host app, settings, quickstart, practice lessons, help, and quote-practice UI follow the selected keyboard language on both Android and iOS.
 
 ---
 
