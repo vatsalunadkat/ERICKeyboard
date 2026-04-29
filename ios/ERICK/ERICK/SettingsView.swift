@@ -27,20 +27,20 @@ struct SettingsView: View {
             }
 
             Section(
-                header: Text(erickText("Language", languageKey: keyboardLanguage)),
+                header: Text(recoverableEnglishTitle(for: keyboardLanguage, english: "Language")),
                 footer: Text(erickText("English keeps the dedicated efficiency layout. The other supported languages currently use language-aware logical maps and symbol overlays.", languageKey: keyboardLanguage))
             ) {
                 Picker(erickText("Language", languageKey: keyboardLanguage), selection: $keyboardLanguage) {
-                    Text(settingsLanguageSelfDisplayName(for: "english")).tag("english")
-                    Text(settingsLanguageSelfDisplayName(for: "spanish")).tag("spanish")
-                    Text(settingsLanguageSelfDisplayName(for: "portuguese")).tag("portuguese")
-                    Text(settingsLanguageSelfDisplayName(for: "french")).tag("french")
-                    Text(settingsLanguageSelfDisplayName(for: "german")).tag("german")
-                    Text(settingsLanguageSelfDisplayName(for: "italian")).tag("italian")
-                    Text(settingsLanguageSelfDisplayName(for: "norwegian_bokmal")).tag("norwegian_bokmal")
-                    Text(settingsLanguageSelfDisplayName(for: "danish")).tag("danish")
-                    Text(settingsLanguageSelfDisplayName(for: "swedish")).tag("swedish")
-                    Text(settingsLanguageSelfDisplayName(for: "finnish")).tag("finnish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "english")).tag("english")
+                    Text(bilingualSettingsLanguageDisplayName(for: "spanish")).tag("spanish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "portuguese")).tag("portuguese")
+                    Text(bilingualSettingsLanguageDisplayName(for: "french")).tag("french")
+                    Text(bilingualSettingsLanguageDisplayName(for: "german")).tag("german")
+                    Text(bilingualSettingsLanguageDisplayName(for: "italian")).tag("italian")
+                    Text(bilingualSettingsLanguageDisplayName(for: "norwegian_bokmal")).tag("norwegian_bokmal")
+                    Text(bilingualSettingsLanguageDisplayName(for: "danish")).tag("danish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "swedish")).tag("swedish")
+                    Text(bilingualSettingsLanguageDisplayName(for: "finnish")).tag("finnish")
                 }
             }
 
@@ -237,7 +237,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .navigationTitle(erickText("Keyboard Settings", languageKey: keyboardLanguage))
+        .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Keyboard Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -324,7 +324,7 @@ private struct SettingsInfoSheetView: View {
                 }
                 .padding()
             }
-            .navigationTitle(erickText("Privacy & Security", languageKey: languageKey))
+            .navigationTitle(recoverableEnglishTitle(for: languageKey, english: "Privacy & Security"))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -529,7 +529,7 @@ struct AppCustomLayoutListView: View {
                 }
             }
         }
-        .navigationTitle(erickText("Custom Layouts", languageKey: keyboardLanguage))
+        .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Custom Layouts"))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
@@ -663,7 +663,7 @@ struct AppCustomLayoutEditorView: View {
                 EmptyView()
             }
         }
-        .navigationTitle(erickText("Edit Layout", languageKey: keyboardLanguage))
+        .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Edit Layout"))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(erickText("Save", languageKey: keyboardLanguage)) {
@@ -791,6 +791,12 @@ private func settingsLanguageSelfDisplayName(for keyboardLanguage: String) -> St
     default:
         return "English"
     }
+}
+
+private func bilingualSettingsLanguageDisplayName(for keyboardLanguage: String) -> String {
+    let selfName = settingsLanguageSelfDisplayName(for: keyboardLanguage)
+    let englishName = englishLanguageDisplayName(for: keyboardLanguage)
+    return selfName.caseInsensitiveCompare(englishName) == .orderedSame ? englishName : "\(selfName) (\(englishName))"
 }
 
 extension Color {

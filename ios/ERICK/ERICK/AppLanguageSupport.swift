@@ -68,6 +68,13 @@ func erickText(_ english: String, languageKey: String) -> String {
     ErickAppTranslations.shared.text(language: sharedKeyboardLanguage(for: languageKey), english: english)
 }
 
+func recoverableEnglishTitle(for keyboardLanguage: String, english: String) -> String {
+    let localized = erickText(english, languageKey: keyboardLanguage)
+    return keyboardLanguage == "english" || localized.caseInsensitiveCompare(english) == .orderedSame
+        ? localized
+        : "\(localized) (\(english))"
+}
+
 func englishLanguageDisplayName(for keyboardLanguage: String) -> String {
     switch keyboardLanguage {
     case "spanish":

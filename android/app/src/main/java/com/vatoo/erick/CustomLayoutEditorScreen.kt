@@ -125,7 +125,7 @@ fun CustomLayoutEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(t("Edit Layout")) },
+                title = { Text(recoverableEnglishTitle(appLanguage, "Edit Layout")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))

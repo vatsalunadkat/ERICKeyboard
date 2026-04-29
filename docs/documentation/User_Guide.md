@@ -333,7 +333,14 @@ Settings are organized into collapsible sections with short summaries so you can
 
 ### Start Here
 
-- The settings screen begins with a short overview that points most users toward **Dial Mode**, **Input Mode**, and **Accessibility** first.
+- On Android, the settings screen begins with a short overview that points most users toward **Language**, **Dial Mode**, **Input Mode**, and **Accessibility** first.
+
+### Language
+
+- Switch between English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish
+- Language entries and key settings titles keep the English name in parentheses so you can recover from an accidental language switch
+- Non-English languages currently use logical-first maps with extra characters routed through language-aware logical or symbols slots
+- Learned predictions stay isolated per language
 
 ### Dial Mode
 
@@ -345,12 +352,6 @@ Settings are organized into collapsible sections with short summaries so you can
 - Logical (A–Z), Efficiency, or any saved custom layout
 - English keeps the dedicated Efficiency map; other languages currently fall back to the language-aware Logical map
 - Manage Custom Layouts - open the layout editor
-
-### Language
-
-- Switch between English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish
-- Non-English languages currently use logical-first maps with extra characters routed through language-aware logical or symbols slots
-- Learned predictions stay isolated per language
 
 ### Appearance
 

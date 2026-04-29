@@ -124,7 +124,7 @@ internal fun MainSettingsContent(
         layoutType == PreferencesManager.LAYOUT_EFFICIENCY -> t("Efficiency")
         else -> t("Logical (A-Z)")
     }
-    val languageSummary = keyboardLanguageSelfDisplayName(keyboardLanguage)
+    val languageSummary = bilingualLanguageDisplayName(keyboardLanguage)
     val appearanceSummary = buildList {
         add(
             when (themeMode) {
@@ -165,7 +165,7 @@ internal fun MainSettingsContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(t("Keyboard Settings")) },
+                title = { Text(recoverableEnglishTitle(appLanguage, "Keyboard Settings")) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
                         Icon(
@@ -195,7 +195,7 @@ internal fun MainSettingsContent(
             val context = LocalContext.current
             SectionOverviewCard(
                 title = t("Start with the essentials"),
-                summary = t("Most people only need Dial Mode, Input Mode, and Accessibility. The rest is optional customization."),
+                summary = t("Most people only need Language, Dial Mode, Input Mode, and Accessibility. The rest is optional customization."),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -214,6 +214,30 @@ internal fun MainSettingsContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(t("Setup Wizard"))
+            }
+
+            CollapsibleSection(
+                title = recoverableEnglishTitle(appLanguage, "Language"),
+                summary = languageSummary,
+                expanded = expandedSection == "language",
+                onToggle = { expandedSection = if (expandedSection == "language") null else "language" }
+            ) {
+                Text(
+                    text = t("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                languageOptions.forEach { option ->
+                    LayoutRadioOption(
+                        title = option.label,
+                        subtitle = option.subtitle,
+                        selected = keyboardLanguage == option.value,
+                        enabled = true,
+                        onClick = { scope.launch { preferencesManager.setKeyboardLanguage(option.value) } }
+                    )
+                }
             }
 
             CollapsibleSection(
@@ -236,30 +260,6 @@ internal fun MainSettingsContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 )
-            }
-
-            CollapsibleSection(
-                title = t("Language"),
-                summary = languageSummary,
-                expanded = expandedSection == "language",
-                onToggle = { expandedSection = if (expandedSection == "language") null else "language" }
-            ) {
-                Text(
-                    text = t("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays."),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                languageOptions.forEach { option ->
-                    LayoutRadioOption(
-                        title = option.label,
-                        subtitle = option.subtitle,
-                        selected = keyboardLanguage == option.value,
-                        enabled = true,
-                        onClick = { scope.launch { preferencesManager.setKeyboardLanguage(option.value) } }
-                    )
-                }
             }
 
             CollapsibleSection(
@@ -1016,17 +1016,23 @@ private data class KeyboardLanguageOption(
 )
 
 private fun keyboardLanguageOptions(languageKey: String) = listOf(
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ENGLISH, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_ENGLISH), erickText(languageKey, "Full logical and efficiency support.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SPANISH, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_SPANISH), erickText(languageKey, "Includes accented vowels, ü, ñ, and inverted punctuation.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_PORTUGUESE, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_PORTUGUESE), erickText(languageKey, "Includes accented vowels, tilde vowels, and ç.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FRENCH, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_FRENCH), erickText(languageKey, "Includes accents, cedilla, and apostrophe-heavy prediction data.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_GERMAN, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_GERMAN), erickText(languageKey, "Includes umlauts and ß.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ITALIAN, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_ITALIAN), erickText(languageKey, "Includes accented vowels and Italian prediction data.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL), erickText(languageKey, "Scandinavian profile with æ, ø, and å.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_DANISH, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_DANISH), erickText(languageKey, "Scandinavian profile with æ, ø, and å.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SWEDISH, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_SWEDISH), erickText(languageKey, "Scandinavian profile with å, ä, and ö.")),
-    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FINNISH, keyboardLanguageSelfDisplayName(PreferencesManager.LANGUAGE_FINNISH), erickText(languageKey, "Includes ä and ö with Finnish prediction data."))
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ENGLISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_ENGLISH), erickText(languageKey, "Full logical and efficiency support.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SPANISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_SPANISH), erickText(languageKey, "Includes accented vowels, ü, ñ, and inverted punctuation.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_PORTUGUESE, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_PORTUGUESE), erickText(languageKey, "Includes accented vowels, tilde vowels, and ç.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FRENCH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_FRENCH), erickText(languageKey, "Includes accents, cedilla, and apostrophe-heavy prediction data.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_GERMAN, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_GERMAN), erickText(languageKey, "Includes umlauts and ß.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_ITALIAN, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_ITALIAN), erickText(languageKey, "Includes accented vowels and Italian prediction data.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_NORWEGIAN_BOKMAL), erickText(languageKey, "Scandinavian profile with æ, ø, and å.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_DANISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_DANISH), erickText(languageKey, "Scandinavian profile with æ, ø, and å.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_SWEDISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_SWEDISH), erickText(languageKey, "Scandinavian profile with å, ä, and ö.")),
+    KeyboardLanguageOption(PreferencesManager.LANGUAGE_FINNISH, bilingualLanguageDisplayName(PreferencesManager.LANGUAGE_FINNISH), erickText(languageKey, "Includes ä and ö with Finnish prediction data."))
 )
+
+private fun bilingualLanguageDisplayName(keyboardLanguage: String): String {
+    val selfName = keyboardLanguageSelfDisplayName(keyboardLanguage)
+    val englishName = englishLanguageDisplayName(keyboardLanguage)
+    return if (selfName.equals(englishName, ignoreCase = true)) englishName else "$selfName ($englishName)"
+}
 
 private fun keyboardLanguageSelfDisplayName(keyboardLanguage: String): String = when (keyboardLanguage) {
     PreferencesManager.LANGUAGE_SPANISH -> "Espanol"

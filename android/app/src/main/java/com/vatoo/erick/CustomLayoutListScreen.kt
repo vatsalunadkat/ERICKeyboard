@@ -66,7 +66,7 @@ fun CustomLayoutListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(t("Custom Layouts")) },
+                title = { Text(recoverableEnglishTitle(appLanguage, "Custom Layouts")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))

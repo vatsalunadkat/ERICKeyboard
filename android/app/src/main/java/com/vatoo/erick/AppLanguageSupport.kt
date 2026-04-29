@@ -47,6 +47,15 @@ fun erickText(languageKey: String, english: String): String {
     return ErickAppTranslations.text(languageKey.toKeyboardLanguage(), english)
 }
 
+fun recoverableEnglishTitle(languageKey: String, english: String): String {
+    val localized = erickText(languageKey, english)
+    return if (languageKey == PreferencesManager.LANGUAGE_ENGLISH || localized.equals(english, ignoreCase = true)) {
+        localized
+    } else {
+        "$localized ($english)"
+    }
+}
+
 fun englishLanguageDisplayName(languageKey: String): String = when (languageKey) {
     PreferencesManager.LANGUAGE_SPANISH -> "Spanish"
     PreferencesManager.LANGUAGE_PORTUGUESE -> "Portuguese"

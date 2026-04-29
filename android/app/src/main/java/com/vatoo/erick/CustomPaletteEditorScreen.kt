@@ -114,7 +114,7 @@ fun CustomPaletteEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(t("Custom Palette")) },
+                title = { Text(recoverableEnglishTitle(appLanguage, "Custom Palette")) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))

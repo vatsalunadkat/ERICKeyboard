@@ -46,7 +46,7 @@ struct SettingsView: View {
                         .font(.title3)
                         .padding()
                 }
-                Text(t("Keyboard Settings"))
+                Text(recoverableEnglishTitle(for: keyboardLanguage, english: "Keyboard Settings"))
                     .font(.headline)
                 Spacer()
             }
@@ -132,7 +132,7 @@ struct SettingsView: View {
                     Text(t("Start with the essentials"))
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Text(t("Most people only need Dial Mode, Input Mode, Prediction, and Accessibility. The rest is optional customization."))
+                    Text(t("Most people only need Language, Dial Mode, Input Mode, Prediction, and Accessibility. The rest is optional customization."))
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -149,7 +149,31 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.bordered)
 
-                // Dial Mode Section
+                CollapsibleSettingsSection(
+                    title: recoverableEnglishTitle(for: keyboardLanguage, english: "Language"),
+                    isExpanded: expandedSection == "language",
+                    onToggle: { expandedSection = expandedSection == "language" ? nil : "language" }
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(t("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays."))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 4)
+
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "english"), selected: keyboardLanguage == "english") { keyboardLanguage = "english" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "spanish"), selected: keyboardLanguage == "spanish") { keyboardLanguage = "spanish" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "portuguese"), selected: keyboardLanguage == "portuguese") { keyboardLanguage = "portuguese" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "french"), selected: keyboardLanguage == "french") { keyboardLanguage = "french" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "german"), selected: keyboardLanguage == "german") { keyboardLanguage = "german" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "italian"), selected: keyboardLanguage == "italian") { keyboardLanguage = "italian" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "norwegian_bokmal"), selected: keyboardLanguage == "norwegian_bokmal") { keyboardLanguage = "norwegian_bokmal" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "danish"), selected: keyboardLanguage == "danish") { keyboardLanguage = "danish" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "swedish"), selected: keyboardLanguage == "swedish") { keyboardLanguage = "swedish" }
+                        settingsRadioRow(label: bilingualExtensionLanguageDisplayName(for: "finnish"), selected: keyboardLanguage == "finnish") { keyboardLanguage = "finnish" }
+                    }
+                }
+
                 CollapsibleSettingsSection(
                     title: t("Dial Mode"),
                     isExpanded: expandedSection == "dial_mode",
@@ -162,32 +186,6 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12)
-                    }
-                }
-
-                // Layout Section
-                CollapsibleSettingsSection(
-                    title: t("Language"),
-                    isExpanded: expandedSection == "language",
-                    onToggle: { expandedSection = expandedSection == "language" ? nil : "language" }
-                ) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(t("Languages are currently logical-first. English keeps the dedicated efficiency layout, while the other supported languages use language-aware logical maps and symbol overlays."))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 12)
-                            .padding(.bottom, 4)
-
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "english"), selected: keyboardLanguage == "english") { keyboardLanguage = "english" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "spanish"), selected: keyboardLanguage == "spanish") { keyboardLanguage = "spanish" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "portuguese"), selected: keyboardLanguage == "portuguese") { keyboardLanguage = "portuguese" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "french"), selected: keyboardLanguage == "french") { keyboardLanguage = "french" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "german"), selected: keyboardLanguage == "german") { keyboardLanguage = "german" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "italian"), selected: keyboardLanguage == "italian") { keyboardLanguage = "italian" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "norwegian_bokmal"), selected: keyboardLanguage == "norwegian_bokmal") { keyboardLanguage = "norwegian_bokmal" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "danish"), selected: keyboardLanguage == "danish") { keyboardLanguage = "danish" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "swedish"), selected: keyboardLanguage == "swedish") { keyboardLanguage = "swedish" }
-                        settingsRadioRow(label: extensionLanguageSelfDisplayName(for: "finnish"), selected: keyboardLanguage == "finnish") { keyboardLanguage = "finnish" }
                     }
                 }
 
@@ -760,7 +758,7 @@ private struct SetupWizardSheet: View {
                 }
                 .padding()
             }
-            .navigationTitle(erickText("Setup Wizard", languageKey: keyboardLanguage))
+            .navigationTitle(recoverableEnglishTitle(for: keyboardLanguage, english: "Setup Wizard"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
