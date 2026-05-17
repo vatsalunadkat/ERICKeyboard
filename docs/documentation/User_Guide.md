@@ -1,7 +1,7 @@
 # ERICK User Guide
 
-**Version**: 2.0.0  
-**Last Updated**: April 29, 2026
+**Version**: 2.2.0  
+**Last Updated**: May 17, 2026
 
 ---
 
@@ -82,9 +82,11 @@ It can also help everyday users who want larger touch targets, controller suppor
 
 When ERICK opens, you will see:
 
-- **Two circular dials** (joysticks) side by side - left and right
-- A **preview bar** above the dials showing available characters for the current direction, with the targeted character highlighted and enlarged in real time
-- A **suggestion bar** displaying up to 3 word predictions
+- **Two circular dials** (joysticks) side by side while the main typing keyboard is active
+- A **top row** with an emoji button on the left, a live preview or 3-word suggestion strip in the center, and the settings button on the right
+- A **floating mode badge** below the top row whenever Shift, Caps Lock, or Symbols is active
+
+When the emoji keyboard is open, the top row stays in place and the dial area is reused by the emoji panel.
 
 ---
 
@@ -156,6 +158,28 @@ Holding the backspace direction (W in 8-section, NW in 6-section) provides progr
 | 3,000 ms + | Delete 1 word every 100 ms |
 
 Release the dial at any point to stop deleting.
+
+---
+
+## Emoji Keyboard
+
+### Opening and Closing
+
+- Tap the `😀` button on the left side of the top row to open the emoji keyboard.
+- The same button changes to `ABC` while the emoji keyboard is open. Tap `ABC` to return to the typing mode you were using before.
+- Opening the emoji keyboard does not change the total keyboard height. The dial area is replaced by the emoji panel until you return.
+
+### Tabs and Recents
+
+- The emoji keyboard uses 11 tabs in this order: `Recent`, `Smileys & Emotion`, `People & Body`, `Animals & Nature`, `Food & Drink`, `Travel & Places`, `Activities`, `Objects`, `Symbols`, `Flags`, `Emoticons`.
+- The `Recent` tab stores up to 32 entries locally on your device and mixes emoji with emoticons in one most-recent-first list.
+- The `Emoticons` tab contains ASCII faces and kaomoji such as `:)`, `xD`, `^_^`, and `¯\_(ツ)_/¯`. Tapping one inserts the literal text.
+
+### Skin Tones and Bottom Bar
+
+- Long-press a supported human emoji to open the skin-tone chooser. You can pick the default yellow option or one of the 5 Fitzpatrick tone variants.
+- ERICK remembers the last tone you chose for that base emoji until the current keyboard view is recreated.
+- The bottom bar includes `ABC` to return to the dial keyboard and `⌫` for backspace. Holding `⌫` uses the same accelerating backspace timing as the dial backspace action.
 
 ---
 
@@ -283,7 +307,7 @@ ERICK includes a built-in prediction engine that runs entirely offline.
 
 ### How Predictions Appear
 
-A **suggestion bar** displays up to 3 word suggestions above the dials. Suggestions update in real time as you type each character.
+A **suggestion bar** displays up to 3 word suggestions above the dials. Suggestions update in real time as you type each character, pause while the emoji keyboard is open, and resume when you return with `ABC`.
 
 ### Types of Suggestions
 
@@ -404,7 +428,7 @@ ERICK includes:
 - **Controller support** - physical game controller input for users who cannot use touchscreens
 - **One-handed typing mode** - lock one dial and type entirely with the other
 - **Haptic feedback** - optional vibration for sensory confirmation of each input
-- **Visual indicators** - on-screen shift (⇧) and caps lock (⇧⇧) indicators, color-coded preview bar
+- **Visual indicators** - floating shift / caps / symbols badge plus the color-coded preview bar
 
 These are not extra add-ons. They are part of the main design of the keyboard.
 
@@ -458,6 +482,7 @@ Your typed text stays on your device.
 
 - Suggestions appear while typing letters. They do not activate for symbols or numbers.
 - Predictions show in the suggestion bar when both dials are at rest.
+- Suggestions pause while the emoji keyboard is open. Tap `ABC` to return to the dial keyboard.
 
 ### Controller input is not working
 
@@ -473,6 +498,7 @@ Your typed text stays on your device.
 ### Backspace deletes too much
 
 - Accelerating backspace kicks in after holding for 300 ms. For single-character deletion, perform a quick swipe-and-release in the W direction.
+- The emoji keyboard's `⌫` button uses the same hold timing.
 
 ### One-Handed mode feels unusual
 

@@ -25,7 +25,7 @@
             <mxPoint x="1680" y="510" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="zgJBZne3iQorEuaxyE0d-2" parent="1" style="text;html=1;align=right;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontColor=#6b7280;fontSize=10;" value="&lt;font color=&quot;#fbbf24&quot;&gt;v2.0.0&lt;/font&gt;&lt;br&gt;&lt;font color=&quot;#4b5563&quot; style=&quot;font-size:9px&quot;&gt;Kotlin Multiplatform · Android · iOS · Shared language profiles&lt;/font&gt;" vertex="1">
+        <mxCell id="zgJBZne3iQorEuaxyE0d-2" parent="1" style="text;html=1;align=right;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontColor=#6b7280;fontSize=10;" value="&lt;font color=&quot;#fbbf24&quot;&gt;v2.2.0&lt;/font&gt;&lt;br&gt;&lt;font color=&quot;#4b5563&quot; style=&quot;font-size:9px&quot;&gt;Kotlin Multiplatform · Android · iOS · Shared language profiles&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="330" x="833" y="-1133" as="geometry" />
         </mxCell>
         <mxCell id="zgJBZne3iQorEuaxyE0d-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a2a2a;strokeColor=#2dd4bf;strokeWidth=1.5;fontColor=#5eead4;fontSize=10;align=center;verticalAlign=top;spacingTop=4;spacingLeft=6;spacingRight=6;" value="&lt;b&gt;TOUCH INPUT&lt;/b&gt;&lt;br&gt;&lt;i&gt;On-screen virtual dials&lt;/i&gt;&lt;br&gt;&lt;font color=&quot;#9ca3af&quot; style=&quot;font-size:9px&quot;&gt;Left dial → direction select · Right dial → chord/action · DragGesture / onTouchEvent&lt;/font&gt;" vertex="1">

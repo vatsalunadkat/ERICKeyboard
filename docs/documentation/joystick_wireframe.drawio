@@ -259,6 +259,9 @@
             <mxPoint x="373" y="413.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-139" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=35;fillColor=#ffffff;strokeColor=#c6c6c6;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;" value="😀" vertex="1">
+          <mxGeometry height="60" width="60" x="43" y="120" as="geometry" />
+        </mxCell>
         <mxCell id="chMNaZQm12NTdoxxiXWT-120" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=35;fillColor=light-dark(#B3FF66,#E60012);" value="" vertex="1">
           <mxGeometry height="60" width="60" x="139" y="120" as="geometry" />
         </mxCell>
@@ -286,8 +289,11 @@
         <mxCell id="chMNaZQm12NTdoxxiXWT-133" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;" value="ERICK keyboard wireframe" vertex="1">
           <mxGeometry height="30" width="320" x="253" y="70" as="geometry" />
         </mxCell>
-        <mxCell id="chMNaZQm12NTdoxxiXWT-134" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontSize=11;fontColor=#666666;" value="8-section example shown. When both dials are idle, this preview area becomes the 3-word suggestion strip." vertex="1">
-          <mxGeometry height="30" width="760" x="33" y="90" as="geometry" />
+        <mxCell id="chMNaZQm12NTdoxxiXWT-134" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=0;strokeColor=none;fillColor=none;fontSize=11;fontColor=#666666;" value="8-section example shown. The left slot is the emoji or ABC button, the center strip swaps between live preview and the 3-word suggestion bar, and the gear stays on the right." vertex="1">
+          <mxGeometry height="44" width="760" x="33" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="chMNaZQm12NTdoxxiXWT-140" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=35;fillColor=#ffffff;strokeColor=#d0d0d0;fontSize=16;fontStyle=1;fontColor=#D32F2F;align=center;verticalAlign=middle;" value="↑↑" vertex="1">
+          <mxGeometry height="28" width="56" x="385" y="198" as="geometry" />
         </mxCell>
         <mxCell id="chMNaZQm12NTdoxxiXWT-135" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#f8f5ef;strokeColor=#b9a36b;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Left dial&lt;/b&gt;&lt;br&gt;Choose the character group or ring for the current chord." vertex="1">
           <mxGeometry height="58" width="250" x="10" y="700" as="geometry" />
@@ -298,8 +304,8 @@
         <mxCell id="chMNaZQm12NTdoxxiXWT-137" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#eef6ff;strokeColor=#6b9ed6;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Current 6-section utility wheel&lt;/b&gt;&lt;br&gt;N = Symbols, NE = Shift, SE = Space, S = Period, SW = Enter, NW = Backspace." vertex="1">
           <mxGeometry height="74" width="305" x="545" y="692" as="geometry" />
         </mxCell>
-        <mxCell id="chMNaZQm12NTdoxxiXWT-138" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#eef8f1;strokeColor=#7aa489;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Preview and suggestions&lt;/b&gt;&lt;br&gt;The live strip shows only characters while a dial is active. Status words like Next or Complete are not shown in the strip." vertex="1">
-          <mxGeometry height="70" width="840" x="-7" y="780" as="geometry" />
+        <mxCell id="chMNaZQm12NTdoxxiXWT-138" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=20;fillColor=#eef8f1;strokeColor=#7aa489;fontSize=11;align=left;verticalAlign=middle;spacing=8;" value="&lt;b&gt;Top bar and floating badge&lt;/b&gt;&lt;br&gt;The emoji button opens the panel without changing keyboard height. Shift, Caps Lock, and Symbols move to the floating pill below the bar, and the center strip hides while the emoji panel is open." vertex="1">
+          <mxGeometry height="82" width="840" x="-7" y="780" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

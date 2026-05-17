@@ -2,14 +2,14 @@
 
 Canonical source note: the repo-root `APP_CONTEXT.md` is authoritative, and `docs/documentation/APP_CONTEXT.md` is a mirrored copy for docs navigation. Update the root file first and sync the docs copy intentionally.
 
-**Version**: 2.0.0  
-**Last Updated**: April 29, 2026  
+**Version**: 2.2.0  
+**Last Updated**: May 17, 2026  
 **Project**: Ergonomic Radial Inclusive Controller Keyboard (ERICK)
 **Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.
 
 ## Executive Summary
 
-ERICK is a cross-platform keyboard system for Android and iOS that replaces rows of tiny keys with two large directional controls. Users type by combining left and right movements into character chords using touch or a physical game controller. The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations, including layout handling, prediction, accessibility behavior, controller support, guided practice, and locally learned suggestion behavior.
+ERICK is a cross-platform keyboard system for Android and iOS that replaces rows of tiny keys with two large directional controls. Users type by combining left and right movements into character chords using touch or a physical game controller. The application uses Kotlin Multiplatform to share core keyboard logic between Android and iOS implementations, including layout handling, emoji-mode routing, prediction, accessibility behavior, controller support, guided practice, and locally learned suggestion behavior.
 
 ## Architecture Overview
 
@@ -21,8 +21,8 @@ ERICK is a cross-platform keyboard system for Android and iOS that replaces rows
 │  │   Android IME       │      │   iOS Extension     │   │
 │  │  - MyInputMethod    │      │  - KeyboardView     │   │
 │  │    Service          │      │    Controller       │   │
-│  │  - JoystickView     │      │  - JoystickView     │   │
-│  │  - XML Layout       │      │    (SwiftUI)        │   │
+│  │  - JoystickView /   │      │  - KeyboardContainer│   │
+│  │    EmojiPanelView   │      │    View + Emoji UI  │   │
 │  │  - DataStore prefs  │      │  - App Group prefs  │   │
 │  └──────────┬──────────┘      └──────────┬──────────┘   │
 └─────────────┼────────────────────────────┼──────────────┘
@@ -75,7 +75,7 @@ graph TB
     subgraph Platform["Platform Layer (UI / OS)"]
         subgraph Android["Android IME + Host App"]
             A1[MyInputMethodService]
-            A2[JoystickView]
+            A2[JoystickView + EmojiPanelView]
             A3[SettingsActivity / SettingsScreen / MainSettingsContent]
             A4[MainActivity]
             A5[PreferencesManager - DataStore]
@@ -85,7 +85,7 @@ graph TB
         end
         subgraph iOS["iOS Keyboard Extension + Host App"]
             I1[KeyboardViewController]
-            I2[KeyboardContainerView + JoystickView]
+            I2[KeyboardContainerView + JoystickView + EmojiPanelView]
             I3[SettingsView - Extension]
             I4[ContentView + PracticeHubView]
             I5[App Group UserDefaults]
@@ -147,10 +147,10 @@ flowchart TD
     Decision -->|Controller normalization, assisted lock, suggestion state| ControllerFlow[ControllerInputProcessor.kt\nKeyboardStateMachine.kt\nControllerInputProcessorTest.kt\nKeyboardStateMachineTest.kt]
     Decision -->|Prediction ranking, language dictionaries, learning, persistence| Predictor[WordPredictionEngine.kt\nWordPredictionEngineLearningTest.kt]
     Decision -->|Language selection, diacritics, profile bundling, shared translations| Language[KeyboardLanguageProfiles.kt\nPredictionProfileBundle.kt\nErickAppTranslations.kt]
-    Decision -->|Android IME behavior or suggestion taps| AndroidIME[MyInputMethodService.kt]
+    Decision -->|Android IME behavior or suggestion taps| AndroidIME[MyInputMethodService.kt\nEmojiPanelView.kt]
     Decision -->|Android settings, setup wizard, custom layout, palette| AndroidSettings[MainSettingsContent.kt\nSettingsScreen.kt\nCustomLayoutListScreen.kt\nCustomLayoutEditorScreen.kt\nCustomPaletteEditorScreen.kt]
     Decision -->|Android host quickstart, help, practice, diagnostics| AndroidHost[MainActivity.kt\nMainScreenContent.kt\nPracticeHubActivity.kt\nHelpActivity.kt\nControllerDiagnosticsActivity.kt]
-    Decision -->|iOS keyboard extension behavior or settings| IosExtension[KeyboardViewController.swift\nSettingsView.swift]
+    Decision -->|iOS keyboard extension behavior or settings| IosExtension[KeyboardViewController.swift\nKeyboardContainerView.swift\nEmojiPanelView.swift\nSettingsView.swift]
     Decision -->|iOS host quickstart, practice, help| IosHost[ContentView.swift\nLearningHubViews.swift\nHelpView.swift]
     Decision -->|User-facing docs or architecture drift| Docs[APP_CONTEXT.md\nREADME.md\nUser_Guide.md\nJira tickets]
 ```
@@ -528,8 +528,8 @@ Located in `android/shared/src/commonMain/kotlin/`
 - `KeyboardActionDelegate`: Platform callback for key events (`commitText`, `sendInputAction`, `onModeChanged`, `onSuggestionsUpdated`, `getCurrentWordPrefix`)
 - `Direction`: 8-way directional enum (N, NE, E, SE, S, SW, W, NW, NONE); 6-section mode uses N, NE, SE, S, SW, NW (no E, W)
 - `DialSectionMode`: Dial geometry mode (EIGHT_SECTION / SIX_SECTION)
-- `WheelMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED, SYMBOLS, SYMBOLS_SHIFTED)
-- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, TOGGLE_SYMBOLS, etc.)
+- `KeyboardMode`: Keyboard mode (NORMAL, SHIFTED, CAPS_LOCKED, SYMBOLS, SYMBOLS_SHIFTED, EMOJI)
+- `InputAction`: System actions (BACKSPACE, SPACE, ENTER, cursor moves, TOGGLE_SYMBOLS, TOGGLE_EMOJI, etc.). The emoji toggle is exposed through platform chrome rather than any dial binding.
 - `LayoutType`: Layout selection (LOGICAL, EFFICIENCY, CUSTOM)
 - `InputMode`: Input mode selection (INSTANT / Quick Type, CONFIRM / Steady Type, ASSISTED / One-Handed)
 
@@ -577,16 +577,18 @@ Located in `android/app/src/main/java/com/vatoo/erick/`
 - Input view creation and management
 - Connection to text fields via InputConnection
 - Integration with KeyboardStateMachine
-- Preview bar rendering (animated capsule with color-coded characters)
-- Suggestion bar rendering (3-suggestion strip for word predictions)
+- Top-row rendering with emoji button, preview or suggestions, and settings button
+- Floating shift, caps, and symbols badge rendering
+- Emoji panel swapping and recent-emoji persistence
 - Physical controller support (InputManager polling)
 - Theme support (light/dark mode, colorblind palettes, fonts)
 - Accelerating backspace behavior
 
 **Key Features**:
-- Custom XML layout (`keyboard_simple.xml`) with Canvas-based JoystickView
-- Preview capsule with animated text highlighting
-- Suggestion bar in same row as preview, showing completions or next-word predictions
+- Custom XML layout (`keyboard_simple.xml`) with Canvas-based `JoystickView` plus a shared-catalog-backed `EmojiPanelView`
+- Left emoji or `ABC` button toggles `KeyboardMode.EMOJI` without changing keyboard height
+- Preview capsule and suggestion bar share the center slot and both hide while the emoji panel is open
+- Floating shift, caps, and symbols badge sits below the top row instead of inside it
 - Smart suggestion insertion (replaces partial word, adds space for next-word predictions)
 - Settings button for quick access to preferences
 
@@ -672,9 +674,11 @@ Located in `ios/ERICK/`
 - Forwards joystick directions to shared state machine
 
 **Key Features**:
-- SwiftUI-based UI hierarchy (KeyboardContainerView → JoystickView + PreviewBar + SuggestionBar)
-- Live preview capsule with color-coded character display
-- 3-suggestion bar for word completions and next-word predictions
+- SwiftUI-based UI hierarchy (KeyboardContainerView → top bar + floating badge + JoystickView or EmojiPanelView)
+- Left emoji or `ABC` button toggles `KeyboardMode.EMOJI`, while the centered badge reflects shifted, caps-locked, or symbols states
+- `EmojiPanelView` uses the shared Unicode/CLDR catalog, 11 category tabs, long-press skin tones, and App Group-backed recents
+- Live preview capsule with color-coded character display outside emoji mode
+- 3-suggestion bar for word completions and next-word predictions outside emoji mode
 - Controller polling via `DisplayLink` for analog stick input
 - Settings persistence via App Group UserDefaults (`group.com.vatoo.erick`)
 
@@ -911,27 +915,38 @@ Settings are stored in a shared App Group (`group.com.vatoo.erick`) so both the 
 - `android/settings.gradle.kts` - Module declarations
 
 ### Shared Module (Kotlin Multiplatform)
-- `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` - Core state logic, word buffer, suggestion orchestration, KeyboardFactory
+- `android/shared/src/commonMain/kotlin/KeyboardStateMachine.kt` - Core state logic, word buffer, suggestion orchestration, symbols and emoji mode transitions, KeyboardFactory
 - `android/shared/src/commonMain/kotlin/KeyboardLogic.kt` - Chord resolution, layout maps (Logical, Efficiency, Custom)
 - `android/shared/src/commonMain/kotlin/KeyboardContracts.kt` - Platform interfaces (Direction, KeyboardMode, LayoutType, InputAction, KeyboardActionDelegate)
+- `android/shared/src/commonMain/kotlin/EmojiCatalogPayload.kt` - Shared Unicode/CLDR emoji payload bridge used by Android and iOS
 - `android/shared/src/commonMain/kotlin/WordPredictionEngine.kt` - Trie, bigrams, autocorrect
 - `android/shared/src/commonMain/kotlin/ColorPalettes.kt` - 7 accessibility color palettes incl. custom (ColorPaletteType, ColorEntry)
 - `android/shared/src/commonMain/kotlin/CustomLayout.kt` - Custom layout data model, manager, storage interface
 - `android/shared/src/commonMain/kotlin/CustomLayoutSerializer.kt` - JSON serialization for custom layouts
+- `android/shared/src/commonMain/resources/emoji_data.json` - Vendored Unicode/CLDR-derived emoji plus emoticons dataset
 
 ### Android Source Files
-- `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` - IME service (preview bar, suggestions, controller, theming)
+- `android/app/src/main/java/com/vatoo/erick/MyInputMethodService.kt` - IME service (top bar, emoji panel, suggestions, controller, theming)
+- `android/app/src/main/java/com/vatoo/erick/EmojiPanelView.kt` - Shared-catalog-backed emoji grid, tabs, tone picker, and bottom bar
+- `android/app/src/main/java/com/vatoo/erick/EmoticonsAdapter.kt` - Android adapter for the emoticons grid
 - `android/app/src/main/java/com/vatoo/erick/JoystickView.kt` - Canvas-based touch input with radial dials
 - `android/app/src/main/java/com/vatoo/erick/MainActivity.kt` - Onboarding/setup flow
 - `android/app/src/main/java/com/vatoo/erick/SettingsActivity.kt` - Settings host activity
 - `android/app/src/main/java/com/vatoo/erick/SettingsScreen.kt` - Jetpack Compose settings (CollapsibleSection accordion)
 - `android/app/src/main/java/com/vatoo/erick/SettingsViewModel.kt` - Settings MVVM state holder
-- `android/app/src/main/java/com/vatoo/erick/PreferencesManager.kt` - DataStore preferences + AndroidCustomLayoutStorage
+- `android/app/src/main/java/com/vatoo/erick/PreferencesManager.kt` - DataStore preferences, recent emoji storage, and AndroidCustomLayoutStorage
+- `android/app/src/main/java/com/vatoo/erick/RecentEmojisProviderImpl.kt` - Android recent-emoji persistence bridge
 - `android/app/src/main/java/com/vatoo/erick/LayoutPreferences.kt` - Legacy layout preference wrapper
 
 ### iOS Source Files
-- `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` - Keyboard extension entry point (KeyboardViewModel, KeyboardContainerView)
+- `ios/ERICK/ErickKeyBoard/KeyboardViewController.swift` - Keyboard extension entry point (KeyboardViewModel, KeyboardContainerView, EmojiPanelView)
+- `ios/ERICK/ErickKeyBoard/KeyboardContainerView.swift` - SwiftUI top bar, floating mode badge, and joystick or emoji panel swap
+- `ios/ERICK/ErickKeyBoard/KeyboardViewModel.swift` - Extension view state including current keyboard mode and recent emojis
 - `ios/ERICK/ErickKeyBoard/JoystickView.swift` - SwiftUI joystick (WheelDirection, WheelMode)
+- `ios/ERICK/ErickKeyBoard/EmojiPanelView.swift` - SwiftUI emoji grid with tabs, tone picker, and bottom bar
+- `ios/ERICK/ErickKeyBoard/EmojiCellView.swift` - SwiftUI cell view for one emoji or emoticon entry
+- `ios/ERICK/ErickKeyBoard/EmojiCatalog.swift` - Shared-payload loader and category lookup for iOS emoji mode
+- `ios/ERICK/ErickKeyBoard/RecentEmojisStore.swift` - App Group-backed recent emoji persistence helper
 - `ios/ERICK/ErickKeyBoard/SettingsView.swift` - Extension settings (CollapsibleSettingsSection, custom layout editor)
 - `ios/ERICK/ErickKeyBoard/IOSCustomLayoutStorage.swift` - App Group-based custom layout persistence
 - `ios/ERICK/ERICK/ContentView.swift` - Host app onboarding (StepCard, ControllerStatusCard)

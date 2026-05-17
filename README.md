@@ -2,7 +2,7 @@
 
 <div align="center">
   <h3 align="center">Ergonomic Radial Inclusive Controller Keyboard (ERICK)</h3>
-  <p align="center"><strong>Current Version: v2.0.0</strong></p>
+  <p align="center"><strong>Current Version: v2.2.0</strong></p>
 
   <p align="center">
     An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
@@ -10,7 +10,7 @@
     Type with touch or a physical game controller, learn with guided quickstart and practice lessons, switch across 10 supported keyboard languages, get offline learned word prediction, and keep every keystroke on your own device.
     <br />
     <br />
-    <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-v2.0.0-34A853?logo=google-play&logoColor=white" alt="Get ERICK v2.0.0 on Google Play" /></a>
+    <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-v2.2.0-34A853?logo=google-play&logoColor=white" alt="Get ERICK v2.2.0 on Google Play" /></a>
     <a href="#availability"><img src="https://img.shields.io/badge/iOS_App_Store-Coming_Soon-0A84FF?logo=apple&logoColor=white" alt="iOS App Store release coming soon" /></a>
     <br />
     <br />
@@ -67,7 +67,7 @@ ERICK is built around the idea that accessibility should improve the product for
 
 ## Availability
 
-- Android: v2.0.0 is available on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
+- Android: v2.2.0 is available on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
 - iOS: App Store release coming soon. Source builds remain available from the Xcode project under `ios/`.
 
 ## Features
@@ -78,6 +78,7 @@ ERICK is built around the idea that accessibility should improve the product for
 - [x] Dual-dial chorded typing with 8-section and optional 6-section modes, live previews, and utility swipes
 - [x] Three input modes: Quick Type, Steady Type, and One-Handed
 - [x] Three layout modes: Logical, Efficiency, and Custom, plus a custom layout creator
+- [x] Emoji keyboard mode with shared Unicode/CLDR category tabs, long-press skin tones, 32-item recents, and a built-in emoticons category
 - [x] Shared keyboard-language profiles and localized app UI for English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish
 - [x] Offline typing assistance with autocorrect, next-word suggestions, and per-language learned prediction profiles
 - [x] Guided learning flows including Quickstart, Practice Hub lessons, and quote practice
