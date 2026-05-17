@@ -26,6 +26,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     private var prevBridgeRightActive = false
     private var hasRegisteredControllerObservers = false
     private var isDispatchingControllerInput = false
+    private let recentEmojisStore = RecentEmojisStore()
+    private var emojiBackspaceToken = UUID()
     
     private static let appGroupId = "group.com.vatoo.erick"
     private var appGroupDefaults: UserDefaults? { UserDefaults(suiteName: Self.appGroupId) }
@@ -42,6 +44,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         
         // Read layout preference and apply to the state machine
         applyLayoutPreference()
+        viewModel.recentEmojis = recentEmojisStore.load()
         
         // --- UI mounting and closure wiring ---
         let containerView = KeyboardContainerView(viewModel: viewModel) { [weak self] dx, dy, isLeft, isDown, isUp in
@@ -50,6 +53,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             self?.handleSettingsChanged()
         } onSuggestionTapped: { [weak self] index in
             self?.onSuggestionTapped(index)
+        } onEmojiButtonTapped: { [weak self] in
+            self?.toggleEmojiPanel()
+        } onEmojiCommitText: { [weak self] text in
+            self?.commitEmojiText(text)
+        } onEmojiBackspacePressStarted: { [weak self] in
+            self?.startEmojiBackspaceRepeat()
+        } onEmojiBackspacePressEnded: { [weak self] in
+            self?.stopEmojiBackspaceRepeat()
         }
         
         // Use UIHostingController to wrap SwiftUI into a traditional UIKit View
@@ -85,6 +96,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         localControllerTimer = nil
         controllerBridgeTimer?.invalidate()
         controllerBridgeTimer = nil
+        stopEmojiBackspaceRepeat()
         stopControllerHaptics()
     }
     
@@ -315,6 +327,12 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     func onModeChanged(mode: KeyboardMode) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
+            if mode == .emoji || self.mirroredMode == .emoji {
+                self.mirroredLeftDirection = .none
+                self.mirroredRightDirection = .none
+                self.mirroredChordExecuted = false
+                self.stopEmojiBackspaceRepeat()
+            }
             self.mirroredMode = self.wheelMode(for: mode)
             self.refreshViewState()
         }
@@ -595,6 +613,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         applyLayoutPreference()
+        viewModel.recentEmojis = recentEmojisStore.load()
         setupControllerInput()
         startControllerBridgePolling()
         refreshViewState()
@@ -604,6 +623,57 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         applyLayoutPreference()
         viewModel.paletteRefreshToken += 1
         refreshViewState()
+    }
+
+    private func toggleEmojiPanel() {
+        stateMachine.toggleEmojiPanel()
+    }
+
+    private func commitEmojiText(_ text: String) {
+        commitText(text: text)
+        viewModel.recentEmojis = recentEmojisStore.record(text)
+        refreshViewState()
+    }
+
+    private func startEmojiBackspaceRepeat() {
+        stopEmojiBackspaceRepeat()
+        sendInputAction(action: .backspace)
+        let token = UUID()
+        emojiBackspaceToken = token
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.runEmojiBackspaceStep(token: token, elapsed: 0)
+        }
+    }
+
+    private func runEmojiBackspaceStep(token: UUID, elapsed: TimeInterval) {
+        guard token == emojiBackspaceToken else { return }
+
+        let action: InputAction
+        let nextDelay: TimeInterval
+        let nextElapsed: TimeInterval
+
+        if elapsed < 1.2 {
+            action = .backspace
+            nextDelay = 0.1
+            nextElapsed = elapsed + 0.1
+        } else if elapsed < 2.7 {
+            action = .deleteWord
+            nextDelay = 0.2
+            nextElapsed = elapsed + 0.2
+        } else {
+            action = .deleteWord
+            nextDelay = 0.1
+            nextElapsed = elapsed + 0.1
+        }
+
+        sendInputAction(action: action)
+        DispatchQueue.main.asyncAfter(deadline: .now() + nextDelay) { [weak self] in
+            self?.runEmojiBackspaceStep(token: token, elapsed: nextElapsed)
+        }
+    }
+
+    private func stopEmojiBackspaceRepeat() {
+        emojiBackspaceToken = UUID()
     }
 
     private func refreshViewState() {
@@ -907,6 +977,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case .capsLocked: return .capsLocked
         case .symbols: return .symbols
         case .symbolsShifted: return .symbolsShifted
+        case .emoji: return .emoji
         }
     }
 
@@ -917,6 +988,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case .capsLocked: return .capsLocked
         case .symbols: return .symbols
         case .symbolsShifted: return .symbolsShifted
+        case .emoji: return .emoji
         default: return .normal
         }
     }

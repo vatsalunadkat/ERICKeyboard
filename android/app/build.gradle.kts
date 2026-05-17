@@ -14,8 +14,8 @@ android {
         applicationId = "com.vatoo.erick"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "2.0.0"
+        versionCode = 8
+        versionName = "2.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -69,6 +69,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
     implementation("androidx.savedstate:savedstate-ktx:1.2.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.compose.material:material-icons-extended:1.7.5")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

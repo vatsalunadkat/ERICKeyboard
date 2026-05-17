@@ -7,6 +7,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 function Get-VariantTaskName {
@@ -43,6 +44,9 @@ $nativeLibraries = Get-ChildItem -Path $nativeLibRoot -Recurse -File -Filter *.s
 if (-not $nativeLibraries) {
     throw "No native libraries were found under $nativeLibRoot"
 }
+
+# Do not use Compress-Archive here. Play Console rejects ZIP entries created with
+# Windows-style backslashes, so we create each entry manually with forward slashes.
 
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 if (Test-Path $outputZip) {

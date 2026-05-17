@@ -31,6 +31,7 @@ class KeyboardViewModel: ObservableObject {
     @Published var paletteRefreshToken: Int = 0
     @Published var leftControllerStickNormalized: (x: Float, y: Float) = (0, 0)
     @Published var rightControllerStickNormalized: (x: Float, y: Float) = (0, 0)
+    @Published var recentEmojis: [String] = []
 
     var resolvedFont: Font {
         switch fontPreference {

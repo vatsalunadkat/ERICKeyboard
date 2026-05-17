@@ -8,7 +8,7 @@ Start with `AGENTS.md` for the shortest repo-specific workflow, validation comma
 
 **ERICK** (Ergonomic Radial Inclusive Controller Keyboard) is a cross-platform chorded keyboard app for **Android** and **iOS**. Users type by swiping dual on-screen joysticks (or using a physical game controller's analog sticks). Each letter is produced by a **chord** - a combination of a left-stick direction and a right-stick direction. In the default 8-section mode, 8 directions each yield 64 chord slots. An optional 6-section mode uses 6 directions (60-degree segments) for 36 chord slots with larger, easier-to-target segments. Single-stick swipes handle actions like Space, Enter, Backspace, Shift, Caps Lock, and cursor movement.
 
-**Current version**: 1.0  
+**Current version**: 2.2.0  
 **Repository**: `vatsalunadkat/ERICKeyboard` on GitHub  
 **License**: ERICK Source Available License 1.0  
 **Distribution**: Android is live on Google Play at `https://play.google.com/store/apps/details?id=com.vatoo.erick`; the iOS App Store release is coming soon.  
@@ -216,6 +216,9 @@ ERICKeyboard/
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| **v2.2.0** | May 17, 2026 | Emoji keyboard mode on Android and iOS, shared Unicode/CLDR emoji catalog with emoticons and recents, floating mode badge, and responsive emoji-panel stability fixes |
+| **v2.0.0** | Apr 30, 2026 | Multi-language keyboard profiles, localized UI across both platforms, isolated prediction resources per language, and refreshed built-in efficiency presets |
+| **v1.2.0** | Apr 25, 2026 | Guided quickstart, reusable practice lessons, controller diagnostics, persistent learned predictions, and AI-first repo hardening |
 | **v1.0** | Apr 13, 2026 | 6-Section Dial Mode (optional 60-degree segments, 36-slot chord grid, symbols mode, 6-color palettes), haptic/sound tuning, settings UX fixes |
 | **v0.7.4-beta** | 2026 | Three input modes (Quick Type/Steady Type/One-Handed), custom color palettes, haptic feedback & typing sounds |
 | **v0.5.1-alpha** | Mar 28, 2026 | Typing practice mini-game, outlined preview text, website redesign, source available license |
@@ -226,9 +229,7 @@ ERICKeyboard/
 
 ### Planned
 
-| Version | Features |
-|---------|----------|
-| **v1.1** | Multi-language support |
+No public post-v2.2.0 release is locked in this file yet. Use `CHANGELOG.md` for shipped releases and the Jira tickets under `docs/documentation/Jira/` for in-flight work.
 
 ---
 

@@ -80,6 +80,80 @@ class KeyboardStateMachineTest {
     }
 
     @Test
+    fun togglingEmojiPanelStoresAndRestoresPreviousMode() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        rightSwipe(stateMachine, x = -100f, y = -100f)
+        assertEquals(KeyboardMode.CAPS_LOCKED, stateMachine.currentMode)
+
+        stateMachine.toggleEmojiPanel()
+
+        assertEquals(KeyboardMode.EMOJI, stateMachine.currentMode)
+        assertEquals(KeyboardMode.EMOJI, delegate.modeChanges.last())
+
+        stateMachine.toggleEmojiPanel()
+
+        assertEquals(KeyboardMode.CAPS_LOCKED, stateMachine.currentMode)
+
+        stateMachine.setDialSectionMode(DialSectionMode.SIX_SECTION)
+        rightSwipe(stateMachine, x = -100f, y = -173.20508f)
+        assertEquals(KeyboardMode.SYMBOLS, stateMachine.currentMode)
+
+        stateMachine.toggleEmojiPanel()
+        stateMachine.toggleEmojiPanel()
+
+        assertEquals(KeyboardMode.SYMBOLS, stateMachine.currentMode)
+    }
+
+    @Test
+    fun dialInputIsIgnoredInEmojiMode() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.toggleEmojiPanel()
+
+        pressLeft(stateMachine, x = 0f, y = -100f)
+        rightSwipe(stateMachine, x = 0f, y = -100f)
+        releaseLeft(stateMachine)
+        stateMachine.handleControllerInput(0f, -1f, 0f, -1f)
+        stateMachine.handleControllerInput(0f, 0f, 0f, 0f)
+
+        assertEquals(KeyboardMode.EMOJI, stateMachine.currentMode)
+        assertTrue(delegate.committedTexts.isEmpty())
+        assertTrue(delegate.inputActions.isEmpty())
+        assertTrue(stateMachine.areBothDialsAtHome())
+        assertEquals("", stateMachine.getPreviewText())
+    }
+
+    @Test
+    fun suggestionsAreSuppressedInEmojiMode() = runTest {
+        val delegate = RecordingDelegate()
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        pressLeft(stateMachine, x = 0f, y = -100f)
+        rightSwipe(stateMachine, x = 0f, y = -100f)
+        releaseLeft(stateMachine)
+
+        assertEquals("a", stateMachine.getCurrentWordBuffer())
+        assertTrue(stateMachine.currentSuggestions.isNotEmpty())
+
+        stateMachine.toggleEmojiPanel()
+
+        assertEquals(KeyboardMode.EMOJI, stateMachine.currentMode)
+        assertEquals("a", stateMachine.getCurrentWordBuffer())
+        assertTrue(stateMachine.currentSuggestions.isEmpty())
+        assertEquals(emptyList(), delegate.suggestionsSnapshots.last())
+
+        stateMachine.toggleEmojiPanel()
+
+        assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
+        assertEquals("a", stateMachine.getCurrentWordBuffer())
+        assertTrue(stateMachine.currentSuggestions.isNotEmpty())
+        assertEquals(stateMachine.currentSuggestions, delegate.suggestionsSnapshots.last())
+    }
+
+    @Test
     fun acceptSuggestionReturnsDeleteCountForCurrentWord() = runTest {
         val delegate = RecordingDelegate()
         val stateMachine = KeyboardStateMachine(delegate, this)

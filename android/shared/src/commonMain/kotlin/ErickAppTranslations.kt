@@ -1633,9 +1633,26 @@ object ErickAppTranslations {
         "Use the bottom actions to focus the practice field, then type letters, numbers, and punctuation with both sticks." to all("Usa las acciones inferiores para enfocar el campo de practica y luego escribe letras, numeros y puntuacion con ambos sticks.", "Use as acoes inferiores para focar o campo de pratica e depois digite letras, numeros e pontuacao com os dois analogicos.", "Utilisez les actions du bas pour placer le focus sur le champ de pratique, puis tapez lettres, chiffres et ponctuation avec les deux sticks.", "Nutze die unteren Aktionen, um das Ubungsfeld zu fokussieren, und tippe dann Buchstaben, Zahlen und Satzzeichen mit beiden Sticks.", "Usa le azioni in basso per mettere a fuoco il campo di pratica, poi digita lettere, numeri e punteggiatura con entrambe le levette.", "Bruk handlingene nederst for a fokusere ovingsfeltet, og skriv deretter bokstaver, tall og tegnsetting med begge stikker.", "Brug handlingerne nederst til at fokusere ovelsesfeltet, og skriv derefter bogstaver, tal og tegnsaetning med begge styrepinde.", "Anvand de nedre atgarderna for att fokusera ovningsfaltet och skriv sedan bokstaver, siffror och skiljetecken med bada spakarna.", "Kayta alareunan toimintoja kohdistaaksesi harjoituskentan ja kirjoita sitten kirjaimia, numeroita ja valimerkkeja molemmilla tikuilla.")
     )
 
+    private val keyedEnglishFallbacks = mapOf(
+        "emoji_tab_recent" to "Recent",
+        "emoji_tab_smileys" to "Smileys & Emotion",
+        "emoji_tab_people" to "People & Body",
+        "emoji_tab_animals" to "Animals & Nature",
+        "emoji_tab_food" to "Food & Drink",
+        "emoji_tab_travel" to "Travel & Places",
+        "emoji_tab_activities" to "Activities",
+        "emoji_tab_objects" to "Objects",
+        "emoji_tab_symbols" to "Symbols",
+        "emoji_tab_flags" to "Flags",
+        "emoji_tab_emoticons" to "Emoticons",
+        "emoji_button_open" to "Open emoji keyboard",
+        "emoji_button_back_abc" to "Return to keyboard",
+    )
+
     fun text(language: KeyboardLanguage, english: String): String {
         return supplementalTranslations[english]?.get(language)
             ?: translations[english]?.get(language)
+            ?: keyedEnglishFallbacks[english]
             ?: english
     }
 }

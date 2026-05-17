@@ -10,7 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android: Available now on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick)
 - iOS: App Store release coming soon. Historical sections below may still mention pre-store APK or source-install workflows from earlier milestones.
 
-## [v2.0.0] - Current
+## [v2.2.0] - Current
+
+## What's New
+
+### Keyboard UI and Emoji Input
+- **Emoji Keyboard Mode (Android and iOS)** - Added a shared-catalog-backed emoji panel with a left preview-row emoji or `ABC` button, 11 Unicode/CLDR category tabs, long-press skin-tone selection, a 32-item recent list, and a curated `Emoticons` tab that commits ASCII faces and kaomoji as plain text.
+- **Floating Mode Badge** - Moved the shift, caps lock, and symbols indicator out of the preview row into a centered floating pill below the top bar so the emoji button could take the left slot without increasing keyboard height.
+- **Emoji Panel Stability and Responsive Sizing** - Android skin-tone long-press no longer triggers a transient keyboard relayout, the emoji panel now keeps the same overall keyboard-height footprint as the main keyboard, the Android category header now stays visually separated from the scrolling emoji grid, and the iOS emoji grid adapts more defensively across narrower and wider widths.
+
+### Documentation, Website, and Developer Experience
+- **Release History Refresh** - Added dedicated v2.2.0 release notes and website release-page coverage without overwriting the earlier v2.0.0 history.
+- **Public Docs and Website Refresh** - Updated the README, user guide, website pages, diagrams, and availability messaging to match the v2.2.0 release and current iOS status.
+
+## [v2.0.0] - Apr 30, 2026
 
 ## What's New
 

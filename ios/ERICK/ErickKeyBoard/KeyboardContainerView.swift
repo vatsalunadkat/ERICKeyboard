@@ -6,6 +6,10 @@ struct KeyboardContainerView: View {
     var onTouch: (Float, Float, Bool, Bool, Bool) -> Void
     var onSettingsChanged: () -> Void
     var onSuggestionTapped: (Int) -> Void
+    var onEmojiButtonTapped: () -> Void
+    var onEmojiCommitText: (String) -> Void
+    var onEmojiBackspacePressStarted: () -> Void
+    var onEmojiBackspacePressEnded: () -> Void
 
     @State private var showSettings = false
 
@@ -25,44 +29,60 @@ struct KeyboardContainerView: View {
                 let leftSize = rightSize * 1.08
                 let totalControlsWidth = leftSize + rightSize + controlSpacing
 
-                HStack(spacing: controlSpacing) {
-                    JoystickView(
-                        isRightSide: viewModel.isLeftHanded,
-                        activeDirection: viewModel.leftDirection != .none ? viewModel.leftDirection : viewModel.lockedLeftDirection,
-                        keyboardMode: viewModel.keyboardMode,
-                        isEfficiency: viewModel.isEfficiency,
-                        sixSectionMode: viewModel.sixSectionMode,
-                        colorPaletteKey: viewModel.colorPaletteKey,
-                        fontPreference: viewModel.fontPreference,
-                        customNormalSections: viewModel.customNormalSections,
-                        customShiftedSections: viewModel.customShiftedSections,
-                        paletteRefreshToken: viewModel.paletteRefreshToken,
-                        controllerStickNormalized: viewModel.leftControllerStickNormalized
-                    ) { dx, dy, isDownOrMove, isUp in
-                        onTouch(dx, dy, true, isDownOrMove, isUp)
-                    }
-                    .frame(width: leftSize, height: leftSize)
+                Group {
+                    if viewModel.keyboardMode == .emoji {
+                        EmojiPanelView(
+                            recentEmojis: viewModel.recentEmojis,
+                            isDarkMode: viewModel.isDarkMode,
+                            languageKey: keyboardLanguage,
+                            onCommitText: onEmojiCommitText,
+                            onReturnToKeyboard: onEmojiButtonTapped,
+                            onBackspacePressStarted: onEmojiBackspacePressStarted,
+                            onBackspacePressEnded: onEmojiBackspacePressEnded
+                        )
+                        .frame(width: geometry.size.width - (horizontalPadding * 2), height: availableHeight)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    } else {
+                        HStack(spacing: controlSpacing) {
+                            JoystickView(
+                                isRightSide: viewModel.isLeftHanded,
+                                activeDirection: viewModel.leftDirection != .none ? viewModel.leftDirection : viewModel.lockedLeftDirection,
+                                keyboardMode: viewModel.keyboardMode,
+                                isEfficiency: viewModel.isEfficiency,
+                                sixSectionMode: viewModel.sixSectionMode,
+                                colorPaletteKey: viewModel.colorPaletteKey,
+                                fontPreference: viewModel.fontPreference,
+                                customNormalSections: viewModel.customNormalSections,
+                                customShiftedSections: viewModel.customShiftedSections,
+                                paletteRefreshToken: viewModel.paletteRefreshToken,
+                                controllerStickNormalized: viewModel.leftControllerStickNormalized
+                            ) { dx, dy, isDownOrMove, isUp in
+                                onTouch(dx, dy, true, isDownOrMove, isUp)
+                            }
+                            .frame(width: leftSize, height: leftSize)
 
-                    JoystickView(
-                        isRightSide: !viewModel.isLeftHanded,
-                        activeDirection: viewModel.rightDirection,
-                        keyboardMode: viewModel.keyboardMode,
-                        isEfficiency: viewModel.isEfficiency,
-                        sixSectionMode: viewModel.sixSectionMode,
-                        colorPaletteKey: viewModel.colorPaletteKey,
-                        fontPreference: viewModel.fontPreference,
-                        customNormalSections: viewModel.customNormalSections,
-                        customShiftedSections: viewModel.customShiftedSections,
-                        paletteRefreshToken: viewModel.paletteRefreshToken,
-                        controllerStickNormalized: viewModel.rightControllerStickNormalized
-                    ) { dx, dy, isDownOrMove, isUp in
-                        onTouch(dx, dy, false, isDownOrMove, isUp)
+                            JoystickView(
+                                isRightSide: !viewModel.isLeftHanded,
+                                activeDirection: viewModel.rightDirection,
+                                keyboardMode: viewModel.keyboardMode,
+                                isEfficiency: viewModel.isEfficiency,
+                                sixSectionMode: viewModel.sixSectionMode,
+                                colorPaletteKey: viewModel.colorPaletteKey,
+                                fontPreference: viewModel.fontPreference,
+                                customNormalSections: viewModel.customNormalSections,
+                                customShiftedSections: viewModel.customShiftedSections,
+                                paletteRefreshToken: viewModel.paletteRefreshToken,
+                                controllerStickNormalized: viewModel.rightControllerStickNormalized
+                            ) { dx, dy, isDownOrMove, isUp in
+                                onTouch(dx, dy, false, isDownOrMove, isUp)
+                            }
+                            .frame(width: rightSize, height: rightSize)
+                            .offset(x: -6)
+                        }
+                        .frame(width: totalControlsWidth, height: availableHeight, alignment: .center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     }
-                    .frame(width: rightSize, height: rightSize)
-                    .offset(x: -6)
                 }
-                .frame(width: totalControlsWidth, height: availableHeight, alignment: .center)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .padding(.top, topInset)
                 .padding(.bottom, bottomInset)
                 .padding(.horizontal, horizontalPadding)
@@ -70,41 +90,41 @@ struct KeyboardContainerView: View {
             .allowsHitTesting(!showSettings)
 
             HStack(spacing: 0) {
-                Group {
-                    if viewModel.keyboardMode == .shifted {
-                        Text("↑")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(viewModel.isDarkMode ? .white : Color(hex: "#333333"))
-                            .accessibilityLabel(erickText("Shift mode active", languageKey: keyboardLanguage))
-                    } else if viewModel.keyboardMode == .capsLocked {
-                        Text("↑↑")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color(hex: "#D32F2F"))
-                            .accessibilityLabel(erickText("Caps Lock active", languageKey: keyboardLanguage))
-                    } else if viewModel.keyboardMode == .symbols {
-                        Text("#")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color(hex: "#FF9800"))
-                            .accessibilityLabel(erickText("Symbols mode active", languageKey: keyboardLanguage))
-                    } else if viewModel.keyboardMode == .symbolsShifted {
-                        Text("#↑")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color(hex: "#FF9800"))
-                            .accessibilityLabel(erickText("Symbols shifted mode active", languageKey: keyboardLanguage))
-                    }
+                Button(action: onEmojiButtonTapped) {
+                    Text(viewModel.keyboardMode == .emoji ? "ABC" : "😀")
+                        .font(
+                            .system(
+                                size: viewModel.keyboardMode == .emoji ? 13 : 22,
+                                weight: .bold,
+                                design: .rounded
+                            )
+                        )
+                        .foregroundColor(viewModel.isDarkMode ? .white : Color(hex: "#1E1E1E"))
+                        .frame(width: 36, height: 32)
+                        .background(
+                            Capsule()
+                                .fill(viewModel.isDarkMode ? Color(hex: "#323232").opacity(0.96) : Color.white.opacity(0.96))
+                        )
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(
+                    erickText(
+                        viewModel.keyboardMode == .emoji ? "emoji_button_back_abc" : "emoji_button_open",
+                        languageKey: keyboardLanguage
+                    )
+                )
                 .frame(width: 36, alignment: .center)
                 .animation(.easeInOut(duration: 0.15), value: viewModel.keyboardMode)
 
                 ZStack {
-                    if !viewModel.previewItems.isEmpty {
+                    if viewModel.keyboardMode != .emoji && !viewModel.previewItems.isEmpty {
                         KeyboardPreviewBar(
                             items: viewModel.previewItems,
                             highlightedIndex: viewModel.highlightedPreviewIndex,
                             isDarkMode: viewModel.isDarkMode,
                             fontPreference: viewModel.fontPreference
                         )
-                    } else if viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
+                    } else if viewModel.keyboardMode != .emoji && viewModel.bothDialsAtHome && !viewModel.suggestions.isEmpty {
                         KeyboardSuggestionBar(
                             suggestionContextLabel: viewModel.suggestionContextLabel,
                             suggestions: viewModel.suggestions,
@@ -129,6 +149,21 @@ struct KeyboardContainerView: View {
             .frame(height: 40)
             .padding(.horizontal, 4)
 
+            if let floatingBadge {
+                Text(floatingBadge.text)
+                    .font(.system(size: floatingBadge.text == "#↑" ? 14 : 16, weight: .bold, design: .rounded))
+                    .foregroundColor(floatingBadge.color)
+                    .padding(.horizontal, floatingBadge.text.count > 1 ? 12 : 14)
+                    .frame(height: 28)
+                    .background(
+                        Capsule()
+                            .fill(viewModel.isDarkMode ? Color(hex: "#323232").opacity(0.98) : Color.white.opacity(0.98))
+                            .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+                    )
+                    .padding(.top, 44)
+                    .transition(.opacity)
+            }
+
             if showSettings {
                 SettingsView(onClose: {
                     withAnimation {
@@ -140,6 +175,21 @@ struct KeyboardContainerView: View {
                 .transition(.move(edge: .bottom))
                 .zIndex(1)
             }
+        }
+    }
+
+    private var floatingBadge: (text: String, color: Color)? {
+        switch viewModel.keyboardMode {
+        case .shifted:
+            return ("↑", viewModel.isDarkMode ? .white : Color(hex: "#333333"))
+        case .capsLocked:
+            return ("↑↑", Color(hex: "#D32F2F"))
+        case .symbols:
+            return ("#", Color(hex: "#FF9800"))
+        case .symbolsShifted:
+            return ("#↑", Color(hex: "#FF9800"))
+        case .normal, .emoji:
+            return nil
         }
     }
 }
