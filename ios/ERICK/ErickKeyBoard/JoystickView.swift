@@ -55,6 +55,7 @@ enum WheelMode {
     case capsLocked
     case symbols
     case symbolsShifted
+    case emoji
 
     var usesShiftedSymbols: Bool {
         self == .shifted || self == .capsLocked || self == .symbolsShifted
@@ -128,6 +129,7 @@ private enum LeftWheelSharedMapping {
         case .capsLocked: return .capsLocked
         case .symbols: return .symbols
         case .symbolsShifted: return .symbolsShifted
+        case .emoji: return .emoji
         }
     }
     }
