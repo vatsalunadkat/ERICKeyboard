@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.InputDevice
 import kotlin.math.abs
+import kotlin.math.max
 import android.view.inputmethod.EditorInfo
 import com.vatoo.erick.shared.ColorEntry
 import com.vatoo.erick.shared.ColorPaletteType
@@ -38,6 +39,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -46,6 +48,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.vatoo.erick.shared.ColorPalettes
 import com.vatoo.erick.shared.Direction
+import com.vatoo.erick.shared.KeyboardMode
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // Note: If this shows red, use Alt+Enter to import classes from the Shared module (InputAction, KeyboardStateMachine, etc.)
 
@@ -54,8 +60,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private lateinit var leftJoystick: JoystickView
     private lateinit var rightJoystick: JoystickView
     private lateinit var previewContainer: FrameLayout
+    private lateinit var keyboardContentContainer: FrameLayout
+    private lateinit var joystickRow: LinearLayout
     private lateinit var previewCapsule: LinearLayout
     private lateinit var shiftIndicator: TextView
+    private lateinit var emojiButton: TextView
+    private lateinit var emojiPanel: EmojiPanelView
     private lateinit var suggestionBar: LinearLayout
     private lateinit var suggestionLabel: TextView
     private lateinit var suggestion1: TextView
@@ -65,6 +75,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     private var pendingSuggestions: List<String> = emptyList()
     private var currentPredictionDomain: PredictionDomain = PredictionDomain.GENERAL
     private var currentLanguageKey: String = PreferencesManager.LANGUAGE_ENGLISH
+    private var emojiBackspaceRepeatJob: Job? = null
+    private var emojiPanelTargetHeightPx: Int = 0
 
     // --- Coroutine lifecycle management ---
     // Must provide a scope to the state machine; cancel all timer tasks when the IME is destroyed to prevent memory leaks
@@ -76,6 +88,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     // Cross-platform state machine from the Shared module
     private lateinit var stateMachine: KeyboardStateMachine
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var recentEmojisProvider: RecentEmojisProviderImpl
     private var connectedControllerName: String? = null
     private var currentControllerDeviceId: Int? = null
     private var isDispatchingControllerInput: Boolean = false
@@ -117,6 +130,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         refreshControllerStatus()
         // Listen for layout preference changes and switch layouts in real-time (uses the same PreferencesManager as SettingsScreen)
         preferencesManager = PreferencesManager(this)
+        recentEmojisProvider = RecentEmojisProviderImpl(preferencesManager, serviceScope)
         customLayoutManager = CustomLayoutManager(preferencesManager.createCustomLayoutStorage())
         customLayoutManager.loadAll()
 
@@ -261,6 +275,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             }
             stateMachine.setKeyboardLanguage(keyboardLanguage)
             if (::suggestionBar.isInitialized) updateSuggestionBar()
+            if (::emojiPanel.isInitialized) {
+                emojiPanel.setLanguageKey(languageKey)
+                updateEmojiModeUi(stateMachine.currentMode)
+            }
         }.launchIn(serviceScope)
 
         preferencesManager.predictionDomain.onEach { domainKey ->
@@ -289,6 +307,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     override fun onDestroy() {
         super.onDestroy()
         inputManager.unregisterInputDeviceListener(controllerListener)
+        if (::emojiPanel.isInitialized) {
+            emojiPanel.dismissTonePicker()
+        }
+        stopEmojiBackspaceRepeat()
         serviceJob.cancel() // When the IME is destroyed, clean up all coroutine timers
     }
 
@@ -328,13 +350,57 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         rightJoystick.colorPaletteType = currentPalette
 
         previewContainer = view.findViewById(R.id.live_preview_container)
+        keyboardContentContainer = view.findViewById(R.id.keyboard_content_container)
+        joystickRow = view.findViewById(R.id.joystick_row)
         previewCapsule = view.findViewById(R.id.live_preview_capsule)
         shiftIndicator = view.findViewById(R.id.shift_indicator)
+        emojiButton = view.findViewById(R.id.btn_emoji)
         suggestionBar = view.findViewById(R.id.suggestion_bar)
         suggestionLabel = view.findViewById(R.id.suggestion_label)
         suggestion1 = view.findViewById(R.id.suggestion_1)
         suggestion2 = view.findViewById(R.id.suggestion_2)
         suggestion3 = view.findViewById(R.id.suggestion_3)
+
+        emojiPanel = EmojiPanelView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+            )
+            visibility = View.GONE
+            setLanguageKey(currentLanguageKey)
+            setDarkMode(isEffectiveDarkMode())
+            setRecentEmojis(recentEmojisProvider.recentEmojis.value)
+            setListener(object : EmojiPanelView.Listener {
+                override fun onCommitText(text: String) {
+                    val updatedRecents = recentEmojisProvider.recordRecent(text)
+                    emojiPanel.setRecentEmojis(updatedRecents)
+                    commitText(text)
+                }
+
+                override fun onReturnToKeyboard() {
+                    stateMachine.toggleEmojiPanel()
+                }
+
+                override fun onBackspacePressStarted() {
+                    startEmojiBackspaceRepeat()
+                }
+
+                override fun onBackspacePressEnded() {
+                    stopEmojiBackspaceRepeat()
+                }
+            })
+        }
+        keyboardContentContainer.addView(emojiPanel)
+        keyboardContentContainer.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            syncEmojiPanelHeight()
+        }
+        joystickRow.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            syncEmojiPanelHeight()
+        }
+        keyboardContentContainer.post {
+            syncEmojiPanelHeight()
+            updateEmojiModeUi(stateMachine.currentMode)
+        }
 
         // Wire suggestion tap handlers
         suggestion1.setOnClickListener { onSuggestionTapped(0) }
@@ -356,6 +422,11 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             dispatchTouchToStateMachine(event, isLeft = false, joystick = rightJoystick)
             true
         }
+
+        emojiButton.setOnClickListener {
+            stateMachine.toggleEmojiPanel()
+        }
+
         //Setting
         val settingsBtn = view.findViewById<ImageButton>(R.id.btn_settings)
         settingsBtn?.setOnClickListener {
@@ -390,6 +461,13 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
             val effectiveLeftY = if (controllerYAxisInverted) -leftY else leftY
             val effectiveRightY = if (controllerYAxisInverted) -rightY else rightY
+
+            if (stateMachine.currentMode == KeyboardMode.EMOJI) {
+                leftJoystick.resetThumb()
+                rightJoystick.resetThumb()
+                updateLivePreview()
+                return true
+            }
 
             leftJoystick.updateThumbFromController(leftX, effectiveLeftY, controllerDeadZone)
             rightJoystick.updateThumbFromController(rightX, effectiveRightY, controllerDeadZone)
@@ -452,6 +530,12 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     // --- Core: translate Android touch events and dispatch to the state machine ---
     private fun dispatchTouchToStateMachine(event: MotionEvent, isLeft: Boolean, joystick: JoystickView) {
+        if (stateMachine.currentMode == KeyboardMode.EMOJI) {
+            joystick.resetThumb()
+            updateLivePreview()
+            return
+        }
+
         // Calculate offset relative to the joystick center
         val dx = event.x - (joystick.width / 2f)
         val dy = event.y - (joystick.height / 2f)
@@ -522,6 +606,14 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             rightJoystick.invalidate()
         }
 
+        if (::emojiButton.isInitialized) {
+            emojiButton.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#333333"))
+        }
+
+        if (::emojiPanel.isInitialized) {
+            emojiPanel.setDarkMode(isDark)
+        }
+
         // Re-apply shift indicator colors for the new theme
         if (::leftJoystick.isInitialized) {
             updateShiftIndicator(stateMachine.currentMode)
@@ -551,11 +643,21 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         if (::previewCapsule.isInitialized) {
             previewCapsule.removeAllViews()
         }
+        if (::emojiPanel.isInitialized) {
+            emojiPanel.setTextTypeface(tf)
+        }
         updateLivePreview()
     }
 
     private fun updateLivePreview() {
         if (!::leftJoystick.isInitialized || !::rightJoystick.isInitialized || !::previewContainer.isInitialized) return
+        if (stateMachine.currentMode == KeyboardMode.EMOJI) {
+            previewCapsule.visibility = View.GONE
+            suggestionBar.visibility = View.GONE
+            lastHighlightedIndex = -1
+            return
+        }
+
         // In left-handed mode the letter-group dial is the physical right joystick,
         // and the color dial is the physical left joystick.
         val isLH = stateMachine.leftHandedMode
@@ -717,7 +819,7 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             InputAction.PAGE_UP -> KeyEvent.KEYCODE_PAGE_UP
             InputAction.PAGE_DOWN -> KeyEvent.KEYCODE_PAGE_DOWN
             InputAction.TAB -> KeyEvent.KEYCODE_TAB
-            InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS, InputAction.TOGGLE_SYMBOLS -> -1
+            InputAction.TOGGLE_SHIFT, InputAction.TOGGLE_CAPS, InputAction.TOGGLE_SYMBOLS, InputAction.TOGGLE_EMOJI -> -1
             else -> -1
         }
 
@@ -789,14 +891,16 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         }
     }
 
-    override fun onModeChanged(mode: com.vatoo.erick.shared.KeyboardMode) {
+    override fun onModeChanged(mode: KeyboardMode) {
         if (::leftJoystick.isInitialized) {
             leftJoystick.keyboardMode = mode
         }
         if (::rightJoystick.isInitialized) {
             rightJoystick.keyboardMode = mode
         }
+        updateEmojiModeUi(mode)
         updateShiftIndicator(mode)
+        updateLivePreview()
     }
 
     override fun onSuggestionsUpdated(suggestions: List<String>) {
@@ -843,6 +947,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     private fun updateSuggestionBar() {
         if (!::suggestionBar.isInitialized) return
+        if (stateMachine.currentMode == KeyboardMode.EMOJI) {
+            suggestionBar.visibility = View.GONE
+            return
+        }
         val showSuggestions = stateMachine.areBothDialsAtHome() && pendingSuggestions.isNotEmpty()
         if (showSuggestions) {
             previewCapsule.visibility = View.GONE
@@ -871,42 +979,142 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
 
     private fun suggestionContextLabel(): String = ""
 
-    private fun updateShiftIndicator(mode: com.vatoo.erick.shared.KeyboardMode) {
+    private fun updateShiftIndicator(mode: KeyboardMode) {
         if (!::shiftIndicator.isInitialized) return
         val isDark = isEffectiveDarkMode()
         when (mode) {
-            com.vatoo.erick.shared.KeyboardMode.SHIFTED -> {
-                shiftIndicator.text = "↑"
-                shiftIndicator.setTextColor(if (isDark) Color.WHITE else Color.DKGRAY)
-                shiftIndicator.background = null
-                shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Shift mode active")
-            }
-            com.vatoo.erick.shared.KeyboardMode.CAPS_LOCKED -> {
-                shiftIndicator.text = "↑↑"
-                shiftIndicator.setTextColor(Color.parseColor("#D32F2F"))
-                shiftIndicator.background = null
-                shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Caps Lock active")
-            }
-            com.vatoo.erick.shared.KeyboardMode.SYMBOLS -> {
-                shiftIndicator.text = "#"
-                shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
-                shiftIndicator.background = null
-                shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Symbols mode active")
-            }
-            com.vatoo.erick.shared.KeyboardMode.SYMBOLS_SHIFTED -> {
-                shiftIndicator.text = "#↑"
-                shiftIndicator.setTextColor(Color.parseColor("#FF6F00"))
-                shiftIndicator.background = null
-                shiftIndicator.visibility = View.VISIBLE
-                shiftIndicator.contentDescription = erickText(currentLanguageKey, "Symbols shifted mode active")
-            }
+            KeyboardMode.SHIFTED -> showFloatingModeBadge(
+                text = "↑",
+                textColor = if (isDark) Color.WHITE else Color.DKGRAY,
+                contentDescription = erickText(currentLanguageKey, "Shift mode active"),
+            )
+            KeyboardMode.CAPS_LOCKED -> showFloatingModeBadge(
+                text = "↑↑",
+                textColor = Color.parseColor("#D32F2F"),
+                contentDescription = erickText(currentLanguageKey, "Caps Lock active"),
+            )
+            KeyboardMode.SYMBOLS -> showFloatingModeBadge(
+                text = "#",
+                textColor = Color.parseColor("#FF6F00"),
+                contentDescription = erickText(currentLanguageKey, "Symbols mode active"),
+            )
+            KeyboardMode.SYMBOLS_SHIFTED -> showFloatingModeBadge(
+                text = "#↑",
+                textColor = Color.parseColor("#FF6F00"),
+                contentDescription = erickText(currentLanguageKey, "Symbols shifted mode active"),
+            )
             else -> {
                 shiftIndicator.visibility = View.GONE
             }
         }
+    }
+
+    private fun updateEmojiModeUi(mode: KeyboardMode) {
+        if (!::emojiButton.isInitialized) return
+
+        val isEmojiMode = mode == KeyboardMode.EMOJI
+        emojiButton.text = if (isEmojiMode) "ABC" else "😀"
+        emojiButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (isEmojiMode) 12f else 20f)
+        emojiButton.typeface = if (isEmojiMode) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+        emojiButton.contentDescription = erickText(
+            currentLanguageKey,
+            if (isEmojiMode) "emoji_button_back_abc" else "emoji_button_open",
+        )
+
+        if (::emojiPanel.isInitialized) {
+            if (!isEmojiMode) {
+                emojiPanel.dismissTonePicker()
+            }
+            emojiPanel.visibility = if (isEmojiMode) View.VISIBLE else View.GONE
+            emojiPanel.setRecentEmojis(recentEmojisProvider.recentEmojis.value)
+        }
+        if (::joystickRow.isInitialized) {
+            joystickRow.visibility = if (isEmojiMode) View.GONE else View.VISIBLE
+        }
+
+        if (::leftJoystick.isInitialized) {
+            leftJoystick.resetThumb()
+        }
+        if (::rightJoystick.isInitialized) {
+            rightJoystick.resetThumb()
+        }
+
+        if (isEmojiMode) {
+            stopEmojiBackspaceRepeat()
+        }
+        syncEmojiPanelHeight()
+        if (::keyboardContentContainer.isInitialized) {
+            keyboardContentContainer.post {
+                syncEmojiPanelHeight()
+            }
+        }
+    }
+
+    private fun showFloatingModeBadge(text: String, textColor: Int, contentDescription: String) {
+        val isDark = isEffectiveDarkMode()
+        shiftIndicator.text = text
+        shiftIndicator.setTextColor(textColor)
+        shiftIndicator.typeface = Typeface.DEFAULT_BOLD
+        shiftIndicator.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 999f * resources.displayMetrics.density
+            setColor(if (isDark) Color.parseColor("#2D2F31") else Color.WHITE)
+        }
+        shiftIndicator.visibility = View.VISIBLE
+        shiftIndicator.contentDescription = contentDescription
+    }
+
+    private fun syncEmojiPanelHeight() {
+        if (!::emojiPanel.isInitialized || !::joystickRow.isInitialized || !::keyboardContentContainer.isInitialized) return
+        val liveJoystickHeight = joystickRow.height.takeIf { it > 0 }
+        if (liveJoystickHeight != null) {
+            emojiPanelTargetHeightPx = liveJoystickHeight
+        }
+        val containerHeight = keyboardContentContainer.height.takeIf { it > 0 } ?: 0
+        val targetHeight = when {
+            liveJoystickHeight != null -> liveJoystickHeight
+            emojiPanelTargetHeightPx > 0 && containerHeight > 0 -> max(emojiPanelTargetHeightPx, containerHeight)
+            emojiPanelTargetHeightPx > 0 -> emojiPanelTargetHeightPx
+            containerHeight > 0 -> containerHeight
+            else -> return
+        }
+        emojiPanelTargetHeightPx = targetHeight
+        val params = emojiPanel.layoutParams as? FrameLayout.LayoutParams ?: return
+        if (params.height != targetHeight) {
+            params.height = targetHeight
+            emojiPanel.layoutParams = params
+        }
+    }
+
+    private fun startEmojiBackspaceRepeat() {
+        stopEmojiBackspaceRepeat()
+        sendInputAction(InputAction.BACKSPACE)
+        emojiBackspaceRepeatJob = serviceScope.launch {
+            delay(300L)
+            var elapsed = 0L
+            while (elapsed < 1200L) {
+                sendInputAction(InputAction.BACKSPACE)
+                delay(100L)
+                elapsed += 100L
+            }
+
+            elapsed = 0L
+            while (elapsed < 1500L) {
+                sendInputAction(InputAction.DELETE_WORD)
+                delay(200L)
+                elapsed += 200L
+            }
+
+            while (true) {
+                sendInputAction(InputAction.DELETE_WORD)
+                delay(100L)
+            }
+        }
+    }
+
+    private fun stopEmojiBackspaceRepeat() {
+        emojiBackspaceRepeatJob?.cancel()
+        emojiBackspaceRepeatJob = null
     }
 
     // --- Prevent fullscreen extract mode (four-layer firewall — keep as-is) ---

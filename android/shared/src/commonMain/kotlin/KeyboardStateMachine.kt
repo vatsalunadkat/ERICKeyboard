@@ -65,6 +65,7 @@ class KeyboardStateMachine(
 
     // Symbols mode: remembers the mode before entering symbols
     private var preSymbolsMode = KeyboardMode.NORMAL
+    private var preEmojiMode = KeyboardMode.NORMAL
 
     // Input mode
     var inputMode = InputMode.INSTANT
@@ -80,6 +81,10 @@ class KeyboardStateMachine(
 
     // Receives touch updates from the native platform
     fun handleTouch(x: Float, y: Float, isLeft: Boolean, actionDownOrMove: Boolean, actionUp: Boolean) {
+        if (currentMode == KeyboardMode.EMOJI) {
+            return
+        }
+
         val effectiveIsLeft = getEffectiveSide(isLeft)
 
         val distance = hypot(x.toDouble(), y.toDouble()).toFloat()
@@ -105,6 +110,10 @@ class KeyboardStateMachine(
     }
 
     fun handleControllerInput(leftX: Float, leftY: Float, rightX: Float, rightY: Float) {
+        if (currentMode == KeyboardMode.EMOJI) {
+            return
+        }
+
         processControllerStick(
             input = normalizeControllerStick(leftX, leftY),
             isLeft = true
@@ -138,6 +147,19 @@ class KeyboardStateMachine(
             (currentMode == KeyboardMode.SYMBOLS || currentMode == KeyboardMode.SYMBOLS_SHIFTED)) {
             currentMode = KeyboardMode.NORMAL
         }
+    }
+
+    fun toggleEmojiPanel() {
+        if (currentMode == KeyboardMode.EMOJI) {
+            currentMode = preEmojiMode
+            updateSuggestions()
+            return
+        }
+
+        preEmojiMode = currentMode
+        clearTransientInputState()
+        currentMode = KeyboardMode.EMOJI
+        suppressSuggestions()
     }
 
     fun getDialSectionMode(): DialSectionMode = processor.dialSectionMode
@@ -178,6 +200,10 @@ class KeyboardStateMachine(
 
     // Returns the live preview character for UI rendering
     fun getPreviewText(): String {
+        if (currentMode == KeyboardMode.EMOJI) {
+            return ""
+        }
+
         val effectiveLeft = if (leftActiveDir != Direction.NONE) leftActiveDir
             else if (inputMode == InputMode.ASSISTED) lockedLeftDir
             else Direction.NONE
@@ -189,10 +215,18 @@ class KeyboardStateMachine(
     }
 
     fun getCharactersForDirection(dir: Direction): List<String> {
+        if (currentMode == KeyboardMode.EMOJI) {
+            return emptyList()
+        }
+
         return processor.getCharactersForDirection(dir, currentMode, currentLayoutType, activeCustomLayout)
     }
 
     fun getCharactersAtPosition(rightDir: Direction): List<Pair<Direction, String>> {
+        if (currentMode == KeyboardMode.EMOJI) {
+            return emptyList()
+        }
+
         return processor.getCharactersAtPosition(rightDir, currentMode, currentLayoutType, activeCustomLayout)
     }
 
@@ -379,6 +413,20 @@ class KeyboardStateMachine(
         return if (leftHandedMode) !isLeft else isLeft
     }
 
+    private fun clearTransientInputState() {
+        leftActiveDir = Direction.NONE
+        rightActiveDir = Direction.NONE
+        leftActiveSource = null
+        rightActiveSource = null
+        leftTouchDir = Direction.NONE
+        rightTouchDir = Direction.NONE
+        leftControllerDir = Direction.NONE
+        rightControllerDir = Direction.NONE
+        lockedLeftDir = Direction.NONE
+        isChordExecuted = false
+        cancelBackspaceRepeat(syncWordBufferFromEditor = false)
+    }
+
     private fun fireChord(left: Direction, right: Direction) {
         if (left == Direction.NONE || right == Direction.NONE) return
         isChordExecuted = true
@@ -393,6 +441,7 @@ class KeyboardStateMachine(
         when (currentMode) {
             KeyboardMode.SHIFTED -> currentMode = KeyboardMode.NORMAL
             KeyboardMode.SYMBOLS_SHIFTED -> currentMode = KeyboardMode.SYMBOLS
+            KeyboardMode.EMOJI -> currentMode = preEmojiMode
             else -> { /* stay in current mode */ }
         }
     }
@@ -419,6 +468,7 @@ class KeyboardStateMachine(
                             KeyboardMode.CAPS_LOCKED -> currentMode = KeyboardMode.NORMAL
                             KeyboardMode.SYMBOLS -> currentMode = KeyboardMode.SYMBOLS_SHIFTED
                             KeyboardMode.SYMBOLS_SHIFTED -> currentMode = KeyboardMode.SYMBOLS
+                            KeyboardMode.EMOJI -> currentMode = preEmojiMode
                         }
                     }
                     InputAction.TOGGLE_CAPS -> currentMode = if (currentMode == KeyboardMode.CAPS_LOCKED) KeyboardMode.NORMAL else KeyboardMode.CAPS_LOCKED
@@ -435,6 +485,7 @@ class KeyboardStateMachine(
                             }
                         }
                     }
+                    InputAction.TOGGLE_EMOJI -> toggleEmojiPanel()
                     InputAction.BACKSPACE -> {
                         delegate.sendInputAction(result)
                         onBackspace()
@@ -514,12 +565,12 @@ class KeyboardStateMachine(
         }
     }
 
-    private fun cancelBackspaceRepeat() {
+    private fun cancelBackspaceRepeat(syncWordBufferFromEditor: Boolean = true) {
         val wasActive = backspaceRepeatJob?.isActive == true
         backspaceRepeatJob?.cancel()
         backspaceRepeatJob = null
         backspaceHoldFired = false
-        if (wasActive) {
+        if (wasActive && syncWordBufferFromEditor) {
             syncWordBufferFromEditor()
         }
     }
@@ -567,7 +618,17 @@ class KeyboardStateMachine(
         updateSuggestions()
     }
 
+    private fun suppressSuggestions() {
+        isNextWordMode = false
+        currentSuggestions = emptyList()
+        delegate.onSuggestionsUpdated(currentSuggestions)
+    }
+
     private fun updateSuggestions() {
+        if (currentMode == KeyboardMode.EMOJI) {
+            return
+        }
+
         val prefix = wordBuffer.toString()
         if (prefix.isNotEmpty()) {
             // Currently typing a word — show completions/corrections

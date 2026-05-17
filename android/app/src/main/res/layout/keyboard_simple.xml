@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Top bar: shift indicator (left) | preview/suggestions (center) | settings (right) -->
+        <!-- Top bar: emoji button (left) | preview/suggestions (center) | settings (right) -->
         <FrameLayout
             android:id="@+id/live_preview_container"
             android:layout_width="match_parent"
@@ -17,19 +17,17 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- Shift / Caps Lock indicator — left side -->
             <TextView
-                android:id="@+id/shift_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:id="@+id/btn_emoji"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="4dp"
                 android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingEnd="6dp"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:background="@android:color/transparent"
-                android:visibility="gone"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/settings"
+                android:focusable="true"
                 android:importantForAccessibility="yes" />
 
             <LinearLayout
@@ -54,8 +52,8 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:visibility="gone"
-                android:paddingStart="36dp"
-                android:paddingEnd="36dp">
+                android:paddingStart="44dp"
+                android:paddingEnd="44dp">
 
                 <TextView
                     android:id="@+id/suggestion_label"
@@ -130,25 +128,49 @@
                 android:padding="8dp" />
         </FrameLayout>
 
-        <LinearLayout
+        <FrameLayout
+            android:id="@+id/keyboard_content_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp">
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <com.vatoo.erick.JoystickView
-                android:id="@+id/left_joystick"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.10"
-                android:layout_marginEnd="8dp" />
+            <LinearLayout
+                android:id="@+id/joystick_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp">
 
-            <com.vatoo.erick.JoystickView
-                android:id="@+id/right_joystick"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.00"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
+                <com.vatoo.erick.JoystickView
+                    android:id="@+id/left_joystick"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.10"
+                    android:layout_marginEnd="8dp" />
+
+                <com.vatoo.erick.JoystickView
+                    android:id="@+id/right_joystick"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.00"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/shift_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="28dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="44dp"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:minWidth="36dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textSize="15sp"
+        android:visibility="gone"
+        android:importantForAccessibility="yes" />
 </FrameLayout>

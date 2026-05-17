@@ -41,6 +41,7 @@ class PreferencesManager(private val context: Context) {
         private val ONBOARDING_STEP_KEY = intPreferencesKey("onboarding_step")
         private val PRACTICE_ATTEMPTED_LESSONS_KEY = stringSetPreferencesKey("practice_attempted_lessons")
         private val PRACTICE_COMPLETED_LESSONS_KEY = stringSetPreferencesKey("practice_completed_lessons")
+        private val RECENT_EMOJIS_KEY = stringPreferencesKey("recent_emojis")
 
         const val LAYOUT_LOGICAL = "logical"
         const val LAYOUT_EFFICIENCY = "efficiency"
@@ -198,6 +199,11 @@ class PreferencesManager(private val context: Context) {
             preferences[PRACTICE_COMPLETED_LESSONS_KEY] ?: emptySet()
         }
 
+    val recentEmojis: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[RECENT_EMOJIS_KEY] ?: "[]"
+        }
+
     suspend fun setLayoutType(layoutType: String) {
         context.dataStore.edit { preferences ->
             preferences[LAYOUT_TYPE_KEY] = layoutType
@@ -339,6 +345,12 @@ class PreferencesManager(private val context: Context) {
             val completed = preferences[PRACTICE_COMPLETED_LESSONS_KEY].orEmpty().toMutableSet()
             completed.add(lessonId)
             preferences[PRACTICE_COMPLETED_LESSONS_KEY] = completed
+        }
+    }
+
+    suspend fun setRecentEmojis(serializedRecentEmojis: String) {
+        context.dataStore.edit { preferences ->
+            preferences[RECENT_EMOJIS_KEY] = serializedRecentEmojis
         }
     }
 

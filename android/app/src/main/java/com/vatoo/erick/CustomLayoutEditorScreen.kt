@@ -432,6 +432,7 @@ private fun inputActionDisplayName(action: InputAction, languageKey: String): St
     InputAction.TOGGLE_SHIFT -> erickText(languageKey, "Toggle Shift")
     InputAction.TOGGLE_CAPS -> erickText(languageKey, "Toggle Caps")
     InputAction.TOGGLE_SYMBOLS -> erickText(languageKey, "Toggle Symbols")
+    InputAction.TOGGLE_EMOJI -> erickText(languageKey, "Toggle Emoji")
     InputAction.MOVE_HOME -> erickText(languageKey, "Move Home")
     InputAction.MOVE_END -> erickText(languageKey, "Move End")
     InputAction.DPAD_UP -> erickText(languageKey, "Move Up")
