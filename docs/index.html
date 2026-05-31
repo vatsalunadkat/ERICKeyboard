@@ -1,17 +1,308 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="v1/images/erick-logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ERICK - Controller Keyboard</title>
-    <meta
-      name="description"
-      content="ERICK is an accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls."
-    />
-    <meta http-equiv="refresh" content="0;url=v1/index.html" />
-  </head>
-  <body>
-    <p>Redirecting to <a href="v1/index.html">ERICK</a>...</p>
-  </body>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERICK Keyboard | Accessible Virtual Keyboard for Touch and Controller Typing</title>
+  <meta name="description" content="ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://vatsalunadkat.github.io/ERICKeyboard/" />
+  <meta property="og:site_name" content="ERICK Keyboard" />
+  <meta property="og:title" content="ERICK Keyboard | Accessible Virtual Keyboard for Touch and Controller Typing" />
+  <meta property="og:description" content="ERICK is an accessibility keyboard for Android and iOS with large directional controls, controller typing, offline prediction, and privacy-focused design." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vatsalunadkat.github.io/ERICKeyboard/" />
+  <meta property="og:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
+  <meta property="og:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ERICK Keyboard | Accessible Virtual Keyboard for Touch and Controller Typing" />
+  <meta name="twitter:description" content="An accessible, privacy-focused keyboard for Android and iOS with large touch targets, controller typing, and offline prediction." />
+  <meta name="twitter:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
+  <meta name="twitter:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
+  <meta name="google-site-verification" content="Vgu30YEK0CVFB-y6-_8GqB1U-sBoL0_vpQqNiIjGIeM" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="images/erick-logo.png" type="image/png" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "ERICK Keyboard",
+          "applicationCategory": "AccessibilityApplication",
+          "operatingSystem": "Android, iOS",
+          "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
+          "creator": {
+            "@type": "Person",
+            "name": "Vatsal Unadkat",
+            "url": "https://github.com/vatsalunadkat"
+          },
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+          "softwareVersion": "v2.2.0",
+          "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE"
+        },
+        {
+          "@type": "WebSite",
+          "name": "ERICK Keyboard",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "description": "Website for ERICK, an accessible keyboard for touch and controller typing on Android and iOS.",
+          "publisher": {
+            "@type": "Organization",
+            "name": "ERICK Keyboard Project"
+          }
+        },
+        {
+          "@type": "Organization",
+          "name": "ERICK Keyboard Project",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "logo": "https://vatsalunadkat.github.io/ERICKeyboard/images/erick-logo.png",
+          "founder": {
+            "@type": "Person",
+            "name": "Vatsal Unadkat"
+          }
+        }
+      ]
+    }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/erick-logo.png" alt="ERICK keyboard logo" />
+        ERICK
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="accessibility.html">Accessibility</a></li>
+          <li><a href="who-benefits.html">Who Benefits</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="releases.html">Releases</a></li>
+          <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
+        </ul>
+        <div class="a11y-controls">
+          <button class="a11y-btn" id="font-decrease" aria-label="Decrease font size" title="Decrease font size">A-</button>
+          <button class="a11y-btn" id="font-increase" aria-label="Increase font size" title="Increase font size">A+</button>
+          <button class="a11y-btn" id="dyslexia-toggle" aria-label="Toggle dyslexia-friendly font" title="Toggle dyslexia-friendly font">Dy</button>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <img src="images/erick-logo.png" alt="ERICK keyboard logo" class="hero-logo" />
+      <h1>ERICK accessible keyboard for touch and controller typing</h1>
+      <p class="tagline">ERICK is an accessible keyboard and privacy-focused virtual keyboard for Android and iOS that replaces tiny keys with two large directional controls for touch, controller typing, and gamepad typing across 10 keyboard languages.</p>
+      <div class="hero-buttons">
+        <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" aria-label="Get ERICK on Google Play" target="_blank" rel="noopener">
+          <span class="store-badge-note">Available Now</span>
+          <span class="store-badge-crop store-badge-crop-google">
+            <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+          </span>
+        </a>
+        <a href="releases.html#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
+          <span class="store-badge-note">Coming Soon</span>
+          <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+        </a>
+      </div>
+      <p class="availability-note">Install ERICK on Android from Google Play today. iOS source builds are available from the repository, and the iOS App Store release is coming soon.</p>
+    </section>
+
+    <div class="section-alt">
+      <section class="section section-centered" id="about">
+        <h2>What ERICK is</h2>
+        <p class="section-subtitle">
+          ERICK is a virtual keyboard and assistive technology project for Android and iOS. Instead of asking the user to tap rows of tiny keys,
+          it uses two large directional controls. Move the left and right controls together and ERICK turns that pair of directions
+          into a letter, number, symbol, or command.
+        </p>
+        <div class="demo-grid demo-grid--four-up">
+          <div class="demo-item">
+            <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quick Type touch input">
+              <source src="documentation/demo%20files/0.7.4-beta_quick_type_input_mode.mp4" type="video/mp4" />
+            </video>
+            <p>Quick Type touch input</p>
+          </div>
+          <div class="demo-item">
+            <video autoplay muted loop playsinline preload="metadata" data-media-caption="One-Handed touch input">
+              <source src="documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.mp4" type="video/mp4" />
+            </video>
+            <p>One-Handed touch input</p>
+          </div>
+          <div class="demo-item">
+            <video autoplay muted loop playsinline preload="metadata" data-media-caption="Controller-based typing">
+              <source src="documentation/demo%20files/v1.0_android_controller.mp4" type="video/mp4" />
+            </video>
+            <p>Controller-based typing</p>
+          </div>
+          <div class="demo-item">
+            <video autoplay muted loop playsinline preload="metadata" data-media-caption="Alternative input without tiny keys">
+              <source src="documentation/demo%20files/v1.2_controller_using_fists.mp4" type="video/mp4" />
+            </video>
+            <p>Alternative input without tiny keys</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section section-centered" id="who-it-is-for">
+      <h2>Who ERICK is for</h2>
+      <p class="section-subtitle">ERICK is built first for people who struggle with standard touch keyboards, especially for motor accessibility, but it can help many more users too.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon">♿</div>
+          <h3>Physical disability support</h3>
+          <p>Large touch targets and controller support can help users with limited dexterity, tremors, repetitive strain injuries, or difficulty reaching rows of small keys.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🧠</div>
+          <h3>Cognitive and reading support</h3>
+          <p>A predictable A-Z layout, dyslexia-friendly fonts, and simplified input can reduce cognitive load for users who find standard keyboards overwhelming.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">👤</div>
+          <h3>Everyday and general use</h3>
+          <p>Fewer mistaps on small screens, controller-based typing for TVs and consoles, and fully offline privacy make ERICK useful for anyone.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-alt">
+      <section class="section section-centered" id="how-it-works">
+        <h2>How the accessible keyboard works</h2>
+        <p class="section-subtitle">ERICK keeps text entry simple: choose a group, choose a character, type.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Choose a group</h3>
+            <p>Swipe the left dial in a direction to select a character group such as A-E or F-J.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Choose a character</h3>
+            <p>Swipe the right dial to select the specific character within that group.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Type</h3>
+            <p>Both directions combine into a chord, the character appears instantly, and offline word predictions update in real time.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="section-alt">
+      <section class="section section-centered" id="features">
+        <h2>Key features</h2>
+        <p class="section-subtitle">Built from the ground up for accessibility, controller typing, and privacy-focused text entry.</p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="icon">🎯</div>
+            <h3>Dual-dial chord input</h3>
+            <p>Two radial dials combine to form character chords. Every character requires equal effort, so there is no need to reach for tiny keys.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🎨</div>
+            <h3>Multiple layouts</h3>
+            <p>Choose from Logical (A-Z), Efficiency (frequency-optimized), or create your own custom layout.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">💬</div>
+            <h3>Offline word prediction</h3>
+            <p>Always-on suggestions with autocorrect, next-word predictions, smart spacing, and per-language learned profiles all run on-device.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🎮</div>
+            <h3>Controller and gamepad typing</h3>
+            <p>Plug in a physical gaming controller and use its analog sticks for text input on phones, tablets, TVs, and couch setups.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">♿</div>
+            <h3>Accessibility first</h3>
+            <p>Colorblind palettes, left-handed mode, dyslexia-friendly fonts, one-handed typing, and large touch targets support motor accessibility and clearer reading.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🌍</div>
+            <h3>10 language profiles</h3>
+            <p>Switch between English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish with matching localized UI.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">⚡</div>
+            <h3>Three input modes</h3>
+            <p>Quick Type for speed, Steady Type for precision, and One-Handed mode that locks a direction so you can type with a single thumb.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🎯</div>
+            <h3>Typing practice</h3>
+            <p>Built-in lessons and quote practice help new users learn chord combinations at their own pace.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon">🔒</div>
+            <h3>Privacy-focused keyboard</h3>
+            <p>Zero data collection, no internet permission for typing, and fully offline processing keep every keystroke on your device.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section">
+      <div class="oss-banner">
+        <h2>Research-informed and source available</h2>
+        <p>
+          ERICK is a source-available accessibility keyboard informed by research into chorded keyboards, ergonomic text entry,
+          motor accessibility, and assistive technology. The project is built in the open on GitHub.
+        </p>
+        <div class="oss-buttons">
+          <a href="https://github.com/vatsalunadkat/ERICKeyboard" class="btn btn-primary" target="_blank" rel="noopener">
+            View on GitHub
+          </a>
+          <a href="releases.html" class="btn btn-secondary">
+            View Releases
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="accessibility.html">Accessibility</a></li>
+      <li><a href="who-benefits.html">Who Benefits</a></li>
+      <li><a href="privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="releases.html">Releases</a></li>
+      <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
+    </ul>
+    <div class="footer-availability">
+      <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" target="_blank" rel="noopener" aria-label="Get ERICK on Google Play">
+        <span class="store-badge-note">Available Now</span>
+        <span class="store-badge-crop store-badge-crop-google">
+          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+        </span>
+      </a>
+      <a href="releases.html#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
+        <span class="store-badge-note">Coming Soon</span>
+        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+      </a>
+    </div>
+    <div class="footer-dev">
+      <p>Developed by <strong>Vatsal Unadkat</strong></p>
+      <div class="footer-social">
+        <a href="https://github.com/vatsalunadkat" target="_blank" rel="noopener" aria-label="GitHub profile">GitHub</a>
+        <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener" aria-label="LinkedIn profile">LinkedIn</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Controller Keyboard. All rights reserved.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
 </html>

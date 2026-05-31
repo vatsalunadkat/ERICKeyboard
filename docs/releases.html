@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERICK Keyboard Releases | Version History, Supported Platforms, and Roadmap</title>
+  <meta name="description" content="Browse ERICK keyboard release notes, current Android availability, iOS status, accessibility milestones, supported platforms, and the product roadmap." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://vatsalunadkat.github.io/ERICKeyboard/releases.html" />
+  <meta property="og:site_name" content="ERICK Keyboard" />
+  <meta property="og:title" content="ERICK Keyboard Releases | Version History, Supported Platforms, and Roadmap" />
+  <meta property="og:description" content="Track ERICK releases from prototype to cross-platform accessible keyboard, including Android Google Play availability and upcoming iOS milestones." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vatsalunadkat.github.io/ERICKeyboard/releases.html" />
+  <meta property="og:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
+  <meta property="og:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ERICK Keyboard Releases | Version History, Supported Platforms, and Roadmap" />
+  <meta name="twitter:description" content="Follow ERICK release notes, Android and iOS status, accessibility improvements, and roadmap updates." />
+  <meta name="twitter:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
+  <meta name="twitter:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="images/erick-logo.png" type="image/png" />
+  <style>
+    .releases-hero { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+    .releases-hero h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    .releases-hero p { color: var(--text-secondary); max-width: 640px; margin: 0 auto 1.4rem; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .stat-card {
+      background: var(--mint-light);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      text-align: center;
+    }
+    .stat-card .stat-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); }
+    .stat-card .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .timeline { max-width: 780px; margin: 0 auto; padding: 0 1rem 3rem; }
+    .release-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .release-card.latest { border: 2px solid var(--purple-primary); }
+    .release-card.latest::before {
+      content: "Latest";
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      background: var(--purple-primary);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 10px;
+      border-radius: 999px;
+    }
+    .release-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .release-version {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--lavender-light);
+      color: var(--purple-deep);
+      padding: 2px 10px;
+      border-radius: 999px;
+    }
+    .release-date { font-size: 0.85rem; color: var(--text-muted); }
+    .release-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary); }
+
+    .milestones { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+    .milestone-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--sky-light);
+      color: var(--text-secondary);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .release-features { list-style: none; padding: 0; }
+    .release-features li {
+      position: relative;
+      padding-left: 1.2rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .release-features li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--mint);
+      font-weight: 700;
+    }
+
+    .release-media {
+      --release-media-min: 170px;
+      --release-media-max-height: 360px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(var(--release-media-min), 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+      align-items: stretch;
+    }
+    .release-media--single {
+      grid-template-columns: minmax(0, min(280px, 100%));
+      justify-content: center;
+    }
+    .release-media--four-up {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .release-media--landscape {
+      --release-media-max-height: 220px;
+    }
+    .release-media--compact {
+      --release-media-min: 150px;
+      --release-media-max-height: 280px;
+    }
+    .release-media img,
+    .release-media video {
+      width: 100%;
+      max-height: var(--release-media-max-height);
+      height: auto;
+      object-fit: contain;
+      object-position: center;
+      background: var(--card-bg);
+      box-sizing: border-box;
+      padding: 0.35rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: block;
+    }
+    .release-media img:hover,
+    .release-media video:hover { transform: scale(1.03); }
+
+    @media (max-width: 768px) {
+      .release-media--four-up {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .release-media--four-up,
+      .release-media--landscape {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .roadmap-section { background: var(--lavender-light); padding: 2.5rem 1rem; text-align: center; }
+    .roadmap-section h2 { margin-bottom: 0.5rem; }
+    .roadmap-section .subtitle { color: var(--text-muted); margin-bottom: 1.5rem; }
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .roadmap-card {
+      background: var(--card-bg);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: left;
+    }
+    .roadmap-card .roadmap-version {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--peach-light);
+      color: var(--text-secondary);
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+    .roadmap-card h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+    .roadmap-card ul { list-style: none; padding: 0; }
+    .roadmap-card ul li {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      padding-left: 1.2rem;
+      position: relative;
+      margin-bottom: 0.3rem;
+    }
+    .roadmap-card ul li::before {
+      content: "○";
+      position: absolute;
+      left: 0;
+      color: var(--peach);
+    }
+
+    .gh-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+    }
+  </style>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ERICK Keyboard",
+      "applicationCategory": "AccessibilityApplication",
+      "operatingSystem": "Android, iOS",
+      "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
+      "creator": {
+        "@type": "Person",
+        "name": "Vatsal Unadkat",
+        "url": "https://github.com/vatsalunadkat"
+      },
+      "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+      "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+      "softwareVersion": "v2.2.0",
+      "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE"
+    }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/erick-logo.png" alt="ERICK keyboard logo" />
+        ERICK
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="accessibility.html">Accessibility</a></li>
+          <li><a href="who-benefits.html">Who Benefits</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="releases.html" class="active">Releases</a></li>
+          <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
+        </ul>
+        <div class="a11y-controls">
+          <button class="a11y-btn" id="font-decrease" aria-label="Decrease font size" title="Decrease font size">A-</button>
+          <button class="a11y-btn" id="font-increase" aria-label="Increase font size" title="Increase font size">A+</button>
+          <button class="a11y-btn" id="dyslexia-toggle" aria-label="Toggle dyslexia-friendly font" title="Toggle dyslexia-friendly font">Dy</button>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="releases-hero">
+      <h1>ERICK keyboard releases and roadmap</h1>
+      <p>ERICK began as a research-driven idea and grew into a cross-platform keyboard focused on accessibility, controller input, lower-effort typing, and privacy-focused text entry on Android and iOS.</p>
+      <div class="hero-buttons">
+        <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" aria-label="Get ERICK on Google Play" target="_blank" rel="noopener">
+          <span class="store-badge-note">v2.2.0</span>
+          <span class="store-badge-crop store-badge-crop-google">
+            <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+          </span>
+        </a>
+        <a href="#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
+          <span class="store-badge-note">Coming Soon</span>
+          <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+        </a>
+      </div>
+    </section>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">9</div><div class="stat-label">Releases</div></div>
+      <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Platforms</div></div>
+      <div class="stat-card"><div class="stat-value">7+</div><div class="stat-label">Color Palettes</div></div>
+      <div class="stat-card"><div class="stat-value">0</div><div class="stat-label">Data Collected</div></div>
+    </div>
+
+    <div class="timeline">
+      <div class="release-card latest">
+        <div class="release-header">
+          <span class="release-version">v2.2.0</span>
+          <span class="release-date">Current release</span>
+        </div>
+        <div class="release-title">Emoji Keyboard, Emoticons, and Stable Panel Layout</div>
+        <div class="milestones">
+          <span class="milestone-tag">Emoji Mode</span>
+          <span class="milestone-tag">Skin Tones</span>
+          <span class="milestone-tag">Emoticons</span>
+          <span class="milestone-tag">Floating Badge</span>
+        </div>
+        <ul class="release-features">
+          <li>Android and iOS now ship a shared-catalog-backed emoji keyboard with 11 Unicode and CLDR tabs, a built-in emoticons tab, long-press skin tones, and 32 recent entries</li>
+          <li>The preview-row left slot now switches between 😀 and ABC, while the mode indicator lives in a floating badge below the top bar without increasing keyboard height</li>
+          <li>Android skin-tone long-press no longer triggers a transient keyboard minimize and maximize cycle before showing tone variants</li>
+          <li>The emoji panel now keeps the same overall keyboard-height footprint as the main dial keyboard and keeps the category row visually separated from the scrolling emoji grid</li>
+          <li>The iOS emoji grid now adapts its column count more defensively across narrower and wider screen sizes instead of assuming one fixed width</li>
+          <li>Public docs, diagrams, and release notes were refreshed for the v2.2.0 rollout</li>
+        </ul>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v2.0.0</span>
+          <span class="release-date">April 30, 2026</span>
+        </div>
+        <div class="release-title">Shared Language Profiles, Localized UI, and Prediction Isolation</div>
+        <div class="milestones">
+          <span class="milestone-tag">10 Languages</span>
+          <span class="milestone-tag">Localized UI</span>
+          <span class="milestone-tag">Prediction Profiles</span>
+          <span class="milestone-tag">Practice</span>
+        </div>
+        <ul class="release-features">
+          <li>Selectable keyboard-language profiles now ship for English, Spanish, Portuguese, French, German, Italian, Norwegian Bokmal, Danish, Swedish, and Finnish</li>
+          <li>Settings, quickstart, practice lessons, help content, quote practice, and Android controller diagnostics now follow the active keyboard language</li>
+          <li>Per-language prediction resources and learned history stay isolated, so switching languages does not overwrite your existing suggestions</li>
+          <li>Language-aware logical-first layouts now stay aligned across both 8-section and 6-section modes while preserving shipped utility-wheel behavior</li>
+          <li>Public docs, website messaging, and release notes were refreshed for the v2.0 Google Play rollout</li>
+        </ul>
+        <div class="release-media release-media--compact">
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quote practice and lessons demo">
+            <source src="documentation/demo%20files/v0.5.1-alpha_quotes_game.mp4" type="video/mp4" />
+          </video>
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Alternative controller typing demo">
+            <source src="documentation/demo%20files/v1.2_controller_using_fists.mp4" type="video/mp4" />
+          </video>
+          <img src="documentation/demo%20files/v1.2_six_dial_mode.png" alt="Current 6-section dial mode screenshot" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v1.0</span>
+          <span class="release-date">April 2026</span>
+        </div>
+        <div class="release-title">Google Play Launch and 6-Section Dial Mode</div>
+        <div class="milestones">
+          <span class="milestone-tag">Google Play</span>
+          <span class="milestone-tag">6-Section Dial</span>
+          <span class="milestone-tag">Symbols Mode</span>
+          <span class="milestone-tag">Accessibility</span>
+        </div>
+        <ul class="release-features">
+          <li>Android production release is now live on Google Play</li>
+          <li>6-section dial mode adds a 36-slot chord grid with larger 60-degree segments</li>
+          <li>Rotated 6-section utility wheel maps NE to Shift, SE to Space, S to Period, SW to Enter, NW to Backspace, and N to Symbols</li>
+          <li>Symbols mode and 6-color palette variants ship on both Android and iOS builds</li>
+          <li>Fresh-install sync and haptic and sound tuning improved the release experience</li>
+          <li>iOS App Store release is next; source and development builds remain available today</li>
+        </ul>
+        <div class="release-media release-media--compact">
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Android controller typing demo">
+            <source src="documentation/demo%20files/v1.0_android_controller.mp4" type="video/mp4" />
+          </video>
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Alternative controller typing demo">
+            <source src="documentation/demo%20files/v1.2_controller_using_fists.mp4" type="video/mp4" />
+          </video>
+          <img src="documentation/demo%20files/v1.2_six_dial_mode.png" alt="6-section dial mode screenshot" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v0.7.4-beta</span>
+          <span class="release-date">March 2026</span>
+        </div>
+        <div class="release-title">Input Modes, Custom Colors, and Haptic Feedback</div>
+        <div class="milestones">
+          <span class="milestone-tag">Input Modes</span>
+          <span class="milestone-tag">One-Handed Typing</span>
+          <span class="milestone-tag">Custom Color Palettes</span>
+          <span class="milestone-tag">Haptic Feedback</span>
+          <span class="milestone-tag">Typing Sounds</span>
+        </div>
+        <ul class="release-features">
+          <li>Three input modes: Quick Type (rapid fire), Steady Type (one chord per hold), and One-Handed (lock left dial, swipe right)</li>
+          <li>Custom color palette editor with HSV sliders (Android) and native ColorPicker (iOS) for full 8-color personalization</li>
+          <li>Haptic feedback with intensity levels for utility keys vs. letters, plus soft typing sounds</li>
+          <li>Fixed pastel palette icon contrast for right-dial utility icons</li>
+          <li>Removed React SPA, replaced with lightweight static HTML, CSS, and JS site</li>
+          <li>Fixed CORS vulnerability in research prototype dependency</li>
+          <li>iOS controller support fix and UI polish across both platforms</li>
+        </ul>
+        <div class="release-media release-media--compact">
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quick Type input mode demo">
+            <source src="documentation/demo%20files/0.7.4-beta_quick_type_input_mode.mp4" type="video/mp4" />
+          </video>
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Steady Type input mode demo">
+            <source src="documentation/demo%20files/0.7.4-beta_steady_type_input_mode.mp4" type="video/mp4" />
+          </video>
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="One-Handed input mode demo">
+            <source src="documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v0.5.1-alpha</span>
+          <span class="release-date">March 28, 2026</span>
+        </div>
+        <div class="release-title">Custom Layouts and Typing Game</div>
+        <div class="milestones">
+          <span class="milestone-tag">Custom Layouts</span>
+          <span class="milestone-tag">Typing Game</span>
+          <span class="milestone-tag">ProGuard</span>
+          <span class="milestone-tag">Privacy</span>
+        </div>
+        <ul class="release-features">
+          <li>Create, edit, and save custom keyboard layouts with full chord mapping</li>
+          <li>Built-in typing practice game with curated quotes, WPM tracking, and accuracy stats</li>
+          <li>ProGuard code shrinking and resource optimization for smaller APK size</li>
+          <li>AD_ID opt-out for stronger user privacy guarantees</li>
+          <li>React website with releases timeline and accessibility documentation</li>
+        </ul>
+        <div class="release-media release-media--single">
+          <video autoplay muted loop playsinline preload="metadata" data-media-caption="Quote practice game demo">
+            <source src="documentation/demo%20files/v0.5.1-alpha_quotes_game.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v0.4.2-alpha</span>
+          <span class="release-date">March 21, 2026</span>
+        </div>
+        <div class="release-title">Controller Support and Word Prediction</div>
+        <div class="milestones">
+          <span class="milestone-tag">Gaming Controllers</span>
+          <span class="milestone-tag">Word Prediction Engine</span>
+          <span class="milestone-tag">Accelerating Backspace</span>
+          <span class="milestone-tag">Collapsible Settings</span>
+        </div>
+        <ul class="release-features">
+          <li>Full DualShock 4, 8BitDo, and Bluetooth game controller support on Android and iOS</li>
+          <li>Cross-platform word suggestion engine with up to 3 real-time suggestions</li>
+          <li>Autocorrect and next-word prediction, all offline and with no data sent anywhere</li>
+          <li>Hold-to-delete accelerating backspace matching native keyboard behavior</li>
+          <li>Accordion-style collapsible settings menu on both platforms</li>
+          <li>Translated all code comments to English across 6 source files</li>
+        </ul>
+        <div class="release-media release-media--four-up release-media--compact">
+          <img src="documentation/demo%20files/v0.4.2-alpha_iOS_typing.gif" alt="iOS typing demo" loading="lazy" />
+          <img src="documentation/demo%20files/v0.4.2-alpha_iOS_controller_support.gif" alt="iOS controller support" loading="lazy" />
+          <img src="documentation/demo%20files/v0.4.2-alpha_Android_dyslexia_font_reddit.jpg" alt="Dyslexia-friendly font on Reddit in ERICK" loading="lazy" />
+          <img src="documentation/demo%20files/v0.4.2-alpha_Android_pastel_colors_dark_mode_gmail.jpg" alt="Pastel color palette in dark mode on Gmail" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v0.3.2-alpha</span>
+          <span class="release-date">March 14, 2026</span>
+        </div>
+        <div class="release-title">Radial Dial UI and iOS Launch</div>
+        <div class="milestones">
+          <span class="milestone-tag">Radial Dial UI</span>
+          <span class="milestone-tag">Live Preview</span>
+          <span class="milestone-tag">Efficiency Layout</span>
+          <span class="milestone-tag">iOS Full Support</span>
+        </div>
+        <ul class="release-features">
+          <li>Completely overhauled joystick interface with radial dials and 8-segment blocks</li>
+          <li>Live character preview bar showing color-coded characters as you swipe</li>
+          <li>New frequency-optimized Efficiency layout alongside the Logical layout</li>
+          <li>iOS radial keyboard UI redesigned to match Android experience</li>
+          <li>Full iOS onboarding flow with step-by-step color-synced setup</li>
+          <li>Shared App Group preferences keep iOS host app and keyboard extension in sync</li>
+        </ul>
+        <div class="release-media release-media--compact">
+          <img src="documentation/demo%20files/v0.3.2-alpha_Android_pastel.jpg" alt="Android pastel theme for ERICK" loading="lazy" />
+          <img src="documentation/demo%20files/v0.3.2-alpha_Android_pastel_2.jpg" alt="Alternate Android pastel theme for ERICK" loading="lazy" />
+          <img src="documentation/demo%20files/v0.3.2-alpha_iOS.png" alt="iOS ERICK keyboard screenshot" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v0.2.1-alpha</span>
+          <span class="release-date">March 7, 2026</span>
+        </div>
+        <div class="release-title">Kotlin Multiplatform and Redesign</div>
+        <div class="milestones">
+          <span class="milestone-tag">KMP Architecture</span>
+          <span class="milestone-tag">Material 3 Design</span>
+          <span class="milestone-tag">Onboarding Guide</span>
+          <span class="milestone-tag">Professional Branding</span>
+        </div>
+        <ul class="release-features">
+          <li>Cross-platform keyboard logic with Kotlin Multiplatform ready for iOS</li>
+          <li>Step-by-step onboarding guide with real-time status indicators</li>
+          <li>Material 3 settings redesign with 4 organized sections</li>
+          <li>ERICK logo and consistent branding throughout</li>
+          <li>Larger joysticks, cleaner layout, and optimized touch targets</li>
+        </ul>
+        <div class="release-media release-media--landscape">
+          <img src="documentation/demo%20files/v0.2.1a_typing_demo.gif" alt="ERICK typing demo" loading="lazy" />
+          <img src="documentation/demo%20files/v0.2.1a_user_onboarding.gif" alt="ERICK onboarding guide demo" loading="lazy" />
+        </div>
+      </div>
+
+      <div class="release-card">
+        <div class="release-header">
+          <span class="release-version">v0.1.7-alpha</span>
+          <span class="release-date">July 8, 2022</span>
+        </div>
+        <div class="release-title">The beginning: Android prototype</div>
+        <div class="milestones">
+          <span class="milestone-tag">First Release</span>
+          <span class="milestone-tag">Android 12</span>
+          <span class="milestone-tag">Controller Detection</span>
+          <span class="milestone-tag">Chord Input</span>
+        </div>
+        <ul class="release-features">
+          <li>Initial Android keyboard with dual-joystick chord input system</li>
+          <li>Support for Android 12 with controller detection</li>
+          <li>Touch-based swipe typing and physical controller typing</li>
+          <li>Hands-free typing capability demonstrated</li>
+          <li>Foundation for the current ERICK project</li>
+        </ul>
+        <div class="release-media release-media--landscape">
+          <img src="documentation/demo%20files/v0.1.7_swipe_input.gif" alt="Swipe input demo from early ERICK prototype" loading="lazy" />
+          <img src="documentation/demo%20files/v0.1.7_controller.gif" alt="Controller input demo from early ERICK prototype" loading="lazy" />
+          <img src="documentation/demo%20files/v0.1.7_no_hands%20type.gif" alt="Hands-free typing demo from early ERICK prototype" loading="lazy" />
+        </div>
+      </div>
+
+      <a href="https://github.com/vatsalunadkat/ERICKeyboard/releases" class="btn btn-secondary gh-link" target="_blank" rel="noopener">
+        View all releases on GitHub →
+      </a>
+    </div>
+
+    <div class="roadmap-section">
+      <span style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--peach);">Roadmap</span>
+      <h2>What's coming next</h2>
+      <div class="roadmap-grid">
+        <div class="roadmap-card">
+          <span class="roadmap-version">Beyond v2.2</span>
+          <h3>Next priorities</h3>
+          <ul>
+            <li>Non-English Efficiency layouts and broader language or script support</li>
+            <li>Improved word prediction and user dictionaries</li>
+            <li>Typing analytics and improvement tracking</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <span class="roadmap-version" id="ios-coming-soon">iOS</span>
+          <h3>App Store release</h3>
+          <ul>
+            <li>App Store listing and review-ready metadata</li>
+            <li>Final packaging and onboarding polish for public iOS distribution</li>
+            <li>Parity validation across current iPhone and iPad hardware</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <span class="roadmap-version">Release quality</span>
+          <h3>Hardening</h3>
+          <ul>
+            <li>Localized copy maintenance as new app surfaces ship</li>
+            <li>Improved word prediction and user dictionaries</li>
+            <li>Broader cross-platform validation for controller, accessibility, and learning flows</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="accessibility.html">Accessibility</a></li>
+      <li><a href="who-benefits.html">Who Benefits</a></li>
+      <li><a href="privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="releases.html">Releases</a></li>
+      <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
+    </ul>
+    <div class="footer-availability">
+      <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" target="_blank" rel="noopener" aria-label="Get ERICK on Google Play">
+        <span class="store-badge-note">v2.2.0</span>
+        <span class="store-badge-crop store-badge-crop-google">
+          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+        </span>
+      </a>
+      <a href="#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
+        <span class="store-badge-note">Coming Soon</span>
+        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+      </a>
+    </div>
+    <div class="footer-dev">
+      <p>Developed by <strong>Vatsal Unadkat</strong></p>
+      <div class="footer-social">
+        <a href="https://github.com/vatsalunadkat" target="_blank" rel="noopener" aria-label="GitHub profile">GitHub</a>
+        <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener" aria-label="LinkedIn profile">LinkedIn</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Controller Keyboard. All rights reserved.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

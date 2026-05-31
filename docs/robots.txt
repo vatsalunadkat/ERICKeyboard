@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vatsalunadkat.github.io/ERICKeyboard/sitemap.xml

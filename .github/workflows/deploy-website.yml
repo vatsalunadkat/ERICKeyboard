@@ -34,13 +34,17 @@ jobs:
           cp docs/index.html deploy/
           cp docs/404.html deploy/ || true
           cp docs/.nojekyll deploy/ || true
+          cp docs/robots.txt deploy/ || true
+          cp docs/sitemap.xml deploy/ || true
           cp -r docs/v1 deploy/v1 || true
           cp -r docs/images deploy/images || true
           cp -r docs/documentation deploy/documentation || true
           cp -r docs/css deploy/css || true
           cp -r docs/js deploy/js || true
           cp docs/accessibility.html deploy/ || true
+          cp docs/who-benefits.html deploy/ || true
           cp docs/privacy-policy.html deploy/ || true
+          cp docs/releases.html deploy/ || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

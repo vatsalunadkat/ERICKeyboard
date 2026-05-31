@@ -1,13 +1,296 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0;url=v1/accessibility.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ERICK Accessibility</title>
-    <meta name="description" content="Redirecting to the latest ERICK accessibility page." />
-  </head>
-  <body>
-    <p>Redirecting to <a href="v1/accessibility.html">ERICK Accessibility</a>...</p>
-  </body>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERICK Accessibility Features | Motor-Friendly Keyboard and Controller Typing</title>
+  <meta name="description" content="Explore ERICK accessibility features including large touch targets, controller typing, dyslexia-friendly fonts, colorblind-safe palettes, one-handed mode, and offline prediction." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://vatsalunadkat.github.io/ERICKeyboard/accessibility.html" />
+  <meta property="og:site_name" content="ERICK Keyboard" />
+  <meta property="og:title" content="ERICK Accessibility Features | Motor-Friendly Keyboard and Controller Typing" />
+  <meta property="og:description" content="Large directional controls, controller typing, one-handed input, readable visuals, and offline predictions make ERICK an accessibility-first keyboard." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vatsalunadkat.github.io/ERICKeyboard/accessibility.html" />
+  <meta property="og:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
+  <meta property="og:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ERICK Accessibility Features | Motor-Friendly Keyboard and Controller Typing" />
+  <meta name="twitter:description" content="See how ERICK supports motor accessibility, controller typing, readable layouts, one-handed input, and privacy-focused offline text entry." />
+  <meta name="twitter:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
+  <meta name="twitter:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="images/erick-logo.png" type="image/png" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ERICK Keyboard",
+      "applicationCategory": "AccessibilityApplication",
+      "operatingSystem": "Android, iOS",
+      "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
+      "creator": {
+        "@type": "Person",
+        "name": "Vatsal Unadkat",
+        "url": "https://github.com/vatsalunadkat"
+      },
+      "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+      "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+      "softwareVersion": "v2.2.0",
+      "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE"
+    }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/erick-logo.png" alt="ERICK keyboard logo" />
+        ERICK
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="accessibility.html" class="active">Accessibility</a></li>
+          <li><a href="who-benefits.html">Who Benefits</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="releases.html">Releases</a></li>
+          <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
+        </ul>
+        <div class="a11y-controls">
+          <button class="a11y-btn" id="font-decrease" aria-label="Decrease font size" title="Decrease font size">A-</button>
+          <button class="a11y-btn" id="font-increase" aria-label="Increase font size" title="Increase font size">A+</button>
+          <button class="a11y-btn" id="dyslexia-toggle" aria-label="Toggle dyslexia-friendly font" title="Toggle dyslexia-friendly font">Dy</button>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="a11y-hero">
+    <h1>Accessibility features for motor access, readable layouts, and controller typing</h1>
+    <p>
+      ERICK is an accessibility keyboard designed to reduce typing effort with large directional controls, controller support,
+      readable visuals, and flexible layouts for Android and iOS.
+    </p>
+  </section>
+
+  <main class="a11y-section">
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">🎨</div>
+      <div class="a11y-feature-content">
+        <h2>Colorblind support</h2>
+        <p>
+          ERICK uses color to distinguish the 8 directional segments on each dial. For users with color
+          vision deficiency, six carefully designed palettes ensure every direction remains visually
+          distinguishable. You can also create a fully custom palette.
+        </p>
+        <div class="palette-swatches">
+          <div class="swatch-group">
+            <div class="swatch-colors">
+              <div class="swatch" style="background:#E60012" title="N - Red"></div>
+              <div class="swatch" style="background:#F39800" title="NE - Orange"></div>
+              <div class="swatch" style="background:#FFF100" title="E - Yellow"></div>
+              <div class="swatch" style="background:#009944" title="SE - Green"></div>
+              <div class="swatch" style="background:#0068B7" title="S - Blue"></div>
+              <div class="swatch" style="background:#1D2088" title="SW - Indigo"></div>
+              <div class="swatch" style="background:#920783" title="W - Violet"></div>
+              <div class="swatch" style="background:#000000" title="NW - Black"></div>
+            </div>
+            <span>Default</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-colors">
+              <div class="swatch" style="background:#E69F00" title="N - Orange"></div>
+              <div class="swatch" style="background:#56B4E9" title="NE - Sky Blue"></div>
+              <div class="swatch" style="background:#009E73" title="E - Bluish Green"></div>
+              <div class="swatch" style="background:#F0E442" title="SE - Yellow"></div>
+              <div class="swatch" style="background:#0072B2" title="S - Blue"></div>
+              <div class="swatch" style="background:#D55E00" title="SW - Vermillion"></div>
+              <div class="swatch" style="background:#CC79A7" title="W - Reddish Purple"></div>
+              <div class="swatch" style="background:#000000" title="NW - Black"></div>
+            </div>
+            <span>Okabe-Ito</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-colors">
+              <div class="swatch" style="background:#0072B2" title="N - Blue"></div>
+              <div class="swatch" style="background:#E69F00" title="NE - Orange"></div>
+              <div class="swatch" style="background:#56B4E9" title="E - Light Blue"></div>
+              <div class="swatch" style="background:#F0E442" title="SE - Yellow"></div>
+              <div class="swatch" style="background:#CC3311" title="S - Dark Red"></div>
+              <div class="swatch" style="background:#009988" title="SW - Teal"></div>
+              <div class="swatch" style="background:#EE7733" title="W - Pink"></div>
+              <div class="swatch" style="background:#000000" title="NW - Black"></div>
+            </div>
+            <span>Deuteranopia</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-colors">
+              <div class="swatch" style="background:#0077BB" title="N - Blue"></div>
+              <div class="swatch" style="background:#33BBEE" title="NE - Cyan"></div>
+              <div class="swatch" style="background:#009988" title="E - Teal"></div>
+              <div class="swatch" style="background:#EE7733" title="SE - Yellow"></div>
+              <div class="swatch" style="background:#CC3311" title="S - Orange"></div>
+              <div class="swatch" style="background:#EE3377" title="SW - Magenta"></div>
+              <div class="swatch" style="background:#BBBBBB" title="W - Grey"></div>
+              <div class="swatch" style="background:#000000" title="NW - Black"></div>
+            </div>
+            <span>Protanopia</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-colors">
+              <div class="swatch" style="background:#CC3311" title="N - Red"></div>
+              <div class="swatch" style="background:#0077BB" title="NE - Blue"></div>
+              <div class="swatch" style="background:#EECC66" title="E - Yellow"></div>
+              <div class="swatch" style="background:#33BBEE" title="SE - Cyan"></div>
+              <div class="swatch" style="background:#EE3377" title="S - Magenta"></div>
+              <div class="swatch" style="background:#009988" title="SW - Teal"></div>
+              <div class="swatch" style="background:#BBBBBB" title="W - Grey"></div>
+              <div class="swatch" style="background:#000000" title="NW - Black"></div>
+            </div>
+            <span>Tritanopia</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-colors">
+              <div class="swatch" style="background:#F4A6B0" title="N - Rose"></div>
+              <div class="swatch" style="background:#F6C9A0" title="NE - Peach"></div>
+              <div class="swatch" style="background:#FDE9A0" title="E - Lemon"></div>
+              <div class="swatch" style="background:#A8DFC0" title="SE - Mint"></div>
+              <div class="swatch" style="background:#A0C4E8" title="S - Sky"></div>
+              <div class="swatch" style="background:#C4A8D8" title="SW - Lavender"></div>
+              <div class="swatch" style="background:#D8A8C8" title="W - Lilac"></div>
+              <div class="swatch" style="background:#8B8B8B" title="NW - Slate"></div>
+            </div>
+            <span>Pastel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">🤚</div>
+      <div class="a11y-feature-content">
+        <h2>Left-handed mode</h2>
+        <p>
+          Toggle left-handed mode to swap the two dials entirely. Left-hand dominant users get a mirrored
+          layout where the primary selection dial sits on their strong side, reducing fatigue and improving accuracy.
+        </p>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">📖</div>
+      <div class="a11y-feature-content">
+        <h2>Dyslexia-friendly fonts</h2>
+        <p>
+          Enable the OpenDyslexic font option in ERICK's settings. This typeface uses weighted letter
+          bottoms and unique shapes to reduce visual confusion, making labels and text previews easier to read.
+        </p>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">🕹️</div>
+      <div class="a11y-feature-content">
+        <h2>Motor accessibility</h2>
+        <p>
+          ERICK replaces dozens of small keys with two large directional targets. Full physical controller
+          support means users who cannot interact with touchscreens can still type comfortably using a
+          gamepad's analog sticks.
+        </p>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">⚡</div>
+      <div class="a11y-feature-content">
+        <h2>Equal-effort input</h2>
+        <p>
+          Every character requires exactly two movements, one on each dial. There is no reaching, no
+          stretching, and no hunting for keys. This consistent effort reduces repetitive strain and makes
+          typing sustainable over longer sessions.
+        </p>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">💬</div>
+      <div class="a11y-feature-content">
+        <h2>Word prediction and autocorrect</h2>
+        <p>
+          Always-on word suggestions reduce the number of chords needed per sentence. ERICK offers
+          completions, spelling corrections, and next-word predictions, and every prediction runs fully offline with zero data collection.
+        </p>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">🤲</div>
+      <div class="a11y-feature-content">
+        <h2>One-handed typing mode</h2>
+        <p>
+          Enable One-Handed mode to type with a single thumb. Lock a direction on the left dial, then
+          use only the right dial to select characters. This is one of three input modes, alongside Quick Type for
+          speed and Steady Type for deliberate input.
+        </p>
+      </div>
+    </div>
+
+    <div class="a11y-feature">
+      <div class="a11y-feature-icon" aria-hidden="true">📳</div>
+      <div class="a11y-feature-content">
+        <h2>Haptic feedback and typing sounds</h2>
+        <p>
+          Enable haptic vibration and typing sounds for sensory confirmation of each keystroke. Utility
+          keys such as Backspace, Enter, and Shift produce a stronger pulse, while letter chords use a softer tap.
+        </p>
+      </div>
+    </div>
+
+    <section class="persona-section">
+      <h2>Research-informed design</h2>
+      <p>
+        ERICK is informed by research on chorded input, reduced finger travel, and alternative keyboard layouts.
+        The strongest evidence supports the value of low-movement, ergonomic text entry. More specific claims,
+        such as which layout is best for every user group, should be treated as promising design directions rather
+        than settled fact.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="accessibility.html">Accessibility</a></li>
+      <li><a href="who-benefits.html">Who Benefits</a></li>
+      <li><a href="privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="releases.html">Releases</a></li>
+      <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
+    </ul>
+    <div class="footer-availability">
+      <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" target="_blank" rel="noopener" aria-label="Get ERICK on Google Play">
+        <span class="store-badge-note">Available Now</span>
+        <span class="store-badge-crop store-badge-crop-google">
+          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+        </span>
+      </a>
+      <a href="releases.html#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
+        <span class="store-badge-note">Coming Soon</span>
+        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+      </a>
+    </div>
+    <div class="footer-dev">
+      <p>Developed by <strong>Vatsal Unadkat</strong></p>
+      <div class="footer-social">
+        <a href="https://github.com/vatsalunadkat" target="_blank" rel="noopener" aria-label="GitHub profile">GitHub</a>
+        <a href="https://www.linkedin.com/in/vatsalunadkat" target="_blank" rel="noopener" aria-label="LinkedIn profile">LinkedIn</a>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 ERICK - Ergonomic Radial Inclusive Controller Keyboard. All rights reserved.</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
 </html>

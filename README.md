@@ -5,15 +5,17 @@
   <p align="center"><strong>Current Version: v2.2.0</strong></p>
 
   <p align="center">
-    An accessibility-first keyboard for Android and iOS that replaces tiny keys with two large directional controls.
+    An accessibility-first keyboard and assistive technology project for Android and iOS that replaces tiny keys with two large directional controls.
     <br />
-    Type with touch or a physical game controller, learn with guided quickstart and practice lessons, switch across 10 supported keyboard languages, get offline learned word prediction, and keep every keystroke on your own device.
+    Type with touch or a physical game controller, use it as a lower-effort virtual keyboard, learn with guided quickstart and practice lessons, switch across 10 supported keyboard languages, get offline learned word prediction, and keep every keystroke on your own device.
     <br />
     <br />
     <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick"><img src="https://img.shields.io/badge/Google_Play-v2.2.0-34A853?logo=google-play&logoColor=white" alt="Get ERICK v2.2.0 on Google Play" /></a>
     <a href="#availability"><img src="https://img.shields.io/badge/iOS_App_Store-Coming_Soon-0A84FF?logo=apple&logoColor=white" alt="iOS App Store release coming soon" /></a>
     <br />
     <br />
+    <a href="https://vatsalunadkat.github.io/ERICKeyboard/"><strong>Website</strong></a>
+    Â·
     <a href="APP_CONTEXT.md"><strong>View Architecture & App Context</strong></a>
     ·
     <a href="docs/documentation/User_Guide.md"><strong>User Guide</strong></a>
@@ -38,11 +40,11 @@
 
 ERICK is an accessibility-first keyboard. Instead of asking the user to hit rows of small keys, it uses two large directional controls. Moving the left and right controls together creates a character "chord." The same system works with on-screen touch controls or with physical gaming controllers such as DualShock, Xbox, and 8BitDo pads.
 
-ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing on TVs and consoles, and supporting lower-visual-demand typing.
+ERICK is designed first for people who struggle with standard touch keyboards, especially users with motor limitations, repetitive strain issues, or situations where precise tapping is uncomfortable. At the same time, it can also help many everyday users by making typing more predictable on small screens, enabling controller-based typing or gamepad typing on TVs and consoles, and supporting lower-visual-demand typing.
 
 The default Logical layout uses a clear A-Z arrangement to make learning easier for new users and for people who prefer a simple, easy-to-follow pattern. An Efficiency layout is also included for users who want faster typing after practice. ERICK also includes guided quickstart flows, reusable practice lessons and quote practice, controller diagnostics and tuning on Android, offline learned word prediction, live previews, left-handed mode, dyslexia-friendly fonts, colorblind-safe palettes, haptic and controller rumble feedback, theme support, and custom layouts.
 
-Everything runs fully offline. ERICK requests no internet permission, collects no typing data, and keeps every keystroke on the device.
+Everything runs fully offline. ERICK requests no internet permission, collects no typing data, and keeps every keystroke on the device, making it a privacy-focused keyboard as well as an accessibility keyboard.
 
 ## Why ERICK Matters
 
@@ -69,6 +71,7 @@ ERICK is built around the idea that accessibility should improve the product for
 
 - Android: v2.2.0 is available on [Google Play](https://play.google.com/store/apps/details?id=com.vatoo.erick).
 - iOS: App Store release coming soon. Source builds remain available from the Xcode project under `ios/`.
+- Website: [vatsalunadkat.github.io/ERICKeyboard](https://vatsalunadkat.github.io/ERICKeyboard/)
 
 ## Features
 
@@ -112,7 +115,11 @@ ERICK/
 │   │   └── Research/
 │   ├── index.html
 │   ├── accessibility.html
-│   └── privacy-policy.html
+│   ├── who-benefits.html
+│   ├── releases.html
+│   ├── privacy-policy.html
+│   ├── robots.txt
+│   └── sitemap.xml
 ├── APP_CONTEXT.md               Canonical architecture doc
 ├── CHANGELOG.md
 ├── PROJECT_PROMPT.md
