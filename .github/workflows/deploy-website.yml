@@ -39,10 +39,12 @@ jobs:
           cp -r docs/v1 deploy/v1 || true
           cp -r docs/images deploy/images || true
           cp -r docs/documentation deploy/documentation || true
+          cp -r docs/videos deploy/videos || true
           cp -r docs/css deploy/css || true
           cp -r docs/js deploy/js || true
           cp docs/accessibility.html deploy/ || true
           cp docs/who-benefits.html deploy/ || true
+          cp docs/faq.html deploy/ || true
           cp docs/privacy-policy.html deploy/ || true
           cp docs/releases.html deploy/ || true
 

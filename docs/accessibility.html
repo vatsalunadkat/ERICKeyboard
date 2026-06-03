@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVEL79YHNZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-HVEL79YHNZ');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ERICK Accessibility Features | Motor-Friendly Keyboard and Controller Typing</title>
   <meta name="description" content="Explore ERICK accessibility features including large touch targets, controller typing, dyslexia-friendly fonts, colorblind-safe palettes, one-handed mode, and offline prediction." />
+  <meta name="theme-color" content="#6650a4" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://vatsalunadkat.github.io/ERICKeyboard/accessibility.html" />
   <meta property="og:site_name" content="ERICK Keyboard" />
@@ -21,23 +31,97 @@
   <meta name="twitter:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="images/erick-logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="images/erick-logo.png" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "ERICK Keyboard",
-      "applicationCategory": "AccessibilityApplication",
-      "operatingSystem": "Android, iOS",
-      "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
-      "creator": {
-        "@type": "Person",
-        "name": "Vatsal Unadkat",
-        "url": "https://github.com/vatsalunadkat"
-      },
-      "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
-      "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
-      "softwareVersion": "v2.2.0",
-      "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE"
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#vatsal-unadkat",
+          "name": "Vatsal Unadkat",
+          "url": "https://github.com/vatsalunadkat",
+          "sameAs": [
+            "https://github.com/vatsalunadkat",
+            "https://www.linkedin.com/in/vatsalunadkat"
+          ]
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#organization",
+          "name": "ERICK Keyboard Project",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://vatsalunadkat.github.io/ERICKeyboard/images/erick-logo.png"
+          },
+          "founder": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#vatsal-unadkat"
+          },
+          "sameAs": [
+            "https://github.com/vatsalunadkat/ERICKeyboard"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#website",
+          "name": "ERICK Keyboard",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "description": "Website for ERICK, an accessible keyboard for touch and controller typing on Android and iOS.",
+          "publisher": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#organization"
+          },
+          "inLanguage": "en"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#app",
+          "name": "ERICK Keyboard",
+          "applicationCategory": "AccessibilityApplication",
+          "applicationSubCategory": "Keyboard",
+          "operatingSystem": "Android, iOS",
+          "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
+          "creator": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#vatsal-unadkat"
+          },
+          "publisher": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#organization"
+          },
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+          "sameAs": [
+            "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+            "https://github.com/vatsalunadkat/ERICKeyboard"
+          ],
+          "softwareVersion": "v2.2.0",
+          "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": "https://play.google.com/store/apps/details?id=com.vatoo.erick"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/accessibility.html#webpage",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/accessibility.html",
+          "name": "ERICK Accessibility Features | Motor-Friendly Keyboard and Controller Typing",
+          "description": "Explore ERICK accessibility features including large touch targets, controller typing, dyslexia-friendly fonts, colorblind-safe palettes, one-handed mode, and offline prediction.",
+          "isPartOf": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#website"
+          },
+          "about": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#app"
+          },
+          "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": "https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png"
+          },
+          "inLanguage": "en"
+        }
+      ]
     }
   </script>
 </head>
@@ -45,13 +129,14 @@
   <nav class="site-nav" aria-label="Main navigation">
     <div class="nav-inner">
       <a href="index.html" class="nav-logo">
-        <img src="images/erick-logo.png" alt="ERICK keyboard logo" />
+        <img src="images/erick-logo.png" alt="ERICK keyboard logo" width="1000" height="1000" decoding="async" />
         ERICK
       </a>
       <div class="nav-right">
         <ul class="nav-links">
           <li><a href="accessibility.html" class="active">Accessibility</a></li>
           <li><a href="who-benefits.html">Who Benefits</a></li>
+          <li><a href="faq.html">FAQ</a></li>
           <li><a href="privacy-policy.html">Privacy Policy</a></li>
           <li><a href="releases.html">Releases</a></li>
           <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
@@ -265,6 +350,7 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="accessibility.html">Accessibility</a></li>
       <li><a href="who-benefits.html">Who Benefits</a></li>
+      <li><a href="faq.html">FAQ</a></li>
       <li><a href="privacy-policy.html">Privacy Policy</a></li>
       <li><a href="releases.html">Releases</a></li>
       <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
@@ -273,12 +359,12 @@
       <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" target="_blank" rel="noopener" aria-label="Get ERICK on Google Play">
         <span class="store-badge-note">Available Now</span>
         <span class="store-badge-crop store-badge-crop-google">
-          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" width="540" height="140" loading="lazy" decoding="async" />
         </span>
       </a>
       <a href="releases.html#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
         <span class="store-badge-note">Coming Soon</span>
-        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" width="430" height="140" loading="lazy" decoding="async" />
       </a>
     </div>
     <div class="footer-dev">

@@ -1,43 +1,127 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVEL79YHNZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-HVEL79YHNZ');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ERICK Privacy Policy | Offline, Privacy-Focused Keyboard</title>
-  <meta name="description" content="Read the ERICK privacy policy. ERICK is a privacy-focused keyboard for Android and iOS that keeps typing, prediction, and settings on-device without analytics or ads." />
+  <title>ERICK App Privacy Policy | No App Tracking, Offline Keyboard</title>
+  <meta name="description" content="Read the ERICK app privacy policy. The Android and iOS app keeps typed text, prediction, and settings on-device and does not track anything inside the app." />
+  <meta name="theme-color" content="#6650a4" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://vatsalunadkat.github.io/ERICKeyboard/privacy-policy.html" />
   <meta property="og:site_name" content="ERICK Keyboard" />
-  <meta property="og:title" content="ERICK Privacy Policy | Offline, Privacy-Focused Keyboard" />
-  <meta property="og:description" content="ERICK keeps typed text, prediction, and preferences on-device. No analytics, ads, or third-party tracking services are used." />
+  <meta property="og:title" content="ERICK App Privacy Policy | No App Tracking, Offline Keyboard" />
+  <meta property="og:description" content="ERICK's app does not collect typed text, app analytics, or app tracking data. The keyboard runs on-device and keeps typing local." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vatsalunadkat.github.io/ERICKeyboard/privacy-policy.html" />
   <meta property="og:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
   <meta property="og:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ERICK Privacy Policy | Offline, Privacy-Focused Keyboard" />
-  <meta name="twitter:description" content="ERICK processes typing on-device and does not collect or share user text, analytics, or ad-tracking data." />
+  <meta name="twitter:title" content="ERICK App Privacy Policy | No App Tracking, Offline Keyboard" />
+  <meta name="twitter:description" content="The ERICK app keeps typing on-device and does not track you, collect app analytics, or send typed text to third parties." />
   <meta name="twitter:image" content="https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png" />
   <meta name="twitter:image:alt" content="ERICK accessibility keyboard overview graphic showing dual directional dials, controller typing, and inclusive design features." />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="images/erick-logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="images/erick-logo.png" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "ERICK Keyboard",
-      "applicationCategory": "AccessibilityApplication",
-      "operatingSystem": "Android, iOS",
-      "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
-      "creator": {
-        "@type": "Person",
-        "name": "Vatsal Unadkat",
-        "url": "https://github.com/vatsalunadkat"
-      },
-      "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
-      "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
-      "softwareVersion": "v2.2.0",
-      "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE"
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#vatsal-unadkat",
+          "name": "Vatsal Unadkat",
+          "url": "https://github.com/vatsalunadkat",
+          "sameAs": [
+            "https://github.com/vatsalunadkat",
+            "https://www.linkedin.com/in/vatsalunadkat"
+          ]
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#organization",
+          "name": "ERICK Keyboard Project",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://vatsalunadkat.github.io/ERICKeyboard/images/erick-logo.png"
+          },
+          "founder": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#vatsal-unadkat"
+          },
+          "sameAs": [
+            "https://github.com/vatsalunadkat/ERICKeyboard"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#website",
+          "name": "ERICK Keyboard",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "description": "Website for ERICK, an accessible keyboard for touch and controller typing on Android and iOS.",
+          "publisher": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#organization"
+          },
+          "inLanguage": "en"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#app",
+          "name": "ERICK Keyboard",
+          "applicationCategory": "AccessibilityApplication",
+          "applicationSubCategory": "Keyboard",
+          "operatingSystem": "Android, iOS",
+          "description": "ERICK is a privacy-focused accessible keyboard for Android and iOS that uses two large directional controls for touch, controller typing, gamepad typing, and offline assistive text entry.",
+          "creator": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#vatsal-unadkat"
+          },
+          "publisher": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#organization"
+          },
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/",
+          "downloadUrl": "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+          "sameAs": [
+            "https://play.google.com/store/apps/details?id=com.vatoo.erick",
+            "https://github.com/vatsalunadkat/ERICKeyboard"
+          ],
+          "softwareVersion": "v2.2.0",
+          "license": "https://github.com/vatsalunadkat/ERICKeyboard/blob/main/LICENSE",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": "https://play.google.com/store/apps/details?id=com.vatoo.erick"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://vatsalunadkat.github.io/ERICKeyboard/privacy-policy.html#webpage",
+          "url": "https://vatsalunadkat.github.io/ERICKeyboard/privacy-policy.html",
+          "name": "ERICK App Privacy Policy | No App Tracking, Offline Keyboard",
+          "description": "Read the ERICK app privacy policy. The Android and iOS app keeps typed text, prediction, and settings on-device and does not track anything inside the app.",
+          "isPartOf": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#website"
+          },
+          "about": {
+            "@id": "https://vatsalunadkat.github.io/ERICKeyboard/#app"
+          },
+          "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": "https://vatsalunadkat.github.io/ERICKeyboard/documentation/logo/ERICK_feature_graphic_black.png"
+          },
+          "inLanguage": "en"
+        }
+      ]
     }
   </script>
 </head>
@@ -45,13 +129,14 @@
   <nav class="site-nav" aria-label="Main navigation">
     <div class="nav-inner">
       <a href="index.html" class="nav-logo">
-        <img src="images/erick-logo.png" alt="ERICK keyboard logo" />
+        <img src="images/erick-logo.png" alt="ERICK keyboard logo" width="1000" height="1000" decoding="async" />
         ERICK
       </a>
       <div class="nav-right">
         <ul class="nav-links">
           <li><a href="accessibility.html">Accessibility</a></li>
           <li><a href="who-benefits.html">Who Benefits</a></li>
+          <li><a href="faq.html">FAQ</a></li>
           <li><a href="privacy-policy.html" class="active">Privacy Policy</a></li>
           <li><a href="releases.html">Releases</a></li>
           <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
@@ -69,16 +154,21 @@
   </nav>
 
   <main class="legal-page">
-    <h1>Privacy policy for the ERICK keyboard</h1>
-    <p class="effective-date">Effective Date: April 22, 2026</p>
+    <h1>App privacy policy for ERICK</h1>
+    <p class="effective-date">Effective Date: June 1, 2026</p>
 
     <p>
-      This privacy policy applies to the ERICK accessible keyboard for Android and iOS. ERICK is designed to work on your device, so your typing stays with you.
+      This privacy policy covers the ERICK Android app, iOS app, and keyboard extension. It explains what the app does and does not collect. The ERICK app is designed to work on your device, so your typing stays with you.
     </p>
 
-    <h2>What ERICK does not collect</h2>
+    <h2>Scope of this policy</h2>
     <p>
-      ERICK does not collect, store, or send your typed text, passwords, personal data, analytics, or usage history.
+      This page is about privacy in the ERICK app itself. The app does not track you, does not include analytics SDKs, and does not send typed text or in-app usage data to third parties.
+    </p>
+
+    <h2>What the app does not collect</h2>
+    <p>
+      ERICK does not collect, store, or send your typed text, passwords, personal data, app analytics, advertising identifiers, or usage history from inside the app.
     </p>
 
     <h2>How typing works</h2>
@@ -98,9 +188,19 @@
       normal platform storage. They are there so the keyboard remembers your choices.
     </p>
 
-    <h2>Third-party services</h2>
+    <h2>Third-party services in the app</h2>
     <p>
-      ERICK does not use third-party analytics, advertising, or tracking services.
+      ERICK does not use third-party analytics, advertising, crash reporting, or cross-app tracking services inside the app.
+    </p>
+
+    <h2>App tracking</h2>
+    <p>
+      ERICK does not track users across other companies' apps or websites. It does not use IDFA, the Android Advertising ID, device fingerprinting, or similar identifiers for app tracking.
+    </p>
+
+    <h2>Website and repository pages</h2>
+    <p>
+      The public ERICK website and GitHub repository are separate from the app itself. Those public web pages may use standard website analytics or platform logs to understand site traffic, broken links, and documentation usage. That website traffic information is separate from the ERICK app, and the app does not send typing data or in-app behavior to those services.
     </p>
 
     <h2>Data sharing</h2>
@@ -116,8 +216,8 @@
 
     <h2>Security</h2>
     <p>
-      Because ERICK collects no data and requires no network access, there is no risk of data breach
-      or unauthorized access to user information through the app. All keyboard processing happens in an
+      Because ERICK does not collect cloud-stored app data and does not need network access for typing,
+      there is no app-side database of personal text to expose through a server breach. All keyboard processing happens in an
       isolated on-device environment.
     </p>
 
@@ -174,6 +274,7 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="accessibility.html">Accessibility</a></li>
       <li><a href="who-benefits.html">Who Benefits</a></li>
+      <li><a href="faq.html">FAQ</a></li>
       <li><a href="privacy-policy.html">Privacy Policy</a></li>
       <li><a href="releases.html">Releases</a></li>
       <li><a href="https://github.com/vatsalunadkat/ERICKeyboard" target="_blank" rel="noopener">GitHub Repository</a></li>
@@ -182,12 +283,12 @@
       <a href="https://play.google.com/store/apps/details?id=com.vatoo.erick" class="store-badge-link" target="_blank" rel="noopener" aria-label="Get ERICK on Google Play">
         <span class="store-badge-note">Available Now</span>
         <span class="store-badge-crop store-badge-crop-google">
-          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" />
+          <img class="store-badge-img store-badge-img-google" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get ERICK on Google Play" width="540" height="140" loading="lazy" decoding="async" />
         </span>
       </a>
       <a href="releases.html#ios-coming-soon" class="store-badge-link" aria-label="Read about the iOS App Store release status">
         <span class="store-badge-note">Coming Soon</span>
-        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" />
+        <img class="store-badge-img store-badge-img-apple" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="ERICK iOS App Store release coming soon" width="430" height="140" loading="lazy" decoding="async" />
       </a>
     </div>
     <div class="footer-dev">

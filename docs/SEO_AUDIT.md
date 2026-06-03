@@ -1,5 +1,15 @@
 # SEO Audit: ERICK GitHub Pages
 
+## Follow-up update on 2026-06-01
+
+- Added the Google tag (`G-HVEL79YHNZ`) to all live public pages plus the legacy `/v1/` redirect pages for measurement continuity.
+- Added a real `docs/404.html` page for GitHub Pages and kept it out of the sitemap.
+- Added a dedicated `docs/faq.html` page with visible FAQ content, FAQ structured data, and breadcrumb structured data.
+- Added `apple-touch-icon` links and richer shared entity metadata (`Person`, `Organization`, `WebSite`, `WebPage`, `SoftwareApplication`) across the live public pages.
+- Replaced remote Google Play and App Store badge image requests with local SVG assets under `docs/images/`.
+- Updated the app privacy policy page so it clearly states that the ERICK app itself does not track users, while the public website may use separate website analytics.
+- Updated the sitemap and Pages deploy workflow so the new FAQ page deploys and advertises correctly.
+
 ## Current site setup before this change
 
 - GitHub Pages is powered by a GitHub Actions workflow, not by the Pages branch/folder setting alone.
