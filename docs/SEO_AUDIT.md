@@ -1,6 +1,29 @@
 # SEO Audit: ERICK GitHub Pages
 
-## Follow-up update on 2026-06-04
+## Follow-up update on 2026-06-04 (sitemap "Couldn't fetch" cache-buster)
+
+Symptom: after the clean sitemap deployed, Google Search Console still reported "Couldn't fetch" / "Sitemap could not be read" for `sitemap.xml`.
+
+Diagnosis (verified live):
+- The deployed `sitemap.xml` is genuinely fetchable: HTTP 200, `content-type: application/xml`, no BOM, valid XML, clean headers.
+- The widely-cited Next.js issue (vercel/next.js#75836) is almost entirely a Next.js + Vercel problem (middleware intercepting the request, dynamic routes adding `vary: rsc, next-router-*` headers). None of that applies to a static GitHub Pages file.
+- The trailing-slash "fix" from that thread does not work on GitHub Pages: `https://.../sitemap.xml/` returns HTTP 404 on static hosting (it is a real path, not a route handler), so submitting it makes GSC cache a 404.
+- The universal cause that does apply: GSC caches a failed-fetch state per exact URL and is not real-time; a cached failure for `sitemap.xml` can persist for days.
+
+Fix applied (the one proven cross-host workaround from the thread): publish a second, never-before-cached sitemap URL so GSC fetches it with no cached failure state.
+- Added `docs/sitemap-v2.xml` (identical clean URL set to `sitemap.xml`).
+- Listed both sitemaps in `docs/robots.txt` (multiple `Sitemap:` lines are valid).
+- Added `sitemap-v2.xml` to the Pages deploy workflow.
+- `sitemap.xml` is kept as the canonical/conventional sitemap for all other crawlers.
+
+Manual GSC steps after deploy:
+1. Deploy (push to `main`, or run the deploy workflow).
+2. In Search Console, remove the old `sitemap.xml` entry that shows "Couldn't fetch".
+3. Submit `sitemap.xml` again WITHOUT a trailing slash, and also submit `sitemap-v2.xml`.
+4. Use URL Inspection -> Test Live URL on the homepage and request indexing; the sitemap status panel is not real-time, so do not rely on it for confirmation.
+5. Allow 1-14 days; "Couldn't fetch" commonly clears itself once Google re-crawls.
+
+## Follow-up update on 2026-06-04 (analytics removal + sitemap simplification)
 
 - Removed Google Analytics / `gtag.js` (`G-HVEL79YHNZ`) from every page: the seven live root pages, `404.html`, and the five legacy `/v1/` redirect pages. The site now makes zero third-party requests, which improves load performance (Core Web Vitals) and privacy.
 - Simplified `sitemap.xml` to a clean, standards-only URL set. Removed the `video:` sitemap extension because animated-GIF `video:thumbnail_loc` values and large inline video entries are a common cause of Google Search Console "Couldn't fetch" / sitemap processing failures. Video discoverability is preserved by the on-page `VideoObject` JSON-LD already present on each `videos/*.html` watch page (Google's recommended method).

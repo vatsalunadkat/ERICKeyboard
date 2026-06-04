@@ -36,6 +36,7 @@ jobs:
           cp docs/.nojekyll deploy/ || true
           cp docs/robots.txt deploy/ || true
           cp docs/sitemap.xml deploy/ || true
+          cp docs/sitemap-v2.xml deploy/ || true
           cp -r docs/v1 deploy/v1 || true
           cp -r docs/images deploy/images || true
           cp -r docs/documentation deploy/documentation || true

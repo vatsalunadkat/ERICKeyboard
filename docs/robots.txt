@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://vatsalunadkat.github.io/ERICKeyboard/sitemap.xml
+Sitemap: https://vatsalunadkat.github.io/ERICKeyboard/sitemap-v2.xml
