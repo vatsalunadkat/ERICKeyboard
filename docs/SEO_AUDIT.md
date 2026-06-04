@@ -1,5 +1,13 @@
 # SEO Audit: ERICK GitHub Pages
 
+## Follow-up update on 2026-06-04
+
+- Removed Google Analytics / `gtag.js` (`G-HVEL79YHNZ`) from every page: the seven live root pages, `404.html`, and the five legacy `/v1/` redirect pages. The site now makes zero third-party requests, which improves load performance (Core Web Vitals) and privacy.
+- Simplified `sitemap.xml` to a clean, standards-only URL set. Removed the `video:` sitemap extension because animated-GIF `video:thumbnail_loc` values and large inline video entries are a common cause of Google Search Console "Couldn't fetch" / sitemap processing failures. Video discoverability is preserved by the on-page `VideoObject` JSON-LD already present on each `videos/*.html` watch page (Google's recommended method).
+- Bumped all `sitemap.xml` `lastmod` values to `2026-06-04` to signal freshness for re-crawl.
+- Updated privacy and FAQ copy that referenced "website analytics," since the website no longer runs analytics or tracking scripts. Only standard GitHub Pages hosting logs (outside our control) remain.
+- Manual step still required: in Google Search Console, confirm the property is the URL-prefix `https://vatsalunadkat.github.io/ERICKeyboard/` (not the bare `github.io` root), then re-submit `sitemap.xml` and use "Validate fix" / re-fetch so the stale "Couldn't fetch" status refreshes.
+
 ## Follow-up update on 2026-06-01
 
 - Added the Google tag (`G-HVEL79YHNZ`) to all live public pages plus the legacy `/v1/` redirect pages for measurement continuity.

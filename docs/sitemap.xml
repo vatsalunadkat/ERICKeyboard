@@ -1,94 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/accessibility.html</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/who-benefits.html</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/faq.html</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/privacy-policy.html</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/releases.html</loc>
-    <lastmod>2026-06-03</lastmod>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/videos/quick-type-touch-input.html</loc>
-    <lastmod>2026-06-03</lastmod>
-    <video:video>
-      <video:thumbnail_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/0.7.4-beta_quick_type_input_mode.gif</video:thumbnail_loc>
-      <video:title>Quick Type touch input demo</video:title>
-      <video:description>Dedicated watch page for ERICK Quick Type touch input mode.</video:description>
-      <video:content_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/0.7.4-beta_quick_type_input_mode.mp4</video:content_loc>
-      <video:publication_date>2026-04-25T18:03:54+05:30</video:publication_date>
-    </video:video>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/videos/steady-type-input.html</loc>
-    <lastmod>2026-06-03</lastmod>
-    <video:video>
-      <video:thumbnail_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/0.7.4-beta_steady_type_input_mode.gif</video:thumbnail_loc>
-      <video:title>Steady Type input demo</video:title>
-      <video:description>Dedicated watch page for ERICK Steady Type input mode.</video:description>
-      <video:content_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/0.7.4-beta_steady_type_input_mode.mp4</video:content_loc>
-      <video:publication_date>2026-04-25T18:02:23+05:30</video:publication_date>
-    </video:video>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/videos/one-handed-touch-input.html</loc>
-    <lastmod>2026-06-03</lastmod>
-    <video:video>
-      <video:thumbnail_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.gif</video:thumbnail_loc>
-      <video:title>One-Handed touch input demo</video:title>
-      <video:description>Dedicated watch page for ERICK One-Handed touch input mode.</video:description>
-      <video:content_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/0.7.4-beta_one_handed_input_mode_using_finger_to_type.mp4</video:content_loc>
-      <video:publication_date>2026-04-25T18:00:20+05:30</video:publication_date>
-    </video:video>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/videos/android-controller-typing.html</loc>
-    <lastmod>2026-06-03</lastmod>
-    <video:video>
-      <video:thumbnail_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/v1.0_android_controller.gif</video:thumbnail_loc>
-      <video:title>Android controller typing demo</video:title>
-      <video:description>Dedicated watch page for ERICK Android controller typing.</video:description>
-      <video:content_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/v1.0_android_controller.mp4</video:content_loc>
-      <video:publication_date>2026-04-25T17:55:43+05:30</video:publication_date>
-    </video:video>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/videos/alternative-controller-typing.html</loc>
-    <lastmod>2026-06-03</lastmod>
-    <video:video>
-      <video:thumbnail_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/v1.2_controller_using_fists.gif</video:thumbnail_loc>
-      <video:title>Alternative controller typing demo</video:title>
-      <video:description>Dedicated watch page for ERICK alternative controller typing.</video:description>
-      <video:content_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/v1.2_controller_using_fists.mp4</video:content_loc>
-      <video:publication_date>2026-04-25T17:59:09+05:30</video:publication_date>
-    </video:video>
+    <lastmod>2026-06-04</lastmod>
   </url>
   <url>
     <loc>https://vatsalunadkat.github.io/ERICKeyboard/videos/quote-practice-demo.html</loc>
-    <lastmod>2026-06-03</lastmod>
-    <video:video>
-      <video:thumbnail_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/v0.5.1-alpha_quotes_game.gif</video:thumbnail_loc>
-      <video:title>Quote practice demo</video:title>
-      <video:description>Dedicated watch page for ERICK quote practice and lessons.</video:description>
-      <video:content_loc>https://vatsalunadkat.github.io/ERICKeyboard/documentation/demo%20files/v0.5.1-alpha_quotes_game.mp4</video:content_loc>
-      <video:publication_date>2026-04-25T18:10:38+05:30</video:publication_date>
-    </video:video>
+    <lastmod>2026-06-04</lastmod>
   </url>
 </urlset>
