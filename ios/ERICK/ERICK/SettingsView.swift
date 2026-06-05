@@ -16,6 +16,7 @@ struct SettingsView: View {
     @AppStorage("font_preference", store: SettingsView.appGroupDefaults) private var fontPreference: String = "system"
     @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
     @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
+    @AppStorage("auto_capitalization", store: SettingsView.appGroupDefaults) private var autoCapitalization: Bool = true
 
     @State private var customLayouts: [CustomLayout] = []
     @State private var infoSheet: SettingsInfoSheet?
@@ -176,6 +177,11 @@ struct SettingsView: View {
                 header: Text(erickText("Input Mode", languageKey: keyboardLanguage)),
                 footer: Text(erickText("Quick Type is fastest. Steady Type is more deliberate. One-Handed locks the left-side row.", languageKey: keyboardLanguage))
             ) {
+                Toggle(erickText("Auto-Capitalize", languageKey: keyboardLanguage), isOn: $autoCapitalization)
+                Text(erickText("Automatically shift after sentence punctuation, Enter, and at the start of empty fields.", languageKey: keyboardLanguage))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
                 Button(action: { inputMode = "instant" }) {
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: inputMode == "instant" ? "largecircle.fill.circle" : "circle")
@@ -497,6 +503,12 @@ struct AppCustomLayoutListView: View {
         onLayoutsChanged()
     }
 
+    private func mappedCharacterCount(for layout: CustomLayout) -> Int {
+        layout.normalChordMap.values.reduce(0) { total, values in
+            total + values.filter { !$0.isEmpty }.count
+        }
+    }
+
     var body: some View {
         List {
             if layouts.isEmpty {
@@ -516,7 +528,7 @@ struct AppCustomLayoutListView: View {
                     VStack(alignment: .leading) {
                         Text(layout.name)
                             .font(.body)
-                        let count = layout.normalChordMap.values.flatMap { ($0 as! [String]) }.filter { !$0.isEmpty }.count
+                        let count = mappedCharacterCount(for: layout)
                         Text("\(count) \(erickText("characters mapped", languageKey: keyboardLanguage))")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -551,7 +563,7 @@ struct AppCustomLayoutListView: View {
             TextField(erickText("Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
             Button(erickText("Create", languageKey: keyboardLanguage)) {
                 let manager = manager()
-                let layout = manager.createBlank(name: newLayoutName)
+                let layout = manager.createBlank(name: newLayoutName, sectionCount: 8)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
             }
@@ -561,13 +573,13 @@ struct AppCustomLayoutListView: View {
             TextField(erickText("New Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
             Button(erickText("Logical", languageKey: keyboardLanguage)) {
                 let manager = manager()
-                let layout = manager.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName)
+                let layout = manager.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName, sectionCount: 8)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
             }
             Button(erickText("Efficiency", languageKey: keyboardLanguage)) {
                 let manager = manager()
-                let layout = manager.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName)
+                let layout = manager.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName, sectionCount: 8)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
             }
@@ -700,7 +712,8 @@ struct AppCustomLayoutEditorView: View {
             normalChordMap: normalMap as! [Direction: [String]],
             shiftedChordMap: shiftedMap as! [Direction: [String]],
             singleSwipeNormalMap: layout.singleSwipeNormalMap,
-            singleSwipeShiftedMap: layout.singleSwipeShiftedMap
+            singleSwipeShiftedMap: layout.singleSwipeShiftedMap,
+            sectionCount: 8
         )
         onSave(updated)
     }

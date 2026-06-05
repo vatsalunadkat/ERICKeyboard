@@ -92,7 +92,7 @@ object ControllerConfusionAnalyzer {
         val clamped = deadZone.coerceIn(0f, 1f)
         val start = ((clamped * 100f).toInt() / 5) * 5
         val end = (start + 5).coerceAtMost(100)
-        return String.format("%02d-%02d%%", start, end)
+        return "${start.toString().padStart(2, '0')}-${end.toString().padStart(2, '0')}%"
     }
 
     private fun angularDistance(

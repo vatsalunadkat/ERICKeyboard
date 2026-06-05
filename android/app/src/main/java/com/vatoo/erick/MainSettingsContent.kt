@@ -85,6 +85,7 @@ internal fun MainSettingsContent(
     leftHandedMode: Boolean,
     hapticFeedback: Boolean,
     typingSounds: Boolean,
+    autoCapitalization: Boolean,
     inputMode: String,
     predictionDomain: String,
     sixSectionDial: Boolean,
@@ -155,11 +156,14 @@ internal fun MainSettingsContent(
         if (typingSounds) add(t("Sounds on"))
         if (isEmpty()) add(t("Feedback off"))
     }.joinToString(" • ")
-    val inputModeSummary = when (inputMode) {
-        PreferencesManager.INPUT_MODE_CONFIRM -> t("Steady Type")
-        PreferencesManager.INPUT_MODE_ASSISTED -> t("One-Handed")
-        else -> t("Quick Type")
-    }
+    val inputModeSummary = buildList {
+        add(when (inputMode) {
+            PreferencesManager.INPUT_MODE_CONFIRM -> t("Steady Type")
+            PreferencesManager.INPUT_MODE_ASSISTED -> t("One-Handed")
+            else -> t("Quick Type")
+        })
+        add(if (autoCapitalization) t("Auto-cap on") else t("Auto-cap off"))
+    }.joinToString(" • ")
     val predictionSummary = predictionDomainDisplayName(predictionDomain, appLanguage)
 
     Scaffold(
@@ -590,6 +594,22 @@ internal fun MainSettingsContent(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                SettingToggle(
+                    title = t("Auto-Capitalize"),
+                    checked = autoCapitalization,
+                    enabled = true,
+                    onCheckedChange = { checked ->
+                        scope.launch { preferencesManager.setAutoCapitalization(checked) }
+                    }
+                )
+
+                Text(
+                    text = t("Automatically shift after sentence punctuation, Enter, and at the start of empty fields."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 )
 
                 LayoutRadioOption(

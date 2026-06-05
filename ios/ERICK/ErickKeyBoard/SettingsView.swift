@@ -22,6 +22,7 @@ struct SettingsView: View {
     @AppStorage("custom_palette_colors", store: SettingsView.appGroupDefaults) private var customPaletteColors: String = ColorPaletteDefinitions.defaultCustomColors
     @AppStorage("haptic_feedback", store: SettingsView.appGroupDefaults) private var hapticFeedback: Bool = false
     @AppStorage("typing_sounds", store: SettingsView.appGroupDefaults) private var typingSounds: Bool = false
+    @AppStorage("auto_capitalization", store: SettingsView.appGroupDefaults) private var autoCapitalization: Bool = true
     @AppStorage("input_mode", store: SettingsView.appGroupDefaults) private var inputMode: String = "instant"
     @AppStorage("prediction_domain", store: SettingsView.appGroupDefaults) private var predictionDomain: String = "general"
     @AppStorage("keyboard_language", store: SettingsView.appGroupDefaults) private var keyboardLanguage: String = "english"
@@ -103,6 +104,9 @@ struct SettingsView: View {
             onSettingsChanged?()
         }
         .onChange(of: typingSounds) { _ in
+            onSettingsChanged?()
+        }
+        .onChange(of: autoCapitalization) { _ in
             onSettingsChanged?()
         }
         .onChange(of: inputMode) { _ in
@@ -409,6 +413,14 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12).padding(.bottom, 4)
+
+                        Toggle(t("Auto-Capitalize"), isOn: $autoCapitalization)
+                            .padding(.horizontal, 12).padding(.vertical, 4)
+                        Text(t("Automatically shift after sentence punctuation, Enter, and at the start of empty fields."))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 4)
 
                         InputModeRadioOption(
                             title: t("Quick Type"),

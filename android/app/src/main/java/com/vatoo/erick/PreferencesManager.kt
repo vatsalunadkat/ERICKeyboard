@@ -31,6 +31,7 @@ class PreferencesManager(private val context: Context) {
         private val CUSTOM_PALETTE_COLORS_KEY = stringPreferencesKey("custom_palette_colors")
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback")
         private val TYPING_SOUNDS_KEY = booleanPreferencesKey("typing_sounds")
+        private val AUTO_CAPITALIZATION_KEY = booleanPreferencesKey("auto_capitalization")
         private val INPUT_MODE_KEY = stringPreferencesKey("input_mode")
         private val PREDICTION_DOMAIN_KEY = stringPreferencesKey("prediction_domain")
         private val SIX_SECTION_DIAL_KEY = booleanPreferencesKey("six_section_dial")
@@ -147,6 +148,11 @@ class PreferencesManager(private val context: Context) {
     val typingSounds: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[TYPING_SOUNDS_KEY] ?: false
+        }
+
+    val autoCapitalization: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[AUTO_CAPITALIZATION_KEY] ?: true
         }
 
     val inputMode: Flow<String> = context.dataStore.data
@@ -273,6 +279,12 @@ class PreferencesManager(private val context: Context) {
     suspend fun setTypingSounds(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[TYPING_SOUNDS_KEY] = enabled
+        }
+    }
+
+    suspend fun setAutoCapitalization(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[AUTO_CAPITALIZATION_KEY] = enabled
         }
     }
 

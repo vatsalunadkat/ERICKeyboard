@@ -52,7 +52,7 @@ func sharedKeyboardLanguage(for keyboardLanguage: String) -> KeyboardLanguage {
     case "italian":
         return .italian
     case "norwegian_bokmal":
-        return .norwegian_bokmal
+        return .norwegianBokmal
     case "danish":
         return .danish
     case "swedish":

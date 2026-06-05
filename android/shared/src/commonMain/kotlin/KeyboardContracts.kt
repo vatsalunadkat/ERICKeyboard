@@ -98,6 +98,9 @@ interface KeyboardActionDelegate {
     // Returns the word fragment immediately before the cursor, or empty string.
     fun getCurrentWordPrefix(): String
 
+    // Retrieve raw text immediately before the cursor for sentence-level context.
+    fun getTextBeforeCursor(maxCharacters: Int): String = ""
+
     // Load a platform-specific serialized prediction profile.
     fun loadPredictionProfile(): String
 

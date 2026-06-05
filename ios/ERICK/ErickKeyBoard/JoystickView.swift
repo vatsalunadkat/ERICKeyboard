@@ -86,7 +86,8 @@ private enum LeftWheelSharedMapping {
                     leftDir: sharedDirection(for: leftDirection),
                     rightDir: sharedDirection(for: rightDirection),
                     mode: keyboardMode,
-                    layout: layoutType
+                    layout: layoutType,
+                    customLayout: nil
                 )
             }
 
@@ -131,7 +132,6 @@ private enum LeftWheelSharedMapping {
         case .symbolsShifted: return .symbolsShifted
         case .emoji: return .emoji
         }
-    }
     }
 }
 

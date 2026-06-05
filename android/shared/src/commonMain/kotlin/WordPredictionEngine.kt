@@ -257,8 +257,9 @@ class WordPredictionEngine {
             .sorted()
             .flatMap { previousWord ->
                 learnedBigrams[previousWord].orEmpty()
-                    .toSortedMap()
-                    .map { (nextWord, frequency) -> "$previousWord\t$nextWord\t$frequency" }
+                    .entries
+                    .sortedBy { it.key }
+                    .map { entry -> "$previousWord\t${entry.key}\t${entry.value}" }
             }
 
         return buildString {

@@ -15,13 +15,14 @@ class KeyboardStateMachineTest {
     fun shiftedChordReturnsToNormalAfterCommit() = runTest {
         val delegate = RecordingDelegate()
         val stateMachine = KeyboardStateMachine(delegate, this)
+        stateMachine.setAutoCapitalizationEnabled(false)
 
         rightSwipe(stateMachine, x = -100f, y = 100f)
 
         assertEquals(KeyboardMode.SHIFTED, stateMachine.currentMode)
 
-        pressLeft(stateMachine, x = 0f, y = -100f)
-        rightSwipe(stateMachine, x = 0f, y = -100f)
+    pressLeft(stateMachine, x = 0f, y = -100f)
+    rightSwipe(stateMachine, x = 0f, y = -100f)
 
         assertEquals(listOf("A"), delegate.committedTexts)
         assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
@@ -33,6 +34,7 @@ class KeyboardStateMachineTest {
     fun sixSectionSymbolsShiftedChordReturnsToSymbols() = runTest {
         val delegate = RecordingDelegate()
         val stateMachine = KeyboardStateMachine(delegate, this)
+        stateMachine.setAutoCapitalizationEnabled(false)
 
         stateMachine.setDialSectionMode(DialSectionMode.SIX_SECTION)
         rightSwipe(stateMachine, x = -100f, y = -173.20508f)
@@ -209,6 +211,113 @@ class KeyboardStateMachineTest {
     }
 
     @Test
+    fun autoCapitalizationShiftsAfterSentencePunctuationAndSpace() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hi. ")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.SHIFTED, stateMachine.currentMode)
+
+        pressLeft(stateMachine, x = 0f, y = -100f)
+        rightSwipe(stateMachine, x = 0f, y = -100f)
+
+        assertEquals(listOf("A"), delegate.committedTexts)
+        assertEquals("Hi. A", delegate.textBeforeCursor)
+        assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
+
+        releaseLeft(stateMachine)
+    }
+
+    @Test
+    fun autoCapitalizationShiftsAtStartOfEmptyField() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.SHIFTED, stateMachine.currentMode)
+    }
+
+    @Test
+    fun autoCapitalizationShiftsAfterEnter() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hello")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        rightSwipe(stateMachine, x = 0f, y = 100f)
+
+        assertEquals(listOf(InputAction.ENTER), delegate.inputActions)
+        assertEquals(KeyboardMode.SHIFTED, stateMachine.currentMode)
+    }
+
+    @Test
+    fun autoCapitalizationCanBeDisabled() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hi. ")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        stateMachine.setAutoCapitalizationEnabled(false)
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
+    }
+
+    @Test
+    fun manualShiftOffSuppressesAutoCapitalizationUntilContextChanges() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hi. ")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+        stateMachine.refreshAutoCapitalization()
+
+        rightSwipe(stateMachine, x = -100f, y = 100f)
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
+
+        delegate.textBeforeCursor += "x"
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
+    }
+
+    @Test
+    fun autoCapitalizationDoesNotInterfereWithCapsLock() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hi. ")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+
+        rightSwipe(stateMachine, x = -100f, y = -100f)
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.CAPS_LOCKED, stateMachine.currentMode)
+    }
+
+    @Test
+    fun autoCapitalizationDoesNotInterfereWithSymbolsMode() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hi. ")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+        stateMachine.setDialSectionMode(DialSectionMode.SIX_SECTION)
+
+        rightSwipe(stateMachine, x = -100f, y = -173.20508f)
+        stateMachine.refreshAutoCapitalization()
+
+        assertEquals(KeyboardMode.SYMBOLS, stateMachine.currentMode)
+    }
+
+    @Test
+    fun autoCapitalizationWorksInSixSectionMode() = runTest {
+        val delegate = RecordingDelegate(textBeforeCursor = "Hi. ")
+        val stateMachine = KeyboardStateMachine(delegate, this)
+        stateMachine.setDialSectionMode(DialSectionMode.SIX_SECTION)
+        stateMachine.refreshAutoCapitalization()
+
+        pressLeft(stateMachine, x = -100f, y = -173.20508f)
+        rightSwipe(stateMachine, x = -100f, y = -173.20508f)
+
+        assertEquals(listOf("A"), delegate.committedTexts)
+        assertEquals(KeyboardMode.NORMAL, stateMachine.currentMode)
+
+        releaseLeft(stateMachine)
+    }
+
+    @Test
     fun predictionDomainRefreshesDefaultSuggestions() = runTest {
         val delegate = RecordingDelegate()
         val stateMachine = KeyboardStateMachine(delegate, this)
@@ -309,7 +418,9 @@ class KeyboardStateMachineTest {
         stateMachine.handleTouch(0f, 0f, isLeft = false, actionDownOrMove = false, actionUp = true)
     }
 
-    private class RecordingDelegate : KeyboardActionDelegate {
+    private class RecordingDelegate(
+        var textBeforeCursor: String = ""
+    ) : KeyboardActionDelegate {
         val committedTexts = mutableListOf<String>()
         val inputActions = mutableListOf<InputAction>()
         val modeChanges = mutableListOf<KeyboardMode>()
@@ -318,10 +429,17 @@ class KeyboardStateMachineTest {
 
         override fun commitText(text: String) {
             committedTexts += text
+            textBeforeCursor += text
         }
 
         override fun sendInputAction(action: InputAction) {
             inputActions += action
+            when (action) {
+                InputAction.SPACE -> textBeforeCursor += " "
+                InputAction.ENTER -> textBeforeCursor += "\n"
+                InputAction.BACKSPACE -> if (textBeforeCursor.isNotEmpty()) textBeforeCursor = textBeforeCursor.dropLast(1)
+                else -> { /* no-op */ }
+            }
         }
 
         override fun onModeChanged(mode: KeyboardMode) {
@@ -332,7 +450,15 @@ class KeyboardStateMachineTest {
             suggestionsSnapshots += suggestions
         }
 
-        override fun getCurrentWordPrefix(): String = ""
+        override fun getCurrentWordPrefix(): String {
+            var i = textBeforeCursor.length
+            while (i > 0 && (textBeforeCursor[i - 1].isLetterOrDigit() || textBeforeCursor[i - 1] == '\'')) {
+                i--
+            }
+            return textBeforeCursor.substring(i)
+        }
+
+        override fun getTextBeforeCursor(maxCharacters: Int): String = textBeforeCursor.takeLast(maxCharacters)
 
         override fun loadPredictionProfile(): String = serializedPredictionProfile
 
