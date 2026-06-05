@@ -81,15 +81,24 @@ Both platforms already expose text-before-cursor. Wire the shared logic to query
 
 ## Acceptance Criteria
 
-- [ ] Keyboard auto-shifts to uppercase after `.` `!` `?` + space
-- [ ] Keyboard auto-shifts at the start of an empty text field
-- [ ] Keyboard auto-shifts after Enter/newline
-- [ ] Auto-shift resets after typing one character (same as manual shift)
-- [ ] Auto-capitalize can be toggled off in settings
-- [ ] Auto-capitalize defaults to ON for new installs
-- [ ] Does not interfere with Caps Lock or Symbols mode
-- [ ] Works identically on Android and iOS
-- [ ] Works in both 8-section and 6-section dial modes
+- [x] Keyboard auto-shifts to uppercase after `.` `!` `?` + space
+- [x] Keyboard auto-shifts at the start of an empty text field
+- [x] Keyboard auto-shifts after Enter/newline
+- [x] Auto-shift resets after typing one character (same as manual shift)
+- [x] Auto-capitalize can be toggled off in settings
+- [x] Auto-capitalize defaults to ON for new installs
+- [x] Does not interfere with Caps Lock or Symbols mode
+- [x] Works identically on Android and iOS
+- [x] Works in both 8-section and 6-section dial modes
+
+---
+
+## Implementation Notes
+
+- Shared state-machine support lives in `KeyboardStateMachine` with a platform delegate context hook for text before the cursor.
+- Android stores `auto_capitalization` in DataStore, exposes the toggle in Input Mode settings, and refreshes auto-capitalization when the IME starts an input view.
+- iOS stores the same `auto_capitalization` app-group key in both host and keyboard-extension settings, and refreshes from `documentContextBeforeInput`.
+- Focused shared tests cover sentence-boundary, empty-field, Enter/newline, manual override, toggle-off, Caps Lock, Symbols, and 6-section behavior.
 
 ---
 

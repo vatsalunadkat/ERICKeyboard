@@ -128,6 +128,7 @@ In the default Logical layout, characters are arranged alphabetically:
 | **Caps Lock** | UPPERCASE (A–Z) | digits (0–9) | Single-swipe NW |
 
 - **Shift** auto-resets after one chord (type one uppercase letter, then returns to normal).
+- **Auto-Capitalize** shifts automatically after sentence-ending punctuation plus space, after Enter, and at the start of empty text fields. You can turn it off in Settings → Input Mode.
 - **Caps Lock** persists until toggled off with another NW single-swipe.
 - In 6-section mode, Caps Lock is not on the single-swipe wheel; see the Dial Mode section below.
 
@@ -277,6 +278,8 @@ An optional mode with **6 directions** (N, NE, SE, S, SW, NW — no E or W), eac
 
 ERICK includes three input modes. You can switch between them in **Settings → Input Mode**.
 
+The same settings section includes **Auto-Capitalize**, which is on by default. When enabled, ERICK automatically enters Shift after `.`, `!`, or `?` followed by a space, after Enter/newline, and when a new empty text field starts. If you manually turn Shift off at an auto-capitalization point, ERICK keeps it off for that sentence start.
+
 ### Quick Type (Default)
 
 The fastest mode. A character is typed as soon as **either dial is released** after forming a chord. Recommended for most users.
@@ -405,6 +408,7 @@ Settings are organized into collapsible sections with short summaries so you can
 ### Input Mode
 
 - Quick Type, Steady Type, or One-Handed (see [Input Modes](#input-modes))
+- **Auto-Capitalize** - automatically shifts after sentence boundaries, Enter/newline, and new empty fields; enabled by default
 
 ### Controller
 

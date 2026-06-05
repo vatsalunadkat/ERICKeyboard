@@ -437,6 +437,13 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return String(before[i...])
     }
 
+    func getTextBeforeCursor(maxCharacters: Int32) -> String {
+        let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
+        let limit = max(0, Int(maxCharacters))
+        guard before.count > limit else { return before }
+        return String(before.suffix(limit))
+    }
+
     private func onSuggestionTapped(_ index: Int) {
         let suggestions = viewModel.suggestions
         guard index < suggestions.count else { return }
@@ -448,12 +455,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             textBeforeCursor: before,
             textAfterCursor: after
         )
-        let charsToDelete = result.charsToDelete.intValue
+        let charsToDelete = Int(result.charsToDelete)
         // Delete the partial word
         for _ in 0..<charsToDelete {
             self.textDocumentProxy.deleteBackward()
         }
         self.textDocumentProxy.insertText(result.leadingText + result.suggestion + result.trailingText)
+        stateMachine.refreshAutoCapitalization()
+        refreshViewState()
     }
 
     private static let appGroupDefaults = UserDefaults(suiteName: "group.com.vatoo.erick") ?? .standard
@@ -488,6 +497,13 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         return Self.appGroupDefaults.bool(forKey: "left_handed_mode")
     }
 
+    private var isAutoCapitalizationEnabled: Bool {
+        guard Self.appGroupDefaults.object(forKey: "auto_capitalization") != nil else {
+            return true
+        }
+        return Self.appGroupDefaults.bool(forKey: "auto_capitalization")
+    }
+
     private func applyLayoutPreference() {
         let languageKey = Self.appGroupDefaults.string(forKey: "keyboard_language") ?? "english"
         let keyboardLanguage: KeyboardLanguage
@@ -503,7 +519,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         case "italian":
             keyboardLanguage = .italian
         case "norwegian_bokmal":
-            keyboardLanguage = .norwegian_bokmal
+            keyboardLanguage = .norwegianBokmal
         case "danish":
             keyboardLanguage = .danish
         case "swedish":
@@ -592,6 +608,7 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
             inputMode = .instant
         }
         stateMachine.setInputMode(mode: inputMode)
+        stateMachine.setAutoCapitalizationEnabled(enabled: isAutoCapitalizationEnabled)
 
         let predictionDomainKey = Self.appGroupDefaults.string(forKey: "prediction_domain") ?? "general"
         let predictionDomain: PredictionDomain
@@ -616,6 +633,14 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
         viewModel.recentEmojis = recentEmojisStore.load()
         setupControllerInput()
         startControllerBridgePolling()
+        stateMachine.refreshAutoCapitalization()
+        refreshViewState()
+    }
+
+    override func textDidChange(_ textInput: UITextInput?) {
+        super.textDidChange(textInput)
+        guard stateMachine != nil else { return }
+        stateMachine.refreshAutoCapitalization()
         refreshViewState()
     }
 
@@ -677,7 +702,6 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
     }
 
     private func refreshViewState() {
-        viewModel.objectWillChange.send()
         viewModel.previewText = stateMachine.getPreviewText()
         viewModel.leftDirection = mirroredLeftDirection
         viewModel.rightDirection = mirroredRightDirection
@@ -871,7 +895,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
                 leftDir: leftDir,
                 rightDir: sharedDirection(for: rightDirection),
                 mode: sharedMode,
-                layout: layoutType
+                layout: layoutType,
+                customLayout: stateMachine.activeCustomLayout
             )
 
             guard !text.isEmpty else { return nil }
@@ -917,7 +942,8 @@ class KeyboardViewController: UIInputViewController, KeyboardActionDelegate {
                 leftDir: sharedDirection(for: leftDir),
                 rightDir: sharedRightDir,
                 mode: sharedM,
-                layout: layoutType
+                layout: layoutType,
+                customLayout: stateMachine.activeCustomLayout
             )
             if !text.isEmpty {
                 result.append(KeyboardPreviewItem(id: itemId, direction: direction, text: text, color: color))

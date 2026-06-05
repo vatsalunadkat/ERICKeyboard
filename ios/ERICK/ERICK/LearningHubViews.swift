@@ -129,7 +129,7 @@ struct QuickstartView: View {
 struct PracticeHubView: View {
     @AppStorage(LearningProgressStore.attemptedLessonsKey) private var attemptedLessonsRaw = ""
     @AppStorage(LearningProgressStore.completedLessonsKey) private var completedLessonsRaw = ""
-    @AppStorage("keyboard_language", store: learningAppGroupDefaults) private var keyboardLanguage = "english"
+    @AppStorage("keyboard_language", store: erickAppGroupDefaults) private var keyboardLanguage = "english"
     @State private var infoLesson: PracticeLessonData?
 
     private var lessons: [PracticeLessonData] {
@@ -356,9 +356,9 @@ struct PracticeLessonView: View {
     @AppStorage(LearningProgressStore.attemptedLessonsKey) private var attemptedLessonsRaw = ""
     @AppStorage(LearningProgressStore.completedLessonsKey) private var completedLessonsRaw = ""
     @AppStorage("hasEnabledKeyboard") private var hasEnabledKeyboard = false
-    @AppStorage("layout_type", store: learningAppGroupDefaults) private var layoutType = "logical"
-    @AppStorage("input_mode", store: learningAppGroupDefaults) private var inputMode = "instant"
-    @AppStorage("six_section_dial", store: learningAppGroupDefaults) private var sixSectionDial = false
+    @AppStorage("layout_type", store: erickAppGroupDefaults) private var layoutType = "logical"
+    @AppStorage("input_mode", store: erickAppGroupDefaults) private var inputMode = "instant"
+    @AppStorage("six_section_dial", store: erickAppGroupDefaults) private var sixSectionDial = false
 
     @State private var typedText = ""
     @State private var currentExerciseIndex = 0
@@ -735,30 +735,31 @@ struct PracticeLessonView: View {
             .padding(.vertical, 12)
     }
 
-    private func formatLessonSetup(_ setup: PracticeLessonSetupData, languageKey: String) -> String {
-        let dialLabel = setup.sixSectionDial ? erickText("6-section", languageKey: languageKey) : erickText("8-section", languageKey: languageKey)
-        let layoutLabel: String
-        switch setup.layoutType {
-        case "efficiency":
-            layoutLabel = erickText("Efficiency", languageKey: languageKey)
-        case "custom":
-            layoutLabel = erickText("Custom", languageKey: languageKey)
-        default:
-            layoutLabel = erickText("Logical", languageKey: languageKey)
-        }
+}
 
-        let inputLabel: String
-        switch setup.inputMode {
-        case "confirm":
-            inputLabel = erickText("Steady Type", languageKey: languageKey)
-        case "assisted":
-            inputLabel = erickText("One-Handed", languageKey: languageKey)
-        default:
-            inputLabel = erickText("Quick Type", languageKey: languageKey)
-        }
-
-        return "\(dialLabel) • \(layoutLabel) • \(inputLabel)"
+private func formatLessonSetup(_ setup: PracticeLessonSetupData, languageKey: String) -> String {
+    let dialLabel = setup.sixSectionDial ? erickText("6-section", languageKey: languageKey) : erickText("8-section", languageKey: languageKey)
+    let layoutLabel: String
+    switch setup.layoutType {
+    case "efficiency":
+        layoutLabel = erickText("Efficiency", languageKey: languageKey)
+    case "custom":
+        layoutLabel = erickText("Custom", languageKey: languageKey)
+    default:
+        layoutLabel = erickText("Logical", languageKey: languageKey)
     }
+
+    let inputLabel: String
+    switch setup.inputMode {
+    case "confirm":
+        inputLabel = erickText("Steady Type", languageKey: languageKey)
+    case "assisted":
+        inputLabel = erickText("One-Handed", languageKey: languageKey)
+    default:
+        inputLabel = erickText("Quick Type", languageKey: languageKey)
+    }
+
+    return "\(dialLabel) • \(layoutLabel) • \(inputLabel)"
 }
 
 private struct LessonHelpSheet: View {
@@ -863,13 +864,23 @@ private struct LessonPartNavigationButton: View {
 
     var body: some View {
         if let action {
-            Button(action: action) {
-                Image(systemName: systemName)
-                    .font(.headline.weight(.semibold))
-                    .frame(width: 36, height: 36)
+            if prominent {
+                Button(action: action) {
+                    Image(systemName: systemName)
+                        .font(.headline.weight(.semibold))
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityLabel(accessibilityLabel)
+            } else {
+                Button(action: action) {
+                    Image(systemName: systemName)
+                        .font(.headline.weight(.semibold))
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel(accessibilityLabel)
             }
-            .buttonStyle(prominent ? .borderedProminent : .bordered)
-            .accessibilityLabel(accessibilityLabel)
         } else {
             Color.clear
                 .frame(width: 36, height: 36)
@@ -882,15 +893,27 @@ private struct LessonActionButton: View {
     let fillWidth: Bool
 
     var body: some View {
-        Button(action: action.action) {
-            Text(action.title)
-                .font(.headline)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-                .frame(maxWidth: fillWidth ? .infinity : nil)
-                .padding(.vertical, 12)
+        if action.prominent {
+            Button(action: action.action) {
+                Text(action.title)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                    .frame(maxWidth: fillWidth ? .infinity : nil)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(.borderedProminent)
+        } else {
+            Button(action: action.action) {
+                Text(action.title)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                    .frame(maxWidth: fillWidth ? .infinity : nil)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(.bordered)
         }
-        .buttonStyle(action.prominent ? .borderedProminent : .bordered)
     }
 }
 

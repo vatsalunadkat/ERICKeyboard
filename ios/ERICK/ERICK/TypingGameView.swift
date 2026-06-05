@@ -368,7 +368,7 @@ struct WrappingHStack: View {
         let quoteChars = Array(quote)
         let typedChars = Array(typedText)
         
-        let attributed = quoteChars.enumerated().map { (i, char) -> (Character, Color, FontWeight, Bool, Bool) in
+        let attributed = quoteChars.enumerated().map { (i, char) -> (Character, Color, Font.Weight, Bool, Bool) in
             if i < typedChars.count && typedChars[i] == char {
                 return (char, Color(red: 0.3, green: 0.69, blue: 0.31), .bold, false, false) // Green - correct
             } else if i < typedChars.count {
@@ -390,7 +390,7 @@ struct WrappingHStack: View {
             .frame(maxWidth: .infinity)
     }
     
-    private func buildAttributedText(chars: [(Character, Color, FontWeight, Bool, Bool)]) -> AttributedString {
+    private func buildAttributedText(chars: [(Character, Color, Font.Weight, Bool, Bool)]) -> AttributedString {
         var result = AttributedString()
         for (char, color, weight, _, isHighlighted) in chars {
             var attrChar = AttributedString(String(char))

@@ -88,7 +88,7 @@ struct CustomLayoutListView: View {
             TextField(erickText("Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
             Button(erickText("Create", languageKey: keyboardLanguage)) {
                 let manager = manager()
-                let layout = manager.createBlank(name: newLayoutName)
+                let layout = manager.createBlank(name: newLayoutName, sectionCount: 8)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
                 editingLayout = layout
@@ -99,14 +99,14 @@ struct CustomLayoutListView: View {
             TextField(erickText("New Layout Name", languageKey: keyboardLanguage), text: $newLayoutName)
             Button(erickText("Logical", languageKey: keyboardLanguage)) {
                 let manager = manager()
-                let layout = manager.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName)
+                let layout = manager.duplicateFromBuiltIn(sourceLayout: .logical, customName: newLayoutName, sectionCount: 8)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
                 editingLayout = layout
             }
             Button(erickText("Efficiency", languageKey: keyboardLanguage)) {
                 let manager = manager()
-                let layout = manager.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName)
+                let layout = manager.duplicateFromBuiltIn(sourceLayout: .efficiency, customName: newLayoutName, sectionCount: 8)
                 let _ = manager.save(layout: layout)
                 reloadLayouts()
                 editingLayout = layout
@@ -251,7 +251,8 @@ struct CustomLayoutEditorView: View {
             normalChordMap: normalMap as! [Direction: [String]],
             shiftedChordMap: shiftedMap as! [Direction: [String]],
             singleSwipeNormalMap: singleNormalMap as! [Direction: SingleSwipeBinding],
-            singleSwipeShiftedMap: singleShiftedMap as! [Direction: SingleSwipeBinding]
+            singleSwipeShiftedMap: singleShiftedMap as! [Direction: SingleSwipeBinding],
+            sectionCount: 8
         )
         onSave(updated)
     }
