@@ -234,6 +234,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         // Monitor haptic + sound preferences
         preferencesManager.hapticFeedback.onEach { hapticEnabled = it }.launchIn(serviceScope)
         preferencesManager.typingSounds.onEach { soundsEnabled = it }.launchIn(serviceScope)
+        preferencesManager.autoCapitalization.onEach { enabled ->
+            stateMachine.setAutoCapitalizationEnabled(enabled)
+            updateLivePreview()
+        }.launchIn(serviceScope)
 
         // Monitor 6-section dial mode preference
         preferencesManager.sixSectionDial.onEach { enabled ->
@@ -919,6 +923,10 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
         return before.substring(i)
     }
 
+    override fun getTextBeforeCursor(maxCharacters: Int): String {
+        return currentInputConnection?.getTextBeforeCursor(maxCharacters, 0)?.toString() ?: ""
+    }
+
     override fun loadPredictionProfile(): String {
         return predictionProfilePreferences.getString("serialized_prediction_profile", "") ?: ""
     }
@@ -943,6 +951,8 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
             ic.deleteSurroundingText(result.charsToDelete, 0)
         }
         ic.commitText(result.leadingText + result.suggestion + result.trailingText, 1)
+        stateMachine.refreshAutoCapitalization()
+        updateLivePreview()
     }
 
     private fun updateSuggestionBar() {
@@ -1121,10 +1131,17 @@ class MyInputMethodService : InputMethodService(), KeyboardActionDelegate {
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         attribute?.let { it.imeOptions = it.imeOptions or EditorInfo.IME_FLAG_NO_EXTRACT_UI }
         super.onStartInput(attribute, restarting)
+        if (::stateMachine.isInitialized) {
+            stateMachine.refreshAutoCapitalization()
+        }
     }
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         info?.let { it.imeOptions = it.imeOptions or EditorInfo.IME_FLAG_NO_EXTRACT_UI }
         super.onStartInputView(info, restarting)
+        if (::stateMachine.isInitialized) {
+            stateMachine.refreshAutoCapitalization()
+            updateLivePreview()
+        }
     }
     override fun onEvaluateFullscreenMode(): Boolean = false
     override fun onUpdateExtractingVisibility(ei: EditorInfo?) { setExtractViewShown(false) }

@@ -29,6 +29,7 @@ fun SettingsScreen(
     val customPaletteColors by preferencesManager.customPaletteColors.collectAsState(initial = PreferencesManager.DEFAULT_CUSTOM_COLORS)
     val hapticFeedback by preferencesManager.hapticFeedback.collectAsState(initial = false)
     val typingSounds by preferencesManager.typingSounds.collectAsState(initial = false)
+    val autoCapitalization by preferencesManager.autoCapitalization.collectAsState(initial = true)
     val inputMode by preferencesManager.inputMode.collectAsState(initial = PreferencesManager.INPUT_MODE_INSTANT)
     val predictionDomain by preferencesManager.predictionDomain.collectAsState(initial = PreferencesManager.PREDICTION_DOMAIN_GENERAL)
     val sixSectionDial by preferencesManager.sixSectionDial.collectAsState(initial = false)
@@ -58,6 +59,7 @@ fun SettingsScreen(
             leftHandedMode = leftHandedMode,
             hapticFeedback = hapticFeedback,
             typingSounds = typingSounds,
+            autoCapitalization = autoCapitalization,
             inputMode = inputMode,
             predictionDomain = predictionDomain,
             sixSectionDial = sixSectionDial,

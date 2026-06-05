@@ -54,6 +54,9 @@ class KeyboardStateMachine(
                 delegate.onModeChanged(value)
             }
         }
+    private var autoCapitalizationEnabled = true
+    private var autoShiftActive = false
+    private var autoShiftSuppressedContext: String? = null
     var currentLayoutType = LayoutType.LOGICAL
         private set
     var currentPaletteType = ColorPaletteType.DEFAULT
@@ -176,6 +179,25 @@ class KeyboardStateMachine(
         currentPredictionDomain = domain
         predictor.setPredictionDomain(domain)
         updateSuggestions()
+    }
+
+    fun setAutoCapitalizationEnabled(enabled: Boolean) {
+        autoCapitalizationEnabled = enabled
+        autoShiftSuppressedContext = null
+        if (!enabled && autoShiftActive && currentMode == KeyboardMode.SHIFTED) {
+            currentMode = KeyboardMode.NORMAL
+        }
+        autoShiftActive = false
+        if (enabled) {
+            refreshAutoCapitalization()
+        }
+    }
+
+    fun refreshAutoCapitalization() {
+        updateAutoCapitalizationFromContext(
+            delegate.getTextBeforeCursor(AUTO_CAPITALIZATION_CONTEXT_LIMIT),
+            allowTerminalPunctuation = true
+        )
     }
 
     fun setKeyboardLanguage(language: KeyboardLanguage) {
@@ -430,6 +452,7 @@ class KeyboardStateMachine(
     private fun fireChord(left: Direction, right: Direction) {
         if (left == Direction.NONE || right == Direction.NONE) return
         isChordExecuted = true
+        val modeBeforeCommit = currentMode
 
         val text = processor.getChordResult(left, right, currentMode, currentLayoutType, activeCustomLayout)
         if (text.isNotEmpty()) {
@@ -438,11 +461,17 @@ class KeyboardStateMachine(
         }
 
         // After typing in shifted mode, revert to base mode
-        when (currentMode) {
+        when (modeBeforeCommit) {
             KeyboardMode.SHIFTED -> currentMode = KeyboardMode.NORMAL
             KeyboardMode.SYMBOLS_SHIFTED -> currentMode = KeyboardMode.SYMBOLS
             KeyboardMode.EMOJI -> currentMode = preEmojiMode
             else -> { /* stay in current mode */ }
+        }
+        if (modeBeforeCommit == KeyboardMode.SHIFTED) {
+            autoShiftActive = false
+        }
+        if (text.isNotEmpty()) {
+            updateAutoCapitalizationAfterTextCommit()
         }
     }
 
@@ -456,12 +485,19 @@ class KeyboardStateMachine(
         val result = processor.getSingleSwipeResult(dir, currentMode, customLayout)
         when (result) {
             is String -> {
+                val modeBeforeCommit = currentMode
                 delegate.commitText(result)
                 onTextCommitted(result)
+                if (modeBeforeCommit == KeyboardMode.SHIFTED && autoShiftActive) {
+                    currentMode = KeyboardMode.NORMAL
+                    autoShiftActive = false
+                }
+                updateAutoCapitalizationAfterTextCommit()
             }
             is InputAction -> {
                 when (result) {
                     InputAction.TOGGLE_SHIFT -> {
+                        val wasAutoShiftActive = autoShiftActive && currentMode == KeyboardMode.SHIFTED
                         when (currentMode) {
                             KeyboardMode.NORMAL -> currentMode = KeyboardMode.SHIFTED
                             KeyboardMode.SHIFTED -> currentMode = KeyboardMode.NORMAL
@@ -470,9 +506,19 @@ class KeyboardStateMachine(
                             KeyboardMode.SYMBOLS_SHIFTED -> currentMode = KeyboardMode.SYMBOLS
                             KeyboardMode.EMOJI -> currentMode = preEmojiMode
                         }
+                        if (wasAutoShiftActive && currentMode == KeyboardMode.NORMAL) {
+                            autoShiftSuppressedContext = autoCapitalizationContextKey(
+                                delegate.getTextBeforeCursor(AUTO_CAPITALIZATION_CONTEXT_LIMIT)
+                            )
+                        }
+                        autoShiftActive = false
                     }
-                    InputAction.TOGGLE_CAPS -> currentMode = if (currentMode == KeyboardMode.CAPS_LOCKED) KeyboardMode.NORMAL else KeyboardMode.CAPS_LOCKED
+                    InputAction.TOGGLE_CAPS -> {
+                        autoShiftActive = false
+                        currentMode = if (currentMode == KeyboardMode.CAPS_LOCKED) KeyboardMode.NORMAL else KeyboardMode.CAPS_LOCKED
+                    }
                     InputAction.TOGGLE_SYMBOLS -> {
+                        autoShiftActive = false
                         when (currentMode) {
                             KeyboardMode.SYMBOLS, KeyboardMode.SYMBOLS_SHIFTED -> {
                                 // Return to the mode we were in before entering symbols
@@ -489,10 +535,12 @@ class KeyboardStateMachine(
                     InputAction.BACKSPACE -> {
                         delegate.sendInputAction(result)
                         onBackspace()
+                        refreshAutoCapitalization()
                     }
                     InputAction.SPACE, InputAction.ENTER -> {
                         delegate.sendInputAction(result)
                         onWordBoundary()
+                        updateAutoCapitalizationAfterBoundaryAction(result)
                     }
                     else -> {
                         delegate.sendInputAction(result)
@@ -663,6 +711,10 @@ class KeyboardStateMachine(
         isNextWordMode = true
         currentSuggestions = predictor.getNextWordSuggestions(suggestion, limit = 3)
         delegate.onSuggestionsUpdated(currentSuggestions)
+        updateAutoCapitalizationFromContext(
+            textBeforeCursor.dropLast(charsToDelete) + leadingText + suggestion + trailingText,
+            allowTerminalPunctuation = false
+        )
         return SuggestionAcceptance(
             charsToDelete = charsToDelete,
             leadingText = leadingText,
@@ -715,6 +767,73 @@ class KeyboardStateMachine(
         }
     }
 
+    private fun updateAutoCapitalizationAfterTextCommit() {
+        updateAutoCapitalizationFromContext(
+            delegate.getTextBeforeCursor(AUTO_CAPITALIZATION_CONTEXT_LIMIT),
+            allowTerminalPunctuation = false
+        )
+    }
+
+    private fun updateAutoCapitalizationAfterBoundaryAction(action: InputAction) {
+        when (action) {
+            InputAction.ENTER, InputAction.SPACE -> updateAutoCapitalizationFromContext(
+                delegate.getTextBeforeCursor(AUTO_CAPITALIZATION_CONTEXT_LIMIT),
+                allowTerminalPunctuation = true
+            )
+            else -> { /* no-op */ }
+        }
+    }
+
+    private fun updateAutoCapitalizationFromContext(textBeforeCursor: String, allowTerminalPunctuation: Boolean) {
+        if (!autoCapitalizationEnabled || currentMode in listOf(
+                KeyboardMode.CAPS_LOCKED,
+                KeyboardMode.SYMBOLS,
+                KeyboardMode.SYMBOLS_SHIFTED,
+                KeyboardMode.EMOJI
+            )) {
+            autoShiftActive = false
+            return
+        }
+
+        val contextKey = autoCapitalizationContextKey(textBeforeCursor)
+        if (shouldAutoCapitalize(textBeforeCursor, allowTerminalPunctuation)) {
+            if (currentMode == KeyboardMode.NORMAL && autoShiftSuppressedContext != contextKey) {
+                currentMode = KeyboardMode.SHIFTED
+                autoShiftActive = true
+            }
+        } else {
+            if (autoShiftActive) {
+                if (currentMode == KeyboardMode.SHIFTED) {
+                    currentMode = KeyboardMode.NORMAL
+                }
+                autoShiftActive = false
+            }
+            if (autoShiftSuppressedContext != null && autoShiftSuppressedContext != contextKey) {
+                autoShiftSuppressedContext = null
+            }
+        }
+    }
+
+    private fun shouldAutoCapitalize(textBeforeCursor: String, allowTerminalPunctuation: Boolean): Boolean {
+        if (textBeforeCursor.isEmpty()) return true
+        if (textBeforeCursor.last() == '\n') return true
+
+        val trimmedEnd = textBeforeCursor.trimEnd { it != '\n' && it.isWhitespace() }
+        if (trimmedEnd.isEmpty()) return true
+
+        val lastNonWhitespace = trimmedEnd.last()
+        if (lastNonWhitespace !in listOf('.', '!', '?')) return false
+
+        val hasTrailingWhitespace = trimmedEnd.length < textBeforeCursor.length
+        return hasTrailingWhitespace || allowTerminalPunctuation
+    }
+
+    private fun autoCapitalizationContextKey(textBeforeCursor: String): String {
+        val normalizedBoundary = textBeforeCursor.trimEnd { it == ' ' || it == '\t' }
+        if (normalizedBoundary.isEmpty()) return "empty"
+        return normalizedBoundary.takeLast(32)
+    }
+
     /**
      * Whether both dials are currently at home (NONE) position.
      * When true, the platform should show the suggestion bar instead of preview.
@@ -750,3 +869,5 @@ private data class ControllerStickInput(
     val y: Float,
     val isActive: Boolean
 )
+
+private const val AUTO_CAPITALIZATION_CONTEXT_LIMIT = 128
