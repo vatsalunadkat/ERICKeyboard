@@ -1,5 +1,22 @@
 # SEO Audit: ERICK GitHub Pages
 
+## Follow-up update on 2026-06-06 (Search Console HTML file upload)
+
+Symptom: the repository now contains a Search Console verification file at `docs/google8a9bd022dd6b5543.html`, but GitHub Pages is deployed from a curated artifact build rather than publishing the whole `docs/` folder directly.
+
+Fix applied:
+- Updated `.github/workflows/deploy-website.yml` to copy `docs/google*.html` into the Pages deploy artifact.
+- This keeps the HTML file upload method compatible with future Google-issued verification files without touching the sitemap or page templates.
+
+Manual GSC steps after deploy:
+1. Commit the verification file and workflow change on `main`, or run the Pages workflow from a commit that contains both files.
+2. Confirm the live file is publicly reachable at `https://vatsalunadkat.github.io/ERICKeyboard/google8a9bd022dd6b5543.html`.
+3. Click **Verify** in Search Console for the URL-prefix property.
+
+Notes:
+- No sitemap update is required for verification files; they are ownership tokens, not canonical content URLs.
+- The existing homepage `google-site-verification` meta tag can remain in place as an additional verification method.
+
 ## Follow-up update on 2026-06-04 (sitemap "Couldn't fetch" cache-buster)
 
 Symptom: after the clean sitemap deployed, Google Search Console still reported "Couldn't fetch" / "Sitemap could not be read" for `sitemap.xml`.
