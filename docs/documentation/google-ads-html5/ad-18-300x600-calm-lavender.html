@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=300,height=600">
+<title>ERICK — A calmer way to type</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:300px;height:600px;overflow:hidden;text-decoration:none;display:block;
+      background:radial-gradient(70% 50% at 50% 38%,#EFE3F5 0%,#C4A8D8 100%);color:#000;text-align:center;padding:34px 26px}
+  .brand{font-size:15px;font-weight:800;letter-spacing:2px}
+  .halo{position:absolute;top:150px;left:50%;width:200px;height:200px;margin-left:-100px;border-radius:50%;
+      border:2px solid rgba(0,0,0,.18);animation:breathe 3.6s ease-in-out infinite}
+  .dial{position:absolute;top:178px;left:50%;width:144px;height:144px;margin-left:-72px;border-radius:50%;
+      background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);
+      box-shadow:0 10px 26px rgba(0,0,0,.18);animation:soft 7s ease-in-out infinite}
+  .dial:after{content:"";position:absolute;inset:44px;background:#fff;border-radius:50%}
+  .copy{position:absolute;left:26px;right:26px;top:392px}
+  .h{font-size:31px;font-weight:800;line-height:1.05;letter-spacing:-.6px;opacity:0;animation:up .7s .3s both}
+  .s{font-size:15px;font-weight:600;margin-top:12px;opacity:0;animation:up .7s .55s both}
+  .cta{position:absolute;left:26px;right:26px;bottom:30px;background:#000;color:#fff;
+      font-size:15px;font-weight:700;padding:14px 0;border-radius:999px;animation:nudge 2.4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.12);opacity:.15}}
+  @keyframes soft{0%,100%{transform:rotate(0)}50%{transform:rotate(20deg)}}
+  @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK keyboard — a calmer way to type. Get it free on Google Play.">
+  <span class="brand">ERICK</span>
+  <span class="halo"></span>
+  <span class="dial"></span>
+  <span class="copy">
+    <span class="h">A calmer way to type</span>
+    <span class="s">Soft pastel design built to reduce typing stress.</span>
+  </span>
+  <span class="cta">Get ERICK free ▸</span>
+</a>
+</body>
+</html>

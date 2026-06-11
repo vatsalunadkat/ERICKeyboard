@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=336,height=280">
+<title>ERICK — Type by direction</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:336px;height:280px;overflow:hidden;text-decoration:none;display:block;
+      background:linear-gradient(160deg,#D4E6F7 0%,#A0C4E8 100%);color:#000}
+  .wm{position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;
+      background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);opacity:.35}
+  .row{position:absolute;top:42px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:10px}
+  .mini{width:62px;height:62px;border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.18);position:relative}
+  .mini:before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#000;
+      top:50%;left:50%;margin:-9px 0 0 -9px}
+  .ml:before{animation:ml 2.4s ease-in-out infinite}
+  .mr:before{animation:mr 2.4s ease-in-out infinite}
+  .op{font-size:26px;font-weight:800}
+  .res{width:62px;height:62px;border-radius:16px;background:#000;color:#fff;display:flex;
+      align-items:center;justify-content:center;font-size:30px;font-weight:800;animation:pop 2.4s ease-in-out infinite}
+  .copy{position:absolute;left:0;right:0;top:140px;text-align:center;padding:0 18px}
+  .h{font-size:27px;font-weight:800;letter-spacing:-.5px;opacity:0;animation:up .6s .2s both}
+  .s{font-size:14px;font-weight:600;margin-top:8px;opacity:0;animation:up .6s .45s both}
+  .cta{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:#000;color:#fff;
+      font-size:13px;font-weight:700;padding:10px 18px;border-radius:999px;opacity:0;animation:up .6s .7s both}
+  @keyframes ml{0%,100%{transform:translate(-9px,-9px)}40%{transform:translate(-22px,2px)}}
+  @keyframes mr{0%,100%{transform:translate(-9px,-9px)}40%{transform:translate(4px,-22px)}}
+  @keyframes pop{0%,35%{transform:scale(.85);opacity:.5}50%,100%{transform:scale(1);opacity:1}}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK keyboard — type by direction. Combine two big dials into one letter. Get it on Google Play.">
+  <span class="wm"></span>
+  <span class="row">
+    <span class="mini ml"></span>
+    <span class="op">+</span>
+    <span class="mini mr"></span>
+    <span class="op">=</span>
+    <span class="res">a</span>
+  </span>
+  <span class="copy">
+    <span class="h">Type by direction</span>
+    <span class="s">Combine two big dials into one letter — no tiny keys.</span>
+  </span>
+  <span class="cta">Try ERICK free ▸</span>
+</a>
+</body>
+</html>

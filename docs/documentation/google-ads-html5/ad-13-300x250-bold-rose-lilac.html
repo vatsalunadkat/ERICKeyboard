@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=300,height=250">
+<title>ERICK — No more tiny keys</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:300px;height:250px;overflow:hidden;text-decoration:none;display:block;
+      background:linear-gradient(135deg,#F4A6B0 0%,#F4A6B0 48%,#D8A8C8 52%,#D8A8C8 100%);color:#000;padding:24px 22px}
+  .dial{position:absolute;top:18px;right:18px;width:56px;height:56px;border-radius:50%;
+      background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);
+      box-shadow:0 4px 10px rgba(0,0,0,.18);position:absolute;animation:spin 8s linear infinite}
+  .dial:after{content:"";position:absolute;inset:18px;background:#fff;border-radius:50%}
+  .h{font-size:42px;font-weight:800;line-height:.95;letter-spacing:-1.4px;margin-top:36px;text-transform:uppercase}
+  .h span{display:block;opacity:0}
+  .h span:nth-child(1){animation:up .5s .15s both}
+  .h span:nth-child(2){animation:up .5s .3s both}
+  .h span:nth-child(3){animation:up .5s .45s both}
+  .s{font-size:13px;font-weight:700;margin-top:12px;opacity:0;animation:up .5s .65s both}
+  .cta{position:absolute;left:22px;bottom:22px;background:#000;color:#fff;font-size:13px;font-weight:700;
+      padding:11px 18px;border-radius:999px;animation:nudge 2.2s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK keyboard — no more tiny keys. Get it free on Google Play.">
+  <span class="dial"></span>
+  <span class="h"><span>No more</span><span>tiny</span><span>keys</span></span>
+  <span class="s">A whole new way to type on your phone.</span>
+  <span class="cta">Get ERICK free ▸</span>
+</a>
+</body>
+</html>

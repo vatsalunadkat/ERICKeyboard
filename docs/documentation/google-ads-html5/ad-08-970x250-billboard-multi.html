@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=970,height=250">
+<title>ERICK — No tiny keys</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:970px;height:250px;overflow:hidden;text-decoration:none;display:flex;
+      align-items:center;background:#fff;color:#000}
+  .strip{position:absolute;left:0;right:0;bottom:0;height:10px;display:flex}
+  .strip i{flex:1}
+  .dial{flex:0 0 auto;width:170px;height:170px;margin:0 40px 0 48px;border-radius:50%;
+      background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);
+      box-shadow:0 10px 26px rgba(0,0,0,.16);position:relative;animation:spin 13s linear infinite}
+  .dial:after{content:"";position:absolute;inset:52px;background:#fff;border-radius:50%}
+  .txt{flex:1 1 auto;min-width:0}
+  .h{font-size:50px;font-weight:800;line-height:1;letter-spacing:-1.2px;opacity:0;animation:up .6s .2s both}
+  .s{font-size:19px;font-weight:600;margin-top:14px;opacity:0;animation:up .6s .45s both}
+  .cta{flex:0 0 auto;margin:0 48px;background:#000;color:#fff;font-size:17px;font-weight:700;
+      padding:16px 26px;border-radius:999px;white-space:nowrap;animation:nudge 2.2s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK keyboard — no tiny keys, just two dials. Get it free on Google Play.">
+  <span class="dial"></span>
+  <span class="txt">
+    <span class="h">No tiny keys.</span>
+    <span class="s">Type by combining two large dials — built accessibility-first.</span>
+  </span>
+  <span class="cta">Get ERICK free on Google Play ▸</span>
+  <span class="strip"><i style="background:#F4A6B0"></i><i style="background:#F6C9A0"></i><i style="background:#FDE9A0"></i><i style="background:#A8DFC0"></i><i style="background:#A0C4E8"></i><i style="background:#C4A8D8"></i><i style="background:#D8A8C8"></i><i style="background:#8B8B8B"></i></span>
+</a>
+</body>
+</html>

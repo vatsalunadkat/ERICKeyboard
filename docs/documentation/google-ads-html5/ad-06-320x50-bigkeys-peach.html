@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=320,height=50">
+<title>ERICK — Big dials, not tiny keys</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:320px;height:50px;overflow:hidden;text-decoration:none;display:flex;
+      align-items:center;background:linear-gradient(90deg,#FBE0C6 0%,#F6C9A0 100%);color:#000}
+  .dial{flex:0 0 auto;width:34px;height:34px;margin:0 10px 0 10px;border-radius:50%;
+      background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);
+      position:relative;animation:spin 8s linear infinite}
+  .dial:after{content:"";position:absolute;inset:11px;background:#fff;border-radius:50%}
+  .txt{flex:1 1 auto;min-width:0;line-height:1.05}
+  .h{font-size:15px;font-weight:800;letter-spacing:-.2px}
+  .s{font-size:10px;font-weight:600;margin-top:1px}
+  .cta{flex:0 0 auto;margin:0 8px;background:#000;color:#fff;font-size:11px;font-weight:700;
+      padding:7px 11px;border-radius:999px;white-space:nowrap;animation:nudge 2s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK keyboard — big dials, not tiny keys. Get it free on Google Play.">
+  <span class="dial"></span>
+  <span class="txt">
+    <span class="h">Big dials, not tiny keys</span>
+    <span class="s">The accessibility-first keyboard</span>
+  </span>
+  <span class="cta">Get free ▸</span>
+</a>
+</body>
+</html>
