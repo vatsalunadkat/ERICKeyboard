@@ -4,33 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="ad.size" content="width=320,height=100">
-<title>ERICK — Accessibility-first keyboard</title>
+<title>ERICK — A calm, simple keyboard</title>
 <style>
   html,body{margin:0;padding:0}
   *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   .ad{position:relative;width:320px;height:100px;overflow:hidden;text-decoration:none;display:flex;
-      align-items:center;background:radial-gradient(120% 140% at 0% 50%,#CFE4F6 0%,#A0C4E8 75%);color:#000}
-  .dial{flex:0 0 auto;width:64px;height:64px;margin:0 14px 0 16px;border-radius:50%;
+      align-items:center;background:radial-gradient(120% 140% at 0% 50%,#EFE3F5 0%,#C4A8D8 78%);color:#000}
+  .dial{flex:0 0 auto;width:66px;height:66px;margin:0 14px 0 16px;border-radius:50%;position:relative;
       background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);
-      box-shadow:0 4px 10px rgba(0,0,0,.18);position:relative;animation:spin 10s linear infinite}
-  .dial:after{content:"";position:absolute;inset:20px;background:#fff;border-radius:50%}
+      box-shadow:0 4px 10px rgba(0,0,0,.18);animation:soft 8s ease-in-out infinite}
+  .dial:after{content:"";position:absolute;inset:21px;background:#fff;border-radius:50%}
   .txt{flex:1 1 auto;min-width:0}
-  .h{font-size:19px;font-weight:800;line-height:1.05;letter-spacing:-.3px;opacity:0;animation:in .5s .15s both}
+  .h{font-size:20px;font-weight:800;line-height:1.05;letter-spacing:-.3px;opacity:0;animation:in .5s .15s both}
   .s{font-size:12px;font-weight:600;margin-top:5px;opacity:0;animation:in .5s .35s both}
   .cta{display:inline-block;margin-top:8px;background:#000;color:#fff;font-size:11px;font-weight:700;
       padding:7px 13px;border-radius:999px;opacity:0;animation:in .5s .55s both}
-  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes soft{0%,100%{transform:rotate(0)}50%{transform:rotate(16deg)}}
   @keyframes in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 </style>
 </head>
 <body>
 <script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
-<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK — the accessibility-first keyboard. Get it free on Google Play.">
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK — a calm, simple keyboard with no clutter. Free on Google Play.">
   <span class="dial"></span>
   <span class="txt">
-    <span class="h">An accessibility-first keyboard</span>
-    <span class="s">Large targets, one-handed mode &amp; controller typing.</span>
-    <span class="cta">Get it free on Google Play ▸</span>
+    <span class="h">A calm, simple keyboard</span>
+    <span class="s">No clutter. Soft colors. Easy to read.</span>
+    <span class="cta">Get ERICK free ▸</span>
   </span>
 </a>
 </body>

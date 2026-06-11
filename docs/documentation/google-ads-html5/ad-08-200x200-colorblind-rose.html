@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=200,height=200">
+<title>ERICK — Easier to see and read</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:200px;height:200px;overflow:hidden;text-decoration:none;display:block;
+      background:linear-gradient(160deg,#FBD3D9 0%,#F4A6B0 100%);color:#000;padding:18px 16px;text-align:center}
+  .chips{display:flex;justify-content:center;gap:6px;margin-top:2px}
+  .chips i{width:22px;height:22px;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.14);transform:scale(0);animation:pop .4s both}
+  .chips i:nth-child(1){background:#F4A6B0;animation-delay:.1s}
+  .chips i:nth-child(2){background:#FDE9A0;animation-delay:.2s}
+  .chips i:nth-child(3){background:#A8DFC0;animation-delay:.3s}
+  .chips i:nth-child(4){background:#A0C4E8;animation-delay:.4s}
+  .chips i:nth-child(5){background:#C4A8D8;animation-delay:.5s}
+  .h{font-size:19px;font-weight:800;line-height:1.05;letter-spacing:-.3px;margin-top:14px;opacity:0;animation:up .5s .55s both}
+  .s{font-size:11px;font-weight:600;margin-top:8px;line-height:1.3;opacity:0;animation:up .5s .7s both}
+  .cta{position:absolute;left:16px;right:16px;bottom:16px;background:#000;color:#fff;
+      font-size:11px;font-weight:700;padding:10px 0;border-radius:999px;animation:nudge 2.2s ease-in-out infinite}
+  @keyframes pop{to{transform:scale(1)}}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK — easier to see and read. Colorblind-safe colors and dyslexia-friendly fonts. Free on Google Play.">
+  <span class="chips"><i></i><i></i><i></i><i></i><i></i></span>
+  <span class="h">Easier to see and read</span>
+  <span class="s">Colorblind-safe colors. Dyslexia-friendly fonts.</span>
+  <span class="cta">Get it free ▸</span>
+</a>
+</body>
+</html>

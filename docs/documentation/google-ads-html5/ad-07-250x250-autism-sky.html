@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=250,height=250">
+<title>ERICK — Letters in a clear order</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:250px;height:250px;overflow:hidden;text-decoration:none;display:block;
+      background:linear-gradient(160deg,#CFE4F6 0%,#A0C4E8 100%);color:#000;padding:22px 20px;text-align:center}
+  .abc{display:flex;justify-content:center;gap:7px;margin-top:6px}
+  .abc i{width:40px;height:40px;border-radius:12px;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.16);
+      display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;opacity:0;animation:pop .4s both}
+  .abc i:nth-child(1){animation-delay:.15s}
+  .abc i:nth-child(2){animation-delay:.3s}
+  .abc i:nth-child(3){animation-delay:.45s}
+  .h{font-size:23px;font-weight:800;line-height:1.05;letter-spacing:-.4px;margin-top:18px;opacity:0;animation:up .6s .6s both}
+  .s{font-size:13px;font-weight:600;margin-top:9px;line-height:1.35;opacity:0;animation:up .6s .75s both}
+  .cta{position:absolute;left:20px;right:20px;bottom:20px;background:#000;color:#fff;
+      font-size:13px;font-weight:700;padding:12px 0;border-radius:999px;animation:nudge 2.2s ease-in-out infinite}
+  @keyframes pop{to{opacity:1;transform:scale(1)}from{opacity:0;transform:scale(.6)}}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK — letters in a clear A B C order. Made with autistic users in mind. Free on Google Play.">
+  <span class="abc"><i>A</i><i>B</i><i>C</i></span>
+  <span class="h">Letters in a clear order</span>
+  <span class="s">A simple A&ndash;Z layout. Made with autistic users in mind.</span>
+  <span class="cta">Get ERICK free ▸</span>
+</a>
+</body>
+</html>

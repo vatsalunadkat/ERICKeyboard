@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=300,height=1050">
+<title>ERICK — Make it your own</title>
+<style>
+  html,body{margin:0;padding:0}
+  *{box-sizing:border-box;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .ad{position:relative;width:300px;height:1050px;overflow:hidden;text-decoration:none;display:block;
+      background:#fff;color:#000;padding:40px 30px;text-align:center}
+  .brand{font-size:18px;font-weight:800;letter-spacing:2px}
+  .dial{width:200px;height:200px;margin:70px auto 50px;border-radius:50%;position:relative;
+      background:conic-gradient(#F4A6B0 0 45deg,#F6C9A0 45deg 90deg,#FDE9A0 90deg 135deg,#A8DFC0 135deg 180deg,#A0C4E8 180deg 225deg,#C4A8D8 225deg 270deg,#D8A8C8 270deg 315deg,#8B8B8B 315deg 360deg);
+      box-shadow:0 12px 30px rgba(0,0,0,.16);animation:spin 14s linear infinite}
+  .dial:after{content:"";position:absolute;inset:62px;background:#fff;border-radius:50%}
+  .h{font-size:38px;font-weight:800;line-height:1.05;letter-spacing:-.8px;opacity:0;animation:up .7s .3s both}
+  .s{font-size:17px;font-weight:600;margin-top:16px;opacity:0;animation:up .7s .5s both}
+  .chips{margin:50px auto 0;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:220px}
+  .chips i{width:46px;height:46px;border-radius:14px;box-shadow:0 3px 8px rgba(0,0,0,.12);transform:scale(0);animation:pop .4s both}
+  .chips i:nth-child(1){background:#F4A6B0;animation-delay:.7s}
+  .chips i:nth-child(2){background:#F6C9A0;animation-delay:.8s}
+  .chips i:nth-child(3){background:#FDE9A0;animation-delay:.9s}
+  .chips i:nth-child(4){background:#A8DFC0;animation-delay:1s}
+  .chips i:nth-child(5){background:#A0C4E8;animation-delay:1.1s}
+  .chips i:nth-child(6){background:#C4A8D8;animation-delay:1.2s}
+  .chips i:nth-child(7){background:#D8A8C8;animation-delay:1.3s}
+  .chips i:nth-child(8){background:#8B8B8B;animation-delay:1.4s}
+  .cta{position:absolute;left:30px;right:30px;bottom:44px;background:#000;color:#fff;
+      font-size:18px;font-weight:700;padding:18px 0;border-radius:999px;animation:nudge 2.4s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pop{to{transform:scale(1)}}
+  @keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+</style>
+</head>
+<body>
+<script>var clickTag="https://play.google.com/store/apps/details?id=com.vatoo.erick";</script>
+<a class="ad" href="javascript:void(0)" onclick="window.open(window.clickTag);return false;" aria-label="ERICK — make it your own. Your colors, your layout, your fonts. Free on Google Play.">
+  <span class="brand">ERICK</span>
+  <span class="dial"></span>
+  <span class="h">Make it your own</span>
+  <span class="s">Your colors. Your layout. Your fonts.</span>
+  <span class="chips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+  <span class="cta">Get ERICK free ▸</span>
+</a>
+</body>
+</html>
