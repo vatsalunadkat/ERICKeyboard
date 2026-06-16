@@ -1,5 +1,28 @@
 # SEO Audit: ERICK GitHub Pages
 
+## Follow-up update on 2026-06-12 (fix "Alternate page with proper canonical tag")
+
+Symptom: Google Search Console reported the homepage as "Alternate page with proper canonical tag" / pages not indexed, caused by the base URL (`/ERICKeyboard/`) versus the same page at `/ERICKeyboard/index.html`.
+
+Root cause:
+- GitHub Pages serves the homepage at both `https://vatsalunadkat.github.io/ERICKeyboard/` (canonical) and `https://vatsalunadkat.github.io/ERICKeyboard/index.html` (duplicate).
+- Every internal homepage link (nav logo, nav "Home", footer "Home", breadcrumb "Home", and the video "Back to Homepage" buttons) pointed at `index.html`.
+- Google followed those internal links to `/index.html`, then saw the page's canonical pointing to `/`, so it consolidated `/index.html` to `/` and labelled `/index.html` "Alternate page with proper canonical tag." The crawl signals (internal links) and the canonical disagreed.
+
+Fix applied: repoint every internal homepage link to the canonical directory form so the crawl path and the canonical agree.
+- Root pages (`index.html`, `accessibility.html`, `who-benefits.html`, `faq.html`, `privacy-policy.html`, `releases.html`, `404.html`): `href="index.html"` -> `href="./"` (nav logo, nav/breadcrumb/footer "Home", and the 404 "Go to Homepage" button).
+- Video watch pages (`videos/*.html`): `href="../index.html"` -> `href="../"`, and `href="../index.html#about"` -> `href="../#about"`.
+- Left untouched on purpose: the `og:url` / `canonical` / JSON-LD on the homepage already use the directory form `/`; the sitemap already uses `/`; the `js/main.js` active-nav fallback default `|| "index.html"` is internal logic, not a crawlable link, and is unaffected; legacy `/v1/` pages stay as `noindex` redirect stubs.
+
+Why this resolves it:
+- All internal links, the canonical, the Open Graph URL, and the sitemap now point to one URL (`/`).
+- `/index.html` will drop out of the index because nothing links to it; `/` becomes the single indexable homepage.
+
+Manual GSC steps after deploy:
+1. Deploy (push to `main`, or run the deploy workflow).
+2. Use URL Inspection on `https://vatsalunadkat.github.io/ERICKeyboard/` -> Test Live URL -> Request Indexing.
+3. The "Alternate page with proper canonical tag" status on `/index.html` is expected and harmless; it clears over the next crawl cycles. Do not request indexing of `/index.html`.
+
 ## Follow-up update on 2026-06-06 (Search Console HTML file upload)
 
 Symptom: the repository now contains a Search Console verification file at `docs/google8a9bd022dd6b5543.html`, but GitHub Pages is deployed from a curated artifact build rather than publishing the whole `docs/` folder directly.
